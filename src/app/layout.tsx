@@ -1,6 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { Geist, Geist_Mono } from "next/font/google";
+
+const freesentationFont = localFont({
+  src: "../../public/fonts/FreesentationVf.ttf",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${freesentationFont.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
