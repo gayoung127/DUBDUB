@@ -1,3 +1,8 @@
-export default function LobbyPage() {
-  return <div>로비야</div>;
-}
+"use client";
+import Badge from "../_components/Badge";
+import Button from "../_components/Button";
+
+const Page = () => {
+  return <></>;
+};
+export default Page;
