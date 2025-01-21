@@ -6,5 +6,5 @@ export default function Card() {
     setCardNumber(1);
     console.log(cardNumber);
   }, [cardNumber, setCardNumber]);
-  return <div>{cardNumber}</div>;
+  return <div>안녕하세요.</div>;
 }
