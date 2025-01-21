@@ -1,7 +1,7 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 
 const freesentationFont = localFont({
   src: "../../public/fonts/FreesentationVf.ttf",
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
         className={`${freesentationFont.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
