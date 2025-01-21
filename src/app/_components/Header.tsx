@@ -2,7 +2,7 @@ import BreadCrumb from "./Breadcrumb";
 
 const Header = () => {
   return (
-    <section className="w-full flex flex-row items-center bg-black">
+    <section className="flex w-full flex-row items-center bg-black">
       <BreadCrumb />
     </section>
   );
