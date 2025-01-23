@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 
 const freesentationFont = localFont({
   src: "../../public/fonts/FreesentationVf.ttf",
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body
         className={`${freesentationFont.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Toaster />
         {children}
       </body>
     </html>
