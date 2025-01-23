@@ -1,5 +1,7 @@
 import Header from "../_components/Header";
+import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
+import TeamRole from "./_components/TeamRole";
 import VideoPlayer from "./_components/VideoPlayer";
 
 export default function StudioPage() {
@@ -12,9 +14,9 @@ export default function StudioPage() {
           <VideoPlayer />
         </div>
       </div>
-      <div className="flex min-w-[440px] max-w-[440px] flex-col">
-        <div>더빙 역할</div>
-        <div>대본</div>
+      <div className="flex min-w-[440px] max-w-[440px] flex-col bg-gray-400">
+        <TeamRole />
+        <StudioScript />
       </div>
     </div>
   );
