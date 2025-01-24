@@ -17,7 +17,7 @@ export const adjustScale = () => {
           "content",
           `width=device-width, initial-scale=${scale}, maximum-scale=1.0, user-scalable=no`,
         );
-      (document.body.style as any).zoom = scale.toString();
+      (document.body.style as any).zoom = 1;
     } else {
       document
         .querySelector("meta[name=viewport]")
