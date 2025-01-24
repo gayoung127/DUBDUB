@@ -2,6 +2,7 @@ import Badge from "@/app/_components/Badge";
 
 const FilteredArea = () => {
   return (
+    // 수정
     <div className="flex flex-wrap gap-2 rounded-[12px] bg-white-300 p-4">
       <Badge title="다큐멘터리" />
       <Badge title="영화" />
