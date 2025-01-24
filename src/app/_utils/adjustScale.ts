@@ -5,19 +5,20 @@ export const adjustScale = () => {
 
   const adjust = () => {
     if (!isMacBook) {
+      let scale = 1 / devicePixelRatio;
+
+      if (devicePixelRatio === 2) {
+        scale = 1.5 / devicePixelRatio;
+      }
+
       document
         .querySelector("meta[name=viewport]")
         ?.setAttribute(
           "content",
-          "width=device-width, initial-scale=" +
-            1 / window.devicePixelRatio +
-            ", maximum-scale=1.0, user-scalable=no",
+          `width=device-width, initial-scale=${scale}, maximum-scale=1.0, user-scalable=no`,
         );
-      (document.body.style as any).zoom = (
-        1 / window.devicePixelRatio
-      ).toString();
+      (document.body.style as any).zoom = scale.toString();
     } else {
-      // MacBook에서는 초기 설정으로 복구
       document
         .querySelector("meta[name=viewport]")
         ?.setAttribute(
