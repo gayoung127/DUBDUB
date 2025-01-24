@@ -5,7 +5,7 @@ interface ButtonProps {
   outline?: boolean;
   onClick: () => void;
   children: React.ReactNode;
-  className: string;
+  className?: string;
 }
 
 const Button = ({ outline, onClick, children, className }: ButtonProps) => {
