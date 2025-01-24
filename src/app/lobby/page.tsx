@@ -16,11 +16,11 @@ const LobbyPage = () => {
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-screen flex-[2] items-center justify-center pl-3">
+      <div className="flex h-full flex-[2] items-center justify-center pl-3">
         <Filter />
       </div>
 
-      <div className="flex h-screen flex-[8] flex-col">
+      <div className="flex h-screen flex-[8] flex-col justify-center">
         <div className="p-5">
           <div className="flex w-full justify-between border-b border-gray-500 px-5 pb-3">
             <TabMenu />

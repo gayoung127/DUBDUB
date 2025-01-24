@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import FilteredArea from "@/app/lobby/_components/FilteredArea";
+import H3 from "@/app/_components/H3";
+import H4 from "@/app/_components/H4";
 
 const Filter = () => {
   const times = ["ON AIR", "대기 중"];
@@ -49,8 +51,9 @@ const Filter = () => {
   }
 
   return (
-    <div className="flex h-fit w-[300px] flex-col gap-4 rounded-[4px] border bg-white-100 p-4">
+    <div className="shadow-dub flex h-fit w-[300px] flex-col gap-4 rounded-[4px] bg-white-100 p-3">
       <FilteredArea />
+
       <div className="mb-4">
         <div className="mb-3 flex items-center gap-2">
           <input
@@ -59,12 +62,14 @@ const Filter = () => {
             placeholder="검색어를 입력하세요"
           />
         </div>
-
-        <h3 className="mb-2 font-semibold">참여 시간</h3>
+      </div>
+      <div className="mb-4">
+        <H3 className="mb-2 font-semibold">참여 시간</H3>
         <div className="grid grid-cols-2">
           {times.map((time) => (
-            <label key={time} className="flex items-center gap-2">
+            <label key={time} className="flex items-center gap-3">
               <input
+                className="h-5 w-5 accent-brand-300"
                 type="radio"
                 name="time"
                 value={time}
@@ -79,11 +84,12 @@ const Filter = () => {
         </div>
       </div>
       <div className="mb-4">
-        <h3 className="mb-2 font-semibold">영상 유형</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <H3 className="mb-2 py-1 font-semibold">영상 유형</H3>
+        <div className="grid grid-cols-2 gap-4">
           {types.map((type) => (
             <label key={type} className="flex items-center gap-2">
               <input
+                className="h-5 w-5 accent-brand-300"
                 type="checkbox"
                 name="time"
                 value={type}
@@ -92,17 +98,18 @@ const Filter = () => {
                   handleTypeChange(type);
                 }}
               />
-              {type}
+              <H4 className="py-1">{type}</H4>
             </label>
           ))}
         </div>
       </div>
       <div className="mb-4">
-        <h3 className="mb-2 font-semibold">영상 장르</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <H3 className="mb-2 py-1 font-semibold">영상 장르</H3>
+        <div className="grid grid-cols-2 gap-4">
           {genres.map((genre) => (
             <label key={genre} className="flex items-center gap-2">
               <input
+                className="h-5 w-5 accent-brand-300"
                 type="checkbox"
                 name="time"
                 value={genre}
@@ -111,7 +118,7 @@ const Filter = () => {
                   handleGenreChange(genre);
                 }}
               />
-              {genre}
+              <H4 className="py-1">{genre}</H4>
             </label>
           ))}
         </div>

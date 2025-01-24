@@ -12,14 +12,14 @@ const TabMenu = () => {
     <div className="flex items-center gap-10">
       <Link
         href="/lobby?tab=all"
-        className={` ${currentTab === "all" ? "underline" : "text-gray-500"}`}
+        className={` ${currentTab === "all" ? "border-b-2" : "text-gray-500"}`}
       >
         <H3>전체 더빙룸</H3>
       </Link>
 
       <Link
         href="/lobby?tab=my"
-        className={` ${currentTab === "my" ? "underline" : "text-gray-500"}`}
+        className={` ${currentTab === "my" ? "border-b-2" : "text-gray-500"}`}
       >
         <H3>예정 더빙룸</H3>
       </Link>
