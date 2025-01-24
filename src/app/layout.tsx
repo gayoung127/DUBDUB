@@ -22,7 +22,9 @@ export default function RootLayout({
 
   return (
     <html lang="ko">
-      <body className={`${freesentationFont.className} antialiased`}>
+      <body
+        className={`${freesentationFont.className} overflow-hidden antialiased`}
+      >
         <Toaster />
         {children}
       </body>

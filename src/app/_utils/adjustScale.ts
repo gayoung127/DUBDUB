@@ -5,10 +5,10 @@ export const adjustScale = () => {
 
   const adjust = () => {
     if (!isMacBook) {
-      let scale = 1 / devicePixelRatio;
+      let scale = 1 / window.devicePixelRatio;
 
-      if (devicePixelRatio === 2) {
-        scale = 1.75 / devicePixelRatio;
+      if (window.devicePixelRatio === 2) {
+        scale = 1.75 / window.devicePixelRatio;
       }
 
       document
@@ -17,7 +17,7 @@ export const adjustScale = () => {
           "content",
           `width=device-width, initial-scale=${scale}, maximum-scale=1.0, user-scalable=no`,
         );
-      (document.body.style as any).zoom = 1;
+      (document.body.style as any).zoom = scale.toString();
     } else {
       document
         .querySelector("meta[name=viewport]")

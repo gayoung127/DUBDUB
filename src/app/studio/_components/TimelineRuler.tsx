@@ -1,14 +1,32 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Ruler from "@scena/ruler";
-import TimelinePointer from "@/public/images/icons/icon-timeline-pointer.svg";
 
-const TimelineRuler = () => {
+import TimelineMarker from "./TimelineMarker";
+
+interface TimelineRulerProps {
+  scrollPos: number; // 현재 눈금자 스크롤 위치
+  setScrollPos: React.Dispatch<React.SetStateAction<number>>; // 스크롤 상태 업데이트 함수
+  markerPosition: number; // 마커의 위치
+  setMarkerPosition: React.Dispatch<React.SetStateAction<number>>; // 마커 위치 업데이트 함수
+  isScrolling: boolean; // 스크롤 상태 여부
+  setIsScrolling: React.Dispatch<React.SetStateAction<boolean>>; // 스크롤 상태 업데이트 함수
+  isDragging: boolean; // 드래그 상태 여부
+  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>; // 드래그 상태 업데이트 함수
+}
+
+const TimelineRuler = ({
+  scrollPos,
+  setScrollPos,
+  markerPosition,
+  setMarkerPosition,
+  isScrolling,
+  setIsScrolling,
+  isDragging,
+  setIsDragging,
+}: TimelineRulerProps) => {
   const rulerRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
-  const [markerPosition, setMarkerPosition] = useState<number>(0); // 마커 위치 (px 단위)
-  const [isDragging, setIsDragging] = useState<boolean>(false); // 드래그 상태 관리
-  const [scrollPos, setScrollPos] = useState<number>(0);
   const [rulerInstance, setRulerInstance] = useState<Ruler | null>(null); // Ruler 인스턴스 관리
 
   useEffect(() => {
@@ -45,9 +63,6 @@ const TimelineRuler = () => {
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
   };
-
-  // 마커 드래그 중
-  const [isScrolling, setIsScrolling] = useState(false); // 스크롤 상태 관리
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
@@ -138,30 +153,11 @@ const TimelineRuler = () => {
       {/* 눈금자 */}
       <div ref={rulerRef} className="relative h-7">
         {/* 드래그 가능한 마커 */}
-        <div
-          ref={markerRef}
-          style={{
-            left: `${markerPosition - 6}px`, // 삼각형의 아랫꼭지점을 기준으로 보정
-            top: "16px", // 마커가 눈금자 위로 위치하도록 설정
-            position: "absolute",
-          }}
-          onMouseDown={handleMouseDown}
-          className="relative cursor-pointer"
-        >
-          {/* 드래그 가능한 영역 확대 */}
-          <div
-            style={{
-              position: "absolute",
-              top: "-6px", // 보이는 영역 기준으로 위아래 여유 공간 추가
-              left: "-6px",
-              width: "24px", // 실제 드래그 가능한 영역
-              height: "24px",
-              background: "transparent", // 투명 처리
-            }}
-          ></div>
-          {/* 마커 아이콘 */}
-          <TimelinePointer width={12} height={12} />
-        </div>
+        <TimelineMarker
+          markerRef={markerRef}
+          markerPosition={markerPosition}
+          handleMouseDown={handleMouseDown}
+        />
       </div>
     </div>
   );
