@@ -12,8 +12,7 @@ const RecordSection = () => {
             녹음 세션
           </H4>
         </div>
-        <div className="flex h-[60px] w-full flex-1 flex-col items-start justify-start border-l border-r border-t border-gray-300 bg-gray-400">
-          <TimelineTool />
+        <div className="flex h-[60px] w-full flex-1 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
           <TimelineRuler />
         </div>
       </div>
