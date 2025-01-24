@@ -40,7 +40,12 @@ const RecordSection = () => {
       </div>
       <div className="flex h-full w-full flex-1 flex-col items-start justify-start bg-gray-400">
         <VideoTrack />
-        <AudioTrack />
+        <AudioTrack trackNumber={1} />
+        <AudioTrack trackNumber={2} />
+        <AudioTrack trackNumber={3} />
+        <AudioTrack trackNumber={4} />
+        <AudioTrack trackNumber={5} />
+        <AudioTrack trackNumber={6} />
       </div>
     </section>
   );
