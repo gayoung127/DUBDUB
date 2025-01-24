@@ -7,8 +7,8 @@ import VideoPlayer from "./_components/VideoPlayer";
 
 export default function StudioPage() {
   return (
-    <div className="flex h-full w-full flex-col items-start justify-start bg-gray-400">
-      <div className="flex h-full w-full flex-1 flex-row">
+    <div className="flex h-full min-h-screen w-full flex-col items-start justify-start">
+      <div className="flex h-full w-full flex-row">
         <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
           <Header />
           <div className="flex h-full w-full flex-1 flex-row items-center justify-start">

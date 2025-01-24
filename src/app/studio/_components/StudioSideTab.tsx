@@ -1,6 +1,7 @@
 import H4 from "@/app/_components/H4";
 import React from "react";
 import RecordSection from "./RecordSection";
+import AssetList from "./AssetList";
 
 const StudioSideTab = () => {
   return (
@@ -16,9 +17,7 @@ const StudioSideTab = () => {
           <H4 className="font-bold text-gray-100">더빙 분석</H4>
         </div>
       </div>
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-center border border-gray-300">
-        <H4 className="text-white-100">구현할게...</H4>
-      </div>
+      <AssetList />
     </section>
   );
 };

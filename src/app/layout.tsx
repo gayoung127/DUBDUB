@@ -15,14 +15,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    const cleanup = adjustScale();
-    return cleanup; // 컴포넌트 언마운트 시 정리
-  }, []);
-
   return (
     <html lang="ko">
-      <body className={`${freesentationFont.className} antialiased`}>
+      <body
+        className={`${freesentationFont.className} overflow-hidden antialiased`}
+      >
         <Toaster />
         {children}
       </body>
