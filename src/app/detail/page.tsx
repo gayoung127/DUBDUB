@@ -7,12 +7,11 @@ export default function RoomDetailPage() {
   return (
     <div>
       <Header />
-      <div>
+      <div className="flex h-full w-full flex-1 flex-row">
         <div>
           <div>
             <div>
               <Thumbnail />
-              <p>모집 상태</p>
             </div>
             <div>
               <Title />
