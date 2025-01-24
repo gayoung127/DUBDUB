@@ -15,11 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    const cleanup = adjustScale();
-    return cleanup;
-  }, []);
-
   return (
     <html lang="ko">
       <body
