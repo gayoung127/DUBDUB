@@ -23,6 +23,7 @@ export default {
           300: "#efefef",
           200: "#f6f6f6",
           100: "#fefefe",
+          bg: "#f8f8f8",
         },
         brand: {
           300: "#cc7052",
