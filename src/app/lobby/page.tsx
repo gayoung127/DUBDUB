@@ -1,8 +1,7 @@
-"use client";
-import Badge from "../_components/Badge";
-import Button from "../_components/Button";
+import { redirect } from "next/navigation";
 
-const Page = () => {
-  return <></>;
+const LobbyPage = () => {
+  redirect("/lobby/all");
 };
-export default Page;
+
+export default LobbyPage;
