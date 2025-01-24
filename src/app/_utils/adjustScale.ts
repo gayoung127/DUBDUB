@@ -8,7 +8,7 @@ export const adjustScale = () => {
       let scale = 1 / devicePixelRatio;
 
       if (devicePixelRatio === 2) {
-        scale = 1.5 / devicePixelRatio;
+        scale = 1.75 / devicePixelRatio;
       }
 
       document
@@ -33,7 +33,6 @@ export const adjustScale = () => {
   window.addEventListener("resize", adjust);
   window.addEventListener("load", adjust);
 
-  // 초기 호출
   adjust();
 
   return () => {
