@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import H3 from "@/app/_components/H3";
 
 const TabMenu = () => {
   const searchParams = useSearchParams();
@@ -11,20 +12,16 @@ const TabMenu = () => {
     <div className="flex items-center gap-10">
       <Link
         href="/lobby?tab=all"
-        className={`text-xl ${
-          currentTab === "all" ? "underline" : "text-gray-500"
-        }`}
+        className={` ${currentTab === "all" ? "underline" : "text-gray-500"}`}
       >
-        전체 더빙룸
+        <H3>전체 더빙룸</H3>
       </Link>
 
       <Link
         href="/lobby?tab=my"
-        className={`text-xl ${
-          currentTab === "my" ? "underline" : "text-gray-500"
-        }`}
+        className={` ${currentTab === "my" ? "underline" : "text-gray-500"}`}
       >
-        예정 더빙룸
+        <H3>예정 더빙룸</H3>
       </Link>
     </div>
   );
