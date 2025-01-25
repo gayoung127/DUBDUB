@@ -31,6 +31,15 @@ export default {
           100: "#ffeee8",
         },
       },
+      keyframes: {
+        flowText: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
+      },
+      animation: {
+        flowText: "flowText 5s linear infinite",
+      },
     },
     boxShadow: {
       dub: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",

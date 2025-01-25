@@ -1,7 +1,7 @@
 const Script = () => {
   return (
     <div>
-      <div></div>
+      <div>script</div>
     </div>
   );
 };

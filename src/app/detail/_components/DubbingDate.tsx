@@ -1,5 +1,5 @@
 const DubbingDate = () => {
-  return <div>더빙하는 날짜</div>;
+  return <div className="pl-1 text-lg text-gray-400">DATE </div>;
 };
 
 export default DubbingDate;
