@@ -35,7 +35,7 @@ const RoleButton = ({
 
   return (
     <button
-      className={`shasow-sm group flex h-[52px] w-[340px] items-center overflow-hidden rounded-lg border bg-white-900 px-4 py-3 ${isSelectedByMe ? "border-brand-200" : "border-white-200"}`}
+      className={`shasow-sm group flex h-[52px] w-[360px] items-center overflow-hidden rounded-lg border bg-white-900 px-4 py-3 ${isSelectedByMe ? "border-brand-200" : "border-white-200"}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);

@@ -55,6 +55,7 @@ const roles: RoleData[] = [
 const Role = () => {
   const [rolesState, setRolesState] = useState<RoleData[]>(roles);
   const [mySelectedCount, setMySelectedCount] = useState<number>(0);
+  const [myApplyStatus, setMyApplyStatus] = useState<boolean>(false);
 
   const currentUserId = "currentUserId";
 
@@ -81,9 +82,9 @@ const Role = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-1">
-      <h1 className="text-2xl font-bold tracking-[1px]">ROLE</h1>
-      <div className="itens-center flex w-[742px] flex-wrap gap-[30px]">
+    <section className="flex flex-col gap-4 p-1">
+      <h1 className="px-6 py-1 text-2xl font-bold tracking-[1px]">ROLE</h1>
+      <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-6">
         {rolesState.map((role) => (
           <RoleButton
             key={role.id}
@@ -94,7 +95,7 @@ const Role = () => {
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -7,7 +7,7 @@ import Badges from "./Badges";
 
 const DubbingInfo = () => {
   return (
-    <div className="flex flex-row gap-6">
+    <section className="flex flex-row gap-6">
       <Thumbnail />
       <div className="flex h-[236px] w-[308px] flex-col">
         <Title />
@@ -17,7 +17,7 @@ const DubbingInfo = () => {
           <DescriptionBox />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

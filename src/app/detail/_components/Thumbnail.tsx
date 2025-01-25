@@ -2,7 +2,7 @@ import Badge from "@/app/_components/Badge";
 
 const Thumbnail = () => {
   return (
-    <div className="relative w-[420px] rounded-lg">
+    <div className="relative w-[440px] rounded-lg">
       <img
         src="images/tmp/dducip.jpg"
         className="aspect-video w-full rounded-lg"
