@@ -1,9 +1,10 @@
 interface BadgeProps {
-  isSelected?: boolean;
+  selected?: boolean;
   title: string;
+  className?: string;
 }
 
-const Badge = ({ isSelected, title }: BadgeProps) => {
+const Badge = ({ selected, title, className }: BadgeProps) => {
   const badgeData = [
     { id: 1, name: "액션", backgroundColor: "#FFF3E0", textColor: "#F57800" },
     { id: 2, name: "코믹", backgroundColor: "#FFF9E7", textColor: "#FAA131" },
@@ -41,8 +42,8 @@ const Badge = ({ isSelected, title }: BadgeProps) => {
     {
       id: 14,
       name: "ON AIR",
-      backgroundColor: "#FFEEEE",
-      textColor: "#D22030",
+      backgroundColor: "#A3121F",
+      textColor: "#ffffff",
     },
     {
       id: 15,
@@ -58,11 +59,11 @@ const Badge = ({ isSelected, title }: BadgeProps) => {
 
   return (
     <div
-      className="inline-flex h-[25px] items-center justify-center rounded-[4px] px-3"
+      className={`inline-flex h-[25px] items-center justify-center rounded-[4px] px-3 ${className}`}
       style={{
         backgroundColor: badge?.backgroundColor || "#EFEFEF",
         color: badge?.textColor || "#6D6D6D",
-        outline: isSelected
+        outline: selected
           ? `2px solid ${badge?.textColor || "#6D6D6D"}`
           : "none",
       }}
