@@ -1,19 +1,25 @@
-version: '3.8'
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: dubdub_app
-    ports:
-      - "80:8080"
-    volumes:
-      - ./logs:/app/logs
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      RDS_ENDPOINT: ${RDS_ENDPOINT}
-      RDS_DATABASE: ${RDS_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-    restart: always
 
+FROM gradle:7.6.1-jdk17 AS builder
+
+WORKDIR /app
+
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
+RUN ./gradlew build -x test --no-daemon || true
+
+COPY . .
+
+RUN ./gradlew clean build -x test --no-daemon
+
+FROM eclipse-temurin:17-jre-alpine
+
+ENV TZ=Asia/Seoul
+RUN apk --no-cache add tzdata
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar /app/dubdub_app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app/dubdub_app.jar"]
