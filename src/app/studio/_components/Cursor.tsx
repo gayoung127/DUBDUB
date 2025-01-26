@@ -22,7 +22,6 @@ const Cursor = memo(({ id, name, x, y }: CursorProps) => {
         top: y,
         left: x,
         transform: "translate(-50%, -50%)", // 커서를 중앙으로 맞추기
-        pointerEvents: "none", // 커서가 클릭 이벤트를 막지 않도록 설정
         zIndex: 9999,
       }}
     >
