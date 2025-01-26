@@ -1,63 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RoleButton from "./RoleButton";
 import { RoleData } from "../type";
+import H2 from "@/app/_components/H2";
 
-const roles: RoleData[] = [
-  {
-    id: "1",
-    role: "짱구",
-    profileImage: "images/tmp/dducip.jpg",
-    nickname: "누구게",
-    selectedBy: "1",
-  },
+interface RolesProps {
+  roles: RoleData[];
+  onRoleSelect: (selectedRole: RoleData[], isRoleSelected: boolean) => void;
+}
 
-  {
-    id: "2",
-    role: "유리",
-    profileImage: null,
-    nickname: null,
-    selectedBy: null,
-  },
-
-  {
-    id: "3",
-    role: "철수",
-    profileImage: "images/tmp/dducip.jpg",
-    nickname: "누구게",
-    selectedBy: "3",
-  },
-
-  {
-    id: "4",
-    role: "맹구",
-    profileImage: "images/tmp/dducip.jpg",
-    nickname: "누구게",
-    selectedBy: "4",
-  },
-  {
-    id: "5",
-    role: "훈이",
-    profileImage: null,
-    nickname: null,
-    selectedBy: null,
-  },
-
-  {
-    id: "6",
-    role: "흰둥이",
-    profileImage: null,
-    nickname: null,
-    selectedBy: null,
-  },
-];
-
-const Role = () => {
+const Role = ({ roles, onRoleSelect }: RolesProps) => {
   const [rolesState, setRolesState] = useState<RoleData[]>(roles);
   const [mySelectedCount, setMySelectedCount] = useState<number>(0);
-  const [myApplyStatus, setMyApplyStatus] = useState<boolean>(false);
 
   const currentUserId = "currentUserId";
+
+  useEffect(() => {
+    setRolesState([...roles]);
+  }, [roles]);
 
   const handleRoleClick = (clickedRole: RoleData) => {
     setRolesState((prevRoles) => {
@@ -72,10 +32,13 @@ const Role = () => {
         return role;
       });
 
-      const count = updatedRoles.filter(
+      const selectedRoles = updatedRoles.filter(
         (role) => role.selectedBy === currentUserId,
-      ).length;
-      setMySelectedCount(count);
+      );
+
+      setMySelectedCount(selectedRoles.length);
+
+      onRoleSelect(selectedRoles, selectedRoles.length > 0);
 
       return updatedRoles;
     });
@@ -83,7 +46,7 @@ const Role = () => {
 
   return (
     <section className="flex flex-col gap-4 p-1">
-      <h1 className="px-6 py-1 text-2xl font-bold tracking-[1px]">ROLE</h1>
+      <H2 className="px-6 py-1 tracking-[1px]">ROLE</H2>
       <div className="flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-6">
         {rolesState.map((role) => (
           <RoleButton

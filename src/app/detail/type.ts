@@ -5,3 +5,7 @@ export interface RoleData {
   profileImage?: string | null;
   selectedBy?: string | null;
 }
+export interface ScriptData {
+  role: string;
+  script: string;
+}
