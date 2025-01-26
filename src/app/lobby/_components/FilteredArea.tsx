@@ -1,17 +1,27 @@
 import Badge from "@/app/_components/Badge";
+import useFilterStore from "@/app/_store/FilterStore";
 
 const FilteredArea = () => {
+  const { timeFilter, typeFilter, genreFilter } = useFilterStore();
+
   return (
     // 수정
     <div className="flex flex-wrap gap-2 rounded-[12px] bg-white-300 p-4">
-      <Badge title="다큐멘터리" />
-      <Badge title="영화" />
-      <Badge title="드라마" />
-      <Badge title="액션" />
-      <Badge title="스릴러" />
-      <Badge title="공포" />
-      <Badge title="SF" />
-      <Badge title="로맨스" />
+      <div className="flex flex-wrap gap-2">
+        {timeFilter.map((badge, index) => (
+          <Badge key={index} title={badge} />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {typeFilter.map((badge, index) => (
+          <Badge key={index} title={badge} />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {genreFilter.map((badge, index) => (
+          <Badge key={index} title={badge} />
+        ))}
+      </div>
     </div>
   );
 };

@@ -3,8 +3,11 @@ import { useState } from "react";
 import FilteredArea from "@/app/lobby/_components/FilteredArea";
 import H3 from "@/app/_components/H3";
 import H4 from "@/app/_components/H4";
+import useFilterStore from "@/app/_store/FilterStore";
 
 const Filter = () => {
+  const { createFilter, deleteFilter } = useFilterStore();
+
   const times = ["ON AIR", "대기 중"];
   const types = [
     "영화",
@@ -32,26 +35,32 @@ const Filter = () => {
 
   function handleTimeChange(newTime: string) {
     setTimeFilter(newTime);
+    deleteFilter("time", timeFilter);
+    createFilter("time", newTime);
   }
 
   function handleTypeChange(newValue: string) {
     if (typeFilter.includes(newValue)) {
       setTypeFilter((prev) => prev.filter((item) => item != newValue));
+      deleteFilter("type", newValue);
     } else {
       setTypeFilter((prev) => [...prev, newValue]);
+      createFilter("type", newValue);
     }
   }
 
   function handleGenreChange(newValue: string) {
     if (genreFilter.includes(newValue)) {
       setGenreFilter((prev) => prev.filter((item) => item != newValue));
+      deleteFilter("genre", newValue);
     } else {
       setGenreFilter((prev) => [...prev, newValue]);
+      createFilter("genre", newValue);
     }
   }
 
   return (
-    <div className="shadow-dub flex h-fit w-[300px] flex-col gap-4 rounded-[4px] bg-white-100 p-3">
+    <div className="flex h-fit w-[300px] flex-col gap-4 rounded-[4px] bg-white-100 p-3 shadow-dub">
       <FilteredArea />
 
       <div className="mb-4">
