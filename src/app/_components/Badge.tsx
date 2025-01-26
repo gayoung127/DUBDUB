@@ -1,10 +1,9 @@
 interface BadgeProps {
-  deleteable?: boolean;
-  onClick?: () => void;
+  isSelected?: boolean;
   title: string;
 }
 
-const Badge = ({ title }: BadgeProps) => {
+const Badge = ({ isSelected, title }: BadgeProps) => {
   const badgeData = [
     { name: "액션", backgroundColor: "#FFF3E0", textColor: "#F57800" },
     { name: "코믹", backgroundColor: "#FFF9E7", textColor: "#FAA131" },
@@ -22,6 +21,7 @@ const Badge = ({ title }: BadgeProps) => {
     { name: "ON AIR", backgroundColor: "#FFEEEE", textColor: "#D22030" },
     { name: "대기중", backgroundColor: "#EFEFEF", textColor: "#6D6D6D" },
     { name: "기타", backgroundColor: "#EFEFEF", textColor: "#6D6D6D" },
+    { name: "PRO", backgroundColor: "#FFDACE", textColor: "#DE4B1B" },
   ];
 
   const badge = badgeData.find((b) => b.name === title);
@@ -32,6 +32,9 @@ const Badge = ({ title }: BadgeProps) => {
       style={{
         backgroundColor: badge?.backgroundColor || "#EFEFEF",
         color: badge?.textColor || "#6D6D6D",
+        outline: isSelected
+          ? `2px solid ${badge?.textColor || "#6D6D6D"}`
+          : "none",
       }}
     >
       {badge?.name || title}
