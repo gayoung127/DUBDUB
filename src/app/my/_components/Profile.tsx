@@ -42,6 +42,7 @@ const Profile = ({
   return (
     <div className="flex h-full w-full items-center justify-center">
       <div className="flex h-[700px] w-[80%] flex-col items-center justify-center rounded-[8px] border border-brand-200 bg-brand-100 p-5">
+        <H3>내 정보</H3>
         <div className="flex flex-[8] flex-col justify-center gap-5">
           <div className="relative flex justify-center">
             <img
@@ -92,7 +93,7 @@ const Profile = ({
             ) : (
               <>
                 <H3>{userNickname}</H3>
-                <Badge isSelected={false} title={userGrade} />
+                <Badge selected={false} title={userGrade} />
               </>
             )}
             <H4>{userEmail}</H4>
