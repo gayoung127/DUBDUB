@@ -1,5 +1,3 @@
-import Header from "../_components/Header";
-
 export default function StudioPageLayout({
   children,
 }: Readonly<{
@@ -7,7 +5,7 @@ export default function StudioPageLayout({
 }>) {
   return (
     <div
-      className="flex min-h-screen select-none flex-col items-center overflow-hidden bg-gray-400"
+      className="flex min-h-screen select-none flex-col items-center overflow-y-hidden"
       style={{ cursor: "url('/images/icons/cursor-self.svg'), auto" }}
     >
       {children}
