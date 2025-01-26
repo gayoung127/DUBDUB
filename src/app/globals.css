@@ -20,3 +20,15 @@
     border-radius: 8px;
   }
 }
+
+#__next {
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
