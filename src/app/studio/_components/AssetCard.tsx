@@ -14,7 +14,7 @@ const AssetCard = ({ isAssetSelected, onClick }: AssetCardProps) => {
       onClick={onClick}
       className={`box-border flex flex-col items-center justify-center gap-y-2 border ${
         isAssetSelected ? "border-[#3668FF]" : "border-transparent"
-      } hover:border-[#3668FF]`}
+      } hover:border-[#3668FF]/50`}
     >
       <AssetIcon width={60} height={60} />
       <C3 className="text-white-100">철수(이현정)_1</C3>
