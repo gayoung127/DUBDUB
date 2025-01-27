@@ -9,7 +9,7 @@ RUN ./gradlew build -x test --no-daemon || true
 
 COPY . .
 
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./dubdub/gradlew clean build -x test --no-daemon
 
 FROM eclipse-temurin:17-jre-alpine
 
