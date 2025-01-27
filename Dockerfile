@@ -3,25 +3,23 @@
 # ----------------------------
 FROM gradle:7.6.1-jdk17 AS builder
 
-# 작업 디렉토리 설정
+# 작업 디렉토리
 WORKDIR /app
 
-# gradlew, build.gradle, settings.gradle, gradle 폴더를 먼저 복사
-# (의존성 캐시를 활용하기 위함)
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
+# (1) Gradle 관련 주요 파일만 먼저 복사 (의존성 캐시 활용 목적)
+COPY dubub/build.gradle dubub/settings.gradle dubub/gradlew ./
+COPY dubub/gradle ./gradle
 
-# gradlew 실행 권한 부여 (Unix 계열에서 필요한 경우)
+# gradlew 실행 권한 (리눅스 환경에서 필요)
 RUN chmod +x gradlew
 
-# 초기 빌드(혹은 의존성 다운로드)
-# 빌드시 혹시 실패하더라도 캐시를 활용할 수 있도록 || true 사용
+# 초기 빌드 (의존성 다운로드; 실패해도 캐시 효과를 위해 || true 사용)
 RUN ./gradlew build -x test --no-daemon || true
 
-# 이후 전체 소스 코드를 복사
-COPY . .
+# (2) 나머지 소스 전체 복사
+COPY dubub/ ./
 
-# 최종 빌드 (테스트 제외 -x test)
+# 최종 빌드 (테스트 제외)
 RUN ./gradlew clean build -x test --no-daemon
 
 # ----------------------------
@@ -29,18 +27,17 @@ RUN ./gradlew clean build -x test --no-daemon
 # ----------------------------
 FROM eclipse-temurin:17-jre-alpine
 
-# 타임존 설정
+# TimeZone 설정
 ENV TZ=Asia/Seoul
 RUN apk --no-cache add tzdata
 
-# 작업 디렉토리
 WORKDIR /app
 
-# 빌드 스테이지에서 생성된 jar 파일을 복사
+# 빌드 산출물(JAR) 복사
 COPY --from=builder /app/build/libs/*.jar /app/dubdub_app.jar
 
-# 컨테이너가 사용할 포트
+# 컨테이너에서 열 포트 (예: 8080)
 EXPOSE 8080
 
-# 컨테이너 시작 시 명령
+# 컨테이너 실행 시 명령
 ENTRYPOINT ["java", "-jar", "/app/dubdub_app.jar"]
