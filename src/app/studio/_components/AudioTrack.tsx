@@ -1,15 +1,61 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
+import WaveSurfer from "wavesurfer.js";
 
 import H4 from "@/app/_components/H4";
 
 import VideoIcon from "@/public/images/icons/icon-video.svg";
 import MixerIcon from "@/public/images/icons/icon-mixer.svg";
+import AudioBlock from "./AudioBlock";
 
-interface AudioTrackProps {
-  trackNumber: number;
+interface AudioFile {
+  url: string; // 오디오 파일 경로
+  startTime: number; // 시작 시간 (초)
+  endTime: number; // 종료 시간 (초)
 }
 
-const AudioTrack = ({ trackNumber }: AudioTrackProps) => {
+interface AudioTrackProps {
+  trackNumber: number; // 트랙 번호
+  audioFiles: AudioFile[]; // 오디오 파일 배열
+}
+
+const AudioTrack: React.FC<AudioTrackProps> = ({ trackNumber, audioFiles }) => {
+  const waveSurferRef = useRef<WaveSurfer | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    waveSurferRef.current = WaveSurfer.create({
+      container: containerRef.current,
+      height: 28,
+      waveColor: "rgb(153, 165, 255)",
+      progressColor: "rgb(66, 2, 181)",
+      barWidth: 2,
+      barGap: 1,
+      barRadius: 3,
+    });
+
+    // 각 오디오 파일을 추가
+    audioFiles.forEach((file) => {
+      waveSurferRef.current?.load(file.url);
+
+      // 이벤트 리스너로 특정 시간대만 재생되도록 설정
+      waveSurferRef.current?.on("ready", () => {
+        waveSurferRef.current?.setTime(file.startTime);
+      });
+
+      waveSurferRef.current?.on("audioprocess", (currentTime: number) => {
+        if (currentTime > file.endTime) {
+          waveSurferRef.current?.pause();
+        }
+      });
+    });
+
+    return () => {
+      waveSurferRef.current?.destroy();
+    };
+  }, [audioFiles]);
+
   return (
     <div className="flex h-10 w-full flex-row items-center justify-start">
       <div className="flex h-full w-[280px] flex-shrink-0 flex-row items-center justify-between border border-gray-300 px-3 py-2">
@@ -40,7 +86,9 @@ const AudioTrack = ({ trackNumber }: AudioTrackProps) => {
           </div>
         </div>
       </div>
-      <div className="flex h-full w-full flex-1 flex-row items-center justify-start border border-gray-300"></div>
+      <div className="flex h-full w-full flex-1 flex-row items-center justify-start border border-gray-300">
+        <div ref={containerRef} className="w-[400px] bg-gray-200" />
+      </div>
     </div>
   );
 };
