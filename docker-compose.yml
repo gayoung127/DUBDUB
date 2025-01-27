@@ -14,4 +14,4 @@ services:
       RDS_DATABASE: ${RDS_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-    restart: no
+    restart: always
