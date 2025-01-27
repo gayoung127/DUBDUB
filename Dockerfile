@@ -16,10 +16,12 @@ RUN chmod +x gradlew
 # 초기 빌드 (의존성 다운로드; 실패해도 캐시 효과를 위해 || true 사용)
 RUN ./gradlew build -x test --no-daemon || true
 
-# (2) 나머지 소스 전체 복사
+# (2) 나머지 소스 복사
 COPY dubdub/ ./
 
-# 최종 빌드 (테스트 제외)
+RUN chmod +x gradlew
+
+# (3) 최종 빌드
 RUN ./gradlew clean build -x test --no-daemon
 
 # ----------------------------
