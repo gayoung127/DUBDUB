@@ -1,6 +1,6 @@
 "use client";
 
-const LobbyLayout = ({ children }: { children: React.ReactNode }) => {
+const MyPageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-full grow flex-col overflow-hidden bg-white-bg">
       {children}
@@ -8,4 +8,4 @@ const LobbyLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default LobbyLayout;
+export default MyPageLayout;

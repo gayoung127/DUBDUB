@@ -5,7 +5,7 @@ export const adjustScale = () => {
 
   const adjust = () => {
     if (!isMacBook) {
-      let scale = 1 / window.devicePixelRatio;
+      let scale = 1 / window.devicePixelRatio - 0.03;
 
       if (window.devicePixelRatio === 2) {
         scale = 1.75 / window.devicePixelRatio;
