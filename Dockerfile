@@ -7,8 +7,8 @@ FROM gradle:7.6.1-jdk17 AS builder
 WORKDIR /app
 
 # (1) Gradle 관련 주요 파일만 먼저 복사 (의존성 캐시 활용 목적)
-COPY dubub/build.gradle dubub/settings.gradle dubub/gradlew ./
-COPY dubub/gradle ./gradle
+COPY dubdub/build.gradle dubdub/settings.gradle dubdub/gradlew ./
+COPY dubdub/gradle ./gradle
 
 # gradlew 실행 권한 (리눅스 환경에서 필요)
 RUN chmod +x gradlew
@@ -17,7 +17,7 @@ RUN chmod +x gradlew
 RUN ./gradlew build -x test --no-daemon || true
 
 # (2) 나머지 소스 전체 복사
-COPY dubub/ ./
+COPY dubdub/ ./
 
 # 최종 빌드 (테스트 제외)
 RUN ./gradlew clean build -x test --no-daemon
