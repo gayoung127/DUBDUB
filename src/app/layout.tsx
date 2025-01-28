@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { adjustScale } from "./_utils/adjustScale";
 
 const freesentationFont = localFont({
-  src: "../../public/fonts/FreesentationVf.ttf",
+  src: "../../public/fonts/FreesentationVF.ttf", //절대경로로 수정~~?해야하는ㄷㅔ..
 });
 
 export default function RootLayout({
@@ -15,6 +15,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useEffect(() => {
+    const cleanup = adjustScale();
+    return cleanup; // 컴포넌트 언마운트 시 정리
+  }, []);
+
   return (
     <html lang="ko">
       <body
