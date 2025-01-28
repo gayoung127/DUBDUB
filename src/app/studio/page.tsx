@@ -2,10 +2,8 @@
 
 import Header from "../_components/Header";
 import { socket } from "../_utils/socketClient";
-import AudioBlock from "./_components/AudioBlock";
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
-import RecordSectionTest from "./_components/RecordSectionTest";
 import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
 import TeamRole from "./_components/TeamRole";
@@ -44,8 +42,7 @@ export default function StudioPage() {
               <StudioScript />
             </div>
           </div>
-          {/* <RecordSectionTest /> */}
-          <AudioBlock />
+          <RecordSection />
         </div>
         <CursorPresence />
       </div>

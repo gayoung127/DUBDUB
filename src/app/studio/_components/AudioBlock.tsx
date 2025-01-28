@@ -91,7 +91,7 @@ const AudioBlock = () => {
   };
 
   return (
-    <div className="relative flex flex-row items-center justify-start space-x-2">
+    <div className="relative flex h-full items-center justify-center">
       <canvas
         ref={canvasRef}
         className="h-7 w-full rounded-md bg-[#4202B5]"
