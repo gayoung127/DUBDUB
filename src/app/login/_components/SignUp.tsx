@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { UserProfile } from "../type";
 import Button from "@/app/_components/Button";
+import C1 from "@/app/_components/C1";
+import H4 from "@/app/_components/H4";
 
 const SignUp = () => {
   const [user, setUser] = useState<UserProfile>({
@@ -125,10 +127,10 @@ const SignUp = () => {
           </div>
 
           <div
-            className="relative flex w-[344px] rounded-md border border-white-300 bg-white-900 p-4 focus-within:border-brand-200 focus-within:bg-brand-100"
+            className="relative flex w-[344px] items-center rounded-md border border-white-300 bg-white-900 p-4 focus-within:border-brand-200 focus-within:bg-brand-100"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
           >
-            <span className="text-gray-200">{user.userType}</span>
+            <H4 className="text-gray-200" children={user.userType} />
 
             <select
               value={user.userType}
@@ -177,16 +179,14 @@ const SignUp = () => {
             </label>
           </div>
 
-          <button
+          <Button
+            outline={true}
+            onClick={() => handleSubmit}
+            children={"가입완료"}
+            large={false}
+            className="w-[344px]"
             disabled={!isAgreed}
-            className={`w-[344px] rounded-md py-3 ${
-              isAgreed
-                ? "bg-brand-100 text-brand-200"
-                : "cursor-not-allowed bg-white-300 text-gray-100"
-            }`}
-          >
-            가입완료
-          </button>
+          />
         </form>
       </div>
     </div>
