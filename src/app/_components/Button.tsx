@@ -8,6 +8,7 @@ interface ButtonProps {
   className?: string;
   small?: boolean;
   large?: boolean;
+  disabled?: boolean;
 }
 
 const Button = ({
@@ -17,6 +18,7 @@ const Button = ({
   className,
   small,
   large,
+  disabled,
 }: ButtonProps) => {
   const sizeClass = small
     ? "text-sm px-3 py-2"
@@ -27,11 +29,14 @@ const Button = ({
   return (
     <button
       className={`rounded-[8px] ${sizeClass} ${
-        outline
-          ? "bg-white shadow-md border border-brand-200 text-brand-200 hover:border hover:bg-brand-100"
-          : "bg-brand-200 text-white-100 hover:bg-brand-300"
+        disabled
+          ? "cursor-not-allowed bg-white-300 text-gray-100"
+          : outline
+            ? "bg-white shadow-md border border-brand-200 text-brand-200 hover:border hover:bg-brand-100"
+            : "bg-brand-200 text-white-100 hover:bg-brand-300"
       } ${className}`}
-      onClick={onClick}
+      onClick={!disabled ? onClick : undefined}
+      disabled={disabled}
     >
       {children}
     </button>
