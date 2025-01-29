@@ -1,12 +1,15 @@
 package com.ssafy.dubdub.auth.service;
 
+import com.ssafy.dubdub.auth.dto.AuthResponseDTO;
 import com.ssafy.dubdub.auth.dto.KakaoUserDTO;
 import com.ssafy.dubdub.auth.dto.TokenResponseDTO;
 import com.ssafy.dubdub.auth.entity.RefreshToken;
 import com.ssafy.dubdub.auth.exception.AuthException;
 import com.ssafy.dubdub.config.exception.ErrorCode;
 import com.ssafy.dubdub.config.jwt.JWTUtil;
+import com.ssafy.dubdub.member.dto.CustomUserDetails;
 import com.ssafy.dubdub.member.entity.Member;
+import com.ssafy.dubdub.member.repository.MemberRepository;
 import com.ssafy.dubdub.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +18,10 @@ import org.springframework.http.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -27,126 +33,150 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthService {
     private final RefreshTokenService refreshTokenService;
-    private final MemberService memberService;
+    private final MemberRepository memberRepository;
     private final JWTUtil jwtUtil;
     private final ClientRegistrationRepository clientRegistrationRepository;
 
     @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2User oauth2User = super.loadUser(userRequest);
+        log.info("Loading OAuth2 user for client: {}", userRequest.getClientRegistration().getClientName());
+
+        try {
+            Map<String, Object> attributes = oauth2User.getAttributes();
+            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+            String email = (String) kakaoAccount.get("email");
+            String nickname = (String) profile.get("nickname");
+            String profileImageUrl = (String) profile.get("profile_image_url");
+
+            Optional<Member> existingMember = memberRepository.findByEmail(email);
+            Member member;
+            boolean isNewMember = false;
+
+            if (existingMember.isPresent()) {
+                member = existingMember.get();
+            } else {
+                // 새로운 회원 가입
+                member = memberRepository.save(
+                        Member.builder()
+                                .provider("KAKAO")
+                                .email(email)
+                                .nickname(nickname)
+                                .profileUrl(profileImageUrl)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build()
+                );
+                isNewMember = true;
+            }
+
+            return new CustomUserDetails(member, isNewMember);
+        } catch (Exception e) {
+            log.error("Failed to process OAuth2 user: {}", e.getMessage());
+            throw new OAuth2AuthenticationException("Failed to process OAuth2 user");
+        }
+    }
+
+    @Override
     @Transactional
-    public TokenResponseDTO kakaoLogin(String code) {
+    public AuthResponseDTO kakaoLogin(String code) {
+        log.info("Processing Kakao login with authorization code");
+
         ClientRegistration registration = clientRegistrationRepository.findByRegistrationId("kakao");
         if (registration == null) {
             throw new AuthException(ErrorCode.OAUTH_REGISTRATION_NOT_FOUND);
         }
-        OAuth2AccessToken accessToken = getAccessToken(registration, code);
-        OAuth2User oauth2User = getOAuth2User(registration, accessToken);
-        KakaoUserDTO userInfo = extractKakaoUserInfo(oauth2User);
 
-        Member member = memberService.findByEmailOrRegister(userInfo);
+        try {
+            OAuth2AccessToken accessToken = getAccessToken(registration, code);
+            OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, accessToken);
+            CustomUserDetails userDetails = (CustomUserDetails) loadUser(userRequest);
 
-        return jwtUtil.generateToken(member.getId(), member.getEmail());
+            TokenResponseDTO token = jwtUtil.generateToken(
+                    userDetails.getMember().getId(),
+                    userDetails.getMember().getEmail()
+            );
+
+            return AuthResponseDTO.builder()
+                    .token(token)
+                    .isNewMember(userDetails.isNewMember())
+                    .memberId(userDetails.getMember().getId())
+                    .email(userDetails.getMember().getEmail())
+                    .nickname(userDetails.getMember().getNickname())
+                    .build();
+
+        } catch (OAuth2AuthenticationException e) {
+            log.error("OAuth2 authentication failed: {}", e.getMessage());
+            throw new AuthException(ErrorCode.KAKAO_USER_INFO_ERROR);
+        }
     }
 
     private OAuth2AccessToken getAccessToken(ClientRegistration registration, String code) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", registration.getClientId());
-            params.add("client_secret", registration.getClientSecret());
-            params.add("redirect_uri", registration.getRedirectUri());
-            params.add("code", code);
+            MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
+            tokenRequest.add("grant_type", "authorization_code");
+            tokenRequest.add("client_id", registration.getClientId());
+            tokenRequest.add("client_secret", registration.getClientSecret());
+            tokenRequest.add("redirect_uri", registration.getRedirectUri());
+            tokenRequest.add("code", code);
 
-            log.info("Token request parameters: {}", params);
-            log.info("Token URI: {}", registration.getProviderDetails().getTokenUri());
+            log.debug("Token request parameters: {}", tokenRequest);
+            log.debug("Token URI: {}", registration.getProviderDetails().getTokenUri());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(tokenRequest, headers);
 
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            ResponseEntity<Map> response = restTemplate.exchange(
                     registration.getProviderDetails().getTokenUri(),
                     HttpMethod.POST,
                     request,
-                    new ParameterizedTypeReference<Map<String, Object>>() {}
+                    Map.class
             );
 
-            log.info("Token response status: {}", response.getStatusCode());
-            log.info("Token response body: {}", response.getBody());
+            log.debug("Token response status: {}", response.getStatusCode());
 
             Map<String, Object> token = response.getBody();
             if (token == null || !token.containsKey("access_token")) {
                 throw new AuthException(ErrorCode.KAKAO_TOKEN_ERROR);
             }
 
+            Instant issuedAt = Instant.now();
+            Instant expiredAt = issuedAt.plusSeconds(Long.parseLong(token.get("expires_in").toString()));
+
             return new OAuth2AccessToken(
                     OAuth2AccessToken.TokenType.BEARER,
                     (String) token.get("access_token"),
-                    Instant.now(),
-                    Instant.now().plusSeconds(Long.parseLong(token.get("expires_in").toString()))
+                    issuedAt,
+                    expiredAt
             );
-        }catch (HttpClientErrorException e) {
-            // Check if it's KOE320 error
+
+        } catch (HttpClientErrorException e) {
             if (e.getResponseBodyAsString().contains("KOE320")) {
                 log.error("Authorization code has already been used: {}", e.getMessage());
                 throw new AuthException(ErrorCode.KAKAO_AUTH_CODE_ALREADY_USED);
             }
-            log.error("카카오 액세스 토큰 받기 실패 (HTTP Error): {}", e.getMessage());
+            log.error("Failed to retrieve Kakao access token (HTTP Error): {}", e.getMessage());
             throw new AuthException(ErrorCode.KAKAO_TOKEN_ERROR);
         } catch (RestClientException e) {
-            log.error("카카오 액세스 토큰 받기 실패: {}", e.getMessage());
+            log.error("Failed to retrieve Kakao access token: {}", e.getMessage());
             throw new AuthException(ErrorCode.KAKAO_TOKEN_ERROR);
         }
-    }
-
-    private OAuth2User getOAuth2User(ClientRegistration registration, OAuth2AccessToken accessToken) {
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(accessToken.getTokenValue());
-
-            HttpEntity<String> request = new HttpEntity<>(headers);
-
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    registration.getProviderDetails().getUserInfoEndpoint().getUri(),
-                    HttpMethod.GET,
-                    request,
-                    new ParameterizedTypeReference<Map<String, Object>>() {}
-            );
-
-            Map<String, Object> attributes = response.getBody();
-            return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                    attributes,
-                    "id"
-            );
-        } catch (RestClientException e) {
-            log.error("카카오 사용자 정보 받기 실패: {}", e.getMessage());
-            throw new AuthException(ErrorCode.KAKAO_USER_INFO_ERROR);
-        }
-    }
-
-    private KakaoUserDTO extractKakaoUserInfo(OAuth2User oauth2User) {
-        Map<String, Object> attributes = oauth2User.getAttributes();
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-
-        return KakaoUserDTO.builder()
-                .email((String) kakaoAccount.get("email"))
-                .nickname((String) profile.get("nickname"))
-                .profileImage((String) profile.get("profile_image_url"))
-                .build();
     }
 
     @Override
@@ -161,7 +191,8 @@ public class AuthServiceImpl implements AuthService{
         }
 
         String email = redisRefreshToken.getEmail();
-        Member member = memberService.findByEmail(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
 
         TokenResponseDTO newToken = jwtUtil.generateToken(member.getId(), email);
         refreshTokenService.saveTokenInfo(email, newToken.getRefreshToken());
