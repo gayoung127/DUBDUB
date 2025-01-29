@@ -183,7 +183,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
     @Transactional
     public TokenResponseDTO reissueAccessToken(String refreshToken) {
         RefreshToken validatedToken = validateRefreshToken(refreshToken);
-        
+
         return issueNewToken(validatedToken.getEmail());
     }
 

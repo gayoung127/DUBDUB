@@ -48,15 +48,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (redisToken.isEmpty()) {
             log.info("Token not found in Redis, attempting to recover from Member entity");
             return memberRepository.findByRefreshToken(refreshToken)
-                    .map(member -> {
-                        RefreshToken recoveredToken = new RefreshToken(
-                                member.getEmail(),
-                                member.getRefreshToken()
-                        );
-                        repository.save(recoveredToken);
-                        log.info("Token recovered and saved to Redis for email: {}", member.getEmail());
-                        return recoveredToken;
-                    });
+                    .map(member -> new RefreshToken(
+                            member.getEmail(),
+                            member.getRefreshToken()
+                    ));
         }
 
         return redisToken;
