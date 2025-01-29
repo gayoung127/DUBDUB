@@ -12,11 +12,13 @@ const SignUp = () => {
   });
   const [isAgreed, setIsAgreed] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   //프로필 이미지 변경 핸들러
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       setUser((prev) => ({
         ...prev,
         profileImage: URL.createObjectURL(file),
@@ -41,12 +43,38 @@ const SignUp = () => {
     setIsDropdownOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isAgreed && user.nickname && user.userType) {
-      alert("수정 제출");
-    } else {
+
+    if (!isAgreed || !user.nickname || !user.userType) {
       alert("다 안 채워짐");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", user.id);
+    formData.append("nickname", user.nickname);
+    formData.append("userType", user.userType);
+    formData.append("isTermsAgreed", String(isAgreed));
+
+    if (selectedFile) {
+      formData.append("profileImage", selectedFile);
+    }
+
+    try {
+      const response = await fetch("api/signup", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("가입 중에 서버 응답 오류");
+      }
+
+      window.location.replace("/lobby");
+    } catch (error) {
+      console.error("가입 실패: ", error);
+      alert("가입 중 오류!");
     }
   };
 
