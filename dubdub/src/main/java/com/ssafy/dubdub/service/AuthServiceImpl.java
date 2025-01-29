@@ -95,8 +95,6 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
                                 .email(email)
                                 .nickname(nickname)
                                 .profileUrl(profileImageUrl)
-                                .createdAt(LocalDateTime.now())
-                                .updatedAt(LocalDateTime.now())
                                 .build()
                 );
                 isNewMember = true;

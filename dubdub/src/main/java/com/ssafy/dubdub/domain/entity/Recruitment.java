@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Recruitment {
+public class Recruitment extends Timestamped {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -43,12 +43,6 @@ public class Recruitment {
 
     @Column(name = "is_private", nullable = false)
     private boolean isPrivate;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "recruitment")
     private List<Casting> castings = new ArrayList<>();

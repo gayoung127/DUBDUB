@@ -5,12 +5,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor
-public class Casting {
+public class Casting extends Timestamped {
     @Id
     private Long id;  // 기본키
 
@@ -24,10 +22,6 @@ public class Casting {
     @Column(nullable = false)
     private String name;
 
-    private LocalDateTime updatedAt;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
 
     Member findMember(MemberRepository memberRepository) {
         if (this.memberId == null) {

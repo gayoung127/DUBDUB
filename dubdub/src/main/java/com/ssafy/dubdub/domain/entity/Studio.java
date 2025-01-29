@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Studio {
+public class Studio extends Timestamped {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -20,9 +20,6 @@ public class Studio {
     @Column(nullable = false)
     private boolean isClosed;
 
+    @Column(name = "closed_at")
     private LocalDateTime closedAt;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 }
