@@ -38,27 +38,17 @@ const CursorPresence = () => {
     };
   }, []);
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const name = "아무개";
-
-    console.log(
-      `Sending cursorMove event to server: x=${x}, y=${y}, 이름:${name}`,
-    );
-    socket.emit("cursorMove", { x, y, name }); // 이벤트 전송
-  };
-
   return (
     <div
-      onPointerMove={handlePointerMove}
       style={{
-        width: "100%",
-        height: "100%",
         position: "absolute",
         top: 0,
         left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "transparent",
         zIndex: 9999,
+        pointerEvents: "none",
       }}
     >
       {Object.entries(cursors).map(([id, cursor]) => (

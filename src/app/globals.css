@@ -15,7 +15,8 @@
     background: #6d6d6d;
     border-radius: 8px;
   }
-  .white-scrollbar::-webkit-scrollbar-thumb {
+
+  .scrollbar::-webkit-scrollbar-thumb {
     background: #303030;
     border-radius: 8px;
   }
