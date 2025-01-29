@@ -22,7 +22,7 @@ const AudioTrackTimeline = ({
   audioContext,
 }: AudioTrackTimelineProps) => {
   return (
-    <div className="relative flex h-[60px] w-full flex-row items-center justify-start overflow-hidden border border-gray-300 px-2">
+    <div className="flex h-[60px] w-full flex-row items-center justify-start overflow-hidden border border-gray-300 px-2">
       <div className="relative flex h-full w-full">
         {files.map((file, index) => {
           const leftPosition = `${(file.startPoint / totalDuration) * 100}%`;

@@ -96,7 +96,7 @@ const AudioBlock = ({
     <div className="relative flex h-full items-center justify-center">
       <canvas
         ref={canvasRef}
-        className="h-7 w-full rounded-md"
+        className="h-10 w-full rounded-md"
         style={{ backgroundColor: blockColor }}
       ></canvas>
     </div>

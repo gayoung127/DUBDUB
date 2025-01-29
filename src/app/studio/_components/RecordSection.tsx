@@ -38,7 +38,7 @@ const RecordSection = () => {
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">
       <div className="flex h-full w-[280px] flex-shrink-0 flex-col items-start justify-start overflow-hidden border border-gray-300 bg-gray-400">
-        <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-gray-300 bg-gray-400 px-5 py-5">
+        <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 px-5 py-5">
           <H4 className="border-b-2 border-white-100 font-bold text-white-100">
             녹음 세션
           </H4>
@@ -47,8 +47,8 @@ const RecordSection = () => {
           <AudioTrackHeader key={track.trackId} trackId={track.trackId} />
         ))}
       </div>
-      <div className="flex h-full w-full flex-col items-start justify-start overflow-hidden bg-gray-400">
-        <div className="flex h-[60px] w-full flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
+      <div className="flex h-full w-full flex-shrink-0 flex-col items-start justify-start overflow-hidden border border-gray-300 bg-gray-400">
+        <div className="flex h-[60px] w-full flex-shrink-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
           <Timeline
             currentTime={currentTime}
             setCurrentTime={setCurrentTime}
