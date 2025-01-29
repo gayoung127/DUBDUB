@@ -65,7 +65,7 @@ const TimelineMarker = ({
       ref={markerRef}
       style={{
         left: `${markerPosition - 6}px`,
-        top: "12px",
+        top: "18px",
         position: "absolute",
       }}
     >
