@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.config.jwt;
 
+import com.ssafy.dubdub.auth.service.AuthService;
 import com.ssafy.dubdub.config.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JWTUtil jwtUtil;
+    private final AuthService authService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -42,8 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = getTokenFromHeader(request);
 
-            if (token != null && jwtUtil.validateToken(token)) {
-                Authentication authentication = jwtUtil.getAuthentication(token);
+            if (token != null && JWTUtil.validateToken(token)) {
+                Authentication authentication = authService.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ExpiredJwtException e) {

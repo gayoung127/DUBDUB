@@ -7,16 +7,17 @@ import com.ssafy.dubdub.config.exception.ErrorCode;
 import com.ssafy.dubdub.member.dto.CustomUserDetails;
 import com.ssafy.dubdub.member.entity.Member;
 import com.ssafy.dubdub.member.repository.MemberRepository;
-import com.ssafy.dubdub.member.service.MemberService;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -24,71 +25,51 @@ import java.util.Date;
 
 @Component
 public class JWTUtil {
-    private final RefreshTokenService refreshTokenService;
-    private final MemberRepository memberRepository;  // MemberService 대신 Repository 직접 사용
-    private final SecretKey secretKey;
-    private final Long accessTokenExpiredMs;
-    private final Long refreshTokenExpiredMs;
+    private static String secret;
+    private static Long accessTokenExpiredMs;
+    private static Long refreshTokenExpiredMs;
+    private static SecretKey secretKey;
 
-    public JWTUtil(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access.expiration}") Long accessTokenExpiredMs,
-            @Value("${jwt.refresh.expiration}") Long refreshTokenExpiredMs,
-            RefreshTokenService refreshTokenService,
-            MemberRepository memberRepository) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.accessTokenExpiredMs = accessTokenExpiredMs;
-        this.refreshTokenExpiredMs = refreshTokenExpiredMs;
-        this.refreshTokenService = refreshTokenService;
-        this.memberRepository = memberRepository;
+    @Value("${jwt.secret}")
+    public void setSecret(String secret) {
+        JWTUtil.secret = secret;
     }
 
-    public TokenResponseDTO generateToken(Long id, String email) {
-        String accessToken = createAccessToken(id, email);
-        String refreshToken = createRefreshToken(id, email);
-
-        refreshTokenService.saveTokenInfo(email, refreshToken);
-
-        return new TokenResponseDTO(accessToken, refreshToken);
+    @Value("${jwt.access.expiration}")
+    public void setAccessTokenExpiredMs(Long accessTokenExpiredMs) {
+        JWTUtil.accessTokenExpiredMs = accessTokenExpiredMs;
     }
 
-    private String createAccessToken(Long id, String email) {
+    @Value("${jwt.refresh.expiration}")
+    public void setRefreshTokenExpiredMs(Long refreshTokenExpiredMs) {
+        JWTUtil.refreshTokenExpiredMs = refreshTokenExpiredMs;
+    }
+
+    @PostConstruct
+    public void init() {
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String createAccessToken(Long id, String email) {
+        return createToken(id, email, accessTokenExpiredMs);
+    }
+
+    public static String createRefreshToken(Long id, String email) {
+        return createToken(id, email, refreshTokenExpiredMs);
+    }
+
+    private static String createToken(Long id, String email, Long expireTime) {
         Date now = new Date();
         return Jwts.builder()
                 .claim("id", id)
                 .claim("email", email)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + accessTokenExpiredMs))
+                .expiration(new Date(now.getTime() + expireTime))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private String createRefreshToken(Long id, String email) {
-        Date now = new Date();
-        return Jwts.builder()
-                .claim("id", id)
-                .claim("email", email)
-                .issuedAt(now)
-                .expiration(new Date(now.getTime() + refreshTokenExpiredMs))
-                .signWith(secretKey)
-                .compact();
-    }
-
-    public Authentication getAuthentication(String token) {
-        String email = getEmail(token);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
-
-        CustomUserDetails customUserDetails = new CustomUserDetails(member, false);
-
-        return new UsernamePasswordAuthenticationToken(
-                customUserDetails,
-                "",
-                customUserDetails.getAuthorities()
-        );
-    }
-
-    public boolean validateToken(String token) {
+    public static boolean validateToken(String token) {
         try {
             Jwts.parser()
                     .verifyWith(secretKey)
@@ -100,7 +81,7 @@ public class JWTUtil {
         }
     }
 
-    private String getEmail(String token) {
+    public static String getEmail(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
@@ -109,8 +90,18 @@ public class JWTUtil {
                 .get("email", String.class);
     }
 
-    public void setAuthorizationHeader(HttpServletResponse response, Long memberId, String email) {
-        TokenResponseDTO tokenInfo = generateToken(memberId, email);
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenInfo.getAccessToken());
+    public static String extractToken(String bearerToken) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public static String createBearerToken(String token) {
+        return "Bearer " + token;
+    }
+
+    public static void setBearerToken(HttpServletResponse response, String token) {
+        response.setHeader(HttpHeaders.AUTHORIZATION, createBearerToken(token));
     }
 }

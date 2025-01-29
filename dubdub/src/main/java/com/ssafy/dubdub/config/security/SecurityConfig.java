@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.config.security;
 
+import com.ssafy.dubdub.auth.service.AuthService;
 import com.ssafy.dubdub.config.jwt.JwtAuthenticationFilter;
 import com.ssafy.dubdub.config.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
-    private final JWTUtil jwtUtil;
+    private final AuthService authService;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(authService);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -41,7 +47,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated())
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

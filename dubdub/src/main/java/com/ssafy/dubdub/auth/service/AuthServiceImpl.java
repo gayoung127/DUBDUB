@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -45,8 +47,32 @@ import java.util.Optional;
 public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
-    private final JWTUtil jwtUtil;
     private final ClientRegistrationRepository clientRegistrationRepository;
+
+    @Override
+    public TokenResponseDTO generateToken(Long id, String email) {
+        String accessToken = JWTUtil.createAccessToken(id, email);
+        String refreshToken = JWTUtil.createRefreshToken(id, email);
+
+        refreshTokenService.saveTokenInfo(email, refreshToken);
+
+        return new TokenResponseDTO(accessToken, refreshToken);
+    }
+
+    @Override
+    public Authentication getAuthentication(String token) {
+        String email = JWTUtil.getEmail(token);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(member, false);
+
+        return new UsernamePasswordAuthenticationToken(
+                customUserDetails,
+                "",
+                customUserDetails.getAuthorities()
+        );
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -104,7 +130,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, accessToken);
             CustomUserDetails userDetails = (CustomUserDetails) loadUser(userRequest);
 
-            TokenResponseDTO token = jwtUtil.generateToken(
+            TokenResponseDTO token = generateToken(
                     userDetails.getMember().getId(),
                     userDetails.getMember().getEmail()
             );
@@ -191,7 +217,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
         RefreshToken redisRefreshToken = refreshTokenService.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new AuthException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
-        if (!jwtUtil.validateToken(refreshToken)) {
+        if (!JWTUtil.validateToken(refreshToken)) {
             refreshTokenService.removeRefreshToken(redisRefreshToken.getEmail());
             throw new AuthException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
@@ -203,9 +229,6 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
 
-        TokenResponseDTO newToken = jwtUtil.generateToken(member.getId(), email);
-        refreshTokenService.saveTokenInfo(email, newToken.getRefreshToken());
-
-        return newToken;
+        return generateToken(member.getId(), email);
     }
 }
