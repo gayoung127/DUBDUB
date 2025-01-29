@@ -2,6 +2,7 @@ import React from "react";
 import SearchIcon from "@/public/images/icons/icon-search.svg";
 import CalenderIcon from "@/public/images/icons/icon-calender.svg";
 import DropdownIcon from "@/public/images/icons/icon-dropdown.svg";
+import H2 from "@/app/_components/H2";
 
 const generateTimeOptions = () => {
   const options = [];
@@ -20,7 +21,7 @@ const Schedule = () => {
 
   return (
     <section className="w-full max-w-md p-4">
-      <h1 className="mb-2 text-xl font-bold">SCHEDULE</h1>
+      <H2 className="mb-2">SCHEDULE</H2>
 
       <div className="space-y-4">
         <section>

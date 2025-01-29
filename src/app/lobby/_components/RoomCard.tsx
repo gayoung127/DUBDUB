@@ -12,13 +12,14 @@ interface RoomInfoProps {
   thumbnail: string;
   title: string;
   time: string;
+  isLive: boolean;
   badges: string[];
   limit: number;
   count: number;
 }
 
 const RoomCard = ({
-  roomInfo: { id, thumbnail, title, time, badges, limit, count },
+  roomInfo: { id, thumbnail, title, time, isLive, badges, limit, count },
 }: {
   roomInfo: RoomInfoProps;
 }) => {
@@ -28,12 +29,19 @@ const RoomCard = ({
 
   return (
     <div
-      className="hover:shadow-dub flex w-[300px] cursor-pointer flex-col gap-3 rounded-[8px] p-4 hover:bg-white-100"
+      className="flex w-[300px] cursor-pointer flex-col gap-3 rounded-[8px] p-4 hover:bg-white-100 hover:shadow-dub"
       onClick={() => {
         handleRoomClick(id);
       }}
     >
-      <img src={thumbnail} className="rounded-[4px]" />
+      <div className="relative">
+        <img src={thumbnail} className="rounded-[4px]" />
+        {isLive ? (
+          <Badge title="ON AIR" className="absolute right-2 top-2" />
+        ) : (
+          <Badge title="대기 중" className="absolute right-2 top-2" />
+        )}
+      </div>
       <C1>
         <div className="flex items-center gap-2">
           <ClockIcon /> {time}

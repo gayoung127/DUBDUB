@@ -1,10 +1,11 @@
 import React from "react";
 import Badge from "@/app/_components/Badge";
+import H2 from "@/app/_components/H2";
 
 const Genre = () => {
   return (
     <div className="p-4">
-      <h2 className="mb-2 text-xl font-bold">GENRE</h2>
+      <H2 className="mb-2">GENRE</H2>
       <div className="flex flex-wrap gap-2">
         <Badge title="액션" />
         <Badge title="코믹" />

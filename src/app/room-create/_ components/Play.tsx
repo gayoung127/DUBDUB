@@ -1,4 +1,6 @@
 "use client";
+import Button from "@/app/_components/Button";
+import H2 from "@/app/_components/H2";
 import React from "react";
 import { useState } from "react";
 
@@ -11,7 +13,7 @@ const Play = () => {
 
   return (
     <div className="flex w-full flex-col gap-4 p-4">
-      <h2 className="mb-2 text-xl font-bold">PLAY</h2>
+      <H2 className="mb-2">PLAY</H2>
       <div className="flex w-full flex-row gap-4">
         <button
           onClick={() => handleClick("alone")}

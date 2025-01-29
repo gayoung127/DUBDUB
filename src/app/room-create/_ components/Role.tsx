@@ -1,9 +1,10 @@
+import H2 from "@/app/_components/H2";
 import React from "react";
 
 const Role = () => {
   return (
     <section className="mb-2 p-4">
-      <h2 className="mb-2 text-xl font-bold">ROLE</h2>
+      <H2 className="mb-2">ROLE</H2>
       <div className="flex items-center gap-3">
         <button className="rounded-full border-2 border-brand-200 px-4 py-2 text-lg text-brand-200">
           짱구 X

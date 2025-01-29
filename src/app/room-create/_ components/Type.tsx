@@ -1,10 +1,11 @@
 import React from "react";
 import Badge from "@/app/_components/Badge";
+import H2 from "@/app/_components/H2";
 
 const Type = () => {
   return (
     <div className="p-4">
-      <h2 className="mb-2 text-xl font-bold">TYPE</h2>
+      <H2 className="mb-2">TYPE</H2>
       <div className="flex flex-wrap gap-2">
         <Badge title="영화" />
         <Badge title="애니메이션" />

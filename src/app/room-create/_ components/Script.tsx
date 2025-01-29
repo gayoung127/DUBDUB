@@ -1,9 +1,10 @@
+import H2 from "@/app/_components/H2";
 import React from "react";
 
 const Script = () => {
   return (
     <section className="mx-auto w-full max-w-2xl p-4">
-      <h2 className="mb-4 text-xl font-bold">SCRIPT</h2>
+      <H2 className="mb-4">SCRIPT</H2>
       <form className="space-y-12">
         <div className="w-full">
           <textarea
