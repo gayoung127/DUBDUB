@@ -31,6 +31,6 @@ public class AuthController {
     public ResponseEntity<TokenResponseDTO> reissueAccessToken(
             @RequestHeader("Authorization") String bearerToken) {
         String accessToken = bearerToken.substring(7);
-        return ResponseEntity.ok(authService.refreshToken(accessToken));
+        return ResponseEntity.ok(authService.reissueAccessToken(accessToken));
     }
 }

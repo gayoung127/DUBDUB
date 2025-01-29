@@ -181,7 +181,13 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
 
     @Override
     @Transactional
-    public TokenResponseDTO refreshToken(String refreshToken) {
+    public TokenResponseDTO reissueAccessToken(String refreshToken) {
+        RefreshToken validatedToken = validateRefreshToken(refreshToken);
+        
+        return issueNewToken(validatedToken.getEmail());
+    }
+
+    private RefreshToken validateRefreshToken(String refreshToken) {
         RefreshToken redisRefreshToken = refreshTokenService.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new AuthException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
@@ -190,7 +196,10 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             throw new AuthException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
-        String email = redisRefreshToken.getEmail();
+        return redisRefreshToken;
+    }
+
+    private TokenResponseDTO issueNewToken(String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
 
