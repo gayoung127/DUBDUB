@@ -37,8 +37,9 @@ out/
 .vscode/
 
 ### .env ###
-.env*
+*.env*
 
 ### .yml ###
 *.yml
 !example.yml
+
