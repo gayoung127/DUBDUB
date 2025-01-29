@@ -46,7 +46,7 @@ public class Recruitment {
     private String script;
 
     @Column(name = "is_private", nullable = false)
-    private String isPrivate;
+    private boolean isPrivate;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
