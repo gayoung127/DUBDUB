@@ -44,6 +44,7 @@ const RecordSection = () => {
             files={track.files}
             waveColor={track.waveColor}
             blockColor={track.blockColor}
+            totalDuration={50}
           />
         ))}
       </div>
