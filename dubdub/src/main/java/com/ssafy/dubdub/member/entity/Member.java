@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.member.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Recruitment;
+import com.ssafy.dubdub.member.entity.Enum.Position;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -21,6 +19,7 @@ public class Member {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String provider;
 

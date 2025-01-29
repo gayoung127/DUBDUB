@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.member.entity;
+package com.ssafy.dubdub.member.entity.Enum;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

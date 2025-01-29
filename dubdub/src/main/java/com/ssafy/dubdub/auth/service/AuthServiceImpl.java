@@ -8,6 +8,7 @@ import com.ssafy.dubdub.auth.exception.AuthException;
 import com.ssafy.dubdub.config.exception.ErrorCode;
 import com.ssafy.dubdub.config.jwt.JWTUtil;
 import com.ssafy.dubdub.member.dto.CustomUserDetails;
+import com.ssafy.dubdub.member.entity.Enum.Provider;
 import com.ssafy.dubdub.member.entity.Member;
 import com.ssafy.dubdub.member.repository.MemberRepository;
 import com.ssafy.dubdub.member.service.MemberService;
@@ -68,10 +69,9 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             if (existingMember.isPresent()) {
                 member = existingMember.get();
             } else {
-                // 새로운 회원 가입
                 member = memberRepository.save(
                         Member.builder()
-                                .provider("KAKAO")
+                                .provider(String.valueOf(Provider.KAKAO))
                                 .email(email)
                                 .nickname(nickname)
                                 .profileUrl(profileImageUrl)
