@@ -11,12 +11,6 @@ interface TimelineMarkerProps {
   markerPosition: number;
   setMarkerPosition: React.Dispatch<React.SetStateAction<number>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
-  // currentTime: number;
-  // setCurrentTime: (time: number) => void;
-  // totalDuration: number;
-  // timelineWidth: number;
-  // timelineScrollRef: React.RefObject<HTMLDivElement | null>;
-  // trackScrollRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const TimelineMarker = ({
@@ -31,9 +25,9 @@ const TimelineMarker = ({
 
     Draggable.create(markerRef.current, {
       type: "x",
-      bounds: timelineRef.current, // ✅ 타임라인 내부에서만 이동 가능
-      inertia: true, // ✅ 부드러운 모멘텀 적용
-      autoScroll: 1, // ✅ 자동 스크롤 비활성화 (부모 요소 움직임 방지)
+      bounds: timelineRef.current,
+      inertia: true,
+      autoScroll: 1,
     });
   }, [setMarkerPosition]);
 
@@ -45,7 +39,6 @@ const TimelineMarker = ({
           left: `${markerPosition}px`,
           top: "18px",
           position: "absolute",
-          cursor: "pointer",
           transition: "left 0.1s ease-in-out",
         }}
       >

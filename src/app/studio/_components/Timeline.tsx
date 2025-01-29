@@ -41,7 +41,7 @@ const Timeline = ({
     <div
       ref={timelineRef}
       // onClick={handleTimelineClick}
-      className="relative flex border-b border-gray-500"
+      className="relative box-border border-b border-gray-300"
       style={{ width: timelineWidth }}
     >
       <div className="absolute bottom-0 left-0 h-[50%] w-full" />
