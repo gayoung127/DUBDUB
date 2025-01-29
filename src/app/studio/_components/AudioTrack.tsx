@@ -4,6 +4,8 @@ import AudioBlock from "./AudioBlock";
 
 interface AudioTrackProps extends Track {
   totalDuration: number;
+  currentTime: number;
+  audioContext: AudioContext | null;
 }
 
 const AudioTrack = ({
@@ -12,6 +14,8 @@ const AudioTrack = ({
   waveColor,
   blockColor,
   totalDuration,
+  currentTime,
+  audioContext,
 }: AudioTrackProps) => {
   return (
     <div className="flex h-10 w-full flex-row items-center justify-start overflow-hidden">
@@ -31,32 +35,37 @@ const AudioTrack = ({
           </div>
         </div>
       </div>
-      <div className="relative flex h-full w-full flex-row items-center justify-start border border-gray-300 px-2">
-        {files.map((file, index) => {
-          const leftPosition = `${(file.startPoint / totalDuration) * 100}%`;
-          const width = `${
-            ((file.duration - file.trimStart - file.trimEnd) / totalDuration) *
-            100
-          }%`;
+      <div className="relative flex h-full w-full flex-row items-center justify-start overflow-x-scroll border border-gray-300 px-2">
+        <div className="relative flex h-full w-[4000px]">
+          {files.map((file, index) => {
+            const leftPosition = `${(file.startPoint / totalDuration) * 100}%`;
+            const width = `${
+              ((file.duration - file.trimStart - file.trimEnd) /
+                totalDuration) *
+              100
+            }%`;
 
-          return (
-            <div
-              key={index}
-              className="absolute"
-              style={{
-                left: leftPosition,
-                width: width,
-                height: "100%",
-              }}
-            >
-              <AudioBlock
-                file={file}
-                waveColor={waveColor}
-                blockColor={blockColor}
-              />
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={index}
+                className="absolute"
+                style={{
+                  left: leftPosition,
+                  width: width,
+                  height: "100%",
+                }}
+              >
+                <AudioBlock
+                  file={file}
+                  waveColor={waveColor}
+                  blockColor={blockColor}
+                  currentTime={currentTime}
+                  audioContext={audioContext}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

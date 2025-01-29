@@ -1,44 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import TimelinePointer from "@/public/images/icons/icon-timeline-pointer.svg";
+import { gsap } from "gsap";
+import { Draggable } from "gsap/Draggable";
+
+gsap.registerPlugin(Draggable);
 
 interface TimelineMarkerProps {
-  markerRef: React.RefObject<HTMLDivElement | null>;
   markerPosition: number;
-  handleMouseDown: (e: React.MouseEvent) => void;
+  setMarkerPosition: React.Dispatch<React.SetStateAction<number>>;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const TimelineMarker = ({
-  markerRef,
   markerPosition,
-  handleMouseDown,
+  setMarkerPosition,
+  timelineRef,
 }: TimelineMarkerProps) => {
+  const markerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!markerRef.current || !timelineRef.current) return;
+
+    Draggable.create(markerRef.current, {
+      type: "x",
+      bounds: timelineRef.current,
+      inertia: true,
+      autoScroll: 1,
+    });
+  }, [setMarkerPosition]);
+
   return (
-    <div
-      ref={markerRef}
-      style={{
-        left: `${markerPosition - 6}px`, // 삼각형의 아랫꼭지점을 기준으로 보정
-        top: "16px", // 마커가 눈금자 위로 위치하도록 설정
-        position: "absolute",
-      }}
-      onMouseDown={handleMouseDown}
-      className="relative cursor-pointer"
-    >
-      {/* 드래그 가능한 영역 확대 */}
+    <>
       <div
+        ref={markerRef}
         style={{
+          left: `${markerPosition}px`,
+          top: "18px",
           position: "absolute",
-          top: "-6px", // 보이는 영역 기준으로 위아래 여유 공간 추가
-          left: "-6px",
-          width: "24px", // 실제 드래그 가능한 영역
-          height: "24px",
-          background: "transparent", // 투명 처리
+          transition: "left 0.1s ease-in-out",
         }}
-      ></div>
-      {/* 마커 아이콘 */}
-      <TimelinePointer width={12} height={12} />
-    </div>
+      >
+        <TimelinePointer width={12} height={12} />
+      </div>
+    </>
   );
 };
 

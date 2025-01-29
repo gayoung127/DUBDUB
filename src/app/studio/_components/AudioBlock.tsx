@@ -1,11 +1,22 @@
 import { Block } from "@/app/_types/studio";
 import React, { useEffect, useRef, useState } from "react";
 
-const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
+interface AudioBlockProps extends Block {
+  audioContext: AudioContext | null;
+  currentTime: number;
+}
+
+const AudioBlock = ({
+  file,
+  waveColor,
+  blockColor,
+  currentTime,
+  audioContext,
+}: AudioBlockProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState<boolean>(false);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
 
   const startTime = 0 + file.trimStart;
@@ -32,6 +43,23 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
       visualizeWaveform();
     }
   }, [audioBuffer]);
+
+  // useEffect(() => {
+  //   if (!audioContext || !audioBuffer || hasPlayed) return;
+
+  //   if (currentTime >= file.startPoint) {
+  //     const source = audioContext.createBufferSource();
+  //     source.buffer = audioBuffer;
+  //     source.connect(audioContext.destination);
+
+  //     const offset = (currentTime = file.startPoint);
+  //     source.start(0, startTime + offset, duration - offset);
+
+  //     sourceRef.current = source;
+  //     setHasPlayed(true);
+  //   }
+  // }, [currentTime, audioBuffer]);
+
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !audioBuffer) return;
@@ -64,37 +92,12 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
     }
   };
 
-  const handlePlayPause = () => {
-    if (!audioContextRef.current || !audioBuffer) return;
-
-    if (isPlaying) {
-      sourceRef.current?.stop();
-      sourceRef.current = null;
-      setIsPlaying(false);
-    } else {
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-
-      source.connect(audioContextRef.current.destination);
-      source.start(0, startTime, duration);
-
-      sourceRef.current = source;
-      setIsPlaying(true);
-
-      source.onended = () => {
-        setIsPlaying(false);
-        sourceRef.current = null;
-      };
-    }
-  };
-
   return (
     <div className="relative flex h-full items-center justify-center">
       <canvas
         ref={canvasRef}
-        className="h-7 w-full rounded-md"
+        className="h-10 w-full rounded-md"
         style={{ backgroundColor: blockColor }}
-        onClick={handlePlayPause}
       ></canvas>
     </div>
   );
