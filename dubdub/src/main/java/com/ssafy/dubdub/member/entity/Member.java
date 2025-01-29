@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.member.entity;
 
 import com.ssafy.dubdub.member.entity.Enum.Position;
+import com.ssafy.dubdub.member.entity.Enum.Provider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String provider;
+    private Provider provider;
 
     @Column(nullable = false)
     private String email;

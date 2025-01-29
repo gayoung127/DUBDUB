@@ -62,7 +62,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             String nickname = (String) profile.get("nickname");
             String profileImageUrl = (String) profile.get("profile_image_url");
 
-            Optional<Member> existingMember = memberRepository.findByEmail(email);
+            Optional<Member> existingMember = memberRepository.findByEmailAndProvider(email, Provider.KAKAO);
             Member member;
             boolean isNewMember = false;
 
@@ -71,7 +71,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             } else {
                 member = memberRepository.save(
                         Member.builder()
-                                .provider(String.valueOf(Provider.KAKAO))
+                                .provider(Provider.KAKAO)
                                 .email(email)
                                 .nickname(nickname)
                                 .profileUrl(profileImageUrl)
