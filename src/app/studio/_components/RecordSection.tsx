@@ -1,52 +1,26 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import WaveSurfer from "wavesurfer.js";
-
+import React, { useState } from "react";
 import H4 from "@/app/_components/H4";
-
-import TimelineTool from "./TimelineTool";
-import TimelineRuler from "./TimelineRuler";
 
 import VideoTrack from "./VideoTrack";
 import AudioTrack from "./AudioTrack";
 import Timeline from "./Timeline";
+import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
 
 const RecordSection = () => {
-  const audioTracks = [
-    [
-      { url: "/examples/happyhappyhappysong.mp3", startTime: 0, endTime: 10 },
-      { url: "/examples/happyhappyhappysong.mp3", startTime: 12, endTime: 20 },
-    ],
-    [
-      { url: "/examples/happyhappyhappysong.mp3", startTime: 5, endTime: 15 },
-      { url: "/examples/happyhappyhappysong.mp3", startTime: 18, endTime: 30 },
-    ],
-  ];
+  const [tracks, setTracks] = useState<Track[]>(initialTracks);
 
-  const [scrollPos, setScrollPos] = useState<number>(0);
-  const [markerPosition, setMarkerPosition] = useState<number>(0);
-
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-
-  const waveSurferRef = useRef<WaveSurfer | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    waveSurferRef.current = WaveSurfer.create({
-      container: containerRef.current,
-      height: 28,
-      waveColor: "rgb(153, 165, 255)",
-      progressColor: "rgb(66, 2, 181)",
-    });
-
-    return () => {
-      waveSurferRef.current?.destroy();
-    };
-  }, []);
+  // ✅ 오디오 파일을 특정 트랙에 추가하는 함수
+  const addFileToTrack = (trackId: number, file: AudioFile) => {
+    setTracks((prevTracks) =>
+      prevTracks.map((track) =>
+        track.trackId === trackId
+          ? { ...track, files: [...track.files, file] }
+          : track,
+      ),
+    );
+  };
 
   return (
     <section className="flex h-full w-full flex-grow flex-col items-start justify-start">
@@ -57,16 +31,20 @@ const RecordSection = () => {
           </H4>
         </div>
         <div className="flex h-[60px] w-full flex-1 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
-          {waveSurferRef.current && (
-            <Timeline wavesurfer={waveSurferRef.current} />
-          )}
-          하이
+          {/* <Timeline /> */}
+          타임라인
         </div>
       </div>
       <div className="flex h-full w-full flex-1 flex-col items-start justify-start bg-gray-400">
         <VideoTrack />
-        {audioTracks.map((files, index) => (
-          <AudioTrack key={index} trackNumber={index + 1} audioFiles={files} />
+        {tracks.map((track) => (
+          <AudioTrack
+            key={track.trackId}
+            trackId={track.trackId}
+            files={track.files}
+            waveColor={track.waveColor}
+            blockColor={track.blockColor}
+          />
         ))}
       </div>
     </section>

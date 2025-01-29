@@ -1,14 +1,7 @@
+import { Block } from "@/app/_types/studio";
 import React, { useEffect, useRef, useState } from "react";
 
-interface AudioBlockProps {
-  audioSource: string;
-  startTime: number;
-  duration: number;
-  color: string;
-  playPoint: number;
-}
-
-const AudioBlock = () => {
+const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -17,7 +10,6 @@ const AudioBlock = () => {
 
   const startTime = 0;
   const duration = 5;
-  const color = "#99A5FF";
 
   useEffect(() => {
     const fetchMockAudioBuffer = async () => {
@@ -56,7 +48,7 @@ const AudioBlock = () => {
     const amp = canvas.height / 2;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = color;
+    context.fillStyle = waveColor;
 
     for (let i = 0; i < canvas.width; i += 3) {
       const min = Math.min(...waveform.slice(i * step, (i + 1) * step));
@@ -94,7 +86,8 @@ const AudioBlock = () => {
     <div className="relative flex h-full items-center justify-center">
       <canvas
         ref={canvasRef}
-        className="h-7 w-full rounded-md bg-[#4202B5]"
+        className="h-7 w-full rounded-md"
+        style={{ backgroundColor: blockColor }}
         onClick={handlePlayPause}
       ></canvas>
     </div>
