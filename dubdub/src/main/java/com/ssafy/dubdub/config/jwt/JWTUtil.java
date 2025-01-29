@@ -1,10 +1,14 @@
 package com.ssafy.dubdub.config.jwt;
 
 import com.ssafy.dubdub.auth.dto.TokenResponseDTO;
+import com.ssafy.dubdub.auth.exception.AuthException;
 import com.ssafy.dubdub.auth.service.RefreshTokenService;
+import com.ssafy.dubdub.config.exception.ErrorCode;
 import com.ssafy.dubdub.member.dto.CustomUserDetails;
 import com.ssafy.dubdub.member.entity.Member;
+import com.ssafy.dubdub.member.repository.MemberRepository;
 import com.ssafy.dubdub.member.service.MemberService;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +25,7 @@ import java.util.Date;
 @Component
 public class JWTUtil {
     private final RefreshTokenService refreshTokenService;
-    private final MemberService memberService;
+    private final MemberRepository memberRepository;  // MemberService 대신 Repository 직접 사용
     private final SecretKey secretKey;
     private final Long accessTokenExpiredMs;
     private final Long refreshTokenExpiredMs;
@@ -31,12 +35,12 @@ public class JWTUtil {
             @Value("${jwt.access.expiration}") Long accessTokenExpiredMs,
             @Value("${jwt.refresh.expiration}") Long refreshTokenExpiredMs,
             RefreshTokenService refreshTokenService,
-            MemberService memberService) {
+            MemberRepository memberRepository) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiredMs = accessTokenExpiredMs;
         this.refreshTokenExpiredMs = refreshTokenExpiredMs;
         this.refreshTokenService = refreshTokenService;
-        this.memberService = memberService;
+        this.memberRepository = memberRepository;
     }
 
     public TokenResponseDTO generateToken(Long id, String email) {
@@ -72,8 +76,11 @@ public class JWTUtil {
 
     public Authentication getAuthentication(String token) {
         String email = getEmail(token);
-        Member member = memberService.findByEmail(email);
-        CustomUserDetails customUserDetails = new CustomUserDetails(member);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException(ErrorCode.MEMBER_NOT_FOUND));
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(member, false);
+
         return new UsernamePasswordAuthenticationToken(
                 customUserDetails,
                 "",
@@ -82,11 +89,15 @@ public class JWTUtil {
     }
 
     public boolean validateToken(String token) {
-        Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token);
-        return true;
+        try {
+            Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String getEmail(String token) {
@@ -98,10 +109,8 @@ public class JWTUtil {
                 .get("email", String.class);
     }
 
-    public void setAuthorizationHeader(HttpServletResponse response, Long memberId,
-                                       String email) {
+    public void setAuthorizationHeader(HttpServletResponse response, Long memberId, String email) {
         TokenResponseDTO tokenInfo = generateToken(memberId, email);
-        response.setHeader(HttpHeaders.AUTHORIZATION,
-                "Bearer " + tokenInfo.getAccessToken());
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenInfo.getAccessToken());
     }
 }
