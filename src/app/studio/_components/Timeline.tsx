@@ -20,7 +20,7 @@ const Timeline = ({
 }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const [timelineWidth, setTimelineWidth] = useState(4000);
-  const [calculatedPosition, setCalculatedPosition] = useState<number>(0);
+  const [markerPosition, setMarkerPosition] = useState<number>(0);
 
   const mainTickInterval = timelineWidth / totalDuration;
   const subTickInterval = mainTickInterval / 5;
@@ -31,21 +31,22 @@ const Timeline = ({
     }
   }, []);
 
-  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!timelineRef.current || !timelineScrollRef.current) return;
+  // const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  //   if (!timelineRef.current || !timelineScrollRef.current) return;
 
-    const timelineRect = timelineRef.current.getBoundingClientRect();
-    const scrollLeft = timelineScrollRef.current.scrollLeft;
-    const clickX = e.clientX - timelineRect.left + scrollLeft;
+  //   const timelineRect = timelineRef.current.getBoundingClientRect();
+  //   const scrollLeft = timelineScrollRef.current.scrollLeft;
+  //   const clickX = e.clientX - timelineRect.left + scrollLeft;
 
-    setCalculatedPosition(clickX);
-  };
+  //   setMarkerPosition(clickX);
+  // };
 
   return (
     <div
       ref={timelineRef}
-      onClick={handleTimelineClick}
-      className="relative flex w-full border-b border-gray-500"
+      // onClick={handleTimelineClick}
+      className="relative flex border-b border-gray-500"
+      style={{ width: timelineWidth }}
     >
       <div className="absolute bottom-0 left-0 h-[50%] w-full" />
       <div className="relative flex h-[30px] w-full items-center">
@@ -83,8 +84,9 @@ const Timeline = ({
         })}
       </div>
       <TimelineMarker
-        calculatedPosition={calculatedPosition}
-        setCalculatedPosition={setCalculatedPosition}
+        markerPosition={markerPosition}
+        setMarkerPosition={setMarkerPosition}
+        timelineRef={timelineRef}
       />
     </div>
   );

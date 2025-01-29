@@ -49,8 +49,8 @@ const RecordSection = () => {
   // };
 
   return (
-    <section className="overflow-y-hiddden flex h-full w-full flex-grow flex-col items-start justify-start overflow-x-hidden">
-      <div className="flex w-full flex-row items-center justify-start">
+    <section className="flex h-full w-full flex-grow flex-col items-start justify-start overflow-hidden">
+      <div className="flex w-full flex-row items-center justify-start overflow-hidden">
         <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border border-gray-300 bg-gray-400 px-5 py-5">
           <H4 className="border-b-2 border-white-100 font-bold text-white-100">
             녹음 세션
@@ -59,7 +59,7 @@ const RecordSection = () => {
         <div
           ref={timelineScrollRef}
           onScroll={handleScroll("timeline")}
-          className="scrollbar flex h-[60px] w-full flex-1 flex-col items-start justify-end overflow-x-auto overflow-y-hidden border-l border-r border-t border-gray-300 bg-gray-400"
+          className="flex h-[60px] w-full flex-col items-start justify-end overflow-hidden border-l border-r border-t border-gray-300 bg-gray-400"
         >
           <Timeline
             currentTime={currentTime}
@@ -70,7 +70,7 @@ const RecordSection = () => {
           />
         </div>
       </div>
-      <div className="flex h-full w-[2000px] flex-1 flex-col items-start justify-start bg-gray-400">
+      <div className="flex h-full w-full flex-1 flex-col items-start justify-start bg-gray-400">
         <VideoTrack />
         {tracks.map((track) => (
           <AudioTrack
