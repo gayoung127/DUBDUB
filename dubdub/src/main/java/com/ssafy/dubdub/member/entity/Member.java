@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.member.entity;
 
+import com.ssafy.dubdub.Recruitment.entity.Recruitment;
 import com.ssafy.dubdub.member.entity.Enum.Position;
 import com.ssafy.dubdub.member.entity.Enum.Provider;
 import jakarta.persistence.*;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -45,8 +48,8 @@ public class Member {
 
     private LocalDateTime updatedAt;
 
-//    @OneToMany(mappedBy = "member")
-//    private List<Recruitment> recruitments = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private List<Recruitment> recruitments = new ArrayList<>();
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
