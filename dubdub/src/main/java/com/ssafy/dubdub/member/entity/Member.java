@@ -48,7 +48,7 @@ public class Member {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "author")
     private List<Recruitment> recruitments = new ArrayList<>();
 
     public void updateRefreshToken(String refreshToken) {
