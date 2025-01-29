@@ -17,6 +17,7 @@ import java.util.Map;
 public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private Member member;
+    private boolean isNewMember;
 
     @Override
     public Map<String, Object> getAttributes() {
