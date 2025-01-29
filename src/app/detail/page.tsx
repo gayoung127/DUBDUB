@@ -6,9 +6,12 @@ import Role from "./_components/Role";
 import ScriptSection from "./_components/ScriptSection";
 import { RoleData, ScriptData } from "./type";
 import { useState } from "react";
-import ActionButton from "./_components/ActionButton";
+import Button from "../_components/Button";
 
 export default function RoomDetailPage() {
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isAppling, setIsAppling] = useState<boolean>(false);
+
   function getDubbingInfo() {
     const dubbingInfoData = {
       thumbnail: dubbingInfoDummy.thumbnail,
@@ -20,6 +23,7 @@ export default function RoomDetailPage() {
     };
     return dubbingInfoData;
   }
+
   const dubbingInfoData = getDubbingInfo();
 
   function getRolesData() {
@@ -63,9 +67,6 @@ export default function RoomDetailPage() {
     alert("참가 신청을 취소합니다.");
   };
 
-  const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [isAppling, setIsAppling] = useState<boolean>(false);
-
   return (
     <div className="flex h-full w-full flex-col items-center bg-white-bg">
       <Header />
@@ -80,31 +81,46 @@ export default function RoomDetailPage() {
         <div className="flex flex-row-reverse gap-4 px-8 py-2">
           {isOwner ? (
             <div className="flex flex-row-reverse gap-4 px-8 py-2">
-              <ActionButton
+              <Button
                 onClick={() => handleCancelDubbing()}
-                buttonLabel="더빙 취소"
+                children={"더빙 취소"}
+                large={true}
+                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                outline={true}
               />
-              <ActionButton
+              <Button
                 onClick={() => handleEnterStudio()}
-                buttonLabel="스튜디오 입장"
+                children={"스튜디오 입장"}
+                large={true}
+                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                outline={true}
               />
             </div>
           ) : isAppling ? (
             <div className="flex flex-row-reverse gap-4 px-8 py-2">
-              <ActionButton
+              <Button
                 onClick={() => handleCancelApplication()}
-                buttonLabel="참가 취소"
+                children={"참가 취소"}
+                large={true}
+                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                outline={true}
               />
-              <ActionButton
+              <Button
                 onClick={() => handleEnterStudio()}
-                buttonLabel="스튜디오 입장"
+                children={"스튜디오 입장"}
+                large={true}
+                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                outline={true}
               />
             </div>
           ) : (
             <div className="flex flex-row-reverse gap-4 px-8 py-2">
-              <ActionButton
+              <Button
                 onClick={() => handleApplyClick()}
-                buttonLabel="신청하기"
+                children={"신청하기"}
+                large={true}
+                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                outline={true}
               />
             </div>
           )}

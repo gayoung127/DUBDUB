@@ -19,6 +19,18 @@ const Role = ({ roles, onRoleSelect }: RolesProps) => {
     setRolesState([...roles]);
   }, [roles]);
 
+  useEffect(() => {
+    const selectedRoles = rolesState.filter(
+      (role) => role.selectedBy === currentUserId,
+    );
+
+    console.log("List of selected roles: ", selectedRoles);
+
+    setMySelectedCount(selectedRoles.length);
+
+    onRoleSelect(selectedRoles, selectedRoles.length > 0);
+  }, [rolesState]);
+
   const handleRoleClick = (clickedRole: RoleData) => {
     setRolesState((prevRoles) => {
       const updatedRoles = prevRoles.map((role) => {
@@ -31,14 +43,6 @@ const Role = ({ roles, onRoleSelect }: RolesProps) => {
         }
         return role;
       });
-
-      const selectedRoles = updatedRoles.filter(
-        (role) => role.selectedBy === currentUserId,
-      );
-
-      setMySelectedCount(selectedRoles.length);
-
-      onRoleSelect(selectedRoles, selectedRoles.length > 0);
 
       return updatedRoles;
     });
