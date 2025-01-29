@@ -43,6 +43,18 @@
   .white-scrollbar:hover::-webkit-scrollbar-thumb {
     background: #6d6d6d80;
   }
+
+  .hidden-scrollbar {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  .hidden-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+  .hidden-scrollbar {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
 #__next {
