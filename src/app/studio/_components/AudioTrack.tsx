@@ -1,11 +1,15 @@
 import React from "react";
-
-import { AudioFile, Track } from "@/app/_types/studio";
-
+import { Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 
 const AudioTrack = ({ files, trackId, waveColor, blockColor }: Track) => {
-  const totalDuration = Math.max(...files.map((file) => file.endTime));
+  const totalDuration = Math.max(
+    ...files.map(
+      (file) =>
+        file.startPoint + (file.duration - file.trimStart - file.trimEnd),
+    ),
+    1,
+  );
 
   return (
     <div className="flex h-10 w-full flex-row items-center justify-start overflow-hidden">
@@ -27,8 +31,13 @@ const AudioTrack = ({ files, trackId, waveColor, blockColor }: Track) => {
       </div>
       <div className="relative flex h-full w-full flex-row items-center justify-start border border-gray-300 px-2">
         {files.map((file, index) => {
-          const leftPosition = `${(file.startTime / totalDuration) * 100}%`;
-          const width = `${((file.endTime - file.startTime) / totalDuration) * 100}%`;
+          // ✅ `startPoint`를 `totalDuration` 기준으로 비율 변환
+          const leftPosition = `${(file.startPoint / totalDuration) * 100}%`;
+          // ✅ `trimStart`, `trimEnd` 반영한 `width` 계산
+          const width = `${
+            ((file.duration - file.trimStart - file.trimEnd) / totalDuration) *
+            100
+          }%`;
 
           return (
             <div

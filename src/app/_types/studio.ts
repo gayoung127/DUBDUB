@@ -2,8 +2,7 @@
 export interface AudioFile {
   id: string; // 파일 아이디
   url: string; // 파일 주소
-  startTime: number; // 트랙 내에서의 시작 시간
-  endTime: number; // 트랙 내에서의 끝 시간
+  startPoint: number; // 트랙 내에서의 시작 시간
   duration: number; // 원본 파일 전체 길이
   trimStart: number; // 잘린 시작 부분
   trimEnd: number; // 잘린 끝 부분
@@ -30,11 +29,10 @@ export const initialTracks: Track[] = [
       {
         id: "file1",
         url: "/examples/happyhappyhappysong.mp3",
-        startTime: 0,
-        endTime: 10,
-        duration: 30,
+        startPoint: 0,
+        duration: 7,
         trimStart: 0,
-        trimEnd: 20,
+        trimEnd: 3,
         volume: 1.0,
         isMuted: false,
         speed: 1.0,
@@ -42,11 +40,10 @@ export const initialTracks: Track[] = [
       {
         id: "file2",
         url: "/examples/happyhappyhappysong.mp3",
-        startTime: 12,
-        endTime: 20,
-        duration: 30,
+        startPoint: 12,
+        duration: 7,
         trimStart: 2,
-        trimEnd: 8,
+        trimEnd: 2,
         volume: 0.8,
         isMuted: false,
         speed: 1.2,
@@ -61,11 +58,10 @@ export const initialTracks: Track[] = [
       {
         id: "file3",
         url: "/examples/happyhappyhappysong.mp3",
-        startTime: 5,
-        endTime: 15,
-        duration: 30,
+        startPoint: 5,
+        duration: 7,
         trimStart: 0,
-        trimEnd: 15,
+        trimEnd: 2,
         volume: 1.0,
         isMuted: true,
         speed: 1.0,
@@ -73,11 +69,10 @@ export const initialTracks: Track[] = [
       {
         id: "file4",
         url: "/examples/happyhappyhappysong.mp3",
-        startTime: 18,
-        endTime: 30,
-        duration: 30,
+        startPoint: 21,
+        duration: 7,
         trimStart: 3,
-        trimEnd: 12,
+        trimEnd: 2,
         volume: 0.5,
         isMuted: false,
         speed: 1.0,

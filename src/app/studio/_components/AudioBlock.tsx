@@ -8,8 +8,8 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
 
-  const startTime = 0;
-  const duration = 5;
+  const startTime = 0 + file.trimStart;
+  const duration = file.duration - file.trimEnd - file.trimStart;
 
   useEffect(() => {
     const fetchMockAudioBuffer = async () => {
@@ -32,7 +32,6 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
       visualizeWaveform();
     }
   }, [audioBuffer]);
-
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !audioBuffer) return;
@@ -43,16 +42,23 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const waveform = audioBuffer.getChannelData(0); // Mono channel
-    const step = Math.ceil(waveform.length / canvas.width);
+    const waveform = audioBuffer.getChannelData(0);
+    const sampleRate = audioBuffer.sampleRate;
+
+    const startIndex = Math.floor(file.trimStart * sampleRate);
+    const endIndex = Math.floor((file.duration - file.trimEnd) * sampleRate);
+
+    const trimmedWaveform = waveform.slice(startIndex, endIndex);
+
+    const step = Math.ceil(trimmedWaveform.length / canvas.width);
     const amp = canvas.height / 2;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = waveColor;
 
     for (let i = 0; i < canvas.width; i += 3) {
-      const min = Math.min(...waveform.slice(i * step, (i + 1) * step));
-      const max = Math.max(...waveform.slice(i * step, (i + 1) * step));
+      const min = Math.min(...trimmedWaveform.slice(i * step, (i + 1) * step));
+      const max = Math.max(...trimmedWaveform.slice(i * step, (i + 1) * step));
 
       context.fillRect(i, (1 + min) * amp, 2, Math.max(2, (max - min) * amp));
     }
