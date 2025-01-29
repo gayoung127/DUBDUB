@@ -7,16 +7,12 @@ interface TimelineProps {
   currentTime: number;
   setCurrentTime: (time: number) => void;
   totalDuration: number;
-  timelineScrollRef: React.RefObject<HTMLDivElement | null>;
-  trackScrollRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const Timeline = ({
   currentTime,
   setCurrentTime,
   totalDuration,
-  timelineScrollRef,
-  trackScrollRef,
 }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const [timelineWidth, setTimelineWidth] = useState(4000);
