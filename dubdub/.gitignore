@@ -38,3 +38,8 @@ out/
 
 ### .env ###
 *.env*
+
+### .yml ###
+*.yml
+!example.yml
+
