@@ -4,6 +4,8 @@ import AudioBlock from "./AudioBlock";
 
 interface AudioTrackProps extends Track {
   totalDuration: number;
+  currentTime: number;
+  audioContext: AudioContext | null;
 }
 
 const AudioTrack = ({
@@ -12,6 +14,8 @@ const AudioTrack = ({
   waveColor,
   blockColor,
   totalDuration,
+  currentTime,
+  audioContext,
 }: AudioTrackProps) => {
   return (
     <div className="flex h-10 w-full flex-row items-center justify-start overflow-hidden">
@@ -53,6 +57,8 @@ const AudioTrack = ({
                 file={file}
                 waveColor={waveColor}
                 blockColor={blockColor}
+                currentTime={currentTime}
+                audioContext={audioContext}
               />
             </div>
           );

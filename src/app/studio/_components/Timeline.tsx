@@ -1,58 +1,42 @@
-import React, { useEffect, useRef } from "react";
-import WaveSurfer from "wavesurfer.js";
-import { GenericPlugin } from "wavesurfer.js/dist/base-plugin";
-import TimelinePlugin from "wavesurfer.js/dist/plugins/timeline.esm";
+"use client";
+
+import React, { useRef, useEffect, useState } from "react";
+import TimelineMarker from "./TimelineMarker";
 
 interface TimelineProps {
-  wavesurfer: WaveSurfer; // WaveSurfer 인스턴스
-  height?: number;
-  primaryLabelInterval?: number;
-  secondaryLabelInterval?: number;
-  timeInterval?: number;
+  currentTime: number;
+  setCurrentTime: (time: number) => void;
+  totalDuration: number;
 }
 
-const Timeline: React.FC<TimelineProps> = ({
-  wavesurfer,
-  height = 30,
-  primaryLabelInterval = 10,
-  secondaryLabelInterval = 5,
-  timeInterval = 1,
-}) => {
-  const timelineContainerRef = useRef<HTMLDivElement | null>(null);
+const Timeline = ({
+  currentTime,
+  setCurrentTime,
+  totalDuration,
+}: TimelineProps) => {
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const [timelineWidth, setTimelineWidth] = useState(800); // 기본값
 
+  // ✅ 타임라인 너비 동적 계산 (화면 크기 변경 시 반영)
   useEffect(() => {
-    if (!timelineContainerRef.current || !wavesurfer) {
-      console.error(
-        "Timeline container is not initialized or WaveSurfer is not ready.",
-      );
-      return;
+    if (timelineRef.current) {
+      setTimelineWidth(timelineRef.current.offsetWidth);
     }
-
-    // Timeline 플러그인 초기화
-    const timeline = TimelinePlugin.create({
-      container: timelineContainerRef.current,
-      height,
-      primaryLabelInterval,
-      secondaryLabelInterval,
-      timeInterval,
-    }) as unknown as GenericPlugin; // 타입 단언 추가
-
-    // 플러그인을 등록
-    wavesurfer.registerPlugin(timeline);
-
-    return () => {
-      timeline.destroy(); // 플러그인 정리
-    };
-  }, [
-    wavesurfer,
-    height,
-    primaryLabelInterval,
-    secondaryLabelInterval,
-    timeInterval,
-  ]);
+  }, []);
 
   return (
-    <div ref={timelineContainerRef} className="h-full w-full bg-gray-800" />
+    <div
+      ref={timelineRef}
+      className="relative flex h-[20px] w-full border-b border-gray-300 bg-gray-400"
+    >
+      {/* ✅ 타임라인 마커 추가 */}
+      <TimelineMarker
+        currentTime={currentTime}
+        setCurrentTime={setCurrentTime}
+        totalDuration={totalDuration}
+        timelineWidth={timelineWidth}
+      />
+    </div>
   );
 };
 
