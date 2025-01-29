@@ -1,8 +1,8 @@
 package com.ssafy.dubdub.member.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Recruitment;
-import com.ssafy.dubdub.member.entity.Enum.Position;
-import com.ssafy.dubdub.member.entity.Enum.Provider;
+import com.ssafy.dubdub.member.entity.enums.Position;
+import com.ssafy.dubdub.member.entity.enums.Provider;
+import com.ssafy.dubdub.recruitment.entity.Recruitment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

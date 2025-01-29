@@ -1,31 +1,26 @@
 package com.ssafy.dubdub.auth.service;
 
 import com.ssafy.dubdub.auth.dto.AuthResponseDTO;
-import com.ssafy.dubdub.auth.dto.KakaoUserDTO;
 import com.ssafy.dubdub.auth.dto.TokenResponseDTO;
 import com.ssafy.dubdub.auth.entity.RefreshToken;
 import com.ssafy.dubdub.auth.exception.AuthException;
 import com.ssafy.dubdub.config.exception.ErrorCode;
 import com.ssafy.dubdub.config.jwt.JWTUtil;
 import com.ssafy.dubdub.member.dto.CustomUserDetails;
-import com.ssafy.dubdub.member.entity.Enum.Provider;
+import com.ssafy.dubdub.member.entity.enums.Provider;
 import com.ssafy.dubdub.member.entity.Member;
 import com.ssafy.dubdub.member.repository.MemberRepository;
-import com.ssafy.dubdub.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +32,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 

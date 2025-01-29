@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.casting.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Recruitment;
+import com.ssafy.dubdub.recruitment.entity.Recruitment;
 import com.ssafy.dubdub.member.entity.Member;
 import com.ssafy.dubdub.member.repository.MemberRepository;
 import jakarta.persistence.*;

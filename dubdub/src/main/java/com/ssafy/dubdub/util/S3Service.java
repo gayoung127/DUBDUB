@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.Util;
+package com.ssafy.dubdub.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

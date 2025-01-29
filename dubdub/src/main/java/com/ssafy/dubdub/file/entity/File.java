@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.file.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Recruitment;
+import com.ssafy.dubdub.recruitment.entity.Recruitment;
 import com.ssafy.dubdub.file.entity.Enum.FileStatus;
 import com.ssafy.dubdub.file.entity.Enum.FileType;
 import jakarta.persistence.*;

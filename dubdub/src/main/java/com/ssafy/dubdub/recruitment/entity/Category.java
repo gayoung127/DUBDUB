@@ -1,6 +1,6 @@
-package com.ssafy.dubdub.Recruitment.entity;
+package com.ssafy.dubdub.recruitment.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Enum.CategoryType;
+import com.ssafy.dubdub.recruitment.entity.enums.CategoryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

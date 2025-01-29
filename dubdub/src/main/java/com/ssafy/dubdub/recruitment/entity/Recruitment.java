@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.Recruitment.entity;
+package com.ssafy.dubdub.recruitment.entity;
 
 import com.ssafy.dubdub.casting.entity.Casting;
 import com.ssafy.dubdub.file.entity.File;

@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.studio.entity;
 
-import com.ssafy.dubdub.Recruitment.entity.Recruitment;
+import com.ssafy.dubdub.recruitment.entity.Recruitment;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

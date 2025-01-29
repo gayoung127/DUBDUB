@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.Util;
+package com.ssafy.dubdub.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

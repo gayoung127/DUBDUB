@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.member.repository;
 
-import com.ssafy.dubdub.member.entity.Enum.Provider;
+import com.ssafy.dubdub.member.entity.enums.Provider;
 import com.ssafy.dubdub.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 

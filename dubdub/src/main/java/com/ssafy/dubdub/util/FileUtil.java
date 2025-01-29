@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.Util;
+package com.ssafy.dubdub.util;
 
 import jakarta.activation.MimetypesFileTypeMap;
 import org.springframework.web.multipart.MultipartFile;
