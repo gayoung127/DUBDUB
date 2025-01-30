@@ -9,19 +9,6 @@ services:
       - "80:8080"
     volumes:
       - ./logs:/app/logs
-    environment:
-      RDS_ENDPOINT: ${RDS_ENDPOINT}
-      RDS_DATABASE: ${RDS_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${S3_SECRET_KEY}
-      S3_REGION: ${S3_REGION}
-      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION}
-      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
-      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+    env_file:
+      - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     restart: always
