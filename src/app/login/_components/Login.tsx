@@ -4,21 +4,20 @@ import H1 from "@/app/_components/H1";
 import { useEffect, useState } from "react";
 import KakaoLoginButton from "./KakaoLoginButton";
 import SignUp from "./SignUp";
+import { useAuthStore } from "@/app/_store/AuthStore";
+import { useRouter } from "next/router";
 
 const Login = () => {
+  const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { accessToken, setAccessToken, setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-
-    if (token) {
-      setIsLoggedIn(true);
-      window.location.assign("/lobby");
+    if (accessToken) {
+      router.push("/lobby");
     } else {
-      setIsLoggedIn(false);
     }
-  });
+  }, [accessToken]);
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get("code");
@@ -26,26 +25,28 @@ const Login = () => {
       handleKakaoLogin(code);
       window.history.replaceState({}, document.title, "/login");
     } else {
-      setIsLoggedIn(false);
     }
   }, []);
 
   const handleKakaoLogin = async (code: string) => {
     try {
-      const response = await fetch("/api/auth/kakao", {
+      const response = await fetch("back/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
+        credentials: "include",
       });
 
       const data = await response.json();
 
-      //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트에 저장하는 로직이 필요한 부분
+      //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
+      setAccessToken(data.accessToken);
+      setLoggedInUserId(data.memberId);
 
       if (response.status === 201) {
         setIsFirstLogin(true);
       } else if (response.status === 200) {
-        window.location.assign("/lobby");
+        router.push("/lobby");
       }
     } catch (error) {
       console.error("로그인 에러: ", error);
