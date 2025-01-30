@@ -41,7 +41,7 @@ public class Recruitment extends Timestamped {
     @Column(columnDefinition = "text")
     private String script;
 
-    @Column(name = "is_private", nullable = false)
+    @Column(nullable = false)
     private boolean isPrivate;
 
     @OneToMany(mappedBy = "recruitment")
@@ -62,10 +62,4 @@ public class Recruitment extends Timestamped {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> categories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "recruitment")
-    private List<Studio> studios = new ArrayList<>();
-
-    @OneToMany(mappedBy = "recruitment")
-    private List<File> recording = new ArrayList<>();
 }

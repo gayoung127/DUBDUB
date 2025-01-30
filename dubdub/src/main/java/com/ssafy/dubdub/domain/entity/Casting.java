@@ -1,6 +1,5 @@
 package com.ssafy.dubdub.domain.entity;
 
-import com.ssafy.dubdub.repository.MemberRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Casting extends Timestamped {
-    @Id
-    private Long id;  // 기본키
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "member_id")
     private Long memberId;
@@ -22,11 +21,4 @@ public class Casting extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-
-    Member findMember(MemberRepository memberRepository) {
-        if (this.memberId == null) {
-            return null;
-        }
-        return memberRepository.findById(this.memberId).orElse(null);
-    }
 }

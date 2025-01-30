@@ -20,6 +20,6 @@ public class Studio extends Timestamped {
     @Column(nullable = false)
     private boolean isClosed;
 
-    @Column(name = "closed_at")
+    @Column
     private LocalDateTime closedAt;
 }
