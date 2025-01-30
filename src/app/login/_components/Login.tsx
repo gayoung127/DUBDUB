@@ -30,7 +30,12 @@ const Login = () => {
 
   const handleKakaoLogin = async (code: string) => {
     try {
-      const response = await fetch("back/auth/login", {
+      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backUrl) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+      const response = await fetch(`${backUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),

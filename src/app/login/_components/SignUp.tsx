@@ -26,7 +26,13 @@ const SignUp = () => {
 
   const getProfile = async (userId: number) => {
     try {
-      const response = await fetch(`back/member/profile?userId=${userId}`, {
+      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backUrl) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+
+      const response = await fetch(`${backUrl}/member/${userId}/profile`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -90,10 +96,19 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch("api/profile-change", {
-        method: "POST",
-        body: formData,
-      });
+      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backUrl) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+
+      const response = await fetch(
+        `${backUrl}/member/${loggedInUserId}/profile`,
+        {
+          method: "PUT",
+          body: formData,
+        },
+      );
 
       if (!response.ok) {
         throw new Error("가입 중에 서버 응답 오류");
