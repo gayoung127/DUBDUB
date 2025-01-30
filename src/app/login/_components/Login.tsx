@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import KakaoLoginButton from "./KakaoLoginButton";
 import SignUp from "./SignUp";
 import { useAuthStore } from "@/app/_store/AuthStore";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const router = useRouter();

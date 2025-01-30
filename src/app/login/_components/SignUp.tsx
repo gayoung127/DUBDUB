@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { UserProfile } from "../type";
 import Button from "@/app/_components/Button";
-import C1 from "@/app/_components/C1";
 import H4 from "@/app/_components/H4";
 import { useAuthStore } from "@/app/_store/AuthStore";
 
