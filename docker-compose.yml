@@ -11,4 +11,22 @@ services:
       - ./logs:/app/logs
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
+    environment:
+      REDIS_HOST: redis  # Redis 컨테이너의 이름
+      REDIS_PORT: 6379
+    depends_on: 
+      - redis  # Redis 컨테이너가 먼저 실행됨
     restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: dubdub_redis
+    ports:
+      - "6379:6379"  # 호스트와 동일한 포트 매핑
+    command: redis-server --appendonly yes  # 영속성 활성화
+    volumes:
+      - redis_data:/data  # Redis 데이터 영속화
+    restart: always
+
+volumes:
+  redis_data:  # Redis 데이터를 저장하는 볼륨
