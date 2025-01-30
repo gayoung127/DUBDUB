@@ -2,11 +2,11 @@ package com.ssafy.dubdub.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "recruitment_category")
-@Getter @Setter
+@Getter
+@NoArgsConstructor
 public class RecruitmentCategory {
 
     @EmbeddedId
@@ -21,5 +21,10 @@ public class RecruitmentCategory {
     @MapsId("categoryId")
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public RecruitmentCategory(Recruitment recruitment, Category category) {
+        this.recruitment = recruitment;
+        this.category = category;
+    }
 }
 

@@ -17,7 +17,7 @@ public class Genre {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private GenreType genreType;
+    private GenreType genreName;
 
     @OneToMany(mappedBy = "genre")
     private List<RecruitmentGenre> recruitments = new ArrayList<>();

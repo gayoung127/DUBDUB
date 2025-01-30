@@ -19,7 +19,7 @@ public class Category {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CategoryType categoryType;
+    private CategoryType categoryName;
 
     @OneToMany(mappedBy = "category")
     private List<RecruitmentCategory> recruitments = new ArrayList<>();
