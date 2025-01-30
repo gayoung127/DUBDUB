@@ -1,17 +1,22 @@
 package com.ssafy.dubdub.domain.entity;
 
-import com.ssafy.dubdub.enums.CategoryType;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Getter
-@NoArgsConstructor
+@Getter @Setter
 public class Category {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private CategoryType typeName;
+    private String typeName;
+
+    @OneToMany(mappedBy = "category")
+    private List<RecruitmentCategory> recruitments = new ArrayList<>();
 }

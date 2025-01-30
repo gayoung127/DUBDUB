@@ -47,19 +47,9 @@ public class Recruitment extends Timestamped {
     @OneToMany(mappedBy = "recruitment")
     private List<Casting> castings = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "recruitment_genre",
-            joinColumns = @JoinColumn(name = "recruitment_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private List<Genre> genres = new ArrayList<>();
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecruitmentGenre> genres = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "recruitment_category",
-            joinColumns = @JoinColumn(name = "recruitment_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<Category> categories = new ArrayList<>();
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecruitmentCategory> categories = new ArrayList<>();
 }
