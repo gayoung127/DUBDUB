@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import TimelinePointer from "@/public/images/icons/icon-timeline-pointer.svg";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
+import { useTimeStore } from "@/app/_store/TimeStore";
 
 gsap.registerPlugin(Draggable);
 
@@ -19,6 +20,7 @@ const TimelineMarker = ({
   timelineRef,
 }: TimelineMarkerProps) => {
   const markerRef = useRef<HTMLDivElement | null>(null);
+  const { setTimeFromPx } = useTimeStore();
 
   useEffect(() => {
     if (!markerRef.current || !timelineRef.current) return;
@@ -28,6 +30,11 @@ const TimelineMarker = ({
       bounds: timelineRef.current,
       inertia: true,
       autoScroll: 1,
+      onDrag: function () {
+        const position = this.x;
+        const newTime = position;
+        setTimeFromPx(newTime);
+      },
     });
   }, [setMarkerPosition]);
 
@@ -42,7 +49,6 @@ const TimelineMarker = ({
           transition: "left 0.1s ease-in-out",
         }}
       >
-        {/* 실제 아이콘만 -6px 이동 */}
         <div style={{ transform: "translateX(-6px)" }}>
           <TimelinePointer width={12} height={12} />
         </div>
