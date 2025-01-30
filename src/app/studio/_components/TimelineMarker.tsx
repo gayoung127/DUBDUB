@@ -42,7 +42,22 @@ const TimelineMarker = ({
           transition: "left 0.1s ease-in-out",
         }}
       >
-        <TimelinePointer width={12} height={12} />
+        {/* 실제 아이콘만 -6px 이동 */}
+        <div style={{ transform: "translateX(-6px)" }}>
+          <TimelinePointer width={12} height={12} />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: "10px", // 마커 아이콘 아래
+            left: "6px", // 마커 중앙 정렬
+            width: ".5px",
+            height: "36vh", // 전체 트랙을 덮도록 설정
+            backgroundColor: "#f6f6f6", // 줄 색상
+            pointerEvents: "none", // 마우스 이벤트 방해 안 받도록
+            transform: "translateX(-6px)",
+          }}
+        />
       </div>
     </>
   );
