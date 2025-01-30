@@ -3,6 +3,7 @@ package com.ssafy.dubdub.domain.entity;
 import com.ssafy.dubdub.enums.FileStatus;
 import com.ssafy.dubdub.enums.FileType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +36,18 @@ public class File extends Timestamped{
 
     @Enumerated(EnumType.STRING)
     private FileStatus fileStatus;
+
+
+    @Builder
+    public File(Recruitment recruitment, String fileName, FileType fileType) {
+        this.recruitment = recruitment;
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.fileStatus = FileStatus.ACTIVE;
+
+        this.folderName = "test";
+        this.bucketName = "test";
+    }
 
     public String getFullUrl() {
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;

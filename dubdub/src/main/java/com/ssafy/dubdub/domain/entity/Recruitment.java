@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,17 +35,13 @@ public class Recruitment extends Timestamped {
     @Column(nullable = false)
     private boolean isRecruiting;
 
-    private String thumbnail;
-
-    private String video;
-
     @Column(columnDefinition = "text")
     private String script;
 
     @Column(nullable = false)
     private boolean isPrivate;
 
-    @OneToMany(mappedBy = "recruitment")
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Casting> castings = new ArrayList<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -52,4 +49,28 @@ public class Recruitment extends Timestamped {
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitmentCategory> categories = new ArrayList<>();
+
+    @Builder
+    public Recruitment(Member author, String title, String content, LocalDateTime startTime, LocalDateTime endTime, boolean isRecruiting, String script, boolean isPrivate) {
+        this.author = author;
+        this.title = title;
+        this.content = content;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isRecruiting = isRecruiting;
+        this.script = script;
+        this.isPrivate = isPrivate;
+    }
+
+    public void addCasting(Casting casting) {
+        castings.add(casting);
+    }
+
+    public void addGenre(RecruitmentGenre recruitmentGenre) {
+        genres.add(recruitmentGenre);
+    }
+
+    public void addCategory(RecruitmentCategory recruitmentCategory) {
+        categories.add(recruitmentCategory);
+    }
 }
