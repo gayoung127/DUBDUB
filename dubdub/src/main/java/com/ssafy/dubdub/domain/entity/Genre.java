@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.domain.entity;
 
+import com.ssafy.dubdub.enums.GenreType;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -14,7 +15,9 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String genreName;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GenreType genreType;
 
     @OneToMany(mappedBy = "genre")
     private List<RecruitmentGenre> recruitments = new ArrayList<>();
