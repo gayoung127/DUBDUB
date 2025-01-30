@@ -47,8 +47,8 @@ const RecordSection = () => {
           <AudioTrackHeader key={track.trackId} trackId={track.trackId} />
         ))}
       </div>
-      <div className="flex h-full w-full flex-shrink-0 flex-col items-start justify-start overflow-hidden border border-gray-300 bg-gray-400">
-        <div className="flex h-[60px] w-full flex-shrink-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
+      <div className="flex h-full w-full flex-col items-start justify-start overflow-x-hidden border border-gray-300 bg-gray-400">
+        <div className="flex h-[60px] w-full flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
           <Timeline
             currentTime={currentTime}
             setCurrentTime={setCurrentTime}
