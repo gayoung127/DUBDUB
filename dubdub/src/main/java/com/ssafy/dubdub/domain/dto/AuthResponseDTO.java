@@ -9,6 +9,4 @@ public class AuthResponseDTO {
     private TokenResponseDTO token;
     private boolean isNewMember;
     private Long memberId;
-    private String email;
-    private String nickname;
 }

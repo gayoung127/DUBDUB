@@ -4,7 +4,10 @@ import com.ssafy.dubdub.domain.dto.AuthResponseDTO;
 import com.ssafy.dubdub.domain.dto.TokenResponseDTO;
 import com.ssafy.dubdub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,22 +18,72 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    @Value("${jwt.access.expiration}")
+    private static int accessTokenExpiredMs;
+    @Value("${jwt.refresh.expiration}")
+    private static int refreshTokenExpiredMs;
 
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
-    public ResponseEntity<AuthResponseDTO> kakaoLogin(@RequestParam String code) {
-        AuthResponseDTO response = authService.kakaoLogin(code);
+    public ResponseEntity<Long> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
+        AuthResponseDTO authResponse = authService.kakaoLogin(code);
+
+        response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
+        response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
 
         return ResponseEntity
-                .status(response.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
-                .body(response);
+                .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(authResponse.getMemberId());
     }
 
-    @Operation(summary = "access token 재발급")
+    @Operation(summary = "token 재발급")
     @PostMapping("/token")
-    public ResponseEntity<TokenResponseDTO> reissueAccessToken(
-            @RequestHeader("Authorization") String bearerToken) {
-        String accessToken = bearerToken.substring(7);
-        return ResponseEntity.ok(authService.reissueAccessToken(accessToken));
+    public ResponseEntity<Void> reissueTokens(
+            @CookieValue("refreshToken") String refreshToken,
+            HttpServletResponse response) {
+        TokenResponseDTO tokenResponse = authService.reissueAccessToken(refreshToken);
+
+        response.addCookie(createAccessTokenCookie(tokenResponse.getAccessToken()));
+        response.addCookie(createRefreshTokenCookie(tokenResponse.getRefreshToken()));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "토큰 유효성 검증")
+    @GetMapping("/validate")
+    public ResponseEntity<Void> validateToken(
+            @CookieValue("accessToken") String accessToken) {
+        return ResponseEntity.ok().build();
+    }
+
+    private Cookie createSecureCookie(String name, String value, String path, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "Strict");
+
+        cookie.setPath(path);
+        cookie.setMaxAge(maxAge);
+
+        return cookie;
+    }
+
+    private Cookie createAccessTokenCookie(String token) {
+        return createSecureCookie(
+                "accessToken",
+                token,
+                "/",
+                accessTokenExpiredMs
+        );
+    }
+
+    private Cookie createRefreshTokenCookie(String token) {
+        return createSecureCookie(
+                "refreshToken",
+                token,
+                "/auth/token",
+                refreshTokenExpiredMs
+        );
     }
 }
