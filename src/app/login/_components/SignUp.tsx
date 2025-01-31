@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserProfile } from "../type";
 import Button from "@/app/_components/Button";
-import C1 from "@/app/_components/C1";
 import H4 from "@/app/_components/H4";
+import { useAuthStore } from "@/app/_store/AuthStore";
 
 const SignUp = () => {
   const [user, setUser] = useState<UserProfile>({
@@ -15,6 +15,37 @@ const SignUp = () => {
   const [isAgreed, setIsAgreed] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { loggedInUserId } = useAuthStore();
+
+  useEffect(() => {
+    if (loggedInUserId) {
+      getProfile(loggedInUserId);
+    }
+  }, [loggedInUserId]);
+
+  const getProfile = async (userId: number) => {
+    try {
+      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backUrl) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+
+      const response = await fetch(`${backUrl}/member/${userId}/profile`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data); //api완성되면 수정
+      }
+    } catch (error) {
+      console.error("회원정보 불러오기 에러: ", error);
+    }
+  };
 
   //프로필 이미지 변경 핸들러
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,10 +95,19 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch("api/signup", {
-        method: "POST",
-        body: formData,
-      });
+      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backUrl) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+
+      const response = await fetch(
+        `${backUrl}/member/${loggedInUserId}/profile`,
+        {
+          method: "PUT",
+          body: formData,
+        },
+      );
 
       if (!response.ok) {
         throw new Error("가입 중에 서버 응답 오류");
