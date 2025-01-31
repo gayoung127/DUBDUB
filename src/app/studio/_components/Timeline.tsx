@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef } from "react";
 import TimelineMarker from "./TimelineMarker";
+import { formatTime } from "@/app/_utils/formatTime";
 
 interface TimelineProps {
   currentTime: number;
@@ -15,51 +16,46 @@ const Timeline = ({
   totalDuration,
 }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const [timelineWidth, setTimelineWidth] = useState(4000);
-  const [markerPosition, setMarkerPosition] = useState<number>(0);
 
+  const timelineWidth = totalDuration * 80;
   const mainTickInterval = timelineWidth / totalDuration;
-  const subTickInterval = mainTickInterval / 5;
-
-  useEffect(() => {
-    if (timelineRef.current) {
-      setTimelineWidth(timelineRef.current.scrollWidth);
-    }
-  }, []);
-
-  // const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
-  //   if (!timelineRef.current || !timelineScrollRef.current) return;
-
-  //   const timelineRect = timelineRef.current.getBoundingClientRect();
-  //   const scrollLeft = timelineScrollRef.current.scrollLeft;
-  //   const clickX = e.clientX - timelineRect.left + scrollLeft;
-
-  //   setMarkerPosition(clickX);
-  // };
+  const subTickInterval = mainTickInterval / 10;
 
   return (
     <div
       ref={timelineRef}
-      // onClick={handleTimelineClick}
       className="relative box-border border-b border-gray-300"
-      style={{ width: timelineWidth }}
+      style={{
+        width: `${timelineWidth}px`,
+        minWidth: `${timelineWidth}px`,
+        maxWidth: `${timelineWidth}px`,
+      }}
     >
-      <div className="absolute bottom-0 left-0 h-[50%] w-full" />
-      <div className="relative flex h-[30px] w-full items-center">
+      <div
+        className="relative h-[30px]"
+        style={{
+          width: `${timelineWidth}px`,
+          minWidth: `${timelineWidth}px`,
+          maxWidth: `${timelineWidth}px`,
+          overflow: "hidden",
+        }}
+      >
         {Array.from({ length: Math.ceil(totalDuration) }).map((_, i) => {
-          const timeLabel = i;
+          const position = Math.round(i * mainTickInterval);
+          if (position > timelineWidth) {
+            return null;
+          }
 
           return (
             <div
               key={`main-${i}`}
-              className="absolute flex h-full items-end"
-              style={{ left: `${i * mainTickInterval}px` }}
+              className="absolute flex h-full items-end overflow-hidden"
+              style={{ left: `${position}px` }}
             >
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col">
                 <span className="text-xs font-normal text-white-200">
-                  {timeLabel}
+                  {formatTime(i, "marker")}
                 </span>
-
                 <div className="h-4 w-[1px] bg-white-100"></div>
               </div>
             </div>
@@ -67,23 +63,25 @@ const Timeline = ({
         })}
 
         {Array.from({ length: Math.ceil(totalDuration / 0.2) }).map((_, i) => {
-          if (i % 5 === 0) return null;
+          const position = Math.round(i * subTickInterval);
+          if (position > timelineWidth) {
+            return null;
+          }
+
           return (
             <div
               key={`sub-${i}`}
-              className="absolute flex h-full items-end"
-              style={{ left: `${i * subTickInterval}px` }}
+              className="absolute flex h-full items-end overflow-hidden"
+              style={{ left: `${position}px` }}
             >
-              <div className="h-2 w-[1px] bg-white-100/50"></div>
+              <div
+                className={`w-[1px] ${i % 2 === 0 ? "h-2" : "h-1"} bg-white-100/50`}
+              ></div>
             </div>
           );
         })}
       </div>
-      <TimelineMarker
-        markerPosition={markerPosition}
-        setMarkerPosition={setMarkerPosition}
-        timelineRef={timelineRef}
-      />
+      <TimelineMarker timelineRef={timelineRef} />
     </div>
   );
 };

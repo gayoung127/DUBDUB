@@ -8,7 +8,7 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
 
 const PlayBar = () => {
-  const { time } = useTimeStore();
+  const { time, isPlaying, play, pause, reset } = useTimeStore();
 
   return (
     <section className="flex h-full w-full flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
@@ -16,10 +16,10 @@ const PlayBar = () => {
         <div>
           <RecordButton width={20} height={20} />
         </div>
-        <div>
+        <div onClick={play}>
           <PlayButton width={20} height={20} />
         </div>
-        <div>
+        <div onClick={reset}>
           <PauseButton width={20} height={20} />
         </div>
       </div>
