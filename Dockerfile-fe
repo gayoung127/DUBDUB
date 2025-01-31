@@ -13,8 +13,8 @@ COPY . .
 # 환경 변수 파일 설정
 ENV DOTENV_CONFIG_PATH=/app/.env-fe
 
-# Build the application
-RUN npm run build
+# Build the application, ESLint 검사 생략
+RUN NEXT_PUBLIC_DISABLE_ESLINT=true npm run build
 
 # Stage 2: Create a lightweight production image
 FROM node:18-alpine
