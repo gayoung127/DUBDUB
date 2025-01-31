@@ -1,5 +1,40 @@
 package com.ssafy.dubdub.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+
+@Getter
 public enum CategoryType {
-    MOVIE, DRAMA, DOCUMENTARY, ANIMATION, COMMERCIAL, ETC
+    MOVIE(1, "영화"),
+    DRAMA(2, "드라마"),
+    DOCUMENTARY(3, "다큐멘터리"),
+    ANIMATION(4, "애니메이션"),
+    COMMERCIAL(5, "광고"),
+    ETC(6, "기타");
+
+    private final int id;
+    private final String label;  // 한글 이름 저장
+
+    CategoryType(int id, String label) {
+        this.id = id;
+        this.label = label;
+    }
+
+    // JSON 직렬화 시 한글(label) 반환
+    @JsonValue
+    public String getLabel() {
+        return label;
+    }
+
+    // JSON 역직렬화 시 한글 -> Enum 매핑
+    @JsonCreator
+    public static CategoryType fromLabel(String label) {
+        for (CategoryType type : values()) {
+            if (type.getLabel().equals(label)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Invalid CategoryType label: " + label);
+    }
 }

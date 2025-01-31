@@ -15,10 +15,22 @@ public class Casting extends Timestamped {
     private Long memberId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruitment_id", insertable = false, updatable = false)
+    @JoinColumn(name = "recruitment_id")
     private Recruitment recruitment;
 
     @Column(nullable = false)
     private String name;
 
+    public Casting(Recruitment recruitment, String name) {
+        this.recruitment = recruitment;
+        this.name = name;
+    }
+
+    public Casting(String name) {
+        this.name = name;
+    }
+
+    public void castMember(Long memberId) {
+        this.memberId = memberId;
+    }
 }
