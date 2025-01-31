@@ -6,20 +6,20 @@ interface AudioTrackTimelineProps {
   trackId: number;
   files: AudioFile[];
   totalDuration: number;
-  currentTime: number;
   waveColor: string;
   blockColor: string;
   audioContext: AudioContext | null;
+  audioBuffers: Map<string, AudioBuffer> | null;
 }
 
 const AudioTrackTimeline = ({
   trackId,
   files,
   totalDuration,
-  currentTime,
   waveColor,
   blockColor,
   audioContext,
+  audioBuffers,
 }: AudioTrackTimelineProps) => {
   return (
     <div
@@ -28,7 +28,7 @@ const AudioTrackTimeline = ({
     >
       <div className="relative flex h-full">
         {files.map((file, index) => {
-          const leftPosition = `${file.startPoint * 80}px`;
+          const leftPosition = `${(file.startPoint + file.trimStart) * 80}px`;
           const width = `${
             (file.duration - file.trimStart - file.trimEnd) * 80
           }px`;
@@ -47,8 +47,8 @@ const AudioTrackTimeline = ({
                 file={file}
                 waveColor={waveColor}
                 blockColor={blockColor}
-                currentTime={currentTime}
                 audioContext={audioContext}
+                audioBuffers={audioBuffers}
               />
             </div>
           );

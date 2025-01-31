@@ -13,27 +13,36 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
+import { useTimeStore } from "@/app/_store/TimeStore";
 
 const RecordSection = () => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
-  const [currentTime, setCurrentTime] = useState<number>(0);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
   useEffect(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
-  }, []);
 
-  // const addFileToTrack = (trackId: number, file: AudioFile) => {
-  //   setTracks((prevTracks) =>
-  //     prevTracks.map((track) =>
-  //       track.trackId === trackId
-  //         ? { ...track, files: [...track.files, file] }
-  //         : track,
-  //     ),
-  //   );
-  // };
+    const loadAudioFiles = async () => {
+      if (!audioContextRef.current) return;
+      const context = audioContextRef.current;
+
+      for (const track of initialTracks) {
+        for (const file of track.files) {
+          if (!audioBuffersRef.current.has(file.url)) {
+            const response = await fetch(file.url);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await context.decodeAudioData(arrayBuffer);
+            audioBuffersRef.current.set(file.url, audioBuffer);
+          }
+        }
+      }
+    };
+
+    loadAudioFiles();
+  }, []);
 
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">
@@ -49,22 +58,18 @@ const RecordSection = () => {
       </div>
       <div className="flex h-full w-full flex-col items-start justify-start overflow-x-hidden border border-gray-300 bg-gray-400">
         <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
-          <Timeline
-            currentTime={currentTime}
-            setCurrentTime={setCurrentTime}
-            totalDuration={160}
-          />
+          <Timeline totalDuration={160} />
         </div>
         {tracks.map((track) => (
           <AudioTrackTimeline
             key={track.trackId}
             trackId={track.trackId}
             files={track.files}
+            totalDuration={160}
             waveColor={track.waveColor}
             blockColor={track.blockColor}
-            totalDuration={50}
-            currentTime={currentTime}
             audioContext={audioContextRef.current}
+            audioBuffers={audioBuffersRef.current}
           />
         ))}
       </div>
