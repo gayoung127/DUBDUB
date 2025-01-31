@@ -23,8 +23,6 @@ public class RecruitmentController {
             @RequestPart(value = "requestDTO", required = true) RecruitmentCreateRequestDTO requestDTO,
             @RequestPart(value = "video", required = true) MultipartFile video
     ) throws Exception {
-        System.out.println("ㅗhi");
-
         recruitmentService.addRecruitment(requestDTO, video);
         return ResponseEntity.ok().body(null);
     }
