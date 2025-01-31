@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,9 @@ public class AuthController {
 
     private final AuthService authService;
     @Value("${jwt.access.expiration}")
-    private static int accessTokenExpiredMs;
+    private int accessTokenExpiredMs;
     @Value("${jwt.refresh.expiration}")
-    private static int refreshTokenExpiredMs;
+    private int refreshTokenExpiredMs;
 
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
@@ -30,7 +31,6 @@ public class AuthController {
 
         response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
         response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
-
         return ResponseEntity
                 .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
                 .body(authResponse.getMemberId());
@@ -74,7 +74,7 @@ public class AuthController {
                 "accessToken",
                 token,
                 "/",
-                accessTokenExpiredMs
+                accessTokenExpiredMs / 1000
         );
     }
 
@@ -83,7 +83,7 @@ public class AuthController {
                 "refreshToken",
                 token,
                 "/auth/token",
-                refreshTokenExpiredMs
+                refreshTokenExpiredMs / 1000
         );
     }
 }
