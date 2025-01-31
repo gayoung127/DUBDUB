@@ -43,10 +43,11 @@ const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
       <div
         ref={markerRef}
         style={{
-          left: `${time - 6}px`,
+          left: `${time}px`,
           top: "18px",
           position: "absolute",
           transition: "left 0.1s ease-in-out",
+          zIndex: 9999,
         }}
       >
         <div style={{ transform: "translateX(-6px)" }}>
@@ -62,6 +63,7 @@ const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
             backgroundColor: "#f6f6f6",
             pointerEvents: "none",
             transform: "translateX(-6px)",
+            zIndex: 9999,
           }}
         />
       </div>
