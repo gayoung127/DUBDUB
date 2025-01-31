@@ -60,7 +60,7 @@ public class AuthController {
         Cookie cookie = new Cookie(name, value);
 
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setAttribute("SameSite", "Strict");
 
         cookie.setPath(path);
