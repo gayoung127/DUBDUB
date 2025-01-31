@@ -47,13 +47,14 @@ spring:
     import: optional:file:.env[.properties]
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:redis}  # 기본값은 redis 컨테이너 이름
+      port: ${REDIS_PORT:6379}
   servlet:
     multipart:
       enabled: true
       max-file-size: 100MB
       max-request-size: 100MB
+
 
 jwt:
   secret: ${JWT_SECRET}
