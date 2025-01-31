@@ -16,7 +16,6 @@ const Timeline = ({
 }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const [timelineWidth, setTimelineWidth] = useState(4000);
-  const [markerPosition, setMarkerPosition] = useState<number>(0);
 
   const mainTickInterval = timelineWidth / totalDuration;
   const subTickInterval = mainTickInterval / 5;
@@ -79,11 +78,7 @@ const Timeline = ({
           );
         })}
       </div>
-      <TimelineMarker
-        markerPosition={markerPosition}
-        setMarkerPosition={setMarkerPosition}
-        timelineRef={timelineRef}
-      />
+      <TimelineMarker timelineRef={timelineRef} />
     </div>
   );
 };

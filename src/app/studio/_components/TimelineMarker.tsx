@@ -9,18 +9,20 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 gsap.registerPlugin(Draggable);
 
 interface TimelineMarkerProps {
-  markerPosition: number;
-  setMarkerPosition: React.Dispatch<React.SetStateAction<number>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const TimelineMarker = ({
-  markerPosition,
-  setMarkerPosition,
-  timelineRef,
-}: TimelineMarkerProps) => {
+const PX_PER_SECOND = 80; // ✅ 1초 = 80px
+
+const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
   const markerRef = useRef<HTMLDivElement | null>(null);
-  const { setTimeFromPx } = useTimeStore();
+  const { time, setTimeFromPx } = useTimeStore();
+
+  useEffect(() => {
+    if (markerRef.current) {
+      gsap.to(markerRef.current, { x: time * PX_PER_SECOND, duration: 0.1 });
+    }
+  }, [time]);
 
   useEffect(() => {
     if (!markerRef.current || !timelineRef.current) return;
@@ -31,19 +33,17 @@ const TimelineMarker = ({
       inertia: true,
       autoScroll: 1,
       onDrag: function () {
-        const position = this.x;
-        const newTime = position;
-        setTimeFromPx(newTime);
+        setTimeFromPx(this.x);
       },
     });
-  }, [setMarkerPosition]);
+  }, []);
 
   return (
     <>
       <div
         ref={markerRef}
         style={{
-          left: `${markerPosition}px`,
+          left: `${time - 6}px`,
           top: "18px",
           position: "absolute",
           transition: "left 0.1s ease-in-out",
@@ -55,12 +55,12 @@ const TimelineMarker = ({
         <div
           style={{
             position: "absolute",
-            top: "10px", // 마커 아이콘 아래
-            left: "6px", // 마커 중앙 정렬
+            top: "10px",
+            left: "6px",
             width: ".5px",
-            height: "36vh", // 전체 트랙을 덮도록 설정
-            backgroundColor: "#f6f6f6", // 줄 색상
-            pointerEvents: "none", // 마우스 이벤트 방해 안 받도록
+            height: "36vh",
+            backgroundColor: "#f6f6f6",
+            pointerEvents: "none",
             transform: "translateX(-6px)",
           }}
         />
