@@ -1,14 +1,23 @@
 stages:
   - deploy
 
+variables:
+  NODE_PATH: "C:\\Program Files\\nodejs"
+  GIT_PATH: "C:\\Program Files\\Git\\cmd"
+  PATH: "$NODE_PATH;$GIT_PATH;$env:PATH"
+
 deploy_preview:
   stage: deploy
   except:
     - client
   tags:
     - vercel
+  before_script:
+    - npm cache clean --force
+    - Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
   script:
-    - npm install --global vercel
+    - "& 'C:\\Program Files\\Git\\cmd\\git.exe' config --global --add safe.directory '*'"
+    - npm install -g vercel@latest
     - vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
     - vercel build --token=$VERCEL_TOKEN
     - vercel deploy --prebuilt --token=$VERCEL_TOKEN
@@ -20,7 +29,15 @@ deploy_production:
   tags:
     - vercel
   script:
-    - npm install --global vercel
+    - "& 'C:\\Program Files\\Git\\cmd\\git.exe' config --global --add safe.directory '*'"
+    - npm install -g vercel@latest
     - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
     - vercel build --prod --token=$VERCEL_TOKEN
     - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .vercel/
+    - "%USERPROFILE%\\.npm"  # Windows npm 캐시 경로
