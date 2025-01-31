@@ -43,7 +43,6 @@ const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
       <div
         ref={markerRef}
         style={{
-          left: `${time}px`,
           top: "18px",
           position: "absolute",
           transition: "left 0.1s ease-in-out",
