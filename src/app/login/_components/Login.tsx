@@ -10,14 +10,7 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { accessToken, setAccessToken, setLoggedInUserId } = useAuthStore();
-
-  useEffect(() => {
-    if (accessToken) {
-      router.push("/lobby");
-    } else {
-    }
-  }, [accessToken]);
+  const { setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get("code");
@@ -30,27 +23,27 @@ const Login = () => {
 
   const handleKakaoLogin = async (code: string) => {
     try {
-      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (!backUrl) {
+      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!BASE_URL) {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
       }
-      const response = await fetch(`${backUrl}/auth/login`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        // body: JSON.stringify({ code }),
         credentials: "include",
       });
 
       const data = await response.json();
 
       //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
-      setAccessToken(data.accessToken);
       setLoggedInUserId(data.memberId);
 
       if (response.status === 201) {
         setIsFirstLogin(true);
       } else if (response.status === 200) {
+        console.log("로그인 성공!!");
         router.push("/lobby");
       }
     } catch (error) {

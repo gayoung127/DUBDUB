@@ -25,13 +25,13 @@ const SignUp = () => {
 
   const getProfile = async (userId: number) => {
     try {
-      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (!backUrl) {
+      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!BASE_URL) {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
       }
 
-      const response = await fetch(`${backUrl}/member/${userId}/profile`, {
+      const response = await fetch(`${BASE_URL}/member/${userId}/profile`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -95,14 +95,14 @@ const SignUp = () => {
     }
 
     try {
-      const backUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (!backUrl) {
+      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!BASE_URL) {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
       }
 
       const response = await fetch(
-        `${backUrl}/member/${loggedInUserId}/profile`,
+        `${BASE_URL}/member/${loggedInUserId}/profile`,
         {
           method: "PUT",
           body: formData,
