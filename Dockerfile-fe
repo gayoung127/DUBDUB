@@ -10,6 +10,9 @@ RUN npm install
 # Copy application code
 COPY . .
 
+# 환경 변수 파일 설정
+ENV DOTENV_CONFIG_PATH=/app/.env-fe
+
 # Build the application
 RUN npm run build
 
@@ -26,3 +29,6 @@ EXPOSE 3000
 
 # Run the Next.js application
 CMD ["npm", "run", "start"]
+
+
+
