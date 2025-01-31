@@ -5,16 +5,10 @@ import TimelineMarker from "./TimelineMarker";
 import { formatTime } from "@/app/_utils/formatTime";
 
 interface TimelineProps {
-  currentTime: number;
-  setCurrentTime: (time: number) => void;
   totalDuration: number;
 }
 
-const Timeline = ({
-  currentTime,
-  setCurrentTime,
-  totalDuration,
-}: TimelineProps) => {
+const Timeline = ({ totalDuration }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
   const timelineWidth = totalDuration * 80;
