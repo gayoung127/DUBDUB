@@ -131,8 +131,6 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
                     .token(token)
                     .isNewMember(userDetails.isNewMember())
                     .memberId(userDetails.getMember().getId())
-                    .email(userDetails.getMember().getEmail())
-                    .nickname(userDetails.getMember().getNickname())
                     .build();
 
         } catch (OAuth2AuthenticationException e) {
