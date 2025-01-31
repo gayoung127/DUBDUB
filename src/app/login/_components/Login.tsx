@@ -28,10 +28,10 @@ const Login = () => {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
       }
-      const response = await fetch(`${BASE_URL}/auth/login`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        // body: JSON.stringify({ code }),
         credentials: "include",
       });
 
@@ -43,6 +43,7 @@ const Login = () => {
       if (response.status === 201) {
         setIsFirstLogin(true);
       } else if (response.status === 200) {
+        console.log("로그인 성공!!");
         router.push("/lobby");
       }
     } catch (error) {

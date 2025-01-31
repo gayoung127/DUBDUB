@@ -6,12 +6,11 @@ export async function middleware(request: NextRequest) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   const refreshToken = cookieStore.get("refreshToken")?.value;
-
   if (!accessToken && !refreshToken) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  const validateResponse = await validateToken(accessToken, refreshToken);
+  // const validateResponse = await validateToken(accessToken, refreshToken);
 
   return NextResponse.next();
 }
@@ -44,7 +43,7 @@ const validateToken = async (
   }
 };
 /* 미들웨어 경로 설정해야 함
+ */
 export const config = {
-  matcher: ["/dashboard/:path*", "/dashboard"],
+  matcher: ["/:path*"],
 };
-*/
