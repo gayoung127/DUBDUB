@@ -56,7 +56,7 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .script(requestDTO.getScript())
                 .build();
 
-        String filePath = FileUtil.generateFilePath("test", FileType.ORIGINAL_VIDEO);
+        String filePath = FileUtil.generateFilePath(author.getEmail(), FileType.ORIGINAL_VIDEO);
         String fileUrl = s3Service.uploadFile(video, filePath);
 
         File file = File.builder()
