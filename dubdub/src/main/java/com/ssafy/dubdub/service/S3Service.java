@@ -25,9 +25,9 @@ public class S3Service {
 
     private final String ACL_PUBLIC_READ = "public-read";
 
-    public String uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file, String filePath) {
         try {
-            String fileName = FileUtil.generateUniqueFileName(file.getOriginalFilename());
+            String fileName = filePath + FileUtil.generateUniqueFileName(file.getOriginalFilename());
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -38,7 +38,7 @@ public class S3Service {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return getFileUrl(fileName);
+            return fileName;
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 중 오류 발생", e);
         }
@@ -53,7 +53,7 @@ public class S3Service {
         s3Client.deleteObject(deleteObjectRequest);
     }
 
-    private String getFileUrl(String fileName) {
+    public String getFullUrl(String fileName) {
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
     }
 }
