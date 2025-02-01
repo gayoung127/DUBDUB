@@ -38,13 +38,14 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     }
 
     @Override
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video) throws BadRequestException {
 //        if(!FileUtil.isValidVideoFile(video)) {
 //            throw new BadRequestException("비디오를 업로드해주세요.");
 //        }
+    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException {
 
         Recruitment recruitment = Recruitment.builder()
                 .author(null)
+                .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
                 .startTime(requestDTO.getStartTime())
