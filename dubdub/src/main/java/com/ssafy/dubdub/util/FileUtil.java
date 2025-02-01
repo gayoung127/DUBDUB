@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.util;
 
+import com.ssafy.dubdub.enums.FileType;
 import jakarta.activation.MimetypesFileTypeMap;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,7 +48,7 @@ public class FileUtil {
             return false;
         }
 
-        return isMimeTypeMatchesExtension(mimeType, originalFilename);
+        return true;
     }
 
     private static boolean isMimeTypeMatchesExtension(String mimeType, String originalFilename) {
@@ -60,5 +61,9 @@ public class FileUtil {
     public static String generateUniqueFileName(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID().toString() + extension;
+    }
+
+    public static String generateFilePath(String email, FileType fileType) {
+        return email +"/"+ fileType.name() + "/";
     }
 }

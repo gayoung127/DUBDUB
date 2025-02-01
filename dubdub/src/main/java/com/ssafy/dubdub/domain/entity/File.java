@@ -18,18 +18,9 @@ public class File extends Timestamped{
     @JoinColumn(name = "recruitment_id")
     private Recruitment recruitment;
 
-    @Column
-    private String region;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FileType fileType;
-
-    @Column(nullable = false)
-    private String bucketName;
-
-    @Column(nullable = false)
-    private String folderName;
 
     @Column(nullable = false)
     private String fileName;
@@ -44,12 +35,5 @@ public class File extends Timestamped{
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileStatus = FileStatus.ACTIVE;
-
-        this.folderName = "test";
-        this.bucketName = "test";
-    }
-
-    public String getFullUrl() {
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
     }
 }

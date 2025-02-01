@@ -1,7 +1,9 @@
 package com.ssafy.dubdub.controller;
 
 import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
+import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.RecruitmentService;
+import com.ssafy.dubdub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Security;
 
 @RequiredArgsConstructor
 @RequestMapping("/recruitment")
@@ -23,9 +27,10 @@ public class RecruitmentController {
             @RequestPart(value = "requestDTO", required = true) RecruitmentCreateRequestDTO requestDTO,
             @RequestPart(value = "video", required = true) MultipartFile video
     ) throws Exception {
-        System.out.println("ㅗhi");
 
-        recruitmentService.addRecruitment(requestDTO, video);
+        Member member = SecurityUtil.getCurrentUser();
+
+        recruitmentService.addRecruitment(requestDTO, video, member);
         return ResponseEntity.ok().body(null);
     }
 }
