@@ -53,6 +53,7 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .startTime(requestDTO.getStartTime())
                 .endTime(requestDTO.getEndTime())
                 .isRecruiting(requestDTO.isPrivate())
+                .script(requestDTO.getScript())
                 .build();
 
         String filePath = FileUtil.generateFilePath("test", FileType.ORIGINAL_VIDEO);
