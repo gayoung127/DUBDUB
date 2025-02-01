@@ -11,6 +11,7 @@ import com.ssafy.dubdub.repository.GenreRepository;
 import com.ssafy.dubdub.repository.RecruitmentRepository;
 import com.ssafy.dubdub.util.FileUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.NoSuchElementException;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 @Service
@@ -38,13 +40,13 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     }
 
     @Override
-//        if(!FileUtil.isValidVideoFile(video)) {
-//            throw new BadRequestException("비디오를 업로드해주세요.");
-//        }
     public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException {
+        if(!FileUtil.isValidVideoFile(video)) {
+            log.debug("Invalid video file");
+            throw new BadRequestException("비디오를 업로드해주세요.");
+        }
 
         Recruitment recruitment = Recruitment.builder()
-                .author(null)
                 .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
@@ -53,13 +55,14 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .isRecruiting(requestDTO.isPrivate())
                 .build();
 
-        String url = s3Service.uploadFile(video);
+        String filePath = FileUtil.generateFilePath("test", FileType.ORIGINAL_VIDEO);
+        String fileUrlurl = s3Service.uploadFile(video, filePath);
+
         File file = File.builder()
-                .fileName(url)
+                .fileName(fileUrlurl)
                 .recruitment(recruitment)
                 .fileType(FileType.ORIGINAL_VIDEO)
                 .build();
-
 
         for(String roleName: requestDTO.getCastings()) {
             recruitment.addCasting(new Casting(recruitment, roleName));
