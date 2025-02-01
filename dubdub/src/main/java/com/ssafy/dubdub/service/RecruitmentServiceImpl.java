@@ -57,10 +57,10 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .build();
 
         String filePath = FileUtil.generateFilePath("test", FileType.ORIGINAL_VIDEO);
-        String fileUrlurl = s3Service.uploadFile(video, filePath);
+        String fileUrl = s3Service.uploadFile(video, filePath);
 
         File file = File.builder()
-                .fileName(fileUrlurl)
+                .fileName(fileUrl)
                 .recruitment(recruitment)
                 .fileType(FileType.ORIGINAL_VIDEO)
                 .build();
