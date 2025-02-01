@@ -61,7 +61,7 @@ public class AuthController {
 
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", "None");
 
         cookie.setPath(path);
         cookie.setMaxAge(maxAge);
