@@ -17,6 +17,7 @@
     "dotenv": "^16.4.7",
     "gsap": "^3.12.7",
     "next": "15.1.4",
+    "openvidu-browser": "^2.31.0",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
