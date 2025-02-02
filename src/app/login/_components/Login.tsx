@@ -26,6 +26,7 @@ const Login = () => {
   const handleKakaoLogin = async (code: string) => {
     try {
       const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
       if (!BASE_URL) {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
