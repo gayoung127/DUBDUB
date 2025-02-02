@@ -14,8 +14,11 @@ services:
     environment:
       REDIS_HOST: redis  # Redis 컨테이너의 이름
       REDIS_PORT: 6379
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
     depends_on: 
       - redis  # Redis 컨테이너가 먼저 실행됨
+      - mysql
     restart: always
 
   redis:
@@ -28,5 +31,21 @@ services:
       - redis_data:/data  # Redis 데이터 영속화
     restart: always
 
+  mysql:
+    image: mysql:8.0
+    container_name: dubdub_mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}     # 데이터베이스 이름만 지정
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql          # 데이터 영속성을 위한 볼륨
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    
 volumes:
   redis_data:  # Redis 데이터를 저장하는 볼륨
+  mysql_data:
