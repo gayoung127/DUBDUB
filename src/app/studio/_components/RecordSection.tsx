@@ -8,7 +8,6 @@ import H4 from "@/app/_components/H4";
 
 import Timeline from "./Timeline";
 import VideoTrack from "./VideoTrack";
-import AudioTrack from "./AudioTrack";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import AudioTrackTimeline from "./AudioTrackTimeline";
