@@ -3,6 +3,7 @@ package com.ssafy.dubdub.service;
 import com.ssafy.dubdub.domain.dto.AuthResponseDTO;
 import com.ssafy.dubdub.domain.dto.TokenResponseDTO;
 import com.ssafy.dubdub.domain.entity.RefreshToken;
+import com.ssafy.dubdub.enums.Position;
 import com.ssafy.dubdub.exception.AuthException;
 import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.util.JWTUtil;
@@ -40,6 +41,7 @@ import java.util.Optional;
 @Slf4j
 public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthService {
     private final RefreshTokenService refreshTokenService;
+    private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final ClientRegistrationRepository clientRegistrationRepository;
 
@@ -80,7 +82,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
 
             String email = (String) kakaoAccount.get("email");
             String nickname = (String) profile.get("nickname");
-            String profileImageUrl = (String) profile.get("profile_image_url");
+            String kakaoProfileImageUrl = (String) profile.get("profile_image_url");
 
             Optional<Member> existingMember = memberRepository.findByEmailAndProvider(email, Provider.KAKAO);
             Member member;
@@ -89,12 +91,18 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
             if (existingMember.isPresent()) {
                 member = existingMember.get();
             } else {
+
+                String profileUrl = memberService.uploadKakaoProfileImage(
+                        kakaoProfileImageUrl,
+                        email
+                );
+
                 member = memberRepository.save(
                         Member.builder()
                                 .provider(Provider.KAKAO)
                                 .email(email)
                                 .nickname(nickname)
-                                .profileUrl(profileImageUrl)
+                                .profileUrl(profileUrl)
                                 .build()
                 );
                 isNewMember = true;

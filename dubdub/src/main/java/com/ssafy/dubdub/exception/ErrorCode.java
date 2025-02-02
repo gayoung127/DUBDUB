@@ -17,7 +17,10 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(404, "존재하지 않는 회원입니다."),
     REFRESH_TOKEN_NOT_FOUND(404, "리프레시 토큰을 찾을 수 없습니다."),
     REFRESH_TOKEN_EXPIRED(401, "리프레시 토큰이 만료되었습니다."),
-    TOKEN_NOT_FOUND(401, "토큰이 존재하지 않습니다.");
+    TOKEN_NOT_FOUND(401, "토큰이 존재하지 않습니다."),
+
+    INVALID_IMAGE_FORMAT(400, "지원하지 않는 이미지 형식입니다."),
+    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다.");
 
     private final int status;
     private final String message;
