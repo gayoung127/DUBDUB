@@ -16,8 +16,12 @@ const PlayBar = () => {
         <div>
           <RecordButton width={20} height={20} />
         </div>
-        <div onClick={play}>
-          <PlayButton width={20} height={20} />
+        <div onClick={isPlaying ? play : pause}>
+          {isPlaying ? (
+            <PlayButton width={20} height={20} />
+          ) : (
+            <PauseButton width={20} height={20} />
+          )}
         </div>
         <div onClick={reset}>
           <PauseButton width={20} height={20} />
