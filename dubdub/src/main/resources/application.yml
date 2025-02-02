@@ -10,7 +10,7 @@ spring:
     name: dubdub
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:dubdub}
+    url: jdbc:mysql://${MYSQL_ENDPOINT}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:dubdub}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
   jpa:
