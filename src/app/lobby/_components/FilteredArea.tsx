@@ -2,7 +2,7 @@ import Badge from "@/app/_components/Badge";
 import useFilterStore from "@/app/_store/FilterStore";
 
 const FilteredArea = () => {
-  const { timeFilter, typeFilter, genreFilter } = useFilterStore();
+  const { timeFilter, categoryFilter, genreFilter } = useFilterStore();
 
   return (
     // 수정
@@ -13,7 +13,7 @@ const FilteredArea = () => {
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        {typeFilter.map((badge, index) => (
+        {categoryFilter.map((badge, index) => (
           <Badge key={index} title={badge} />
         ))}
       </div>

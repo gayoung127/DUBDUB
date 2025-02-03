@@ -6,10 +6,91 @@ import Button from "../_components/Button";
 import { useSearchParams } from "next/navigation";
 import DubRoomArea from "./_components/DubRoomArea";
 import Header from "../_components/Header";
+import { useEffect, useRef, useState } from "react";
+import useFilterStore from "../_store/FilterStore";
+import { categories, genres } from "../_utils/filterTypes";
+import { getRoomList } from "../_apis/roomlist";
 
 const LobbyPage = () => {
+  const { timeFilter, categoryFilter, genreFilter } = useFilterStore();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "all"; // 기본값: "all"
+  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
+
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 16;
+  const [isFetching, setIsFetching] = useState(false);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useRef<HTMLDivElement | null>(null);
+
+  const getIndexes = (
+    filterArray: string[],
+    allOptions: string[],
+  ): number[] => {
+    return filterArray
+      .map((item) => allOptions.indexOf(item) + 1)
+      .filter((id) => id > 0);
+  };
+
+  const getRooms = async () => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: PAGE_SIZE.toString(),
+      onAir: timeFilter.includes("ON AIR")
+        ? "true"
+        : timeFilter.includes("대기 중")
+          ? "false"
+          : "",
+      isPrivate: "false",
+      isRecruiting: "true",
+      participationType: tab,
+      genreIds: getIndexes(genreFilter, genres).join(","),
+      categoryIds: getIndexes(categoryFilter, categories).join(","),
+    });
+    if (page <= 2) {
+      const list = await getRoomList(`${queryParams}`, page);
+      console.log("list = ", list);
+      setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
+    }
+    // const list = await getRoomList(`${queryParams}`, page);
+    // console.log("list = ", list);
+    // setDubbingRooms(list ?? []);
+  };
+
+  useEffect(() => {
+    getRooms();
+  }, [tab, page]);
+
+  // useEffect(() => {
+  //   console.log("use effect");
+  //   if (observer.current) {
+  //     console.log("dddd");
+  //     observer.current.disconnect();
+  //   } else {
+  //     console.log("dfdf");
+  //   }
+  //   console.log("왜 안대,,");
+
+  //   if (lastElementRef.current === null) {
+  //     console.log("nulll..");
+  //   }
+  //   observer.current = new IntersectionObserver((entries) => {
+  //     console.log("observer");
+  //     if (entries[0].isIntersecting && !isFetching) {
+  //       console.log("다음 페이지");
+  //       setPage((prev) => prev + 1);
+  //     }
+  //   });
+
+  //   if (lastElementRef.current) {
+  //     observer.current.observe(lastElementRef.current);
+  //   }
+
+  //   console.log("여기도?");
+
+  //   return () => observer.current?.disconnect();
+  //   // }, [isFetching]);
+  // }, [lastElementRef]);
 
   const handleCreateRoom = () => {
     alert("방 생성 이동");
@@ -27,7 +108,7 @@ const LobbyPage = () => {
       <div className="flex h-full w-full flex-col gap-4">
         <div className="flex h-full">
           <div className="flex flex-[2] items-center justify-center pl-3">
-            <Filter />
+            <Filter onClick={getRooms} />
           </div>
 
           <div className="flex flex-[8] flex-col justify-center">
@@ -41,7 +122,11 @@ const LobbyPage = () => {
               <div className="mt-5">
                 {/* {tab === "all" && <DubRoomArea dubbingRooms={roomData} />}
                 {tab === "my" && <DubRoomArea dubbingRooms={roomData} />} */}
-                <DubRoomArea tab={tab} />
+                <DubRoomArea
+                  dubbingRooms={dubbingRooms}
+                  setPage={setPage}
+                  isFetching={isFetching}
+                />
               </div>
             </div>
           </div>

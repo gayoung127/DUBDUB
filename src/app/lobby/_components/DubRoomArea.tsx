@@ -1,63 +1,71 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import RoomCard from "./RoomCard";
-import useFilterStore from "@/app/_store/FilterStore";
-import { getRoomList } from "@/app/_apis/roomlist";
+import H2 from "@/app/_components/H2";
+import H3 from "@/app/_components/H3";
+import Button from "@/app/_components/Button";
 
-interface DubbingRoom {
-  id: number;
-  thumbnail: string;
-  title: string;
-  time: string;
-  isLive: boolean;
-  badges: string[];
-  limit: number;
-  count: number;
-}
-
-interface DubbingRoomListProps {
+interface DubRoomAreaProps {
   dubbingRooms: DubbingRoom[];
+  setPage: (prev: (prev: number) => number) => void;
+  isFetching: boolean;
 }
 
-const DubRoomArea = ({ tab }: { tab: string }) => {
-  const { timeFilter, typeFilter, genreFilter } = useFilterStore();
-  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
-  const [page, setPage] = useState(0);
-  const PAGE_SIZE = 12;
-
-  // ✅ 필터 값 설정
-  const queryParams = new URLSearchParams({
-    page: page.toString(),
-    size: PAGE_SIZE.toString(),
-    onAir: timeFilter.includes("ON AIR") ? "true" : "false",
-    isPrivate: "false", // 공개방만 가져옴
-    isRecruiting: "true", // 모집 중인 방만
-    participationType: "ALL", // 내가 참여한 리스트가 아닌 전체 리스트
-
-    genreIds: "",
-    // if (filters.search) queryParams.append("search", filters.search);
-    // if (filters.time) queryParams.append("onAir", filters.time === "ON AIR" ? "true" : "false");
-    // if (filters.types.length) queryParams.append("categoryIds", filters.types.join(","));
-    // if (filters.genres.length) queryParams.append("genreIds", filters.genres.join(","));
-  });
-
-  const getRooms = async () => {
-    const list = await getRoomList(`${queryParams}`);
-    setDubbingRooms(list);
-  };
+const DubRoomArea = ({
+  dubbingRooms,
+  setPage,
+  isFetching,
+}: DubRoomAreaProps) => {
+  const lastElementRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    getRooms();
-  }, [tab]);
+    if (!lastElementRef.current) {
+      console.log("❌ lastElementRef.current가 NULL!");
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetching) {
+          console.log("✅ 스크롤 컨테이너 안에서 감지됨: 다음 페이지 로드");
+          setPage((prev) => prev + 1);
+        }
+      },
+      {
+        root: document.querySelector(".overflow-scroll"),
+        rootMargin: "0px",
+        threshold: 1.0,
+      },
+    );
+
+    observer.observe(lastElementRef.current);
+
+    return () => observer.disconnect();
+  }, [dubbingRooms, isFetching]);
 
   return (
     <div className="h-[730px] w-full overflow-scroll px-5 py-3">
-      <div className="grid grid-cols-4 gap-5">
-        {dubbingRooms.map((room) => (
-          <RoomCard key={room.id} roomInfo={room} />
-        ))}
-      </div>
+      {dubbingRooms.length != 0 ? (
+        <div className="grid grid-cols-4 gap-5">
+          {dubbingRooms.map((room, index) => (
+            <div
+              key={index}
+              ref={index === dubbingRooms.length - 1 ? lastElementRef : null}
+            >
+              <RoomCard roomInfo={room} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-10">
+          <H2>현재 참여할 수 있는 더빙룸이 없습니다.</H2>
+          <H3>더빙룸을 생성하여 사람들을 모아 보세요!</H3>
+          <Button outline onClick={() => {}}>
+            👉 더빙룸 생성하러 가기 👈
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
