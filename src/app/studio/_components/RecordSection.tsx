@@ -12,7 +12,6 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
-import { useTimeStore } from "@/app/_store/TimeStore";
 
 const RecordSection = () => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
@@ -69,6 +68,7 @@ const RecordSection = () => {
             blockColor={track.blockColor}
             audioContext={audioContextRef.current}
             audioBuffers={audioBuffersRef.current}
+            setTracks={setTracks}
           />
         ))}
       </div>

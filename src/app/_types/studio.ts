@@ -91,6 +91,7 @@ export const initialTracks: Track[] = [
 
 export interface Block {
   file: AudioFile;
+  width: string;
   waveColor: string;
   blockColor: string;
 }
