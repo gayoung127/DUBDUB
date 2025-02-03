@@ -24,6 +24,12 @@ public class AuthController {
     @Value("${jwt.refresh.expiration}")
     private int refreshTokenExpiredMs;
 
+    @Operation(summary = "CORS Preflight 요청 처리")
+    @RequestMapping(method = RequestMethod.OPTIONS)
+    public ResponseEntity<Void> preflightRequest() {
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
     public ResponseEntity<Long> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
