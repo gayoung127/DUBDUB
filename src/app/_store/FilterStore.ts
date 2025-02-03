@@ -2,22 +2,22 @@ import { create } from "zustand";
 
 interface FilterState {
   timeFilter: Array<string>;
-  typeFilter: Array<string>;
+  categoryFilter: Array<string>;
   genreFilter: Array<string>;
-  createFilter: (group: "time" | "type" | "genre", badge: string) => void;
-  deleteFilter: (group: "time" | "type" | "genre", badge: string) => void;
+  createFilter: (group: "time" | "category" | "genre", badge: string) => void;
+  deleteFilter: (group: "time" | "category" | "genre", badge: string) => void;
 }
 
 const useFilterStore = create<FilterState>((set) => ({
   timeFilter: [],
-  typeFilter: [],
+  categoryFilter: [],
   genreFilter: [],
 
   createFilter: (group, badge) =>
     set((state) => {
       const key = `${group}Filter` as
         | "timeFilter"
-        | "typeFilter"
+        | "categoryFilter"
         | "genreFilter";
       return {
         [key]: state[key].includes(badge) ? state[key] : [...state[key], badge],
@@ -28,7 +28,7 @@ const useFilterStore = create<FilterState>((set) => ({
     set((state) => {
       const key = `${group}Filter` as
         | "timeFilter"
-        | "typeFilter"
+        | "categoryFilter"
         | "genreFilter";
       return {
         [key]: state[key].filter((b) => b !== badge), // 필터링 로직 수정

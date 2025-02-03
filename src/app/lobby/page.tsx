@@ -6,10 +6,54 @@ import Button from "../_components/Button";
 import { useSearchParams } from "next/navigation";
 import DubRoomArea from "./_components/DubRoomArea";
 import Header from "../_components/Header";
+import { useEffect, useRef, useState } from "react";
+import useFilterStore from "../_store/FilterStore";
+import { categories, genres } from "../_utils/filterTypes";
+import { getRoomList } from "../_apis/roomlist";
 
 const LobbyPage = () => {
+  const { timeFilter, categoryFilter, genreFilter } = useFilterStore();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "all"; // 기본값: "all"
+  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
+
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 16;
+  const [isFetching, setIsFetching] = useState(false);
+
+  const getIndexes = (
+    filterArray: string[],
+    allOptions: string[],
+  ): number[] => {
+    return filterArray
+      .map((item) => allOptions.indexOf(item) + 1)
+      .filter((id) => id > 0);
+  };
+
+  const getRooms = async () => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: PAGE_SIZE.toString(),
+      onAir: timeFilter.includes("ON AIR")
+        ? "true"
+        : timeFilter.includes("대기 중")
+          ? "false"
+          : "",
+      isPrivate: "false",
+      isRecruiting: "true",
+      participationType: tab,
+      genreIds: getIndexes(genreFilter, genres).join(","),
+      categoryIds: getIndexes(categoryFilter, categories).join(","),
+    });
+    if (page <= 2) {
+      const list = await getRoomList(`${queryParams}`, page);
+      setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
+    }
+  };
+
+  useEffect(() => {
+    getRooms();
+  }, [tab, page]);
 
   const handleCreateRoom = () => {
     alert("방 생성 이동");
@@ -20,170 +64,6 @@ const LobbyPage = () => {
     { title: "참여 예정 더빙룸", href: "/lobby?tab=my" },
   ];
 
-  // API ================================
-  const roomData = [
-    {
-      id: 1,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "짱구 더빙하실 분",
-      time: "02/21:14:00~02/21:17:00",
-      isLive: true,
-      badges: ["영화", "스릴러", "공포"],
-      limit: 6,
-      count: 2,
-    },
-    {
-      id: 2,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "코난 더빙하실 분",
-      time: "02/22:14:00~02/22:17:00",
-      isLive: false,
-      badges: [
-        "애니메이션",
-        "다큐멘터리",
-        "액션",
-        "스릴러",
-        "로맨스",
-        "SF",
-        "공포",
-        "일상",
-      ],
-      limit: 8,
-      count: 4,
-    },
-    {
-      id: 3,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "드라마 더빙 모임",
-      time: "02/23:14:00~02/23:17:00",
-      isLive: false,
-      badges: ["드라마", "로맨스"],
-      limit: 5,
-      count: 3,
-    },
-    {
-      id: 4,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "판타지 더빙 모임",
-      time: "02/24:14:00~02/24:17:00",
-      badges: ["판타지", "SF"],
-      isLive: false,
-      limit: 10,
-      count: 8,
-    },
-    {
-      id: 5,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "공포 더빙 모임",
-      time: "02/25:14:00~02/25:17:00",
-      badges: ["공포", "스릴러"],
-      isLive: false,
-      limit: 7,
-      count: 6,
-    },
-    {
-      id: 6,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "일상 더빙 모임",
-      time: "02/26:14:00~02/26:17:00",
-      isLive: false,
-      badges: ["일상", "기타"],
-      limit: 4,
-      count: 3,
-    },
-    {
-      id: 7,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "코믹 더빙 모임",
-      time: "02/27:14:00~02/27:17:00",
-      isLive: false,
-      badges: ["코믹", "광고/CF"],
-      limit: 6,
-      count: 5,
-    },
-    {
-      id: 8,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "로맨스 더빙 모임",
-      time: "02/28:14:00~02/28:17:00",
-      isLive: false,
-      badges: ["로맨스", "드라마"],
-      limit: 10,
-      count: 7,
-    },
-    {
-      id: 9,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "액션 더빙 모임",
-      time: "03/01:14:00~03/01:17:00",
-      isLive: false,
-      badges: ["액션", "판타지"],
-      limit: 8,
-      count: 5,
-    },
-    {
-      id: 10,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "다큐멘터리 더빙 모임",
-      time: "03/02:14:00~03/02:17:00",
-      isLive: false,
-      badges: ["다큐멘터리", "기타"],
-      limit: 4,
-      count: 2,
-    },
-    {
-      id: 11,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "스릴러 더빙 모임",
-      time: "03/03:14:00~03/03:17:00",
-      isLive: false,
-      badges: ["스릴러", "공포"],
-      limit: 6,
-      count: 3,
-    },
-    {
-      id: 12,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "판타지 더빙 모임",
-      time: "03/04:14:00~03/04:17:00",
-      isLive: false,
-      badges: ["판타지", "액션"],
-      limit: 10,
-      count: 8,
-    },
-    {
-      id: 13,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "광고 더빙 모임",
-      time: "03/05:14:00~03/05:17:00",
-      isLive: false,
-      badges: ["광고/CF", "다큐멘터리"],
-      limit: 7,
-      count: 4,
-    },
-    {
-      id: 14,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "애니메이션 더빙 모임",
-      time: "03/06:14:00~03/06:17:00",
-      isLive: false,
-      badges: ["애니메이션", "코믹"],
-      limit: 6,
-      count: 3,
-    },
-    {
-      id: 15,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "스릴러 더빙 모임",
-      time: "03/07:14:00~03/07:17:00",
-      isLive: false,
-      badges: ["스릴러", "공포"],
-      limit: 8,
-      count: 6,
-    },
-  ];
-  // =====================================
-
   return (
     <div className="flex h-full flex-col gap-5">
       <Header />
@@ -191,7 +71,7 @@ const LobbyPage = () => {
       <div className="flex h-full w-full flex-col gap-4">
         <div className="flex h-full">
           <div className="flex flex-[2] items-center justify-center pl-3">
-            <Filter />
+            <Filter onClick={getRooms} />
           </div>
 
           <div className="flex flex-[8] flex-col justify-center">
@@ -203,8 +83,13 @@ const LobbyPage = () => {
                 </Button>
               </div>
               <div className="mt-5">
-                {tab === "all" && <DubRoomArea dubbingRooms={roomData} />}
-                {tab === "my" && <DubRoomArea dubbingRooms={roomData} />}
+                {/* {tab === "all" && <DubRoomArea dubbingRooms={roomData} />}
+                {tab === "my" && <DubRoomArea dubbingRooms={roomData} />} */}
+                <DubRoomArea
+                  dubbingRooms={dubbingRooms}
+                  setPage={setPage}
+                  isFetching={isFetching}
+                />
               </div>
             </div>
           </div>
