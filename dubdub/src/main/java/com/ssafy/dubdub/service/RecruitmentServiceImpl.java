@@ -60,7 +60,7 @@ public class RecruitmentServiceImpl implements RecruitmentService{
         String fileUrl = s3Service.uploadFile(video, filePath);
 
         File file = File.builder()
-                .fileName(fileUrl)
+                .url(fileUrl)
                 .recruitment(recruitment)
                 .fileType(FileType.ORIGINAL_VIDEO)
                 .build();
