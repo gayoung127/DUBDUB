@@ -9,7 +9,6 @@ services:
       - "80:8080"
       - "8443:8443"
     volumes:
-      - ./logs:/app/logs
       -  /home/ubuntu/jenkins-data/workspace/server-branch-deploy:/app
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
