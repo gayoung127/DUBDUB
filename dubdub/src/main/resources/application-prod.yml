@@ -2,14 +2,14 @@ server:
   ssl:
     enabled: true
     key-store-type: PKCS12
-    key-store: file:/etc/ssl/certs/ssafy-web.p12  # EC2 환경에서는 파일 시스템 경로 사용
+    key-store: file:ssafy-web.p12  # EC2 환경에서는 파일 시스템 경로 사용
     key-store-password: ${SSL_KEYSTORE_PASSWORD}
     key-alias: ssafy-web
 
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: false
