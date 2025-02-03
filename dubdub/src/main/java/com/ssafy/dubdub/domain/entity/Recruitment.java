@@ -42,13 +42,13 @@ public class Recruitment extends Timestamped {
     private boolean isPrivate;
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Casting> castings = new ArrayList<>();
+    private List<Casting> castings = new ArrayList<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<RecruitmentGenre> genres = new ArrayList<>();
+    private List<RecruitmentGenre> genres = new ArrayList<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<RecruitmentCategory> categories = new ArrayList<>();
+    private List<RecruitmentCategory> categories = new ArrayList<>();
 
     @Builder
     public Recruitment(Member author, String title, String content, LocalDateTime startTime, LocalDateTime endTime, boolean isRecruiting, String script, boolean isPrivate) {
