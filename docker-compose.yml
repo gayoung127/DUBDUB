@@ -8,7 +8,6 @@ services:
     ports:
       - "8443:8443"
     volumes:
-      volumes:
       - ./logs:/app/logs
       - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/keystore:/app/keystore
     env_file:
