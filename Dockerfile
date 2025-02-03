@@ -38,9 +38,6 @@ WORKDIR /app
 # 빌드 산출물(JAR) 복사
 COPY --from=builder /app/build/libs/*.jar /app/dubdub_app.jar
 
-# 애플리케이션 JAR 파일 복사
-COPY dubdub/build/libs/dubdub_app.jar /app/dubdub_app.jar
-
 # SSL 키스토어 파일 복사
 COPY ssafy-web.p12 /app/ssafy-web.p12
 
