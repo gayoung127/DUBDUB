@@ -8,7 +8,8 @@ services:
     ports:
       - "8443:8443"
     volumes:
-      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy:/app:ro
+      volumes:
+      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/ssafy-web.p12:/app/keystore/ssafy-web.p12:ro
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
