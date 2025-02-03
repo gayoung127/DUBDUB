@@ -40,6 +40,7 @@ out/
 *.env*
 
 ### .yml ###
-*.yml
 !example.yml
 
+### 키 파일
+**/keystore/**
