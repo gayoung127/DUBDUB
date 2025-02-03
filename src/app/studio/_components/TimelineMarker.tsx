@@ -60,7 +60,6 @@ const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
             width: ".5px",
             height: "36vh",
             backgroundColor: "#f6f6f6",
-            pointerEvents: "none",
             transform: "translateX(-6px)",
             zIndex: 9999,
           }}

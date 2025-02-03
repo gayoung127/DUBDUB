@@ -18,7 +18,7 @@ const Timeline = ({ totalDuration }: TimelineProps) => {
   return (
     <div
       ref={timelineRef}
-      className="relative box-border border-b border-gray-300"
+      className="relative box-border flex border-b border-gray-300"
       style={{
         width: `${timelineWidth}px`,
         minWidth: `${timelineWidth}px`,

@@ -6,7 +6,7 @@ interface AudioTrackHeaderProps {
 
 const AudioTrackHeader = ({ trackId }: AudioTrackHeaderProps) => {
   return (
-    <div className="flex h-[60px] min-h-10 w-[280px] flex-shrink-0 flex-row items-center justify-between border-b border-t border-gray-300 bg-gray-400 px-3 py-2">
+    <div className="box-border flex h-[60px] min-h-0 w-[280px] flex-row items-center justify-between overflow-hidden border-b border-t border-gray-300 bg-gray-400 px-3">
       <span className="text-sm font-normal text-white-100">
         오디오 트랙 {trackId}
       </span>

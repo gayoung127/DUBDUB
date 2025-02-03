@@ -12,15 +12,59 @@
     height: 8px;
   }
   .scrollbar::-webkit-scrollbar-track {
-    background: #6d6d6d;
+    background: #6d6d6d !important;
     border-radius: 8px;
   }
-
   .scrollbar::-webkit-scrollbar-thumb {
-    background: #303030;
+    background: #303030 !important;
     border-radius: 8px;
   }
 
+  .white-scrollbar {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .scrollbar-track {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .scrollbar-track::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .scrollbar-track::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 4px;
+  }
+  .scrollbar-track::-webkit-scrollbar-thumb {
+    background: #303030 !important;
+    border-radius: 4px;
+  }
+
+  /* ✅ 가로 스크롤바 스타일 추가 */
+  .scrollbar-horizontal {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar {
+    height: 8px !important;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 8px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-thumb {
+    background: #303030 !important;
+    border-radius: 8px;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #505050 !important;
+  }
+
+  /* ✅ 투명 스크롤바 */
   .white-scrollbar {
     overflow-x: auto;
     overflow-y: auto;
@@ -30,30 +74,30 @@
     height: 8px;
   }
   .white-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: transparent !important;
     border-radius: 8px;
   }
   .white-scrollbar::-webkit-scrollbar-thumb {
-    background: transparent;
+    background: transparent !important;
     border-radius: 8px;
-    transition: background-color 5s ease;
+    transition: background-color 0.3s ease;
   }
-
   .white-scrollbar::-webkit-scrollbar-thumb:hover,
   .white-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: #6d6d6d80;
+    background: #6d6d6d80 !important;
   }
 
+  /* ✅ 스크롤바 숨김 */
   .hidden-scrollbar {
     overflow-x: auto;
     overflow-y: auto;
   }
   .hidden-scrollbar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none !important; /* Chrome, Safari */
   }
   .hidden-scrollbar {
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none !important; /* IE, Edge */
+    scrollbar-width: none !important; /* Firefox */
   }
 }
 
