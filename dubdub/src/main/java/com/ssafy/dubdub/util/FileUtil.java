@@ -60,7 +60,7 @@ public class FileUtil {
 
     public static String generateUniqueFileName(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        return UUID.randomUUID().toString() + extension;
+        return UUID.randomUUID() + extension;
     }
 
     public static String generateFilePath(String email, FileType fileType) {
