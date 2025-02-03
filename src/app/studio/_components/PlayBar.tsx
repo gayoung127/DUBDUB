@@ -1,6 +1,7 @@
 import React from "react";
 import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
+import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
 import H4 from "@/app/_components/H4";
 
@@ -18,13 +19,13 @@ const PlayBar = () => {
         </div>
         <div onClick={isPlaying ? play : pause}>
           {isPlaying ? (
-            <PlayButton width={20} height={20} />
-          ) : (
             <PauseButton width={20} height={20} />
+          ) : (
+            <PlayButton width={20} height={20} />
           )}
         </div>
         <div onClick={reset}>
-          <PauseButton width={20} height={20} />
+          <StopButton width={20} height={20} />
         </div>
       </div>
       <div className="flex h-full flex-row items-center justify-center gap-x-3">
