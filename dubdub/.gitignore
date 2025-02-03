@@ -43,3 +43,5 @@ out/
 *.yml
 !example.yml
 
+# QueryDSL
+/src/main/generated/
