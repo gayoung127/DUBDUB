@@ -17,7 +17,7 @@ const Play = () => {
       <div className="flex w-full flex-row gap-4">
         <button
           onClick={() => handleClick("alone")}
-          className={`flex-1 rounded-full px-2 py-3 text-lg font-medium ${
+          className={`flex-1 rounded-[8px] px-2 py-3 text-lg font-medium ${
             selected === "alone"
               ? "bg-brand-200 text-white-100"
               : "border-2 border-brand-200 bg-white-100 text-brand-200"
@@ -27,7 +27,7 @@ const Play = () => {
         </button>
         <button
           onClick={() => handleClick("withOthers")}
-          className={`flex-1 rounded-full px-2 py-3 text-lg font-medium ${
+          className={`flex-1 rounded-[8px] px-2 py-3 text-lg font-medium ${
             selected === "withOthers"
               ? "bg-brand-200 text-white-100"
               : "border-2 border-brand-200 bg-white-100 text-brand-200"

@@ -1,5 +1,6 @@
-import H2 from "@/app/_components/H2";
 import React from "react";
+import H2 from "@/app/_components/H2";
+import Button from "@/app/_components/Button";
 
 const Script = () => {
   return (
@@ -13,12 +14,13 @@ const Script = () => {
           />
         </div>
         <div className="mt-8 flex justify-center">
-          <button
-            type="submit"
-            className="rounded-full bg-brand-200 px-8 py-3 text-white-100"
+          <Button
+            onClick={() => console.log("생성하기 버튼 클릭됨")}
+            outline={false}
+            large={true}
           >
             생성하기
-          </button>
+          </Button>
         </div>
       </form>
     </section>
