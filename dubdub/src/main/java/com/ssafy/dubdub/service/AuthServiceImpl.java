@@ -102,6 +102,7 @@ public class AuthServiceImpl extends DefaultOAuth2UserService implements AuthSer
                                 .provider(Provider.KAKAO)
                                 .email(email)
                                 .nickname(nickname)
+                                .position(Position.AMATEUR)
                                 .profileUrl(profileUrl)
                                 .build()
                 );

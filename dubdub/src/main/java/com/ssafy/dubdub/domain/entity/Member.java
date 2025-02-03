@@ -33,7 +33,7 @@ public class Member extends Timestamped {
     private String refreshToken;
 
     @Enumerated(EnumType.STRING)
-    private Position position = Position.AMATEUR;
+    private Position position;
 
     private String profileUrl;
 
