@@ -5,14 +5,11 @@ import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.RecruitmentService;
 import com.ssafy.dubdub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.security.Security;
 
 @RequiredArgsConstructor
 @RequestMapping("/recruitment")

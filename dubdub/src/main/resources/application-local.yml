@@ -1,0 +1,24 @@
+server:
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: classpath:keystore/ssafy-web.p12  # 로컬에서는 classpath 사용
+    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+    key-alias: ssafy-web
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+    show-sql: true  # SQL 실행 로그 활성화
+
+logging:
+  level:
+    root: DEBUG  # 전체 로그를 DEBUG 레벨로 출력
+    org.springframework: DEBUG  # Spring 관련 로그 상세 출력
+    org.hibernate.SQL: DEBUG  # Hibernate SQL 로그 출력
+    org.hibernate.type.descriptor.sql: TRACE  # 바인딩된 SQL 파라미터 로그 출력

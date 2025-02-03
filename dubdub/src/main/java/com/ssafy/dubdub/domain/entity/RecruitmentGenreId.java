@@ -3,7 +3,7 @@ package com.ssafy.dubdub.domain.entity;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;

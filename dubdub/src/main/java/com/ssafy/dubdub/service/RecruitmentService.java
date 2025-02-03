@@ -6,6 +6,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface RecruitmentService {
-    public Long findRecruitment(Long recruitmentId);
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException;
+    Long findRecruitment(Long recruitmentId);
+    Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException;
 }
