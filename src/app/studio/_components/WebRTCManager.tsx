@@ -5,26 +5,27 @@
 3. 비디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
 4. 비디오 컨트롤 (재생, 정지, 타임라인 이동) 동기화
 */
+import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
 /*
 videoStream → 공유할 비디오 스트림 (VideoBlock에서 전달)
-roomId → 사용자가 속한 방의 ID (WebRTC 세션을 구분하는 역할)
+studioId → 사용자가 속한 방의 ID (WebRTC 세션을 구분하는 역할)
 isPlaying → 비디오 재생 상태
 time → 현재 재생 위치
  */
 interface WebRTCManagerProps {
-  videoStream: MediaStream | null;
-  roomId: string;
+  studioId: string;
 }
 
-const WebRTCManager = ({ videoStream, roomId }: WebRTCManagerProps) => {
+const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
   const lastSentTime = useRef<number>(0); //마지막으로 time을 전송한 시간
+  const { videoStream } = useStreamStore();
 
   useEffect(() => {
     if (!videoStream) return;
@@ -83,11 +84,13 @@ const WebRTCManager = ({ videoStream, roomId }: WebRTCManagerProps) => {
           console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
           return;
         }
-        //서버에서 roomId에 대한 WebRTC 토큰을 요청하는 api 필요
+        //서버에서 studioId에 대한 WebRTC 토큰을 요청하는 api 필요
+        /*
         const token = await fetch(
-          `${BASE_URL}/openvidu/token?roomId=${roomId}`,
+          `${BASE_URL}/openvidu/token?studioId=${studioId}`,
         ).then((response) => response.text());
         await newSession.connect(token);
+        */
 
         const videoTrack = videoStream.getVideoTracks()[0];
         const newPublisher = ov.initPublisher(undefined, {
@@ -113,7 +116,7 @@ const WebRTCManager = ({ videoStream, roomId }: WebRTCManagerProps) => {
       setPublisher(null);
       setSubscribers([]);
     };
-  }, [videoStream, roomId]);
+  }, [videoStream, studioId]);
 
   useEffect(() => {
     if (session) {

@@ -1,19 +1,14 @@
+import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
-import { error } from "console";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 
 interface VideoBlockProps {
-  videoUrl: string;
-  onVideoReady: (stream: MediaStream) => void; //부모에게 WebRTC로 공유할 비디오 스트림을 전달하는 함수
+  videoUrl: string | undefined;
+  videoRef: React.RefObject<VideoElementWithCapturestream | null>;
 }
 
-// captureStream()을 포함하는 타입 확장
-interface VideoElementWithCapturestream extends HTMLVideoElement {
-  captureStream?: () => MediaStream;
-}
-
-const VideoBlock = ({ videoUrl, onVideoReady }: VideoBlockProps) => {
-  const videoRef = useRef<VideoElementWithCapturestream>(null);
+const VideoBlock = ({ videoUrl, videoRef }: VideoBlockProps) => {
+  const { setVideoStream } = useStreamStore();
   const { isPlaying, time } = useTimeStore();
 
   useEffect(() => {
@@ -24,12 +19,12 @@ const VideoBlock = ({ videoUrl, onVideoReady }: VideoBlockProps) => {
       typeof videoRef.current.captureStream === "function"
     ) {
       const captureStream = videoRef.current.captureStream();
-      if (captureStream) onVideoReady(captureStream);
+      if (captureStream) setVideoStream(captureStream);
     }
 
     // 비디오는 항상 음소거
     videoRef.current.muted = true;
-  }, [videoUrl, onVideoReady]);
+  }, [videoUrl]);
 
   useEffect(() => {
     if (!videoRef.current) return;
