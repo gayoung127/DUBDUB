@@ -10,7 +10,7 @@ services:
     volumes:
       volumes:
       - ./logs:/app/logs
-      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/keystore:/app/keystore/ssafy-web.p12:ro
+      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/keystore:/app/keystore
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
