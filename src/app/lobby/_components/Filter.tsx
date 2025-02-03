@@ -4,6 +4,7 @@ import FilteredArea from "@/app/lobby/_components/FilteredArea";
 import H3 from "@/app/_components/H3";
 import H4 from "@/app/_components/H4";
 import useFilterStore from "@/app/_store/FilterStore";
+import Button from "@/app/_components/Button";
 
 const Filter = () => {
   const { createFilter, deleteFilter } = useFilterStore();
@@ -131,6 +132,17 @@ const Filter = () => {
             </label>
           ))}
         </div>
+      </div>
+      <div>
+        <Button
+          onClick={() => {
+            alert("리스트 API를 조회해야 합니다.");
+          }}
+          outline
+          className="w-full"
+        >
+          검색
+        </Button>
       </div>
     </div>
   );
