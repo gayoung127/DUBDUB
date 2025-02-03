@@ -36,13 +36,10 @@ RUN apk --no-cache add tzdata
 WORKDIR /app
 
 # 빌드 산출물(JAR) 복사
-COPY /app/build/libs/*.jar /app/dubdub_app.jar
-
-# SSL 키스토어 파일 복사
-COPY ssafy-web.p12 /app/ssafy-web.p12
+COPY --from=builder /app/build/libs/*.jar /app/dubdub_app.jar
 
 # 컨테이너에서 열 포트 (예: 8080)
 EXPOSE 8080
 
 # 컨테이너 실행 시 명령
-CMD ["java", "-Dserver.ssl.key-store=file:/app/ssafy-web.p12", "-jar", "/app/dubdub_app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/dubdub_app.jar"]
