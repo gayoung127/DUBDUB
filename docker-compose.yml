@@ -7,11 +7,14 @@ services:
     container_name: dubdub_app
     ports:
       - "80:8080"
+      - "8443:8443"
     volumes:
       - ./logs:/app/logs
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
+      SPRING_PROFILES_ACTIVE: prod  # 배포 환경 적용
+      SSL_KEYSTORE_PASSWORD: ${SSL_KEYSTORE_PASSWORD}
       REDIS_HOST: redis  # Redis 컨테이너의 이름
       REDIS_PORT: 6379
     depends_on: 
