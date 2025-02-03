@@ -44,10 +44,10 @@ public class S3Service {
         }
     }
 
-    public void deleteFile(String fileName) {
+    public void deleteFile(String fileUrl) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName)
+                .key(extractObjectKey(fileUrl))
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
