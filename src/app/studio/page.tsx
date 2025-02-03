@@ -9,6 +9,9 @@ import StudioSideTab from "./_components/StudioSideTab";
 import TeamRole from "./_components/TeamRole";
 import VideoPlayer from "./_components/VideoPlayer";
 
+import { DndProvider } from "react-dnd"; // ✅ 추가
+import { HTML5Backend } from "react-dnd-html5-backend"; // ✅ 추가
+
 export default function StudioPage() {
   const handlePointerMove = (e: React.PointerEvent) => {
     const x = e.clientX;
@@ -19,7 +22,7 @@ export default function StudioPage() {
   };
 
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       <div
         onPointerMove={handlePointerMove}
         style={{
@@ -46,6 +49,6 @@ export default function StudioPage() {
         </div>
         <CursorPresence />
       </div>
-    </>
+    </DndProvider>
   );
 }
