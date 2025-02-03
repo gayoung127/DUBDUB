@@ -30,7 +30,7 @@ const AudioTrackTimeline = ({
   return (
     <div
       ref={timelineRef}
-      className="flex h-[60px] flex-row items-center justify-start overflow-hidden border border-gray-300"
+      className="flex h-[60px] min-h-0 flex-shrink-0 flex-row items-center justify-start overflow-y-hidden border border-gray-300"
       style={{ width: `${totalDuration * 80}px` }}
     >
       <div className="relative flex h-full items-center justify-center">
@@ -42,7 +42,7 @@ const AudioTrackTimeline = ({
           return (
             <div
               key={file.id}
-              className="itesm-center relative flex justify-start"
+              className="relative flex items-center justify-start"
             >
               <AudioBlock
                 file={file}
