@@ -16,8 +16,12 @@ const KakaoLoginButton = () => {
             return;
           }
 
-          window.Kakao.init(appKey);
-          console.log("카카오 SDK 초기화: ", window.Kakao.isInitialized());
+          if (!window.Kakao.isInitialized()) {
+            window.Kakao.init(appKey);
+            console.log("카카오 SDK 초기화: ", window.Kakao.isInitialized());
+          } else {
+            console.error("카카오 SDK 로드가 안 됨");
+          }
         }
       };
 
