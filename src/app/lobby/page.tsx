@@ -20,8 +20,6 @@ const LobbyPage = () => {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 16;
   const [isFetching, setIsFetching] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastElementRef = useRef<HTMLDivElement | null>(null);
 
   const getIndexes = (
     filterArray: string[],
@@ -49,48 +47,13 @@ const LobbyPage = () => {
     });
     if (page <= 2) {
       const list = await getRoomList(`${queryParams}`, page);
-      console.log("list = ", list);
       setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
     }
-    // const list = await getRoomList(`${queryParams}`, page);
-    // console.log("list = ", list);
-    // setDubbingRooms(list ?? []);
   };
 
   useEffect(() => {
     getRooms();
   }, [tab, page]);
-
-  // useEffect(() => {
-  //   console.log("use effect");
-  //   if (observer.current) {
-  //     console.log("dddd");
-  //     observer.current.disconnect();
-  //   } else {
-  //     console.log("dfdf");
-  //   }
-  //   console.log("왜 안대,,");
-
-  //   if (lastElementRef.current === null) {
-  //     console.log("nulll..");
-  //   }
-  //   observer.current = new IntersectionObserver((entries) => {
-  //     console.log("observer");
-  //     if (entries[0].isIntersecting && !isFetching) {
-  //       console.log("다음 페이지");
-  //       setPage((prev) => prev + 1);
-  //     }
-  //   });
-
-  //   if (lastElementRef.current) {
-  //     observer.current.observe(lastElementRef.current);
-  //   }
-
-  //   console.log("여기도?");
-
-  //   return () => observer.current?.disconnect();
-  //   // }, [isFetching]);
-  // }, [lastElementRef]);
 
   const handleCreateRoom = () => {
     alert("방 생성 이동");

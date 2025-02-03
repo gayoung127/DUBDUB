@@ -459,12 +459,12 @@ export const getRoomList = async (queryParams: string, page: number) => {
   ];
 
   // =====================================
-  // if (page === 0) {
-  //   return pageOne;
-  // } else if (page === 1) {
-  //   return pageTwo;
-  // } else if (page === 2) {
-  //   return pageThree;
-  // }
-  return [];
+  if (page === 0) {
+    return pageOne;
+  } else if (page === 1) {
+    return pageTwo;
+  } else if (page === 2) {
+    return pageThree;
+  }
+  // return [];
 };

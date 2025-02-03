@@ -21,7 +21,7 @@ const DubRoomArea = ({
 
   useEffect(() => {
     if (!lastElementRef.current) {
-      console.log("❌ lastElementRef.current가 NULL!");
+      console.log("❌ lastElementRef.current가 NULL입니다 ㅠ ㅠ");
       return;
     }
 
