@@ -30,7 +30,7 @@ services:
     command: redis-server --appendonly yes  # 영속성 활성화
     volumes:
       - redis_data:/data  # Redis 데이터 영속화
-    restart: always
+    restart: no
 
 volumes:
   redis_data:  # Redis 데이터를 저장하는 볼륨
