@@ -10,20 +10,23 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { setLoggedInUserId } = useAuthStore();
+  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
-    const code = new URL(window.location.href).searchParams.get("code");
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+
     if (code) {
       handleKakaoLogin(code);
-      window.history.replaceState({}, document.title, "/login");
-    } else {
+      url.searchParams.delete("code");
+      window.history.replaceState({}, document.title, url.toString());
     }
   }, []);
 
   const handleKakaoLogin = async (code: string) => {
     try {
       const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
       if (!BASE_URL) {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
@@ -39,6 +42,8 @@ const Login = () => {
 
       //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
       setLoggedInUserId(data.memberId);
+      console.log(response.status);
+      console.log(loggedInUserId);
 
       if (response.status === 201) {
         setIsFirstLogin(true);
