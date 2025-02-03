@@ -20,7 +20,6 @@ services:
       REDIS_PORT: 6379
     depends_on: 
       - redis  # Redis 컨테이너가 먼저 실행됨
-    restart: always
 
   redis:
     image: redis:7-alpine
