@@ -10,7 +10,7 @@ services:
       - "8443:8443"
     volumes:
       - ./logs:/app/logs
-      - /var/jenkins_home/workspace/server-branch-deploy/ssafy-web.p12:/app/ssafy-web.p12
+      - /var/jenkins_home/workspace/server-branch-deploy:/app
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
