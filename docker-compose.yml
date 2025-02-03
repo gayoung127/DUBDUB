@@ -10,6 +10,7 @@ services:
       - "8443:8443"
     volumes:
       - ./logs:/app/logs
+      - ./ssafy-web.p12:/app/ssafy-web.p12  # 🔹 파일을 컨테이너 내부로 마운트
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
