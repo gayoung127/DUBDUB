@@ -19,6 +19,12 @@ interface WebRTCManagerProps {
   studioId: string;
 }
 
+interface SyncData {
+  type?: "play" | "pause" | "seek";
+  isPlaying?: boolean;
+  time?: number;
+}
+
 const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
@@ -46,9 +52,16 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       // 새로운 사용자가 기존 상태를 수신
       newSession.on("signal:syncResponse", (event) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        const data =
-          typeof event.data === "string" ? JSON.parse(event.data) : {};
+        let data: SyncData = {};
+
+        if (typeof event.data === "string") {
+          try {
+            const parseData = JSON.parse(event.data);
+            if (typeof parseData === "object" && parseData !== null) {
+              data = parseData;
+            }
+          } catch (error) {}
+        }
 
         if (typeof data.isPlaying === "boolean") {
           data.isPlaying ? play() : pause();
@@ -71,9 +84,16 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
       });
 
       newSession.on("signal:control", (event) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        const data =
-          typeof event.data === "string" ? JSON.parse(event.data) : {};
+        let data: SyncData = {};
+
+        if (typeof event.data === "string") {
+          try {
+            const parseData = JSON.parse(event.data);
+            if (typeof parseData === "object" && parseData !== null) {
+              data = parseData;
+            }
+          } catch (error) {}
+        }
 
         if (data.type === "play") play();
         if (data.type === "pause") pause();
@@ -129,8 +149,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
   useEffect(() => {
     if (!session) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    if (session) {
+    if (session && session.connection) {
       session.signal({
         type: "control",
         data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
@@ -146,15 +165,16 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
     }
 
     // 2초 이상 차이나면 time 동기화 전송
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    if (Math.abs(time - lastSentTime.current) > 2) {
-      if (session) {
-        session.signal({
-          type: "control",
-          data: JSON.stringify({ type: "seek", time }),
-        });
-        lastSentTime.current = time;
-      }
+    if (
+      session &&
+      session.connection &&
+      Math.abs(time - lastSentTime.current) > 2
+    ) {
+      session.signal({
+        type: "control",
+        data: JSON.stringify({ type: "seek", time }),
+      });
+      lastSentTime.current = time;
     }
   }, [time]);
   return null;
