@@ -35,6 +35,10 @@ RUN apk --no-cache add tzdata
 
 WORKDIR /app
 
+# 빌드 컨텍스트에서 .p12 파일 복사
+COPY ssafy-web.p12 /app/keystore/ssafy-web.p12
+
+
 # 빌드 산출물(JAR) 복사
 COPY --from=builder /app/build/libs/*.jar /app/dubdub_app.jar
 
