@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import useFilterStore from "../_store/FilterStore";
 import { categories, genres } from "../_utils/filterTypes";
 import { getRoomList } from "../_apis/roomlist";
+import { useRouter } from "next/navigation";
 
 const LobbyPage = () => {
   const { timeFilter, categoryFilter, genreFilter } = useFilterStore();
@@ -20,6 +21,7 @@ const LobbyPage = () => {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 16;
   const [isFetching, setIsFetching] = useState(false);
+  const router = useRouter();
 
   const getIndexes = (
     filterArray: string[],
@@ -56,7 +58,7 @@ const LobbyPage = () => {
   }, [tab, page]);
 
   const handleCreateRoom = () => {
-    alert("방 생성 이동");
+    router.push("/room-create");
   };
 
   const tabs = [
@@ -83,8 +85,6 @@ const LobbyPage = () => {
                 </Button>
               </div>
               <div className="mt-5">
-                {/* {tab === "all" && <DubRoomArea dubbingRooms={roomData} />}
-                {tab === "my" && <DubRoomArea dubbingRooms={roomData} />} */}
                 <DubRoomArea
                   dubbingRooms={dubbingRooms}
                   setPage={setPage}
