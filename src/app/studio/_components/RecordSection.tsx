@@ -70,49 +70,41 @@ const RecordSection = () => {
 
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">
-      {/* 🎯 Track Header (왼쪽 트랙 목록) */}
-      <div className="flex h-full w-[280px] flex-shrink-0 flex-col border border-gray-300 bg-gray-400">
-        {/* 🔹 "녹음 세션" 헤더 (고정) */}
-        <div className="sticky top-0 z-10 flex h-[60px] w-full flex-row items-center justify-start border-b border-gray-300 bg-gray-400 px-5 py-5">
-          <H4 className="border-b-2 border-white-100 font-bold text-white-100">
-            녹음 세션
-          </H4>
-        </div>
-        {/* 🔹 트랙 목록 (스크롤 가능) */}
-        <div
-          ref={trackListRef}
-          className="scrollbar-track flex-1 overflow-y-auto pr-1"
-        >
-          {tracks.map((track) => (
-            <AudioTrackHeader key={track.trackId} trackId={track.trackId} />
-          ))}
+      <div className="flex h-full w-[280px] flex-shrink-0 flex-col items-start justify-start overflow-hidden border border-gray-300 bg-gray-400">
+        <div className="">
+          <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 px-5 py-5">
+            <H4 className="border-b-2 border-white-100 font-bold text-white-100">
+              녹음 세션
+            </H4>
+          </div>
+          <div className="h-full w-full">
+            {tracks.map((track) => (
+              <AudioTrackHeader key={track.trackId} trackId={track.trackId} />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 🎯 Timeline (오른쪽 타임라인) */}
-      <div className="flex h-full w-full flex-col border border-gray-300 bg-gray-400">
-        {/* 🔹 "타임라인" 헤더 (고정) */}
-        <div className="sticky top-0 z-10 flex h-[60px] w-full flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
-          <Timeline totalDuration={160} />
-        </div>
-        {/* 🔹 타임라인 트랙 목록 (스크롤 가능) */}
-        <div
-          ref={timelineTracksRef}
-          className="scrollbar-horizontal flex-1 overflow-y-auto overflow-x-scroll"
-        >
-          {tracks.map((track) => (
-            <AudioTrackTimeline
-              key={track.trackId}
-              trackId={track.trackId}
-              files={track.files}
-              totalDuration={160}
-              waveColor={track.waveColor}
-              blockColor={track.blockColor}
-              audioContext={audioContextRef.current}
-              audioBuffers={audioBuffersRef.current}
-              setTracks={setTracks}
-            />
-          ))}
+      <div className="mb-2 flex h-full w-full flex-col items-start justify-start overflow-x-hidden border border-gray-300 bg-gray-400">
+        <div className="scrollbar-horizontal overflow-x-scoll mb-2 h-full w-full overflow-y-hidden">
+          <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
+            <Timeline totalDuration={160} />
+          </div>
+          <div className="h-full w-full">
+            {tracks.map((track) => (
+              <AudioTrackTimeline
+                key={track.trackId}
+                trackId={track.trackId}
+                files={track.files}
+                totalDuration={160}
+                waveColor={track.waveColor}
+                blockColor={track.blockColor}
+                audioContext={audioContextRef.current}
+                audioBuffers={audioBuffersRef.current}
+                setTracks={setTracks}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -97,12 +97,6 @@ export const initialTracks: Track[] = [
     blockColor: "#005230",
     files: [],
   },
-  {
-    trackId: 6,
-    waveColor: "#00D76E",
-    blockColor: "#005230",
-    files: [],
-  },
 ];
 
 // 4. 블록 (Block)

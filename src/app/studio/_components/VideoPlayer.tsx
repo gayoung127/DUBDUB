@@ -9,8 +9,8 @@ interface VideoPlayerProps {
 
 const VideoPlayer = ({ videoRef, videoUrl }: VideoPlayerProps) => {
   return (
-    <section className="flex min-h-[471px] w-full min-w-[720px] flex-1 flex-col items-start justify-start bg-gray-400">
-      <div className="flex w-full flex-1 flex-col items-center justify-center border border-gray-300 text-white-100">
+    <section className="flex h-full w-full min-w-[720px] flex-1 flex-col items-start justify-start bg-gray-400">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-center border border-gray-300 text-white-100">
         <VideoBlock videoUrl={videoUrl} videoRef={videoRef} />
       </div>
       <PlayBar videoRef={videoRef} />

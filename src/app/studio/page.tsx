@@ -13,6 +13,9 @@ import { useEffect, useRef, useState } from "react";
 import WebRTCManager from "./_components/WebRTCManager";
 import { Session } from "openvidu-browser";
 
+import { DndProvider } from "react-dnd"; // ✅ 추가
+import { HTML5Backend } from "react-dnd-html5-backend"; // ✅ 추가
+
 export default function StudioPage() {
   const studioId = "1";
   /* 임시 tudioId
@@ -63,7 +66,7 @@ export default function StudioPage() {
   };
 
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       <div
         onPointerMove={handlePointerMove}
         style={{
@@ -91,6 +94,6 @@ export default function StudioPage() {
         <CursorPresence />
         <WebRTCManager studioId={studioIdString} />
       </div>
-    </>
+    </DndProvider>
   );
 }
