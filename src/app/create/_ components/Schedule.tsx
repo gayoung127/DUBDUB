@@ -2,6 +2,7 @@ import React from "react";
 import SearchIcon from "@/public/images/icons/icon-search.svg";
 import CalenderIcon from "@/public/images/icons/icon-calender.svg";
 import DropdownIcon from "@/public/images/icons/icon-dropdown.svg";
+import H2 from "@/app/_components/H2";
 
 const generateTimeOptions = () => {
   const options = [];
@@ -20,32 +21,23 @@ const Schedule = () => {
 
   return (
     <section className="w-full max-w-md p-4">
-      <h1 className="mb-2 text-xl font-bold">SCHEDULE</h1>
-
-      <div className="space-y-4">
+      <H2 className="mb-4">SCHEDULE</H2>
+      <div className="space-y-6">
         <section>
-          <h2 className="mb-1.5 text-sm font-medium">DATE</h2>
-          <div className="flex items-center rounded-md border">
-            <div className="pl-3">
-              <SearchIcon />
-            </div>
-            <input
-              type="text"
-              value="구현해야함..."
-              className="w-full rounded-md p-2 pl-2 outline-none"
-              readOnly
-            />
-            <div className="pr-3">
+          <h2 className="mb-1.5 text-sm font-medium">START</h2>
+          <div className="flex items-center space-x-4">
+            <div className="flex flex-grow items-center rounded-md border px-3 py-2">
+              <SearchIcon className="mr-2" />
+              <input
+                type="text"
+                value="25.02.21"
+                className="w-full bg-transparent outline-none"
+                readOnly
+              />
               <CalenderIcon />
             </div>
-          </div>
-        </section>
-
-        <section className="grid grid-cols-2 gap-4">
-          <div>
-            <h2 className="mb-1.5 text-sm font-medium">START</h2>
-            <div className="flex w-full items-center rounded-md border p-2">
-              <select className="flex-grow appearance-none bg-transparent outline-none">
+            <div className="flex items-center rounded-md border px-3 py-2">
+              <select className="appearance-none bg-transparent outline-none">
                 {timeOptions.map((time) => (
                   <option key={time} value={time}>
                     {time}
@@ -55,11 +47,23 @@ const Schedule = () => {
               <DropdownIcon className="ml-2 text-gray-500" />
             </div>
           </div>
+        </section>
 
-          <div>
-            <h2 className="mb-1.5 text-sm font-medium">END</h2>
-            <div className="flex w-full items-center rounded-md border p-2">
-              <select className="flex-grow appearance-none bg-transparent outline-none">
+        <section>
+          <h2 className="mb-1.5 text-sm font-medium">END</h2>
+          <div className="flex items-center space-x-4">
+            <div className="flex flex-grow items-center rounded-md border px-3 py-2">
+              <SearchIcon className="mr-2" />
+              <input
+                type="text"
+                value="25.02.21"
+                className="w-full bg-transparent outline-none"
+                readOnly
+              />
+              <CalenderIcon />
+            </div>
+            <div className="flex items-center rounded-md border px-3 py-2">
+              <select className="appearance-none bg-transparent outline-none">
                 {timeOptions.map((time) => (
                   <option key={time} value={time}>
                     {time}
