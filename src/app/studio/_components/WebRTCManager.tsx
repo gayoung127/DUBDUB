@@ -125,6 +125,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
   useEffect(() => {
     if (!session) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     session.signal({
       type: "control",
       data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
@@ -139,8 +140,9 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
     }
 
     // 2초 이상 차이나면 time 동기화 전송
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (Math.abs(time - lastSentTime.current) > 2) {
-      session?.signal({
+      session.signal({
         type: "control",
         data: JSON.stringify({ type: "seek", time }),
       });
