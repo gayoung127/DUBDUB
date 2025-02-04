@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 /*
 역할
 1. OpenVidu 세션을 생성하고 관리
