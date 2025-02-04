@@ -6,6 +6,8 @@ import Header from "../_components/Header";
 import Profile from "./_components/Profile";
 import DubRoomArea from "../lobby/_components/DubRoomArea";
 import TabMenu from "../lobby/_components/TabMenu";
+import { useEffect, useState } from "react";
+import { getRoomList } from "../_apis/roomlist";
 
 const MyPage = () => {
   const searchParams = useSearchParams();
@@ -96,6 +98,22 @@ const MyPage = () => {
     },
   ];
   // ==========================
+  const [page, setPage] = useState(0);
+  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
+  const PAGE_SIZE = 16;
+  const [isFetching, setIsFetching] = useState(false);
+
+  const getRooms = async () => {
+    const list = await getRoomList("temp", 3);
+    if (page <= 2) {
+      const list = await getRoomList(`temp`, page);
+      setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
+    }
+  };
+
+  useEffect(() => {
+    getRooms();
+  }, [tab, page]);
 
   return (
     <div className="flex h-full flex-col gap-5">
@@ -112,8 +130,11 @@ const MyPage = () => {
                 <TabMenu tabs={tabs} />
               </div>
               <div className="mt-5">
-                {tab === "upcoming" && <DubRoomArea dubbingRooms={roomData} />}
-                {tab === "my" && <DubRoomArea dubbingRooms={roomData} />}
+                <DubRoomArea
+                  dubbingRooms={dubbingRooms}
+                  setPage={setPage}
+                  isFetching={isFetching}
+                />
               </div>
             </div>
           </div>

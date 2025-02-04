@@ -357,7 +357,7 @@ export const getRoomList = async (queryParams: string, page: number) => {
   const pageThree: DubbingRoom[] = [
     {
       id: 33,
-      thumbnail: "https://picsum.photos/300/200",
+      thumbnail: "https://picsum.photos/seed/picsum/300/200",
       title: "더빙 모임 33",
       time: "03/18:14:00~03/18:17:00",
       isLive: false,
