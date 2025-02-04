@@ -44,9 +44,9 @@ export const initialTracks: Track[] = [
         duration: 7,
         trimStart: 2,
         trimEnd: 2,
-        volume: 0.8,
+        volume: 1.0,
         isMuted: false,
-        speed: 1.2,
+        speed: 1.0,
       },
     ],
   },
@@ -63,7 +63,7 @@ export const initialTracks: Track[] = [
         trimStart: 0,
         trimEnd: 2,
         volume: 1.0,
-        isMuted: true,
+        isMuted: false,
         speed: 1.0,
       },
       {
@@ -85,12 +85,25 @@ export const initialTracks: Track[] = [
     blockColor: "#005230",
     files: [],
   },
+  {
+    trackId: 4,
+    waveColor: "#00D76E",
+    blockColor: "#005230",
+    files: [],
+  },
+  {
+    trackId: 5,
+    waveColor: "#00D76E",
+    blockColor: "#005230",
+    files: [],
+  },
 ];
 
 // 4. 블록 (Block)
 
 export interface Block {
   file: AudioFile;
+  width: string;
   waveColor: string;
   blockColor: string;
 }

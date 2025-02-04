@@ -4,48 +4,52 @@ import H1 from "@/app/_components/H1";
 import { useEffect, useState } from "react";
 import KakaoLoginButton from "./KakaoLoginButton";
 import SignUp from "./SignUp";
+import { useAuthStore } from "@/app/_store/AuthStore";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
 
-    if (token) {
-      setIsLoggedIn(true);
-      window.location.assign("/lobby");
-    } else {
-      setIsLoggedIn(false);
-    }
-  });
-
-  useEffect(() => {
-    const code = new URL(window.location.href).searchParams.get("code");
     if (code) {
       handleKakaoLogin(code);
-      window.history.replaceState({}, document.title, "/login");
-    } else {
-      setIsLoggedIn(false);
+      url.searchParams.delete("code");
+      window.history.replaceState({}, document.title, url.toString());
     }
   }, []);
 
   const handleKakaoLogin = async (code: string) => {
     try {
-      const response = await fetch("/api/auth/kakao", {
-        method: "POST",
+      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+      if (!BASE_URL) {
+        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+        return;
+      }
+      const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        // body: JSON.stringify({ code }),
+        credentials: "include",
       });
 
       const data = await response.json();
 
-      //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트에 저장하는 로직이 필요한 부분
+      //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
+      setLoggedInUserId(data.memberId);
+      console.log(response.status);
+      console.log(loggedInUserId);
 
       if (response.status === 201) {
         setIsFirstLogin(true);
       } else if (response.status === 200) {
-        window.location.assign("/lobby");
+        console.log("로그인 성공!!");
+        router.push("/lobby");
       }
     } catch (error) {
       console.error("로그인 에러: ", error);

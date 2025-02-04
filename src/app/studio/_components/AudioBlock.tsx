@@ -1,37 +1,153 @@
-import { Block } from "@/app/_types/studio";
+"use client";
+
+import { useTimeStore } from "@/app/_store/TimeStore";
+import { Block, Track } from "@/app/_types/studio";
+import gsap from "gsap";
 import React, { useEffect, useRef, useState } from "react";
+import { Draggable } from "gsap/Draggable";
 
-const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
+interface AudioBlockProps extends Block {
+  audioContext: AudioContext | null;
+  audioBuffers: Map<string, AudioBuffer> | null;
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const PX_PER_SECOND = 80; // ✅ 1초 = 80px 변환 기준
+
+gsap.registerPlugin(Draggable);
+
+const AudioBlock = ({
+  file,
+  width,
+  waveColor,
+  blockColor,
+  audioContext,
+  audioBuffers,
+  setTracks,
+  timelineRef,
+}: AudioBlockProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
+  const { time, isPlaying } = useTimeStore();
 
-  const startTime = 0 + file.trimStart;
-  const duration = file.duration - file.trimEnd - file.trimStart;
+  const blockRef = useRef<HTMLDivElement | null>(null);
+  const [localStartPoint, setLocalStartPoint] = useState(
+    (file.startPoint + file.trimStart) * PX_PER_SECOND,
+  );
+
+  useEffect(() => {
+    if (!blockRef.current || !timelineRef.current) return;
+
+    const blockElement = blockRef.current;
+    const timelineElement = timelineRef.current as HTMLElement;
+
+    // 🎯 개별 블록에 드래그 가능하도록 설정
+    const draggable = Draggable.create(blockElement, {
+      type: "x",
+      bounds: timelineElement,
+      inertia: true,
+      onDrag: function () {
+        const newStartPoint = Math.max(0, Math.round(this.x));
+        setLocalStartPoint(newStartPoint);
+        gsap.set(blockElement, { x: newStartPoint });
+      },
+      onDragEnd: function () {
+        const finalStartPoint = Math.max(0, Math.round(this.x / PX_PER_SECOND));
+
+        setTracks((prevTracks) =>
+          prevTracks.map((track) => ({
+            ...track,
+            files: track.files.map((f) =>
+              f.id === file.id
+                ? { ...f, startPoint: finalStartPoint - f.trimStart }
+                : f,
+            ),
+          })),
+        );
+      },
+    });
+
+    return () => {
+      draggable[0].kill();
+    };
+  }, [setTracks, file.id, timelineRef]);
+
+  useEffect(() => {
+    if (!audioContext || !isPlaying) return;
+
+    const startOffset = file.startPoint + file.trimStart;
+    const endOffset =
+      startOffset + (file.duration - file.trimEnd - file.trimStart);
+
+    if (time >= startOffset && time < endOffset && !audioSourceRef.current) {
+      playAudio();
+    } else if (time >= endOffset && audioSourceRef.current) {
+      stopAudio();
+    }
+  }, [time, isPlaying, file.startPoint]);
+
+  // 🎵 개별 오디오 파일 재생 함수
+  const playAudio = () => {
+    if (!audioContext || audioSourceRef.current) return;
+
+    const audioBuffer = audioBuffers!.get(file.url);
+    if (!audioBuffer) return;
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+
+    // 볼륨 적용
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = file.isMuted ? 0 : file.volume;
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // 속도 적용
+    source.playbackRate.value = file.speed;
+
+    // ✅ 원본 오디오의 `trimStart` 부분부터 재생
+    const offset = file.trimStart; // 원본 오디오의 `trimStart`초부터 재생
+    const duration = file.duration - file.trimStart - file.trimEnd; // 트리밍 반영된 길이
+
+    // ⏳ 원본 오디오에서 `trimStart`부터 `duration` 길이만큼 재생
+    source.start(audioContext.currentTime, offset, duration);
+
+    // 참조 저장하여 중복 재생 방지
+    audioSourceRef.current = source;
+  };
+
+  // ⏹ 개별 오디오 파일 중단 함수
+  const stopAudio = () => {
+    if (audioSourceRef.current) {
+      audioSourceRef.current.stop();
+      audioSourceRef.current = null;
+    }
+  };
 
   useEffect(() => {
     const fetchMockAudioBuffer = async () => {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          window.AudioContext)();
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.AudioContext)();
       }
 
       const response = await fetch("/examples/happyhappyhappysong.mp3");
       const arrayBuffer = await response.arrayBuffer();
-      const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      const buffer = await audioContext.decodeAudioData(arrayBuffer);
       setAudioBuffer(buffer);
     };
 
     fetchMockAudioBuffer();
   }, []);
 
+  // 파형 시각화
   useEffect(() => {
     if (audioBuffer) {
       visualizeWaveform();
     }
   }, [audioBuffer]);
+
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !audioBuffer) return;
@@ -64,37 +180,23 @@ const AudioBlock = ({ file, waveColor, blockColor }: Block) => {
     }
   };
 
-  const handlePlayPause = () => {
-    if (!audioContextRef.current || !audioBuffer) return;
-
-    if (isPlaying) {
-      sourceRef.current?.stop();
-      sourceRef.current = null;
-      setIsPlaying(false);
-    } else {
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-
-      source.connect(audioContextRef.current.destination);
-      source.start(0, startTime, duration);
-
-      sourceRef.current = source;
-      setIsPlaying(true);
-
-      source.onended = () => {
-        setIsPlaying(false);
-        sourceRef.current = null;
-      };
-    }
-  };
-
   return (
-    <div className="relative flex h-full items-center justify-center">
+    <div
+      ref={blockRef}
+      className="absolute flex h-full items-center justify-start"
+      style={{
+        width: width,
+        transform: `translateX(${localStartPoint}px)`,
+        backgroundColor: blockColor,
+        borderRadius: `8px`,
+      }}
+    >
       <canvas
         ref={canvasRef}
-        className="h-7 w-full rounded-md"
-        style={{ backgroundColor: blockColor }}
-        onClick={handlePlayPause}
+        className="h-10 w-full rounded-md border border-transparent hover:border-brand-300"
+        style={{
+          backgroundColor: blockColor,
+        }}
       ></canvas>
     </div>
   );
