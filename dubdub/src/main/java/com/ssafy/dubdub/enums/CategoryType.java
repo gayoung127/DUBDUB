@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 public enum CategoryType {
     MOVIE(1, "영화"),
-    DRAMA(2, "드라마"),
+    ANIMATION(2, "애니메이션"),
     DOCUMENTARY(3, "다큐멘터리"),
-    ANIMATION(4, "애니메이션"),
+    DRAMA(4, "드라마"),
     COMMERCIAL(5, "광고"),
     ETC(6, "기타");
 

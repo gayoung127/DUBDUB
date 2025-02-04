@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 public enum GenreType {
     ACTION(1, "액션"),
-    COMEDY(2, "코미디"),
+    COMEDY(2, "코믹"),
     THRILLER(3, "스릴러"),
-    HORROR(4, "호러"),
+    HORROR(4, "공포"),
     ROMANCE(5, "로맨스"),
     SF(6, "SF"),
     FANTASY(7, "판타지"),
