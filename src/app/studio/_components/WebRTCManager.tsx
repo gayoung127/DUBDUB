@@ -44,7 +44,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       // 새로운 사용자가 기존 상태를 수신
       newSession.on("signal:syncResponse", (event) => {
-        const data = (event.data && JSON.parse(event.data)) || {};
+        const data = event.data ? JSON.parse(event.data) : {};
 
         if (typeof data.isPlaying === "boolean") {
           data.isPlaying ? play() : pause();
@@ -62,12 +62,12 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       newSession.on("streamDestroyed", (event) => {
         setSubscribers((prev) =>
-          prev.filter((sub) => sub !== event.stream.streamManager),
+          prev.filter((sub) => sub && sub !== event.stream.streamManager),
         );
       });
 
       newSession.on("signal:control", (event) => {
-        const data = (event.data && JSON.parse(event.data)) || {};
+        const data = event.data ? JSON.parse(event.data) : {};
         if (data.type === "play") play();
         if (data.type === "pause") pause();
         if (data.type === "seek" && typeof data.time === "number") {
@@ -129,6 +129,10 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
   useEffect(() => {
     if (!session) return;
+
+    if (typeof lastSentTime.current !== "number") {
+      lastSentTime.current = 0;
+    }
 
     // 2초 이상 차이나면 time 동기화 전송
     if (Math.abs(time - lastSentTime.current) > 2) {
