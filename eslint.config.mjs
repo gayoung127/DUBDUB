@@ -14,12 +14,10 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-unused-vars": "warn",
-      "react/jsx-key": "warn", // 경고로 변경
-      "@next/next/no-img-element": "off", // <img> 태그 사용 허용
-      "@typescript-eslint/no-explicit-any": "off", // any 타입 허용
-      "react-hooks/exhaustive-deps": "warn", // React Hook 의존성 경고로 변경
-      "jsx-a11y/alt-text": "warn", // alt 속성 누락 경고로 변경
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "react/no-children-prop": "off",
     },
   },
 ];
