@@ -44,10 +44,8 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       // 새로운 사용자가 기존 상태를 수신
       newSession.on("signal:syncResponse", (event) => {
-        const data =
-          event.data && typeof event.data === "string"
-            ? JSON.parse(event.data)
-            : {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        const data = event.data ? JSON.parse(event.data) : {};
 
         if (typeof data.isPlaying === "boolean") {
           data.isPlaying ? play() : pause();
@@ -70,10 +68,8 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
       });
 
       newSession.on("signal:control", (event) => {
-        const data =
-          event.data && typeof event.data === "string"
-            ? JSON.parse(event.data)
-            : {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        const data = event.data ? JSON.parse(event.data) : {};
 
         if (data.type === "play") play();
         if (data.type === "pause") pause();
@@ -127,12 +123,12 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
   }, [videoStream, studioId]);
 
   useEffect(() => {
-    if (session) {
-      session.signal({
-        type: "control",
-        data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
-      });
-    }
+    if (!session) return;
+
+    session.signal({
+      type: "control",
+      data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
+    });
   }, [isPlaying]);
 
   useEffect(() => {
