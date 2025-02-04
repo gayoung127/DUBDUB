@@ -67,7 +67,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
       });
 
       newSession.on("signal:control", (event) => {
-        const data = event.data ? JSON.parse(event.data) : {};
+        const data = (event.data && JSON.parse(event.data)) || {};
         if (data.type === "play") play();
         if (data.type === "pause") pause();
         if (data.type === "seek" && typeof data.time === "number") {
