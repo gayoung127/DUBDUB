@@ -44,7 +44,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       // 새로운 사용자가 기존 상태를 수신
       newSession.on("signal:syncResponse", (event) => {
-        const data = event.data ? JSON.parse(event.data) : {};
+        const data = (event.data && JSON.parse(event.data)) || {};
 
         if (typeof data.isPlaying === "boolean") {
           data.isPlaying ? play() : pause();
