@@ -61,7 +61,7 @@ export default function Role() {
               value={newRoleName}
               onChange={(e) => setNewRoleName(e.target.value)}
               placeholder="역할 입력"
-              className="rounded-[8px] border-2 border-brand-200 px-4 py-2 text-lg focus:border-brand-300 focus:outline-none"
+              className="rounded-[8px] border-2 border-brand-200 px-4 py-2 text-lg placeholder-gray-100 focus:border-brand-300 focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleAddRole();
@@ -88,7 +88,7 @@ export default function Role() {
         ) : (
           <button
             onClick={() => setIsAdding(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-[8px] border-2 border-brand-200 bg-white-100 text-xl font-bold text-brand-200 transition-colors duration-200 hover:bg-brand-200"
+            className="flex h-9 w-9 items-center justify-center rounded-[8px] border-2 border-brand-200 bg-white-100 text-xl font-bold text-brand-200 transition-colors duration-200"
           >
             <PlusIcon />
           </button>
