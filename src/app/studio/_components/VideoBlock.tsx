@@ -50,7 +50,7 @@ const VideoBlock = ({ videoUrl, videoRef }: VideoBlockProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <video ref={videoRef} src={videoUrl} />
+      <video ref={videoRef} src={videoUrl} className="max-h-[407px]" />
     </div>
   );
 };
