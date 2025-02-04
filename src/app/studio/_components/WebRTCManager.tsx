@@ -36,16 +36,19 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       // 기존 사용자로부터 현재 상태 동기화 요청
       newSession.on("signal:syncRequest", () => {
-        session?.signal({
-          type: "syncRequest",
-          data: JSON.stringify({ isPlaying, time }),
-        });
+        if (session && session.connection) {
+          session.signal({
+            type: "syncRequest",
+            data: JSON.stringify({ isPlaying, time }),
+          });
+        }
       });
 
       // 새로운 사용자가 기존 상태를 수신
       newSession.on("signal:syncResponse", (event) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        const data = event.data ? JSON.parse(event.data) : {};
+        const data =
+          typeof event.data === "string" ? JSON.parse(event.data) : {};
 
         if (typeof data.isPlaying === "boolean") {
           data.isPlaying ? play() : pause();
@@ -69,7 +72,8 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
 
       newSession.on("signal:control", (event) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        const data = event.data ? JSON.parse(event.data) : {};
+        const data =
+          typeof event.data === "string" ? JSON.parse(event.data) : {};
 
         if (data.type === "play") play();
         if (data.type === "pause") pause();
@@ -126,10 +130,12 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
     if (!session) return;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    session.signal({
-      type: "control",
-      data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
-    });
+    if (session) {
+      session.signal({
+        type: "control",
+        data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
+      });
+    }
   }, [isPlaying]);
 
   useEffect(() => {
@@ -142,11 +148,13 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
     // 2초 이상 차이나면 time 동기화 전송
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (Math.abs(time - lastSentTime.current) > 2) {
-      session.signal({
-        type: "control",
-        data: JSON.stringify({ type: "seek", time }),
-      });
-      lastSentTime.current = time;
+      if (session) {
+        session.signal({
+          type: "control",
+          data: JSON.stringify({ type: "seek", time }),
+        });
+        lastSentTime.current = time;
+      }
     }
   }, [time]);
   return null;
