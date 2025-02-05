@@ -31,9 +31,11 @@ const Login = () => {
         console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
         return;
       }
+
       const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        mode: "cors",
+        // headers: { "Content-Type": "application/json" },
         // body: JSON.stringify({ code }),
         credentials: "include",
       });
