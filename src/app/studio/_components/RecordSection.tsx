@@ -7,21 +7,19 @@ import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import H4 from "@/app/_components/H4";
 
 import Timeline from "./Timeline";
-import VideoTrack from "./VideoTrack";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
+
+import VideoTrack from "./VideoTrack";
 
 const RecordSection = () => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
+  // 1. 트랙 세로 스크롤 동기화
   const trackListRef = useRef<HTMLDivElement | null>(null);
   const timelineTracksRef = useRef<HTMLDivElement | null>(null);
-
-  // ✅ 휠 스크롤을 활용하여 동기화
   useEffect(() => {
     const headerEl = trackListRef.current;
     const timelineEl = timelineTracksRef.current;
@@ -29,7 +27,7 @@ const RecordSection = () => {
     if (!headerEl || !timelineEl) return;
 
     const syncScroll = (event: WheelEvent) => {
-      event.preventDefault(); // 기본 스크롤 방지
+      event.preventDefault();
 
       headerEl.scrollTop += event.deltaY;
       timelineEl.scrollTop += event.deltaY;
@@ -44,7 +42,10 @@ const RecordSection = () => {
     };
   }, []);
 
+  //
   useEffect(() => {
+    console.log("호출찡호출찡", tracks);
+
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
@@ -53,7 +54,7 @@ const RecordSection = () => {
       if (!audioContextRef.current) return;
       const context = audioContextRef.current;
 
-      for (const track of initialTracks) {
+      for (const track of tracks) {
         for (const file of track.files) {
           if (!audioBuffersRef.current.has(file.url)) {
             const response = await fetch(file.url);
@@ -66,7 +67,7 @@ const RecordSection = () => {
     };
 
     loadAudioFiles();
-  }, []);
+  }, [setTracks, tracks]);
 
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">

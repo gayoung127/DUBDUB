@@ -132,7 +132,7 @@ const AudioBlock = ({
         audioContext = new (window.AudioContext || window.AudioContext)();
       }
 
-      const response = await fetch("/examples/happyhappyhappysong.mp3");
+      const response = await fetch(file.url);
       const arrayBuffer = await response.arrayBuffer();
       const buffer = await audioContext.decodeAudioData(arrayBuffer);
       setAudioBuffer(buffer);

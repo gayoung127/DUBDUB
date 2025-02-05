@@ -14,7 +14,7 @@ const AssetCard = ({ isAssetSelected, onClick }: AssetCardProps) => {
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "ASSET",
-    item: { id: "new-audio", url: "/path/to/audio.mp3" }, // 드래그 시 전달할 데이터
+    item: { id: "new-audio", url: "/examples/gazua.mp3" }, // 드래그 시 전달할 데이터
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),

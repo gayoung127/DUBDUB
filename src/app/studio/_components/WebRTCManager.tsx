@@ -124,7 +124,7 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
         const videoTrack = videoStream.getVideoTracks()[0];
         const newPublisher = ov.initPublisher(undefined, {
           videoSource: videoTrack,
-          publishAudio: false,
+          publishAudio: true,
         });
 
         await newSession.publish(newPublisher);
