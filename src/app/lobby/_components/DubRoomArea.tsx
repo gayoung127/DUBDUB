@@ -10,18 +10,19 @@ interface DubRoomAreaProps {
   dubbingRooms: DubbingRoom[];
   setPage: (prev: (prev: number) => number) => void;
   isFetching: boolean;
+  isLastPage: boolean;
 }
 
 const DubRoomArea = ({
   dubbingRooms,
   setPage,
   isFetching,
+  isLastPage,
 }: DubRoomAreaProps) => {
   const lastElementRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!lastElementRef.current) {
-      console.log("❌ lastElementRef.current가 NULL입니다 ㅠ ㅠ");
       return;
     }
 
@@ -40,6 +41,10 @@ const DubRoomArea = ({
     );
 
     observer.observe(lastElementRef.current);
+    if (isLastPage) {
+      console.log("비활성화");
+      observer.disconnect();
+    }
 
     return () => observer.disconnect();
   }, [dubbingRooms, isFetching]);
