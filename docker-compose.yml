@@ -6,9 +6,10 @@ services:
       dockerfile: Dockerfile
     container_name: dubdub_app
     ports:
-      - "8443:8443"
+      - "8081:8081"
     volumes:
-      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy:/app:ro
+      - ./logs:/app/logs
+      - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/keystore:/app/keystore
     env_file:
       - .env   # Jenkins에서 복사된 .env 파일을 자동 로드
     environment:
