@@ -10,8 +10,7 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { loggedInUserId, setLoggedInUserId, prevPage, setPrevPage } =
-    useAuthStore();
+  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -52,9 +51,10 @@ const Login = () => {
       if (response.status === 200 || response.status === 201) {
         console.log("로그인 성공!!");
 
+        const prevPage = getCookie("prevPage");
         if (prevPage) {
           router.replace(prevPage);
-          setPrevPage(null);
+          document.cookie = "prevPage=; path=/; max-age=0;";
         } else {
           router.replace("/lobby");
         }

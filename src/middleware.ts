@@ -11,14 +11,12 @@ export function middleware(request: NextRequest) {
   console.log("accessToken: ", accessToken || "없음");
   console.log("refreshToken: ", refreshToken || "없음");
 
-  const isDetailPage = request.nextUrl.pathname.startsWith("/detail/");
-
-  if (!accessToken && isDetailPage) {
-    const res = NextResponse.redirect;
-  }
-
   if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const response = NextResponse.redirect(new URL("/login", request.url));
+
+    response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+
+    return response;
   }
 
   // const validateResponse = await validateToken(accessToken, refreshToken);
@@ -53,8 +51,8 @@ const validateToken = async (
     return { isValid: false };
   }
 };
-/* 미들웨어 경로 설정해야 함
- */
+/* 미들웨어 경로 설정해야 함*/
+// "/lobby/:path*/studio"
 export const config = {
-  matcher: ["/login"],
+  matcher: [],
 };
