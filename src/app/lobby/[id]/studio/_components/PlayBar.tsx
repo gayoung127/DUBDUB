@@ -4,6 +4,7 @@ import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
 import H4 from "@/app/_components/H4";
+import RenderingButton from "./RenderingButton";
 
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
@@ -23,7 +24,7 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
   }, [videoRef.current?.duration]);
 
   return (
-    <section className="flex h-full w-full flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
+    <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
         <div>
           <RecordButton width={20} height={20} />
@@ -44,7 +45,9 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
         <H4 className="text-white-100">/</H4>
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
-      <div className="flex h-full">하이</div>
+      <div className="flex h-full items-center justify-center">
+        <RenderingButton />
+      </div>
     </section>
   );
 };
