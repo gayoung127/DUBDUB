@@ -23,16 +23,16 @@ public class File extends Timestamped{
     private FileType fileType;
 
     @Column(nullable = false)
-    private String fileName;
+    private String url;
 
     @Enumerated(EnumType.STRING)
     private FileStatus fileStatus;
 
 
     @Builder
-    public File(Recruitment recruitment, String fileName, FileType fileType) {
+    public File(Recruitment recruitment, String url, FileType fileType) {
         this.recruitment = recruitment;
-        this.fileName = fileName;
+        this.url = url;
         this.fileType = fileType;
         this.fileStatus = FileStatus.ACTIVE;
     }

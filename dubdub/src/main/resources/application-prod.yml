@@ -1,0 +1,22 @@
+#server:
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: file:/app/ssafy-web.p12
+#    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+#    key-alias: ssafy-web
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: false  # 배포 환경에서는 SQL 로그 비활성화
+
+logging:
+  level:
+    root: INFO  # 기본 로그 레벨을 INFO로 설정 (DEBUG 로그 출력 방지)
+    org.springframework: INFO  # Spring 관련 로그 최소화
+    org.hibernate.SQL: INFO  # Hibernate SQL 로그 비활성화

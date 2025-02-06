@@ -38,16 +38,16 @@ public class S3Service {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return fileName;
+            return getFullUrl(filePath);
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 중 오류 발생", e);
         }
     }
 
-    public void deleteFile(String fileName) {
+    public void deleteFile(String fileUrl) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName)
+                .key(extractObjectKey(fileUrl))
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
@@ -55,5 +55,9 @@ public class S3Service {
 
     public String getFullUrl(String fileName) {
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+    private String extractObjectKey(String fileUrl) {
+        return fileUrl.substring(fileUrl.indexOf("/", 1) + 1);
     }
 }
