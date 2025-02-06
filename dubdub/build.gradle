@@ -49,6 +49,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	implementation 'software.amazon.awssdk:s3:2.20.32'
+
+	implementation 'io.openvidu:openvidu-java-client:2.31.0'
 }
 
 tasks.named('test') {

@@ -39,9 +39,8 @@ public class MemberServiceImpl implements MemberService {
             }
 
             String filePath = FileUtil.generateFilePath(email, FileType.PROFILE);
-            String fileName = s3Service.uploadFile(file, filePath);
 
-            return s3Service.getFullUrl(fileName);
+            return s3Service.uploadFile(file, filePath);
         } catch (IOException e) {
             throw new MemberException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }

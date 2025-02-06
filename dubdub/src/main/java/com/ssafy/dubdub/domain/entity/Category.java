@@ -1,7 +1,6 @@
 package com.ssafy.dubdub.domain.entity;
 
 import com.ssafy.dubdub.enums.CategoryType;
-import com.ssafy.dubdub.enums.Provider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

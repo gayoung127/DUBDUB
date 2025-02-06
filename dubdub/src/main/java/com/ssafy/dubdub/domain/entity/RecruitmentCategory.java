@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class RecruitmentCategory {
 
     @EmbeddedId
-    private RecruitmentCategoryId id = new RecruitmentCategoryId();
+    private final RecruitmentCategoryId id = new RecruitmentCategoryId();
 
     @ManyToOne
     @MapsId("recruitmentId")

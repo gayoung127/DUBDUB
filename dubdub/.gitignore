@@ -40,8 +40,11 @@ out/
 *.env*
 
 ### .yml ###
-*.yml
 !example.yml
+
 
 # QueryDSL
 /src/main/generated/
+
+### 키 파일
+**/keystore/**

@@ -3,7 +3,6 @@ package com.ssafy.dubdub.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -11,7 +10,7 @@ import lombok.Setter;
 public class RecruitmentGenre {
 
     @EmbeddedId
-    private RecruitmentGenreId id = new RecruitmentGenreId();
+    private final RecruitmentGenreId id = new RecruitmentGenreId();
 
     @ManyToOne
     @MapsId("recruitmentId")
