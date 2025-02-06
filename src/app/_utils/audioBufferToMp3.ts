@@ -63,7 +63,8 @@ export async function audioBufferToMp3(audioBuffer: AudioBuffer) {
 
   // 변환된 MP3 파일 가져오기
   const mp3Data = await ffmpeg.readFile("output.mp3");
-  //@ts-expect-error
+  // @ts-expect-error FFmpeg의 반환 타입이 명확하지 않음
+
   const mp3Blob = new Blob([mp3Data.buffer], { type: "audio/mpeg" });
 
   // MP3 다운로드
