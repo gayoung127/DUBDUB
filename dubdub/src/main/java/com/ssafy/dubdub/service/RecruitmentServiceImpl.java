@@ -116,7 +116,6 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                         .filter(c -> c.getMemberId() != null)
                         .count())
                 .totalParticipants(recruitment.getCastings().size())
-                .authorId(recruitment.getAuthor().getId())
                 .genres(recruitment.getGenres().stream()
                         .map(rg -> rg.getGenre().getId())
                         .collect(Collectors.toList()))

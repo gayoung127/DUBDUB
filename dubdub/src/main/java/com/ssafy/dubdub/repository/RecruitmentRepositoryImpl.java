@@ -27,6 +27,8 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
     private static final QCategory category = QCategory.category;
     private static final QCasting casting = QCasting.casting;
     private static final QStudio studio = QStudio.studio;
+    private static final QRecruitmentGenre recruitmentGenre = QRecruitmentGenre.recruitmentGenre;
+    private static final QRecruitmentCategory recruitmentCategory = QRecruitmentCategory.recruitmentCategory;
 
     @Override
     public Page<Recruitment> findBySearchCondition(RecruitmentSearchRequestDTO condition, Member member) {
@@ -72,7 +74,6 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
 
         return queryFactory
                 .selectFrom(recruitment)
-                .leftJoin(recruitment.author).fetchJoin()
                 .leftJoin(recruitment.genres).fetchJoin()
                 .leftJoin(recruitment.categories).fetchJoin()
                 .where(
