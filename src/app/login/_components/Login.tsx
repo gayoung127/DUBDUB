@@ -10,7 +10,8 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
+  const { loggedInUserId, setLoggedInUserId, prevPage, setPrevPage } =
+    useAuthStore();
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -44,15 +45,25 @@ const Login = () => {
 
       //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
       setLoggedInUserId(data.memberId);
+      console.log(data.memberId);
       console.log(response.status);
       console.log(loggedInUserId);
 
-      if (response.status === 201) {
-        setIsFirstLogin(true);
-      } else if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         console.log("로그인 성공!!");
-        router.push("/lobby");
+
+        if (prevPage) {
+          router.replace(prevPage);
+          setPrevPage(null);
+        } else {
+          router.replace("/lobby");
+        }
       }
+      /* 회원가입 과정 삭제
+      else if (response.status === 201) {
+        setIsFirstLogin(true);
+      }
+      */
     } catch (error) {
       console.error("로그인 에러: ", error);
       alert("로그인 실패!");

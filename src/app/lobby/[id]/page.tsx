@@ -5,15 +5,24 @@ import DubbingInfo from "./_components/DubbingInfo";
 import Role from "./_components/Role";
 import ScriptSection from "./_components/ScriptSection";
 import { RoleData, ScriptData } from "./type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/app/_components/Button";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/_store/AuthStore";
 
 export default function RoomDetailPage() {
   const pathname = usePathname();
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isAppling, setIsAppling] = useState<boolean>(false);
+  const { loggedInUserId, setPrevPage } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loggedInUserId === null) {
+      setPrevPage(`${pathname}`);
+    }
+  }, [loggedInUserId, setPrevPage, pathname]);
 
   function getDubbingInfo() {
     const dubbingInfoData = {
@@ -50,6 +59,10 @@ export default function RoomDetailPage() {
   };
 
   const handleApplyClick = () => {
+    if (loggedInUserId === null) {
+      router.push("/login");
+      return;
+    }
     if (isRoleSelected && selectedRoles.length > 0) {
       alert(
         `${dubbingInfoData.title}: ${selectedRoles.map((r) => r.role)} 역에 참가하시겠습니까?`,

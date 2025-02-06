@@ -5,17 +5,23 @@ export function middleware(request: NextRequest) {
 
   console.log("미들웨어 실행됨");
 
-  // const accessToken = request.cookies.get("accessToken")?.value;
-  // const refreshToken = request.cookies.get("refreshToken")?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  // console.log("accessToken: ", accessToken || "없음");
-  // console.log("refreshToken: ", refreshToken || "없음");
+  console.log("accessToken: ", accessToken || "없음");
+  console.log("refreshToken: ", refreshToken || "없음");
 
-  // if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
-  //   // return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  const isDetailPage = request.nextUrl.pathname.startsWith("/detail/");
 
-  // // const validateResponse = await validateToken(accessToken, refreshToken);
+  if (!accessToken && isDetailPage) {
+    const res = NextResponse.redirect;
+  }
+
+  if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // const validateResponse = await validateToken(accessToken, refreshToken);
 
   return NextResponse.next();
 }
