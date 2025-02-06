@@ -159,6 +159,7 @@ const RecordSection = () => {
           </div>
         </div>
       </div>
+      <Button onClick={handleDownloadMp3}>하이</Button>
     </section>
   );
 };
