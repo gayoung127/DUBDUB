@@ -53,9 +53,6 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .startTime(requestDTO.getStartTime())
-                .endTime(requestDTO.getEndTime())
-                .isRecruiting(requestDTO.isPrivate())
                 .script(requestDTO.getScript())
                 .build();
 
@@ -99,19 +96,9 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     }
 
     private RecruitmentListResponseDTO convertToDTO(Recruitment recruitment) {
-        LocalDateTime now = LocalDateTime.now();
-        boolean isTimeInRange = recruitment.getStartTime().isBefore(now)
-                && recruitment.getEndTime().isAfter(now);
-        boolean hasActiveStudio = studioRepository.existsByRecruitmentIdAndIsClosedFalse(recruitment.getId());
-        boolean isOnAir = isTimeInRange || hasActiveStudio;
-
         return RecruitmentListResponseDTO.builder()
                 .id(recruitment.getId())
                 .title(recruitment.getTitle())
-                .startTime(recruitment.getStartTime())
-                .endTime(recruitment.getEndTime())
-                .isRecruiting(recruitment.isRecruiting())
-                .onAir(isOnAir)
                 .currentParticipants((int) recruitment.getCastings().stream()
                         .filter(c -> c.getMemberId() != null)
                         .count())

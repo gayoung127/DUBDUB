@@ -34,7 +34,7 @@ public class RecruitmentController {
         return ResponseEntity.ok().body(null);
     }
 
-    @Operation(summary = "로비 모집글 조회")
+    @Operation(summary = "내 프로젝트 조회")
     @GetMapping("/list")
     public ResponseEntity<Page<RecruitmentListResponseDTO>> getRecruitments(
             @ModelAttribute RecruitmentSearchRequestDTO request

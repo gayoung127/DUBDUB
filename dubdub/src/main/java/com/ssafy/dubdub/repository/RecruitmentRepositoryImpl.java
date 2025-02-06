@@ -1,7 +1,6 @@
 package com.ssafy.dubdub.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.*;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,13 +20,6 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     private static final QRecruitment recruitment = QRecruitment.recruitment;
-    private static final QMember member = QMember.member;
-    private static final QGenre genre = QGenre.genre;
-    private static final QCategory category = QCategory.category;
-    private static final QCasting casting = QCasting.casting;
-    private static final QStudio studio = QStudio.studio;
-    private static final QRecruitmentGenre recruitmentGenre = QRecruitmentGenre.recruitmentGenre;
-    private static final QRecruitmentCategory recruitmentCategory = QRecruitmentCategory.recruitmentCategory;
 
     @Override
     public Page<Recruitment> findBySearchCondition(RecruitmentSearchRequestDTO condition, Member member) {
@@ -44,22 +35,14 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
     }
 
     private Long getTotal(RecruitmentSearchRequestDTO condition, Member member) {
-        JPAQuery<Boolean> hasActiveStudioSubquery = queryFactory
-                .select(studio.isClosed.isFalse())
-                .from(studio)
-                .where(studio.recruitment.eq(recruitment));
-
         return Optional.ofNullable(
                 queryFactory
                         .select(recruitment.count())
                         .from(recruitment)
                         .where(
                                 keywordIn(condition.getSearchKeyword()),
-                                isOnAir(condition.getOnAir(), hasActiveStudioSubquery),
-                                isPrivateEq(condition.getIsPrivate()),
                                 genreIn(condition.getGenreIds()),
                                 categoryIn(condition.getCategoryIds()),
-                                isRecruiting(condition.getIsRecruiting()),
                                 participationType(condition.getParticipationType(), member)
                         )
                         .fetchOne()
@@ -67,23 +50,14 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
     }
 
     private List<Recruitment> getRecruitments(RecruitmentSearchRequestDTO condition, Member member) {
-
-        JPAQuery<Boolean> hasActiveStudioSubquery = queryFactory
-                .select(studio.isClosed.isFalse())
-                .from(studio)
-                .where(studio.recruitment.eq(recruitment));
-
         return queryFactory
                 .selectFrom(recruitment)
                 .leftJoin(recruitment.genres).fetchJoin()
                 .leftJoin(recruitment.categories).fetchJoin()
                 .where(
                         keywordIn(condition.getSearchKeyword()),
-                        isOnAir(condition.getOnAir(), hasActiveStudioSubquery),
-                        isPrivateEq(condition.getIsPrivate()),
                         genreIn(condition.getGenreIds()),
                         categoryIn(condition.getCategoryIds()),
-                        isRecruiting(condition.getIsRecruiting()),
                         participationType(condition.getParticipationType(), member)
                 )
                 .offset((long) Optional.ofNullable(condition.getPage()).orElse(0) *
@@ -96,21 +70,6 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
     private BooleanExpression keywordIn(String searchKeyword){
         return Optional.ofNullable(searchKeyword)
                 .map(recruitment.title::containsIgnoreCase)
-                .orElse(null);
-    }
-
-    private BooleanExpression isOnAir(Boolean onAir, JPAQuery<Boolean> hasActiveStudioSubquery) {
-        return Optional.ofNullable(onAir)
-                .filter(Boolean::booleanValue)
-                .map(__ -> recruitment.startTime.loe(LocalDateTime.now())
-                        .and(recruitment.endTime.goe(LocalDateTime.now()))
-                        .or(hasActiveStudioSubquery.exists()))
-                .orElse(null);
-    }
-
-    private BooleanExpression isPrivateEq(Boolean isPrivate) {
-        return Optional.ofNullable(isPrivate)
-                .map(recruitment.isPrivate::eq)
                 .orElse(null);
     }
 
@@ -128,18 +87,13 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                 .orElse(null);
     }
 
-    private BooleanExpression isRecruiting(Boolean isRecruiting) {
-        return Optional.ofNullable(isRecruiting)
-                .map(recruitment.isRecruiting::eq)
-                .orElse(null);
-    }
-
     private BooleanExpression participationType(String participationType, Member member) {
         return Optional.ofNullable(participationType)
                 .map(type -> {
                     Long currentUserId = member.getId();
                     return switch (ParticipationType.valueOf(type)) {
-                        case MY -> recruitment.castings.any().memberId.eq(currentUserId);
+                        case CREATED -> recruitment.author.id.eq(currentUserId);
+                        case JOINED -> recruitment.castings.any().memberId.eq(currentUserId);
                         default -> null;
                     };
                 })
