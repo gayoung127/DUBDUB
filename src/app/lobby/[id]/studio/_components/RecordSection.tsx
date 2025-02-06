@@ -80,7 +80,15 @@ const RecordSection = () => {
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
-              <AudioTrackHeader key={track.trackId} trackId={track.trackId} />
+              <AudioTrackHeader
+                key={track.trackId}
+                trackId={track.trackId}
+                recorderId={track.recorderId}
+                recorderName={track.recorderName}
+                recorderRole={track.recorderRole}
+                recorderProfileUrl={track.recorderProfileUrl}
+                setTracks={setTracks}
+              />
             ))}
           </div>
         </div>
