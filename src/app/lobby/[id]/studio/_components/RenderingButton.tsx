@@ -47,13 +47,13 @@ const RenderingButton = () => {
   return (
     <>
       {!isRendering ? (
-        <Button onClick={handleStartRendering}>동영상 추출하기</Button>
+        <Button onClick={handleStartRendering}>동영상 저장하기</Button>
       ) : (
         <Button outline onClick={handleFinishRendering} className="flex gap-2">
           <div className="flex h-full items-center">
             <StopBrandButton />
           </div>
-          추출 중 ...
+          저장 중 ...
         </Button>
       )}
     </>

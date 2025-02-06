@@ -31,6 +31,20 @@ export const useRendering = () => {
       audioElement.src = URL.createObjectURL(audioBlob);
 
       videoElement.muted = true; // 중복 오디오 방지
+      // 🔇 🔹 오디오 트랙을 유지하면서도 브라우저에서 소리가 안 들리도록 설정
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaElementSource(audioElement);
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = 0; // 🔇 볼륨을 0으로 설정하여 음소거 효과
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // 🔹 비디오 & 오디오가 화면에 표시되지 않도록 숨김
+      videoElement.style.display = "none";
+      audioElement.style.display = "none";
+      document.body.appendChild(videoElement);
+      document.body.appendChild(audioElement);
+
       videoElement.crossOrigin = "anonymous";
       audioElement.crossOrigin = "anonymous";
 
@@ -77,9 +91,11 @@ export const useRendering = () => {
         setOutputUrl(webmUrl);
         console.log("WebM 변환 완료:", webmUrl);
         console.log(`-- 처리 시간: ${Date.now() - start}ms`);
+        document.body.removeChild(videoElement);
+        document.body.removeChild(audioElement);
       };
 
-      console.log("▶ 비디오 & 오디오 병합 시작...");
+      console.log("비디오 & 오디오 병합 시작...");
       mediaRecorder.start();
       videoElement.play();
       audioElement.play();
