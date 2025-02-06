@@ -5,17 +5,21 @@ export function middleware(request: NextRequest) {
 
   console.log("미들웨어 실행됨");
 
-  // const accessToken = request.cookies.get("accessToken")?.value;
-  // const refreshToken = request.cookies.get("refreshToken")?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  // console.log("accessToken: ", accessToken || "없음");
-  // console.log("refreshToken: ", refreshToken || "없음");
+  console.log("accessToken: ", accessToken || "없음");
+  console.log("refreshToken: ", refreshToken || "없음");
 
-  // if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
-  //   // return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
+    const response = NextResponse.redirect(new URL("/login", request.url));
 
-  // // const validateResponse = await validateToken(accessToken, refreshToken);
+    response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+
+    return response;
+  }
+
+  // const validateResponse = await validateToken(accessToken, refreshToken);
 
   return NextResponse.next();
 }
@@ -47,8 +51,8 @@ const validateToken = async (
     return { isValid: false };
   }
 };
-/* 미들웨어 경로 설정해야 함
- */
+/* 미들웨어 경로 설정해야 함*/
+// "/lobby/:path*/studio"
 export const config = {
-  matcher: ["/login"],
+  matcher: [],
 };
