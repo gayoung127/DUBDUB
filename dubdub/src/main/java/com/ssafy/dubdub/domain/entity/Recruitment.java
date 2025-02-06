@@ -28,13 +28,7 @@ public class Recruitment extends Timestamped {
     @Column(columnDefinition = "text")
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
+    @Column
     private boolean isRecruiting;
 
     @Column(columnDefinition = "text")
@@ -57,8 +51,6 @@ public class Recruitment extends Timestamped {
         this.author = author;
         this.title = title;
         this.content = content;
-        this.startTime = startTime;
-        this.endTime = endTime;
         this.isRecruiting = isRecruiting;
         this.script = script;
         this.isPrivate = isPrivate;

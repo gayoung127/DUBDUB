@@ -16,18 +16,6 @@ public class RecruitmentListResponseDTO {
     @Schema(description = "모집글 제목", example = "너의 이름은~~")
     private String title;
 
-    @Schema(description = "시작 시간", example = "1, 2")
-    private LocalDateTime startTime;
-
-    @Schema(description = "종료 시간", example = "1, 2")
-    private LocalDateTime endTime;
-
-    @Schema(description = "모집글 모집 여부", example = "true")
-    private boolean isRecruiting;
-
-    @Schema(description = "모집글의 스튜디오 onAir 여부", example = "true")
-    private boolean onAir;
-
     @Schema(description = "현재 참가자 수", example = "1")
     private int currentParticipants;
 

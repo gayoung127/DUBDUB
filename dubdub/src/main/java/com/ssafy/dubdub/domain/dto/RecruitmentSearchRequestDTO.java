@@ -20,22 +20,13 @@ public class RecruitmentSearchRequestDTO {
     @Schema(description = "모집글 타이틀 검색어", example = "쵸파")
     private String searchKeyword;
 
-    @Schema(description = "스튜디오 생성된 / 정해진 시간인 onAir 모집글 조건", example = "true")
-    private Boolean onAir;
-
-    @Schema(description = "비공개 여부 조건", example = "true")
-    private Boolean isPrivate;
-
     @Schema(description = "모집글 선택된 장르 조건", example = "[1, 2]")
     private List<Long> genreIds;
 
     @Schema(description = "모집글 선택된 카테고리 조건", example = "[1, 2]")
     private List<Long> categoryIds;
 
-    @Schema(description = "모집글 모집중인 조건", example = "true")
-    private Boolean isRecruiting;
-
-    @Schema(description = "전체 조회 / 내가 참여한 모집글 조건", example = "MY")
+    @Schema(description = "내가 생성한 / 내가 참여한 프로젝트 조건", example = "CREATED")
     private String participationType;
 }
 
