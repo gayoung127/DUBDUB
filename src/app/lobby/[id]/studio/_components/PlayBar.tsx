@@ -24,7 +24,7 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
   }, [videoRef.current?.duration]);
 
   return (
-    <section className="flex h-full w-full flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
+    <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
         <div>
           <RecordButton width={20} height={20} />
@@ -45,7 +45,7 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
         <H4 className="text-white-100">/</H4>
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
-      <div className="flex h-full">
+      <div className="flex h-full items-center justify-center">
         <RenderingButton />
       </div>
     </section>
