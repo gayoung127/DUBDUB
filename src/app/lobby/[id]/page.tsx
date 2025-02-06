@@ -1,12 +1,12 @@
 "use client";
 
-import Header from "../_components/Header";
+import Header from "@/app/_components/Header";
 import DubbingInfo from "./_components/DubbingInfo";
 import Role from "./_components/Role";
 import ScriptSection from "./_components/ScriptSection";
 import { RoleData, ScriptData } from "./type";
 import { useState } from "react";
-import Button from "../_components/Button";
+import Button from "@/app/_components/Button";
 
 export default function RoomDetailPage() {
   const [isOwner, setIsOwner] = useState<boolean>(false);

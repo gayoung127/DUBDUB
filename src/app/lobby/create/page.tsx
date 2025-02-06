@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Header from "../_components/Header";
 import Description from "./_ components/Description";
 import Genre from "./_ components/Genre";
 import Play from "./_ components/Play";
@@ -10,6 +9,7 @@ import Title from "./_ components/Title";
 import Type from "./_ components/Type";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
+import Header from "@/app/_components/Header";
 
 export default function page() {
   return (
