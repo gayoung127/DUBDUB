@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.domain.dto;
 
+import com.ssafy.dubdub.enums.ParticipationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -27,7 +28,7 @@ public class RecruitmentSearchRequestDTO {
     private List<Long> categoryIds;
 
     @Schema(description = "내가 생성한 / 내가 참여한 프로젝트 조건", example = "CREATED")
-    private String participationType;
+    private ParticipationType participationType;
 }
 
 

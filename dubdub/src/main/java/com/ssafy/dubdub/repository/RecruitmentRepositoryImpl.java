@@ -87,11 +87,11 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                 .orElse(null);
     }
 
-    private BooleanExpression participationType(String participationType, Member member) {
-        return Optional.ofNullable(participationType)
+    private BooleanExpression participationType(ParticipationType conditionType, Member member) {
+        return Optional.ofNullable(conditionType)
                 .map(type -> {
                     Long currentUserId = member.getId();
-                    return switch (ParticipationType.valueOf(type)) {
+                    return switch (conditionType) {
                         case CREATED -> recruitment.author.id.eq(currentUserId);
                         case JOINED -> recruitment.castings.any().memberId.eq(currentUserId);
                         default -> null;
