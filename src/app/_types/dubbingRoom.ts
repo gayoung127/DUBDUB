@@ -1,14 +1,13 @@
 interface DubbingRoom {
   id: number;
-  thumbnail: string;
   title: string;
-  time: string;
-  isLive: boolean;
-  badges: string[];
-  limit: number;
-  count: number;
-}
-
-interface DubbingRoomListProps {
-  dubbingRooms: DubbingRoom[];
+  startTime: string;
+  endTime: string;
+  isRecruiting: boolean;
+  onAir: boolean;
+  currentParticipants: number;
+  totalParticipants: number;
+  authorId: number;
+  genres: number[];
+  categories: number[];
 }

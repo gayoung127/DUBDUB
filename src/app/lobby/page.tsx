@@ -13,14 +13,16 @@ import { getRoomList } from "../_apis/roomlist";
 import { useRouter } from "next/navigation";
 
 const LobbyPage = () => {
-  const { timeFilter, categoryFilter, genreFilter } = useFilterStore();
+  const { timeFilter, categoryFilter, genreFilter, isFiltered, setIsFiltered } =
+    useFilterStore();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "all"; // 기본값: "all"
-  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
-
-  const [page, setPage] = useState(0);
   const PAGE_SIZE = 16;
-  const [isFetching, setIsFetching] = useState(false);
+  const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
+  const [page, setPage] = useState<number>(0);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [isLastPage, setIsLastPage] = useState<boolean>(false);
+
   const router = useRouter();
 
   const getIndexes = (
@@ -47,8 +49,15 @@ const LobbyPage = () => {
       genreIds: getIndexes(genreFilter, genres).join(","),
       categoryIds: getIndexes(categoryFilter, categories).join(","),
     });
-    if (page <= 2) {
-      const list = await getRoomList(`${queryParams}`, page);
+
+    const list = await getRoomList(`${queryParams}`, page, isFiltered);
+    if (list.length === 0) {
+      setIsLastPage(true);
+    }
+
+    if (page === 0) {
+      setDubbingRooms([...(list ?? [])]);
+    } else {
       setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
     }
   };
@@ -57,8 +66,18 @@ const LobbyPage = () => {
     getRooms();
   }, [tab, page]);
 
+  useEffect(() => {
+    if (isFiltered) {
+      if (page !== 0) {
+        setPage(0);
+      } else {
+        getRooms();
+      }
+    }
+  }, [isFiltered]);
+
   const handleCreateRoom = () => {
-    router.push("/room-create");
+    router.push("/create");
   };
 
   const tabs = [
@@ -73,7 +92,11 @@ const LobbyPage = () => {
       <div className="flex h-full w-full flex-col gap-4">
         <div className="flex h-full">
           <div className="flex flex-[2] items-center justify-center pl-3">
-            <Filter onClick={getRooms} />
+            <Filter
+              onClick={async () => {
+                await setIsFiltered(true);
+              }}
+            />
           </div>
 
           <div className="flex flex-[8] flex-col justify-center">
@@ -89,6 +112,7 @@ const LobbyPage = () => {
                   dubbingRooms={dubbingRooms}
                   setPage={setPage}
                   isFetching={isFetching}
+                  isLastPage={isLastPage}
                 />
               </div>
             </div>

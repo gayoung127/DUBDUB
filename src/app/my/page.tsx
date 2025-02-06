@@ -26,87 +26,21 @@ const MyPage = () => {
     grade: "PRO",
   };
 
-  const roomData = [
-    {
-      id: 1,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "짱구 더빙하실 분",
-      time: "02/21:14:00~02/21:17:00",
-      isLive: false,
-      badges: ["영화", "스릴러", "공포"],
-      limit: 6,
-      count: 2,
-    },
-    {
-      id: 2,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "코난 더빙하실 분",
-      time: "02/22:14:00~02/22:17:00",
-      isLive: false,
-      badges: [
-        "애니메이션",
-        "다큐멘터리",
-        "액션",
-        "스릴러",
-        "로맨스",
-        "SF",
-        "공포",
-        "일상",
-      ],
-      limit: 8,
-      count: 4,
-    },
-    {
-      id: 3,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "드라마 더빙 모임",
-      time: "02/23:14:00~02/23:17:00",
-      isLive: false,
-      badges: ["드라마", "로맨스"],
-      limit: 5,
-      count: 3,
-    },
-    {
-      id: 4,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "판타지 더빙 모임",
-      time: "02/24:14:00~02/24:17:00",
-      isLive: false,
-      badges: ["판타지", "SF"],
-      limit: 10,
-      count: 8,
-    },
-    {
-      id: 5,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "공포 더빙 모임",
-      time: "02/25:14:00~02/25:17:00",
-      isLive: false,
-      badges: ["공포", "스릴러"],
-      limit: 7,
-      count: 6,
-    },
-    {
-      id: 6,
-      thumbnail: "https://picsum.photos/300/200",
-      title: "일상 더빙 모임",
-      time: "02/26:14:00~02/26:17:00",
-      isLive: false,
-      badges: ["일상", "기타"],
-      limit: 4,
-      count: 3,
-    },
-  ];
   // ==========================
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState<number>(0);
   const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
-  const PAGE_SIZE = 16;
-  const [isFetching, setIsFetching] = useState(false);
+  //const PAGE_SIZE = 16;
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [isLastPage, setIsLastPage] = useState<boolean>(false);
 
   const getRooms = async () => {
-    const list = await getRoomList("temp", 3);
-    if (page <= 2) {
-      const list = await getRoomList(`temp`, page);
+    const list = await getRoomList("my", page, false);
+    if (list.length === 0) {
+      setIsLastPage(true);
+    }
+    if (page === 0) {
+      setDubbingRooms([...(list ?? [])]);
+    } else {
       setDubbingRooms([...dubbingRooms, ...(list ?? [])]);
     }
   };
@@ -134,6 +68,7 @@ const MyPage = () => {
                   dubbingRooms={dubbingRooms}
                   setPage={setPage}
                   isFetching={isFetching}
+                  isLastPage={isLastPage}
                 />
               </div>
             </div>

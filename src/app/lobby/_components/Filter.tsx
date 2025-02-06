@@ -7,7 +7,7 @@ import useFilterStore from "@/app/_store/FilterStore";
 import Button from "@/app/_components/Button";
 import { categories, genres, times } from "@/app/_utils/filterTypes";
 
-const Filter = ({ onClick }: { onClick: () => Promise<void> }) => {
+const Filter = ({ onClick }: { onClick: () => void }) => {
   const { createFilter, deleteFilter } = useFilterStore();
 
   const [timeFilter, setTimeFilter] = useState<string>("");
