@@ -1,10 +1,10 @@
-server:
-  ssl:
-    enabled: true
-    key-store-type: PKCS12
-    key-store: file:/app/keystore/ssafy-web.p12
-    key-store-password: ${SSL_KEYSTORE_PASSWORD}
-    key-alias: ssafy-web
+#server:
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: file:/app/ssafy-web.p12
+#    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+#    key-alias: ssafy-web
 
 spring:
   jpa:
