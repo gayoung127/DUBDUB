@@ -1,9 +1,12 @@
 package com.ssafy.dubdub.service;
 
 import com.ssafy.dubdub.domain.dto.DelegatingMultipartFile;
+import com.ssafy.dubdub.domain.dto.MemberProfileResponseDTO;
+import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.exception.MemberException;
+import com.ssafy.dubdub.repository.MemberRepository;
 import com.ssafy.dubdub.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import java.net.URLConnection;
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+    private final MemberRepository memberRepository;
     private final S3Service s3Service;
 
     public String uploadKakaoProfileImage(String kakaoImageUrl, String email) {
@@ -44,6 +48,14 @@ public class MemberServiceImpl implements MemberService {
         } catch (IOException e) {
             throw new MemberException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
+    }
+
+    @Override
+    public MemberProfileResponseDTO checkProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return MemberProfileResponseDTO.from(member);
     }
 }
 
