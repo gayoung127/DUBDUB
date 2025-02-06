@@ -7,8 +7,11 @@ import ScriptSection from "./_components/ScriptSection";
 import { RoleData, ScriptData } from "./type";
 import { useState } from "react";
 import Button from "@/app/_components/Button";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function RoomDetailPage() {
+  const pathname = usePathname();
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isAppling, setIsAppling] = useState<boolean>(false);
 
@@ -88,13 +91,15 @@ export default function RoomDetailPage() {
                 className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
                 outline={true}
               />
-              <Button
-                onClick={() => handleEnterStudio()}
-                children={"스튜디오 입장"}
-                large={true}
-                className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
-                outline={true}
-              />
+              <Link href={`${pathname}/studio`}>
+                <Button
+                  onClick={() => {}}
+                  children={"스튜디오 입장"}
+                  large={true}
+                  className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+                  outline={true}
+                />
+              </Link>
             </div>
           ) : isAppling ? (
             <div className="flex flex-row-reverse gap-4 px-8 py-2">
