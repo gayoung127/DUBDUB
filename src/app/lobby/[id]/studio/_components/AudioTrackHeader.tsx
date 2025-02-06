@@ -72,7 +72,7 @@ const AudioTrackHeader = ({
         {recorderId && (
           <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
             <Image
-              src={recorderProfileUrl}
+              src={recorderProfileUrl || "/images/tmp/dducip.jpg"}
               alt={recorderName || "프로필 이미지"}
               fill
               style={{ objectFit: "contain" }}
