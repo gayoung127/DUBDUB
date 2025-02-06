@@ -96,7 +96,7 @@ const RecordSection = () => {
     }
 
     // ✅ 오디오 병합
-    let mergedAudioBuffer = mergeAudioBuffersWithTimeline(
+    const mergedAudioBuffer = mergeAudioBuffersWithTimeline(
       audioContextRef.current,
       audioBlocks,
     );

@@ -11,7 +11,7 @@ async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
   const format = 1; // PCM
   const bitDepth = 16;
 
-  let samples: Float32Array[] = [];
+  const samples: Float32Array[] = [];
   for (let channel = 0; channel < numChannels; channel++) {
     samples.push(audioBuffer.getChannelData(channel));
   }
@@ -62,9 +62,8 @@ export async function audioBufferToMp3(audioBuffer: AudioBuffer) {
   await ffmpeg.exec(["-i", "input.wav", "-b:a", "192k", "output.mp3"]);
 
   // 변환된 MP3 파일 가져오기
-  // @ts-ignore
   const mp3Data = await ffmpeg.readFile("output.mp3");
-  // @ts-ignore
+  //@ts-expect-error
   const mp3Blob = new Blob([mp3Data.buffer], { type: "audio/mpeg" });
 
   // MP3 다운로드
@@ -75,8 +74,8 @@ export async function audioBufferToMp3(audioBuffer: AudioBuffer) {
  * 채널 데이터 interleaving (모노/스테레오 지원)
  */
 function interleave(samples: Float32Array[]): Float32Array {
-  let length = samples[0].length;
-  let result = new Float32Array(length * samples.length);
+  const length = samples[0].length;
+  const result = new Float32Array(length * samples.length);
   let index = 0;
 
   for (let i = 0; i < length; i++) {
