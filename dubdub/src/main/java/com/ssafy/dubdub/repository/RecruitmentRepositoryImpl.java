@@ -54,6 +54,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                         .select(recruitment.count())
                         .from(recruitment)
                         .where(
+                                keywordIn(condition.getSearchKeyword()),
                                 isOnAir(condition.getOnAir(), hasActiveStudioSubquery),
                                 isPrivateEq(condition.getIsPrivate()),
                                 genreIn(condition.getGenreIds()),
@@ -77,6 +78,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                 .leftJoin(recruitment.genres).fetchJoin()
                 .leftJoin(recruitment.categories).fetchJoin()
                 .where(
+                        keywordIn(condition.getSearchKeyword()),
                         isOnAir(condition.getOnAir(), hasActiveStudioSubquery),
                         isPrivateEq(condition.getIsPrivate()),
                         genreIn(condition.getGenreIds()),
@@ -89,6 +91,12 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                 .limit(Optional.ofNullable(condition.getSize()).orElse(10))
                 .orderBy(recruitment.createdAt.desc())
                 .fetch();
+    }
+
+    private BooleanExpression keywordIn(String searchKeyword){
+        return Optional.ofNullable(searchKeyword)
+                .map(recruitment.title::containsIgnoreCase)
+                .orElse(null);
     }
 
     private BooleanExpression isOnAir(Boolean onAir, JPAQuery<Boolean> hasActiveStudioSubquery) {

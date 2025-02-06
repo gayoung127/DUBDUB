@@ -17,6 +17,9 @@ public class RecruitmentSearchRequestDTO {
     @Schema(description = "한 페이지에 들어갈 갯수", example = "10")
     private Integer size;
 
+    @Schema(description = "모집글 타이틀 검색어", example = "쵸파")
+    private String searchKeyword;
+
     @Schema(description = "스튜디오 생성된 / 정해진 시간인 onAir 모집글 조건", example = "true")
     private Boolean onAir;
 
