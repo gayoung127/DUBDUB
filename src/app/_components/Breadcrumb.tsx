@@ -1,14 +1,15 @@
-"use client";
 import React from "react";
-import { usePathname } from "next/navigation";
-import BreadcrumbNextIcon from "@/public/images/icons/icon-breadcrumb-next.svg";
-import H4 from "./H4";
 import Link from "next/link";
 
-const BreadCrumb = () => {
-  const pathname = usePathname();
-  const pathSegments = pathname.split("/").filter((segment) => segment);
+import H4 from "./H4";
 
+import BreadcrumbNextIcon from "@/public/images/icons/icon-breadcrumb-next.svg";
+
+interface BreadCrumbProps {
+  pathSegments: string[];
+}
+
+const BreadCrumb = ({ pathSegments }: BreadCrumbProps) => {
   let accumulatedPath = "";
 
   return (
@@ -19,7 +20,9 @@ const BreadCrumb = () => {
         return (
           <React.Fragment key={segment}>
             <Link href={accumulatedPath}>
-              <H4 className="min-h-5 text-white-100 last:border-b-2 last:border-b-white-100">
+              <H4
+                className={`min-h-5 ${pathSegments.length <= 2 ? `font-bold text-gray-400 last:border-b-gray-400` : `text-white-100 last:border-b-white-100`} last:border-b-2`}
+              >
                 {segment.toUpperCase()}
               </H4>
             </Link>
