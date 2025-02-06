@@ -33,6 +33,8 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "카카오 소셜 로그인 통신")
+    @GetMapping("/login")
     public ResponseEntity<Map<String, Long>> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
         AuthResponseDTO authResponse = authService.kakaoLogin(code);
 
@@ -46,6 +48,7 @@ public class AuthController {
                 .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
                 .body(responseBody);
     }
+
 
     @Operation(summary = "token 재발급")
     @PostMapping("/token")
