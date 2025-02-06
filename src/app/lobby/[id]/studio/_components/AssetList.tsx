@@ -13,7 +13,7 @@ const AssetList = () => {
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
       <div className="scrollbar flex h-full max-h-[393px] w-full flex-1 flex-wrap items-start justify-start gap-6 overflow-y-scroll">
-        {Array.from({ length: 16 }).map((_, index) => (
+        {Array.from({ length: 8 }).map((_, index) => (
           <AssetCard
             key={index}
             isAssetSelected={selectedAsset === index} // 선택 상태 전달

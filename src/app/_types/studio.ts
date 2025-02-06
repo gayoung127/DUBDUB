@@ -17,6 +17,11 @@ export interface Track {
   waveColor: string;
   blockColor: string;
   files: AudioFile[];
+
+  recorderId?: number;
+  recorderName?: string;
+  recorderRole?: string;
+  recorderProfileUrl?: string;
 }
 
 // 3. 초기 트랙

@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/router";
-import Header from "../_components/Header";
-import { socket } from "../_utils/socketClient";
+import Header from "@/app/_components/Header";
+import { socket } from "@/app/_utils/socketClient";
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
@@ -13,8 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import WebRTCManager from "./_components/WebRTCManager";
 import { Session } from "openvidu-browser";
 
-import { DndProvider } from "react-dnd"; // ✅ 추가
-import { HTML5Backend } from "react-dnd-html5-backend"; // ✅ 추가
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 export default function StudioPage() {
   const studioId = "1";

@@ -12,7 +12,6 @@ export default function page() {
       <Header />
       <main className="flex w-full flex-row gap-4">
         <Login />
-        <SignUp />
         <DynamicBackground />
       </main>
     </div>
