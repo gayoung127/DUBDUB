@@ -6,6 +6,7 @@ import KakaoLoginButton from "./KakaoLoginButton";
 import SignUp from "./SignUp";
 import { useAuthStore } from "@/app/_store/AuthStore";
 import { useRouter } from "next/navigation";
+import { getCookie } from "@/app/_utils/getCookie";
 
 const Login = () => {
   const router = useRouter();
@@ -51,7 +52,7 @@ const Login = () => {
       if (response.status === 200 || response.status === 201) {
         console.log("로그인 성공!!");
 
-        const prevPage = getCookie("prevPage");
+        const prevPage = getCookiegit("prevPage");
         if (prevPage) {
           router.replace(prevPage);
           document.cookie = "prevPage=; path=/; max-age=0;";
