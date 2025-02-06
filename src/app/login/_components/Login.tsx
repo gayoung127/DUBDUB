@@ -52,7 +52,7 @@ const Login = () => {
       if (response.status === 200 || response.status === 201) {
         console.log("로그인 성공!!");
 
-        const prevPage = getCookiegit("prevPage");
+        const prevPage = getCookie("prevPage");
         if (prevPage) {
           router.replace(prevPage);
           document.cookie = "prevPage=; path=/; max-age=0;";
