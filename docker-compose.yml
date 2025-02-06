@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: dubdub_app
     ports:
-      - "8443:8443"
+      - "8081:8081"
     volumes:
       - ./logs:/app/logs
       - /home/ubuntu/jenkins-data/workspace/server-branch-deploy/keystore:/app/keystore
