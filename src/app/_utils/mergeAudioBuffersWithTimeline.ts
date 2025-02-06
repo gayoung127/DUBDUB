@@ -1,6 +1,6 @@
 import { AudioBlockProps } from "../lobby/[id]/studio/_components/AudioBlock";
 
-function mergeAudioBuffersWithTimeline(
+export function mergeAudioBuffersWithTimeline(
   audioContext: AudioContext,
   blocks: AudioBlockProps[],
 ): AudioBuffer {

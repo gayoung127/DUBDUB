@@ -11,7 +11,11 @@ import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
 
 import VideoTrack from "./VideoTrack";
-import { mergeAudioBuffers } from "@/app/_utils/mergeAudioBuffers";
+import { mergeAudioBuffersWithTimeline } from "@/app/_utils/mergeAudioBuffersWithTimeline";
+import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
+import { AudioBlockProps } from "./AudioBlock";
+import Button from "@/app/_components/Button";
+import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
 
 const RecordSection = () => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
@@ -44,19 +48,6 @@ const RecordSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!audioContextRef.current) return;
-
-    const blocks = tracks
-      .flatMap((track) =>
-        track.files.map((file) => ({
-          file,
-          audioBuffers: audioBuffersRef.current, // ✅ audioBuffers 전달
-        })),
-      )
-      .filter((block) => block.audioBuffers?.get(block.file.url));
-  }, [tracks]);
-
-  useEffect(() => {
     console.log("호출찡호출찡", tracks);
 
     if (!audioContextRef.current) {
@@ -81,6 +72,45 @@ const RecordSection = () => {
 
     loadAudioFiles();
   }, [setTracks, tracks]);
+
+  const handleDownloadMp3 = async () => {
+    if (!audioContextRef.current) return;
+
+    // ✅ Track[] → AudioBlockProps[] 변환
+    const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
+      track.files.map((file) => ({
+        file,
+        audioBuffers: audioBuffersRef.current,
+        audioContext: audioContextRef.current,
+        setTracks,
+        timelineRef: { current: null },
+        width: "10000px",
+        waveColor: "#000",
+        blockColor: "#FFF",
+      })),
+    );
+
+    if (audioBlocks.length === 0) {
+      console.error("❌ 병합할 오디오 블록이 없습니다.");
+      return;
+    }
+
+    // ✅ 오디오 병합
+    let mergedAudioBuffer = mergeAudioBuffersWithTimeline(
+      audioContextRef.current,
+      audioBlocks,
+    );
+
+    if (!mergedAudioBuffer) {
+      console.error("❌ 오디오 병합 실패");
+      return;
+    }
+
+    console.log("✅ 병합된 오디오 버퍼 생성됨:", mergedAudioBuffer);
+
+    // ✅ MP3 변환 후 다운로드
+    await audioBufferToMp3(mergedAudioBuffer);
+  };
 
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">
