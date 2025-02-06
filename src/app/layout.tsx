@@ -24,6 +24,7 @@ export default function RootLayout({
     <html lang="ko">
       <body
         className={`${freesentationFont.className} overflow-hidden antialiased`}
+        style={{ cursor: "url('/images/icons/cursor-self.svg') 10 10, auto" }}
       >
         <Toaster />
         {children}

@@ -4,10 +4,7 @@ export default function StudioPageLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div
-      className="flex h-full min-h-screen select-none flex-col items-center overflow-y-hidden"
-      style={{ cursor: "url('/images/icons/cursor-self.svg'), auto" }}
-    >
+    <div className="flex h-full min-h-screen select-none flex-col items-center overflow-y-hidden">
       {children}
     </div>
   );
