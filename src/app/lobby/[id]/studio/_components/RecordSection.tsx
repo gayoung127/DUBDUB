@@ -11,6 +11,7 @@ import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
 
 import VideoTrack from "./VideoTrack";
+import { mergeAudioBuffers } from "@/app/_utils/mergeAudioBuffers";
 
 const RecordSection = () => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
@@ -42,7 +43,19 @@ const RecordSection = () => {
     };
   }, []);
 
-  //
+  useEffect(() => {
+    if (!audioContextRef.current) return;
+
+    const blocks = tracks
+      .flatMap((track) =>
+        track.files.map((file) => ({
+          file,
+          audioBuffers: audioBuffersRef.current, // ✅ audioBuffers 전달
+        })),
+      )
+      .filter((block) => block.audioBuffers?.get(block.file.url));
+  }, [tracks]);
+
   useEffect(() => {
     console.log("호출찡호출찡", tracks);
 

@@ -16,6 +16,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "gsap": "^3.12.7",
+    "lamejs": "^1.2.1",
     "next": "15.1.4",
     "openvidu-browser": "^2.31.0",
     "react": "^19.0.0",
