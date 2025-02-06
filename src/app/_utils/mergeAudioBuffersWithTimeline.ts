@@ -3,7 +3,7 @@ import { AudioBlockProps } from "../lobby/[id]/studio/_components/AudioBlock";
 export function mergeAudioBuffersWithTimeline(
   audioContext: AudioContext,
   blocks: AudioBlockProps[],
-): AudioBuffer {
+): AudioBuffer | null {
   if (blocks.length === 0) return null;
 
   // 전체 오디오 길이 (트랙에서 가장 늦게 끝나는 블록 기준)
