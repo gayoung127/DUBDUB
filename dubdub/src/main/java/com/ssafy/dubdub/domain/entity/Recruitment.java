@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -26,13 +28,7 @@ public class Recruitment extends Timestamped {
     @Column(columnDefinition = "text")
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
+    @Column
     private boolean isRecruiting;
 
     @Column(columnDefinition = "text")
@@ -45,18 +41,16 @@ public class Recruitment extends Timestamped {
     private List<Casting> castings = new ArrayList<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitmentGenre> genres = new ArrayList<>();
+    private Set<RecruitmentGenre> genres = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitmentCategory> categories = new ArrayList<>();
+    private Set<RecruitmentCategory> categories = new LinkedHashSet<>();
 
     @Builder
     public Recruitment(Member author, String title, String content, LocalDateTime startTime, LocalDateTime endTime, boolean isRecruiting, String script, boolean isPrivate) {
         this.author = author;
         this.title = title;
         this.content = content;
-        this.startTime = startTime;
-        this.endTime = endTime;
         this.isRecruiting = isRecruiting;
         this.script = script;
         this.isPrivate = isPrivate;

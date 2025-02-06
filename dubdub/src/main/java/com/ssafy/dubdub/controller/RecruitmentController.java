@@ -1,11 +1,14 @@
 package com.ssafy.dubdub.controller;
 
 import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
+import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
+import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.RecruitmentService;
 import com.ssafy.dubdub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,5 +32,17 @@ public class RecruitmentController {
 
         recruitmentService.addRecruitment(requestDTO, video, member);
         return ResponseEntity.ok().body(null);
+    }
+
+    @Operation(summary = "내 프로젝트 조회")
+    @GetMapping("/list")
+    public ResponseEntity<Page<RecruitmentListResponseDTO>> getRecruitments(
+            @ModelAttribute RecruitmentSearchRequestDTO request
+    ) {
+        Member member = SecurityUtil.getCurrentUser();
+
+        Page<RecruitmentListResponseDTO> response =
+                recruitmentService.getRecruitments(request, member);
+        return ResponseEntity.ok(response);
     }
 }

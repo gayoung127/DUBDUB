@@ -16,15 +16,6 @@ public class RecruitmentCreateRequestDTO {
     @Schema(description = "모집글 설명", example = "ㅈㄱㄴ")
     private String content;
 
-    @Schema(description = "비공개 여부", example = "false")
-    private boolean isPrivate;
-
-    @Schema(description = "시작 시간", example = "2025-02-01T12:00:00")
-    private LocalDateTime startTime;
-
-    @Schema(description = "종료 시간", example = "2025-02-10T18:00:00")
-    private LocalDateTime endTime;
-
     @Schema(description = "역할 리스트", example = "[\"짱구\", \"철수\"]")
     private List<String> castings;
 
