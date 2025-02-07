@@ -76,7 +76,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setAttribute("SameSite", "None");
-        cookie.setDomain("i12a801.p.ssafy.io");
+//        cookie.setDomain("i12a801.p.ssafy.io");
         cookie.setPath(path);
         cookie.setMaxAge(maxAge);
 
