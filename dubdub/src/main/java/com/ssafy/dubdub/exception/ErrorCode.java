@@ -20,7 +20,9 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(401, "토큰이 존재하지 않습니다."),
 
     INVALID_IMAGE_FORMAT(400, "지원하지 않는 이미지 형식입니다."),
-    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다.");
+    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다."),
+
+    UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
     private final int status;
     private final String message;
