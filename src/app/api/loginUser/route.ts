@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
           // 쿠키 설정
           (await cookieStore).set(name.trim(), value.trim(), {
             httpOnly: true,
-            secure: true,
+            secure: false,
             path: "/",
-            sameSite: "none",
+            sameSite: "lax",
             maxAge,
           });
         }
