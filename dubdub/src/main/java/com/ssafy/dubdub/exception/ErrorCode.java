@@ -20,7 +20,10 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(401, "토큰이 존재하지 않습니다."),
 
     INVALID_IMAGE_FORMAT(400, "지원하지 않는 이미지 형식입니다."),
-    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다.");
+    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다."),
+
+    CASTING_NOT_FOUND(404, "요청하신 역할을 찾을 수 없습니다."),
+    CASTING_ALREADY_ASSIGNED(400, "이미 배정된 역할입니다.");
 
     private final int status;
     private final String message;

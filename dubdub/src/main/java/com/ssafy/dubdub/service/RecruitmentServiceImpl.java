@@ -7,6 +7,8 @@ import com.ssafy.dubdub.domain.entity.*;
 import com.ssafy.dubdub.enums.CategoryType;
 import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.enums.GenreType;
+import com.ssafy.dubdub.exception.ErrorCode;
+import com.ssafy.dubdub.exception.RecruitmentException;
 import com.ssafy.dubdub.repository.*;
 import com.ssafy.dubdub.util.FileUtil;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     private final FileRepository fileRepository;
     private final GenreRepository genreRepository;
     private final CategoryRepository categoryRepository;
+    private final CastingRepository castingRepository;
+    private final MemberRepository memberRepository;
     private final StudioRepository studioRepository;
 
     private final S3Service s3Service;
@@ -93,6 +97,18 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     public Page<RecruitmentListResponseDTO> getRecruitments(RecruitmentSearchRequestDTO condition, Member member) {
         Page<Recruitment> recruitments = recruitmentRepository.findBySearchCondition(condition, member);
         return recruitments.map(this::convertToDTO);
+    }
+
+    @Override
+    public void assignCasting(Long recruitmentId, Long castingId, Member member) {
+        Casting casting = castingRepository.findByIdAndRecruitmentId(castingId, recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(ErrorCode.CASTING_NOT_FOUND));
+
+        if (casting.getMemberId() != null) {
+            throw new RecruitmentException(ErrorCode.CASTING_ALREADY_ASSIGNED);
+        }
+
+        casting.castMember(member.getId());
     }
 
     private RecruitmentListResponseDTO convertToDTO(Recruitment recruitment) {

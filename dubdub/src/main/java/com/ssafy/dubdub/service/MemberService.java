@@ -6,5 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface MemberService {
     String uploadKakaoProfileImage(String kakaoImageUrl, String email);
 
-    MemberProfileResponseDTO checkProfile(Long memberId);
+    MemberProfileResponseDTO getProfile(Long memberId);
 }
