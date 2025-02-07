@@ -1,38 +1,33 @@
-// 파일: /pages/api/loginUser.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse, NextRequest } from "next/server";
 import { cookies } from "next/headers";
 
-export async function loginUser(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
-
-  const { code } = req.body;
-
-  if (!code) {
-    return res.status(400).json({ message: "Missing `code` parameter" });
-  }
+export async function POST(request: NextRequest) {
+  const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`;
 
   try {
-    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const { code } = await request.json();
 
-    if (!BASE_URL) {
-      console.error("백엔드 URL 환경 변수에서 못 찾아옴.");
-      return res.status(500).json({ message: "Server configuration error" });
+    if (!code) {
+      return NextResponse.json(
+        { error: "Missing `code` parameter" },
+        { status: 400 },
+      );
     }
 
-    // 카카오 로그인 요청 보내기
-    const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
+    // 카카오 로그인 요청
+    const response = await fetch(`${BASE_URL}?code=${code}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("카카오 로그인 실패: ", errorData);
-      return res
-        .status(response.status)
-        .json({ message: "Login failed", error: errorData });
+      return NextResponse.json(
+        { error: "Login failed", details: errorData },
+        { status: response.status },
+      );
     }
 
     const data = await response.json();
@@ -58,9 +53,13 @@ export async function loginUser(req: NextApiRequest, res: NextApiResponse) {
       maxAge: 60 * 60 * 24 * 7, // 7일
     });
 
-    return res.status(200).json({ memberId: data.memberId });
+    return NextResponse.json({ memberId: data.memberId });
   } catch (error) {
-    console.error("서버 에러: ", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Unknown error occurred during login.";
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
