@@ -13,6 +13,7 @@ public class OpenViduController {
 
     private final OpenViduService openViduService;
 
+    @Operation(summary = "[test] 스튜디오 생성하기")
     @PostMapping("/sessions")
     public String createSession() throws Exception {
         return openViduService.createSession();
