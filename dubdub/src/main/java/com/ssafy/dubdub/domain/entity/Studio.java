@@ -22,4 +22,12 @@ public class Studio extends Timestamped {
 
     @Column
     private LocalDateTime closedAt;
+
+    @Column
+    private String session;
+
+    public Studio(Recruitment recruitment, String session) {
+        this.recruitment = recruitment;
+        this.session = session;
+    }
 }
