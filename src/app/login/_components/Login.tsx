@@ -26,29 +26,17 @@ const Login = () => {
 
   const handleKakaoLogin = async (code: string) => {
     try {
-      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-      if (!BASE_URL) {
-        console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
-        return;
-      }
-
-      const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
+      const response = await fetch("/api/loginUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
       });
 
       const data = await response.json();
 
-      //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
-      setLoggedInUserId(data.memberId);
-      console.log(data.memberId);
-      console.log(response.status);
-      console.log(loggedInUserId);
-
-      if (response.status === 200 || response.status === 201) {
+      if (response.ok) {
         console.log("로그인 성공!!");
+        setLoggedInUserId(data.memberId);
 
         const prevPage = getCookie("prevPage");
         if (prevPage) {
@@ -57,12 +45,10 @@ const Login = () => {
         } else {
           router.replace("/lobby");
         }
+      } else {
+        console.error("로그인 실패: ", data.message);
+        alert("로그인 실패!");
       }
-      /* 회원가입 과정 삭제
-      else if (response.status === 201) {
-        setIsFirstLogin(true);
-      }
-      */
     } catch (error) {
       console.error("로그인 에러: ", error);
       alert("로그인 실패!");
