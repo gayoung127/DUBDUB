@@ -45,4 +45,14 @@ public class RecruitmentController {
                 recruitmentService.getRecruitments(request, member);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "모집글 역할 배정")
+    @PostMapping("/{recruitmentId}/{castingId}")
+    public ResponseEntity<?> assignCasting(@PathVariable Long recruitmentId, @PathVariable Long castingId){
+//        Member member = SecurityUtil.getCurrentUser();
+
+//        recruitmentService.assignCasting(recruitmentId, castingId, member);
+        recruitmentService.tempAssignCasting(recruitmentId, castingId);
+        return ResponseEntity.ok().build();
+    }
 }
