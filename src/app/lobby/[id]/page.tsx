@@ -83,7 +83,17 @@ export default function RoomDetailPage() {
           <ScriptSection scripts={scripts} />
         </div>
         <div className="flex flex-row-reverse gap-4 px-8 py-2">
-          {isOwner ? (
+          <Link href={`${pathname}/studio`}>
+            <Button
+              onClick={() => {}}
+              children={"스튜디오 입장"}
+              large={true}
+              className="h-[54px] w-[196px] text-center text-xl leading-[20px]"
+              outline={true}
+            />
+          </Link>
+
+          {/* {isOwner ? (
             <div className="flex flex-row-reverse gap-4 px-8 py-2">
               <Button
                 onClick={() => handleCancelDubbing()}
@@ -129,7 +139,7 @@ export default function RoomDetailPage() {
                 outline={true}
               />
             </div>
-          )}
+          )} */}
         </div>
       </main>
     </div>
