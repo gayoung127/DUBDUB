@@ -6,7 +6,7 @@ import gsap from "gsap";
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "gsap/Draggable";
 
-interface AudioBlockProps extends Block {
+export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
   audioBuffers: Map<string, AudioBuffer> | null;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;

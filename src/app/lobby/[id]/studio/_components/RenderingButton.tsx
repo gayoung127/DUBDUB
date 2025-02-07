@@ -47,10 +47,19 @@ const RenderingButton = () => {
   return (
     <>
       {!isRendering ? (
-        <Button onClick={handleStartRendering}>동영상 저장하기</Button>
+        <Button
+          className="flex items-center justify-center px-2 py-1.5"
+          onClick={handleStartRendering}
+        >
+          동영상 추출하기
+        </Button>
       ) : (
-        <Button outline onClick={handleFinishRendering} className="flex gap-2">
-          <div className="flex h-full items-center">
+        <Button
+          outline
+          onClick={handleFinishRendering}
+          className="flex items-center justify-center gap-2 px-2 py-1.5"
+        >
+          <div className="flex items-center">
             <StopBrandButton />
           </div>
           저장 중 ...

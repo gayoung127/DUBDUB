@@ -4,9 +4,10 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false, //비활성화
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,

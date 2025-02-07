@@ -5,10 +5,11 @@ import DubbingInfo from "./_components/DubbingInfo";
 import Role from "./_components/Role";
 import ScriptSection from "./_components/ScriptSection";
 import { RoleData, ScriptData } from "./type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/app/_components/Button";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/_store/AuthStore";
 
 export default function RoomDetailPage() {
   const pathname = usePathname();

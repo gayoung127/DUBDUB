@@ -3,14 +3,10 @@ import H2 from "@/app/_components/H2";
 import { useState } from "react";
 import PlusIcon from "@/public/images/icons/icon-plus.svg";
 import DeleteIcon from "@/public/images/icons/icon-delete.svg";
-
-interface Role {
-  id: string;
-  name: string;
-}
+import { RoleData } from "../type";
 
 export default function Role() {
-  const [roles, setRoles] = useState<Role[]>([
+  const [roles, setRoles] = useState<RoleData[]>([
     // { id: "1", name: "짱구" },
     // { id: "2", name: "철수" },
   ]);

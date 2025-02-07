@@ -6,6 +6,7 @@ import KakaoLoginButton from "./KakaoLoginButton";
 import SignUp from "./SignUp";
 import { useAuthStore } from "@/app/_store/AuthStore";
 import { useRouter } from "next/navigation";
+import { getCookie } from "@/app/_utils/getCookie";
 
 const Login = () => {
   const router = useRouter();
@@ -44,15 +45,26 @@ const Login = () => {
 
       //response에서 받은 엑세스 토큰이랑 리프레시 토큰을 클라이언트 메모리에 저장
       setLoggedInUserId(data.memberId);
+      console.log(data.memberId);
       console.log(response.status);
       console.log(loggedInUserId);
 
-      if (response.status === 201) {
-        setIsFirstLogin(true);
-      } else if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         console.log("로그인 성공!!");
-        router.push("/lobby");
+
+        const prevPage = getCookie("prevPage");
+        if (prevPage) {
+          router.replace(prevPage);
+          document.cookie = "prevPage=; path=/; max-age=0;";
+        } else {
+          router.replace("/lobby");
+        }
       }
+      /* 회원가입 과정 삭제
+      else if (response.status === 201) {
+        setIsFirstLogin(true);
+      }
+      */
     } catch (error) {
       console.error("로그인 에러: ", error);
       alert("로그인 실패!");
