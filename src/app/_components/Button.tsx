@@ -9,6 +9,7 @@ interface ButtonProps {
   small?: boolean;
   large?: boolean;
   disabled?: boolean;
+  // type?: "button" | "submit" | "reset";
 }
 
 const Button = ({
@@ -19,6 +20,7 @@ const Button = ({
   small,
   large,
   disabled,
+  // type = "button",
 }: ButtonProps) => {
   const sizeClass = small
     ? "text-sm px-3 py-2"
