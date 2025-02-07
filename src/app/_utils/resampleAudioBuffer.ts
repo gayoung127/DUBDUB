@@ -1,9 +1,9 @@
 export async function resampleAudioBuffer(
   audioBuffer: AudioBuffer,
-  targetSampleRate = 44100,
+  targetSampleRate = 48000,
 ): Promise<AudioBuffer> {
   if (audioBuffer.sampleRate === targetSampleRate) {
-    return audioBuffer; // 이미 44100Hz면 변환 불필요
+    return audioBuffer;
   }
 
   const offlineContext = new OfflineAudioContext(

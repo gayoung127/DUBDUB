@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
  */
 async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
   const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = 44100;
+  const sampleRate = audioBuffer.sampleRate;
   const format = 1; // PCM
   const bitDepth = 16;
 
