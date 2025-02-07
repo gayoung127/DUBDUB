@@ -2,7 +2,14 @@ import { useState } from "react";
 
 export const getRecruitment = async (recruitmentData: FormData) => {
   try {
-    const response = await fetch("/recruitment", {
+    const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/recruitment`;
+
+    if (!BASE_URL) {
+      console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+      return;
+    }
+
+    const response = await fetch(`${BASE_URL}`, {
       method: "POST",
       body: recruitmentData, // FormData 객체 전달
     });
