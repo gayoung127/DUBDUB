@@ -20,3 +20,6 @@ logging:
     root: INFO  # 기본 로그 레벨을 INFO로 설정 (DEBUG 로그 출력 방지)
     org.springframework: INFO  # Spring 관련 로그 최소화
     org.hibernate.SQL: INFO  # Hibernate SQL 로그 비활성화
+
+openvidu:
+  url: ${OPENVIDU_PROD_URL}
