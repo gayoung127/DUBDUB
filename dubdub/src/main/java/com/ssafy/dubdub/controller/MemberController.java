@@ -29,7 +29,7 @@ public class MemberController {
             Member member = SecurityUtil.getCurrentUser();
             response = MemberProfileResponseDTO.from(member);
         } else {
-            response = memberService.checkProfile(memberId);
+            response = memberService.getProfile(memberId);
         }
 
         return ResponseEntity.ok(response);
