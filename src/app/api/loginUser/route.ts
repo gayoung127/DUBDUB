@@ -30,14 +30,11 @@ export async function POST(request: NextRequest) {
         { status: response.status },
       );
     }
-    const cookieStore = await cookies();
 
-    // ✅ 쿠키 가져오기
+    // ✅ Next.js에서 쿠키 접근 (백엔드가 addCookie로 저장했을 경우)
+    const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
     const refreshToken = cookieStore.get("refreshToken")?.value;
-
-    console.log("✅ 기존 accessToken:", accessToken);
-    console.log("✅ 기존 refreshToken:", refreshToken);
 
     if (!accessToken || !refreshToken) {
       return NextResponse.json(
@@ -64,7 +61,6 @@ export async function POST(request: NextRequest) {
     });
 
     console.log("✅ 쿠키를 다시 설정 완료");
-
     return NextResponse.json({
       message: "Login successful",
       accessToken,
