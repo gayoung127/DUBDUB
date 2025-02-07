@@ -8,10 +8,9 @@ export const getMyInfo = async () => {
       return;
     }
 
-    const response = await fetch(`${BASE_URL}/member/profile`, {
+    const response = await fetch(`api/getMyInfo`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      mode: "cors",
       credentials: "include",
     });
 
