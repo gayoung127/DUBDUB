@@ -48,6 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && JWTUtil.validateToken(token)) {
                 Authentication authentication = authService.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Authentication successful");
             }
         } catch (ExpiredJwtException e) {
             log.error("Token expired: {}", e.getMessage());

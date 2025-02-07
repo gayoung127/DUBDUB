@@ -17,6 +17,7 @@ public class CorsConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:3000", "https://i12a801.p.ssafy.io", "https://i12a801.p.ssafy.io:3000", "http://i12a801.p.ssafy.io", "http://i12a801.p.ssafy.io:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*", "Content-Type", "Authorization"));
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
