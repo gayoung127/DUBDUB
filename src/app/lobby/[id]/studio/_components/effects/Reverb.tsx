@@ -9,7 +9,7 @@ const Reverb = () => {
   const [tracks, setTracks] = useState(initialTracks);
   const [reverbOn, setReverbOn] = useState(false);
   //const audioContext = useRef<AudioContext | null>(null);
-  const reverbNodeRef = useRef<ConvolverNode | null>(null);
+  //const reverbNodeRef = useRef<ConvolverNode | null>(null);
   const mix = 0.7; // wet/dry의 비율
   const time = 3.0; // 잔향의 길이
   const decay = 2.0; // 잔향이 감소하는 빠르기
