@@ -12,11 +12,14 @@ import java.util.Map;
 public class OpenViduService {
 
     private final OpenVidu openVidu;
-    private Map<String, Session> activeSessions = new HashMap<>();
+    private final SessionProperties sessionProperties;
+    private final ConnectionProperties connectionProperties;
+
+    private final Map<String, Session> activeSessions = new HashMap<>();
 
     public String createSession() throws OpenViduJavaClientException, OpenViduHttpException {
-        SessionProperties properties = new SessionProperties.Builder().build();
-        Session session = openVidu.createSession(properties);
+
+        Session session = openVidu.createSession(sessionProperties);
         activeSessions.put(session.getSessionId(), session);
         return session.getSessionId();
     }
@@ -27,8 +30,7 @@ public class OpenViduService {
         }
 
         Session session = activeSessions.get(sessionId);
-        ConnectionProperties properties = new ConnectionProperties.Builder().build();
-        Connection connection = session.createConnection(properties);
+        Connection connection = session.createConnection(connectionProperties);
 
         return connection.getToken();
     }
