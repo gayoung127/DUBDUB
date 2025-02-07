@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token")?.value;
+    const accessToken = cookieStore.get("accessToken")?.value;
+    const refreshToken = cookieStore.get("refreshToken")?.value;
 
     if (!accessToken) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Cookie: `access_token=${accessToken};`,
+        Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`,
       },
       credentials: "include",
     });
