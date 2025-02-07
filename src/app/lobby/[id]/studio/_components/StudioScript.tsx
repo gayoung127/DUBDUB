@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+
+import { useTimeStore } from "@/app/_store/TimeStore";
 
 import ScriptCard from "./ScriptCard";
 
@@ -8,6 +12,8 @@ import C1 from "@/app/_components/C1";
 import { scripts } from "@/app/_temp/temp_scripts";
 
 const StudioScript = () => {
+  const { time } = useTimeStore();
+
   return (
     <section className="flex h-full min-h-[440px] w-full flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-y-8 border border-gray-300 bg-gray-400 px-5 py-5">
       <div className="flex w-full flex-row items-center justify-between">

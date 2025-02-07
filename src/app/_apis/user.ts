@@ -2,13 +2,14 @@ import { useUserStore } from "../_store/UserStore";
 
 export const getMyInfo = async () => {
   try {
-    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/member/profile`;
+
     if (!BASE_URL) {
       console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
       return;
     }
 
-    const response = await fetch(`${BASE_URL}/member/profile`, {
+    const response = await fetch(`${BASE_URL}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
