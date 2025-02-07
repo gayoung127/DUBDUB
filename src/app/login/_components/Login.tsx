@@ -25,11 +25,14 @@ const Login = () => {
   }, []);
 
   const handleKakaoLogin = async (code: string) => {
+    const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`;
+
     try {
-      const response = await fetch("/api/loginUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+      const response = await fetch(`${BASE_URL}?code=${code}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
