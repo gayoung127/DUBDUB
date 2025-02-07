@@ -47,7 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                log.debug("Cookie found - name: {}, value: {}", cookie.getName(), cookie.getValue().substring(0, 10) + "...");
+                String value = cookie.getValue();
+                String maskedValue = value.length() > 10 ?
+                        value.substring(0, 10) + "..." :
+                        value.substring(0, Math.min(value.length(), 10));
+                log.debug("Cookie found - name: {}, value: {}", cookie.getName(), maskedValue);
             }
         } else {
             log.debug("No cookies found in request");
