@@ -1,17 +1,15 @@
 package com.ssafy.dubdub.service;
 
 import io.openvidu.java.client.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
-@Transactional
 @RequiredArgsConstructor
-public class StudioService {
+@Service
+public class OpenViduService {
 
     private final OpenVidu openVidu;
     private Map<String, Session> activeSessions = new HashMap<>();
