@@ -1,9 +1,8 @@
 // 파일: /pages/api/loginUser.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import cookie from "cookie";
 import { cookies } from "next/headers";
 
-const loginUser = async (req: NextApiRequest, res: NextApiResponse) => {
+export async function loginUser(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
@@ -64,6 +63,4 @@ const loginUser = async (req: NextApiRequest, res: NextApiResponse) => {
     console.error("서버 에러: ", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
-};
-
-export default loginUser;
+}
