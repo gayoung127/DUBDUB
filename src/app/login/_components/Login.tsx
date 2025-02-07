@@ -38,13 +38,13 @@ const Login = () => {
         console.log("로그인 성공!!");
         setLoggedInUserId(data.memberId);
 
-        // const prevPage = getCookie("prevPage");
-        // if (prevPage) {
-        //   router.replace(prevPage);
-        //   document.cookie = "prevPage=; path=/; max-age=0;";
-        // } else {
-        //   router.replace("/lobby");
-        // }
+        const prevPage = getCookie("prevPage");
+        if (prevPage) {
+          router.replace(prevPage);
+          document.cookie = "prevPage=; path=/; max-age=0;";
+        } else {
+          router.replace("/lobby");
+        }
       } else {
         console.error("로그인 실패: ", data.message);
         alert("로그인 실패!");
