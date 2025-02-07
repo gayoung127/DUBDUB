@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import Badge from "@/app/_components/Badge";
 import H2 from "@/app/_components/H2";
 
-const Genre = () => {
+interface GenreProps {
+  onChange: (selected: string[]) => void;
+}
+
+const Genre = ({ onChange }: GenreProps) => {
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
   const handleBadgeClick = (title: string) => {
