@@ -8,7 +8,7 @@ export const getMyInfo = async () => {
       return;
     }
 
-    const response = await fetch(`api/getMyInfo`, {
+    const response = await fetch(`/api/getMyInfo`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
