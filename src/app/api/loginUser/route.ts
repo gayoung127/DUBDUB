@@ -14,32 +14,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 카카오 로그인 요청
+    // ✅ 백엔드 로그인 요청
     const response = await fetch(`${BASE_URL}?code=${code}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // ✅ 서버가 보낸 쿠키 포함
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("Login failed:", errorData); // ❌ 오류 출력
       return NextResponse.json(
         { error: "Login failed", details: errorData },
         { status: response.status },
       );
     }
-
-    const data = await response.json();
-
-    console.log("✅ 로그인 성공, 응답 데이터:", data); // ✅ data 출력
-
-    // 쿠키 저장
     const cookieStore = await cookies();
 
-    // accessToken 저장 (1일 유효기간)
-    cookieStore.set("accessToken", data.accessToken, {
+    // ✅ 쿠키 가져오기
+    const accessToken = cookieStore.get("accessToken")?.value;
+    const refreshToken = cookieStore.get("refreshToken")?.value;
+
+    console.log("✅ 기존 accessToken:", accessToken);
+    console.log("✅ 기존 refreshToken:", refreshToken);
+
+    if (!accessToken || !refreshToken) {
+      return NextResponse.json(
+        { error: "쿠키가 존재하지 않습니다." },
+        { status: 400 },
+      );
+    }
+
+    // ✅ 기존 쿠키를 다시 저장 (유효기간 연장 예제)
+    cookieStore.set("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
@@ -47,8 +55,7 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24, // 1일
     });
 
-    // refreshToken 저장 (7일 유효기간)
-    cookieStore.set("refreshToken", data.refreshToken, {
+    cookieStore.set("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
@@ -56,7 +63,13 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7일
     });
 
-    return NextResponse.json({ memberId: data.memberId });
+    console.log("✅ 쿠키를 다시 설정 완료");
+
+    return NextResponse.json({
+      message: "Login successful",
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     console.error("❌ 로그인 처리 중 오류 발생:", error);
 
