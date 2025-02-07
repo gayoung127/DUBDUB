@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
             secure: true,
             path: "/",
-            sameSite: "none",
+            sameSite: "lax",
             maxAge,
           });
         }
