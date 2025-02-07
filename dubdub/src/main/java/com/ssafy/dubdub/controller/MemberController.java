@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.controller;
 
 import com.ssafy.dubdub.domain.dto.MemberProfileResponseDTO;
+import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.MemberService;
 import com.ssafy.dubdub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,11 +24,14 @@ public class MemberController {
     public ResponseEntity<MemberProfileResponseDTO> checkProfile(
             @RequestParam(required = false) Long memberId
     ) {
-        if(memberId == null) {
-            memberId = SecurityUtil.getCurrentUser().getId();
+        MemberProfileResponseDTO response = null;
+        if (memberId == null) {
+            Member member = SecurityUtil.getCurrentUser();
+            response = MemberProfileResponseDTO.from(member);
+        } else {
+            response = memberService.checkProfile(memberId);
         }
 
-        MemberProfileResponseDTO response = memberService.checkProfile(memberId);
         return ResponseEntity.ok(response);
     }
 }
