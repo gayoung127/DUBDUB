@@ -15,6 +15,8 @@ import { Session } from "openvidu-browser";
 
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { useUserStore } from "@/app/_store/UserStore";
+import { getMyInfo } from "@/app/_apis/user";
 
 export default function StudioPage() {
   const studioId = "1";
@@ -57,10 +59,16 @@ export default function StudioPage() {
     */
   }, [studioId]);
 
+  const { memberId, email, position, profileUrl } = useUserStore();
+
+  useEffect(() => {
+    getMyInfo();
+  }, []);
+
   const handlePointerMove = (e: React.PointerEvent) => {
     const x = e.clientX;
     const y = e.clientY;
-    const name = "아무개";
+    const name = memberId != null ? memberId.toString() : "아무개";
 
     socket.emit("cursorMove", { x, y, name });
   };
