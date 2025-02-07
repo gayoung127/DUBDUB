@@ -38,7 +38,7 @@ public class S3Service {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return getFullUrl(filePath);
+            return getFullUrl(fileName);
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 중 오류 발생", e);
         }
