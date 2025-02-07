@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("Login failed:", errorData); // ❌ 오류 출력
       return NextResponse.json(
         { error: "Login failed", details: errorData },
         { status: response.status },
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+
+    console.log("✅ 로그인 성공, 응답 데이터:", data); // ✅ data 출력
 
     // 쿠키 저장
     const cookieStore = await cookies();
@@ -55,6 +58,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ memberId: data.memberId });
   } catch (error) {
+    console.error("❌ 로그인 처리 중 오류 발생:", error);
+
     const errorMessage =
       error instanceof Error
         ? error.message
