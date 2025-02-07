@@ -42,6 +42,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        log.debug("Request URI: {}", request.getRequestURI());
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                log.debug("Cookie found - name: {}, value: {}", cookie.getName(), cookie.getValue().substring(0, 10) + "...");
+            }
+        } else {
+            log.debug("No cookies found in request");
+        }
+
         try {
             String token = getTokenFromCookie(request);
 
