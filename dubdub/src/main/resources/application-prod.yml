@@ -17,9 +17,17 @@ spring:
 
 logging:
   level:
-    root: INFO  # 기본 로그 레벨을 INFO로 설정 (DEBUG 로그 출력 방지)
-    org.springframework: INFO  # Spring 관련 로그 최소화
-    org.hibernate.SQL: INFO  # Hibernate SQL 로그 비활성화
+    # SQL 쿼리 로그
+    org.hibernate.sql: debug  # 실행되는 쿼리
+    org.hibernate.type.descriptor.sql: trace  # 쿼리 파라미터
+
+    # Security 관련 로그
+    org.springframework.security: DEBUG
+    com.ssafy.dubdub.security: DEBUG
+    com.ssafy.dubdub.security.jwt.JwtAuthenticationFilter: DEBUG  # JWT 필터 로그
+
+    # 웹 요청/응답 로그
+    org.springframework.web: DEBUG
 
 openvidu:
   url: ${OPENVIDU_PROD_URL}
