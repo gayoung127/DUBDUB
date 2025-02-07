@@ -111,18 +111,6 @@ public class RecruitmentServiceImpl implements RecruitmentService{
         casting.castMember(member.getId());
     }
 
-    @Override
-    public void tempAssignCasting(Long recruitmentId, Long castingId) {
-        Casting casting = castingRepository.findByIdAndRecruitmentId(castingId, recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(ErrorCode.CASTING_NOT_FOUND));
-
-        if (casting.getMemberId() != null) {
-            throw new RecruitmentException(ErrorCode.CASTING_ALREADY_ASSIGNED);
-        }
-
-        casting.castMember(1L);
-    }
-
     private RecruitmentListResponseDTO convertToDTO(Recruitment recruitment) {
         return RecruitmentListResponseDTO.builder()
                 .id(recruitment.getId())
