@@ -36,8 +36,6 @@ const Login = () => {
       const response = await fetch(`${BASE_URL}/auth/login?code=${code}`, {
         method: "GET",
         mode: "cors",
-        // headers: { "Content-Type": "application/json" },
-        // body: JSON.stringify({ code }),
         credentials: "include",
       });
 
