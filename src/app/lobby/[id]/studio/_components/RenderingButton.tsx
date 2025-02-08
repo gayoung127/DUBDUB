@@ -62,7 +62,7 @@ const RenderingButton = () => {
           <div className="flex items-center">
             <StopBrandButton />
           </div>
-          추출 중 ...
+          저장 중 ...
         </Button>
       )}
     </>
