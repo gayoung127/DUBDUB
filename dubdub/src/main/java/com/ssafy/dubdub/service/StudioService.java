@@ -7,7 +7,7 @@ import com.ssafy.dubdub.domain.entity.Studio;
 import com.ssafy.dubdub.exception.AuthException;
 import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.repository.RecruitmentRepository;
-import com.ssafy.dubdub.repository.StudioReposiotry;
+import com.ssafy.dubdub.repository.StudioRepository;
 import io.openvidu.java.client.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class StudioService {
 
     private final OpenViduService openViduService;
     private final RecruitmentRepository recruitmentRepository;
-    private final StudioReposiotry studioReposiotry;
+    private final StudioRepository studioRepository;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
 
@@ -30,13 +30,13 @@ public class StudioService {
                 () -> new AuthException(ErrorCode.UNAUTHORIZED_ACCESS)
         );
 
-        Studio studio = studioReposiotry.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElse(
+        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElse(
             new Studio(project, openViduService.createSession())
         );
 
         String token = openViduService.createConnection(studio.getSession());
 
-        studioReposiotry.save(studio);
+        studioRepository.save(studio);
 
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
@@ -52,7 +52,7 @@ public class StudioService {
                 () -> new NoSuchElementException("해당 프로젝트가 존재하지 않습니다.")
         );
 
-        Studio studio = studioReposiotry.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElseThrow(
+        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElseThrow(
                 () -> new NoSuchElementException("현재 참가할 수 있는 스튜디오 세션이 존재하지 않습니다.")
         );
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface StudioReposiotry extends JpaRepository<Studio, Long> {
+public interface StudioRepository extends JpaRepository<Studio, Long> {
 
     Optional<Studio> findFirstByRecruitmentIdAndIsClosedIsFalse(Long recruitmentId);
 }
