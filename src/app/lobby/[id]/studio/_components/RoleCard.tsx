@@ -1,9 +1,12 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 
 import H4 from "@/app/_components/H4";
 import C1 from "@/app/_components/C1";
 import { useDrag } from "react-dnd";
 import Image from "next/image";
+import { useMicStore } from "@/app/_store/MicStore";
+import MicOn from "@/public/images/icons/icon-micon.svg";
+import MicOff from "@/public/images/icons/icon-micoff.svg";
 
 interface RoleCardProps {
   id: number;
@@ -30,6 +33,28 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
 
   drag(ref);
 
+  const { micStatus, toggleMic } = useMicStore();
+  const isMicOn = micStatus[id] || false;
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const handleToggleMic = async () => {
+    if (isMicOn) {
+      stream?.getTracks().forEach((track) => track.stop());
+      setStream(null);
+      toggleMic(id);
+    } else {
+      try {
+        const userStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        setStream(userStream);
+        toggleMic(id);
+      } catch (error) {
+        console.error("마이크 접근 오류: ", error);
+      }
+    }
+  };
+
   return (
     <div
       ref={ref}
@@ -47,6 +72,12 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
       <div className="flex w-full flex-row items-center justify-start gap-x-3">
         <H4 className="text-white-100">{name}</H4>
         <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
+        <button
+          onClick={handleToggleMic}
+          className={`flex h-[24px] w-[24px] items-center justify-center rounded-[4px] ${isMicOn ? "bg-brand-100" : "bg-gray-100"}`}
+        >
+          {isMicOn ? <MicOn /> : <MicOff />}
+        </button>
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useDrop } from "react-dnd"; // ✅ useDrop 추가
 import { AudioFile, Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
+import { useRecordingStore } from "@/app/_store/RecordingStore";
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -27,6 +28,89 @@ const AudioTrackTimeline = ({
   setTracks,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
+  const { audioFiles } = useRecordingStore();
+
+  useEffect(() => {
+    console.log(`🎙️ 트랙(${trackId})의 녹음된 파일 추가 확인:`, audioFiles);
+
+    // 추가되는 오디오 길이 계산
+    const loadAudioDuration = async (url: string) => {
+      if (!audioContext) return 0;
+      try {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        if (audioBuffers) {
+          audioBuffers.set(url, audioBuffer);
+        }
+
+        // console.log(`✅ ${url}의 오디오 길이:`, audioBuffer.duration);
+        return audioBuffer.duration;
+      } catch (error) {
+        console.error(`❌ ${url} 오디오 로드 실패:`, error);
+        return 0;
+      }
+    };
+
+    // 녹음됨 파일 audioContext로 추가
+    const updateTracks = async () => {
+      const newFiles = await Promise.all(
+        (audioFiles[trackId] ?? []).map(async (url) => {
+          const duration = await loadAudioDuration(url);
+
+          if (duration <= 0) {
+            console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
+            return null;
+          }
+
+          return {
+            id: `${trackId}-${Date.now()}`,
+            url,
+            startPoint: 0,
+            duration,
+            trimStart: 0,
+            trimEnd: 0,
+            volume: 1,
+            isMuted: false,
+            speed: 1,
+          };
+        }),
+      );
+
+      const validFiles = newFiles.filter((file) => file !== null);
+
+      if (validFiles.length === 0) {
+        console.log(`⚠️ 트랙(${trackId})에 추가할 유효한 파일이 없음`);
+        return;
+      }
+
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => {
+          if (track.trackId !== trackId) return track;
+
+          const existingFiles = [...track.files];
+          const updatedFiles = [...existingFiles, ...validFiles];
+
+          if (JSON.stringify(existingFiles) === JSON.stringify(updatedFiles)) {
+            console.log(`⚠️ 트랙(${trackId}) 파일 변경 없음, 업데이트 생략`);
+            return track;
+          }
+
+          console.log(
+            `🎶 트랙(${trackId})에 녹음된 파일 추가됨:`,
+            updatedFiles,
+          );
+          return {
+            ...track,
+            files: updatedFiles,
+          };
+        }),
+      );
+    };
+
+    updateTracks();
+  }, [audioFiles, trackId, setTracks, audioContext, audioBuffers]);
 
   // ✅ 드롭 가능하도록 `useDrop` 추가
   const [{ isOver }, drop] = useDrop(() => ({
