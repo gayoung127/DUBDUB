@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -32,15 +35,20 @@ public class AuthController {
 
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
-    public ResponseEntity<Long> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Long>> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
         AuthResponseDTO authResponse = authService.kakaoLogin(code);
 
         response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
         response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
+
+        Map<String, Long> responseBody = new HashMap<>();
+        responseBody.put("memberId", authResponse.getMemberId());
+
         return ResponseEntity
                 .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
-                .body(authResponse.getMemberId());
+                .body(responseBody);
     }
+
 
     @Operation(summary = "token 재발급")
     @PostMapping("/token")
@@ -67,8 +75,8 @@ public class AuthController {
 
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
-        cookie.setAttribute("SameSite", "None");
-
+        cookie.setAttribute("SameSite", "Lax");
+//        cookie.setDomain("i12a801.p.ssafy.io");
         cookie.setPath(path);
         cookie.setMaxAge(maxAge);
 

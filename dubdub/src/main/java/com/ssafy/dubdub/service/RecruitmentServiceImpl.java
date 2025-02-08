@@ -1,23 +1,27 @@
 package com.ssafy.dubdub.service;
 
 import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
+import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
+import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.*;
 import com.ssafy.dubdub.enums.CategoryType;
 import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.enums.GenreType;
-import com.ssafy.dubdub.repository.CategoryRepository;
-import com.ssafy.dubdub.repository.FileRepository;
-import com.ssafy.dubdub.repository.GenreRepository;
-import com.ssafy.dubdub.repository.RecruitmentRepository;
+import com.ssafy.dubdub.exception.ErrorCode;
+import com.ssafy.dubdub.exception.RecruitmentException;
+import com.ssafy.dubdub.repository.*;
 import com.ssafy.dubdub.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +32,9 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     private final FileRepository fileRepository;
     private final GenreRepository genreRepository;
     private final CategoryRepository categoryRepository;
+    private final CastingRepository castingRepository;
+    private final MemberRepository memberRepository;
+    private final StudioRepository studioRepository;
 
     private final S3Service s3Service;
 
@@ -50,9 +57,6 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .startTime(requestDTO.getStartTime())
-                .endTime(requestDTO.getEndTime())
-                .isRecruiting(requestDTO.isPrivate())
                 .script(requestDTO.getScript())
                 .build();
 
@@ -87,5 +91,40 @@ public class RecruitmentServiceImpl implements RecruitmentService{
 
         fileRepository.save(file);
         return recruitmentRepository.save(recruitment).getId();
+    }
+
+    @Override
+    public Page<RecruitmentListResponseDTO> getRecruitments(RecruitmentSearchRequestDTO condition, Member member) {
+        Page<Recruitment> recruitments = recruitmentRepository.findBySearchCondition(condition, member);
+        return recruitments.map(this::convertToDTO);
+    }
+
+    @Override
+    public void assignCasting(Long recruitmentId, Long castingId, Member member) {
+        Casting casting = castingRepository.findByIdAndRecruitmentId(castingId, recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(ErrorCode.CASTING_NOT_FOUND));
+
+        if (casting.getMemberId() != null) {
+            throw new RecruitmentException(ErrorCode.CASTING_ALREADY_ASSIGNED);
+        }
+
+        casting.castMember(member.getId());
+    }
+
+    private RecruitmentListResponseDTO convertToDTO(Recruitment recruitment) {
+        return RecruitmentListResponseDTO.builder()
+                .id(recruitment.getId())
+                .title(recruitment.getTitle())
+                .currentParticipants((int) recruitment.getCastings().stream()
+                        .filter(c -> c.getMemberId() != null)
+                        .count())
+                .totalParticipants(recruitment.getCastings().size())
+                .genres(recruitment.getGenres().stream()
+                        .map(rg -> rg.getGenre().getId())
+                        .collect(Collectors.toList()))
+                .categories(recruitment.getCategories().stream()
+                        .map(rc -> rc.getCategory().getId())
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

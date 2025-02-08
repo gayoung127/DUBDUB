@@ -42,12 +42,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        log.debug("Request URI: {}", request.getRequestURI());
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                String value = cookie.getValue();
+                String maskedValue = value.length() > 10 ?
+                        value.substring(0, 10) + "..." :
+                        value.substring(0, Math.min(value.length(), 10));
+                log.debug("Cookie found - name: {}, value: {}", cookie.getName(), maskedValue);
+            }
+        } else {
+            log.debug("No cookies found in request");
+        }
+
         try {
             String token = getTokenFromCookie(request);
 
             if (token != null && JWTUtil.validateToken(token)) {
                 Authentication authentication = authService.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Authentication successful");
             }
         } catch (ExpiredJwtException e) {
             log.error("Token expired: {}", e.getMessage());

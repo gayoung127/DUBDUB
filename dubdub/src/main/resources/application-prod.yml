@@ -17,9 +17,35 @@ spring:
 
 logging:
   level:
-    root: INFO  # 기본 로그 레벨을 INFO로 설정 (DEBUG 로그 출력 방지)
-    org.springframework: INFO  # Spring 관련 로그 최소화
-    org.hibernate.SQL: INFO  # Hibernate SQL 로그 비활성화
+    root: INFO  # 기본 로그 레벨 설정
 
+    # 시큐리티 & JWT 관련 로그
+    org.springframework.security: DEBUG
+    com.ssafy.dubdub.security: DEBUG
+    com.ssafy.dubdub.security.jwt: TRACE  # JWT 관련 모든 클래스의 상세 로그
+
+    # 인증 처리 관련 로그
+    com.ssafy.dubdub.service.AuthService: DEBUG
+    com.ssafy.dubdub.controller.AuthController: DEBUG
+
+    # 웹 요청/응답 로그
+    org.springframework.web: DEBUG
+
+    # SQL 쿼리 로그 (문제 해결을 위해 임시 활성화)
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
+  # 로그 패턴 설정
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+  # 파일 로그 설정
+  file:
+    name: /var/log/dubdub/application.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
 openvidu:
   url: ${OPENVIDU_PROD_URL}

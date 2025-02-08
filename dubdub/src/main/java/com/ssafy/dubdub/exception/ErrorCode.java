@@ -24,6 +24,9 @@ public enum ErrorCode {
 
     UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
+    CASTING_NOT_FOUND(404, "요청하신 역할을 찾을 수 없습니다."),
+    CASTING_ALREADY_ASSIGNED(400, "이미 배정된 역할입니다.");
+
     private final int status;
     private final String message;
 
