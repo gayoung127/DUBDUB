@@ -75,13 +75,22 @@ const AudioBlock = ({
   }, [setTracks, file.id, timelineRef]);
 
   useEffect(() => {
-    if (!audioContext || !isPlaying) return;
+    if (!audioContext) return;
 
     const startOffset = file.startPoint + file.trimStart;
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
 
-    if (time >= startOffset && time < endOffset && !audioSourceRef.current) {
+    if (!isPlaying && audioSourceRef.current) {
+      stopAudio();
+    }
+
+    if (
+      isPlaying &&
+      time >= startOffset &&
+      time < endOffset &&
+      !audioSourceRef.current
+    ) {
       playAudio();
     } else if (time >= endOffset && audioSourceRef.current) {
       stopAudio();
@@ -108,8 +117,11 @@ const AudioBlock = ({
     source.playbackRate.value = file.speed;
 
     // ✅ 원본 오디오의 `trimStart` 부분부터 재생
-    const offset = file.trimStart; // 원본 오디오의 `trimStart`초부터 재생
-    const duration = file.duration - file.trimStart - file.trimEnd; // 트리밍 반영된 길이
+    const offset = Math.max(0, time - file.startPoint + file.trimStart); // 타임라인 바 진행 시간 + trimStart를 반영하여 재생
+    const duration = Math.max(
+      0,
+      file.duration - (offset - file.startPoint) - file.trimEnd,
+    ); // 트리밍 반영된 길이
 
     // ⏳ 원본 오디오에서 `trimStart`부터 `duration` 길이만큼 재생
     source.start(audioContext.currentTime, offset, duration);
