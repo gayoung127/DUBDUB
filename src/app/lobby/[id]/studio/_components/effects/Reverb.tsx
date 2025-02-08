@@ -37,10 +37,7 @@ const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
     return impulse;
   }
 
-  function createReverbNodes(targetContext: AudioContextType): {
-    source: AudioBufferSourceNode;
-    reverbNode: ConvolverNode;
-  } {
+  function createReverbNodes(targetContext: AudioContextType) {
     const source = targetContext.createBufferSource();
     source.buffer = audioBuffer.current;
 
@@ -62,7 +59,7 @@ const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
     wetGainNode.connect(targetContext.destination);
     wetGainNode.gain.value = mix.current;
 
-    return { source, reverbNode };
+    return { source };
   }
 
   async function saveReverb() {
@@ -80,7 +77,6 @@ const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
 
     source.start();
     const newBuffer = await offlineContext.startRendering();
-
     updateBuffer(newBuffer);
   }
 
