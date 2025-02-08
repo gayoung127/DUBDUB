@@ -1,109 +1,138 @@
-import { initialTracks } from "@/app/_types/studio";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useRef, useState } from "react";
+import RangeSlider from "./RangeSlider";
+import StartButton from "@/public/images/icons/icon-play.svg";
+import CheckButton from "@/public/images/icons/icon-check.svg";
 
 interface ReverbProps {
-  audioContext: AudioContext | null;
+  context: RefObject<AudioContext | null>; // Ref 타입 지정
+  audioBuffer: RefObject<AudioBuffer | null>;
+  updateBuffer: (newBuf: AudioBuffer | null) => void;
 }
 
-const Reverb = () => {
-  const [tracks, setTracks] = useState(initialTracks);
-  const [reverbOn, setReverbOn] = useState(false);
-  //const audioContext = useRef<AudioContext | null>(null);
-  //const reverbNodeRef = useRef<ConvolverNode | null>(null);
-  const mix = 0.7; // wet/dry의 비율
-  const time = 3.0; // 잔향의 길이
-  const decay = 2.0; // 잔향이 감소하는 빠르기
+const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
+  type AudioContextType = AudioContext | OfflineAudioContext;
+  const audioContext = context.current;
 
-  const audioContext = useRef<AudioContext | null>(null);
-  let audioBuffer: AudioBuffer | null = null;
-
-  useEffect(() => {
-    if (!audioContext.current) {
-      audioContext.current = new AudioContext();
-    }
-  }, []);
-
-  async function loadAudio() {
-    if (!audioContext.current) {
-      return;
-    }
-    const response = await fetch(tracks[0].files[0].url);
-    console.log(tracks[0].files[0]);
-    //const response = await fetch("/examples/dummy-audio.mp3");
-    const arrayBuffer = await response.arrayBuffer();
-    audioBuffer = await audioContext.current.decodeAudioData(arrayBuffer);
-  }
+  const mix = useRef<number>(0); // wet/dry의 비율
+  const time = useRef<number>(3); // 잔향의 길이
+  const decay = useRef<number>(2); // 잔향이 감소하는 빠르기
 
   function generateIR() {
-    if (!audioContext.current) {
+    if (!audioContext) {
       return;
     }
-    const sampleRate = audioContext.current.sampleRate;
-    const length = sampleRate * time;
-    const impulse = audioContext.current.createBuffer(2, length, sampleRate);
+    const sampleRate = audioContext.sampleRate;
+    const length = sampleRate * time.current;
+    const impulse = audioContext.createBuffer(2, length, sampleRate);
 
     const leftImpulse = impulse.getChannelData(0);
     const rightImpulse = impulse.getChannelData(1);
 
     for (let i = 0; i < length; i++) {
       leftImpulse[i] =
-        (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+        (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay.current);
       rightImpulse[i] =
-        (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+        (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay.current);
     }
     return impulse;
   }
 
-  async function startReverb() {
-    if (!audioContext.current) {
-      return;
-    }
+  function createReverbNodes(targetContext: AudioContextType): {
+    source: AudioBufferSourceNode;
+    reverbNode: ConvolverNode;
+  } {
+    const source = targetContext.createBufferSource();
+    source.buffer = audioBuffer.current;
 
-    await loadAudio();
-
-    // 리버브 -------------------------------------------------
-    const source = audioContext.current.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const inputNode = audioContext.current.createGain();
-    const outputNode = audioContext.current.createGain();
-
-    const wetGainNode = audioContext.current.createGain(); // 리버브 이펙터를 거쳐야 함
-    const dryGainNode = audioContext.current.createGain(); // 리버브 이펙터를 거치지 않음
-
-    const reverbNode = audioContext.current.createConvolver();
+    const inputNode = targetContext.createGain();
+    const dryGainNode = targetContext.createGain();
+    const wetGainNode = targetContext.createGain();
+    const reverbNode = targetContext.createConvolver();
 
     source.connect(inputNode);
 
     inputNode.connect(dryGainNode);
-    dryGainNode.connect(outputNode);
-    dryGainNode.gain.value = 1 - mix;
+    dryGainNode.connect(targetContext.destination);
+    dryGainNode.gain.value = 1 - mix.current;
 
-    reverbNode.buffer = generateIR() ?? null;
-
+    reverbNode.buffer = generateIR() || null;
     inputNode.connect(reverbNode);
-    reverbNode.connect(wetGainNode);
-    wetGainNode.connect(outputNode);
-    wetGainNode.gain.value = mix;
 
-    outputNode.connect(audioContext.current.destination);
+    reverbNode.connect(wetGainNode);
+    wetGainNode.connect(targetContext.destination);
+    wetGainNode.gain.value = mix.current;
+
+    return { source, reverbNode };
+  }
+
+  async function saveReverb() {
+    if (!audioContext || !audioBuffer.current) {
+      return;
+    }
+
+    const offlineContext = new OfflineAudioContext(
+      audioBuffer.current.numberOfChannels,
+      audioBuffer.current.length,
+      audioBuffer.current.sampleRate,
+    );
+
+    const { source } = createReverbNodes(offlineContext);
 
     source.start();
+    const newBuffer = await offlineContext.startRendering();
 
-    // 기존 ------------------------------------------------
+    updateBuffer(newBuffer);
+  }
 
-    // const source = audioContext.current?.createBufferSource();
-    // source.buffer = audioBuffer;
-    // source.connect(audioContext.current?.destination);
-    // source.start();
+  async function startReverb() {
+    if (!audioContext || !audioBuffer.current) {
+      return;
+    }
+    const { source } = createReverbNodes(audioContext);
+    source.start();
   }
 
   return (
-    <div>
-      <div className="text-white-100">리버브 공간</div>
-      <div className="text-white-100" onClick={startReverb}>
-        누르면 실행됨
+    <div className="flex flex-col gap-10">
+      <div className="flex justify-end gap-4">
+        <StartButton className="cursor-pointer" onClick={startReverb} />
+        <CheckButton className="cursor-pointer" onClick={saveReverb} />
       </div>
+      <RangeSlider
+        title="MIX"
+        unit="%"
+        min={0}
+        step={0.05}
+        max={1}
+        value={mix.current}
+        onChange={(newValue: number) => {
+          mix.current = newValue;
+        }}
+      />
+
+      <RangeSlider
+        title="TIME"
+        unit="s"
+        min={0}
+        max={5}
+        step={0.01}
+        value={time.current}
+        onChange={(newValue: number) => {
+          time.current = newValue;
+        }}
+      />
+
+      <RangeSlider
+        title="DECAY"
+        unit="s"
+        min={0}
+        max={5}
+        step={0.01}
+        value={decay.current}
+        onChange={(newValue: number) => {
+          decay.current = newValue;
+        }}
+      />
     </div>
   );
 };

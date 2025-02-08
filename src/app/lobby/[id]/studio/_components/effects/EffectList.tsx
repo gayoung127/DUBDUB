@@ -6,20 +6,64 @@ import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
 import { initialTracks } from "@/app/_types/studio";
+import Delay from "./Delay";
 
 const EffectList = () => {
   const [tracks, setTracks] = useState(initialTracks);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const [sourceNode, setSourceNode] = useState<AudioBufferSourceNode | null>(
-    null,
-  );
+  const audioContextRef = useRef<AudioContext | null>(new AudioContext());
+  const audioBuffer = useRef<AudioBuffer | null>(null);
+
+  useEffect(() => {
+    async function loadAudio() {
+      if (!audioContextRef.current) {
+        return;
+      }
+      const response = await fetch(tracks[0].files[0].url);
+      console.log(tracks[0].files[0]);
+      const arrayBuffer = await response.arrayBuffer();
+      audioBuffer.current =
+        await audioContextRef.current.decodeAudioData(arrayBuffer);
+    }
+    loadAudio();
+  }, []);
+
+  function startAudio() {
+    if (!audioContextRef.current) {
+      return;
+    }
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBuffer.current; // 디코딩된 AudioBuffer 연결
+    source.connect(audioContextRef.current.destination); // 최종 출력 (스피커)
+
+    // 재생 시작
+    source.start();
+  }
+
+  function updateBuffer(newBuf: AudioBuffer | null) {
+    audioBuffer.current = newBuf;
+  }
 
   const effects = [
     {
       name: "리버브",
-      component: <Reverb />,
+      component: (
+        <Reverb
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
     },
-    { name: "피치 조정", component: <Pitcher /> },
+    {
+      name: "딜레이",
+      component: (
+        <Delay
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
+    },
   ];
 
   const [selectedEffect, setSelectedEffect] = useState<{
@@ -60,6 +104,7 @@ const EffectList = () => {
                 <H4 className="pl-3">{effect.name}</H4>
               </div>
             ))}
+            <Button onClick={startAudio}>재생</Button>
           </div>
         )}
       </div>
