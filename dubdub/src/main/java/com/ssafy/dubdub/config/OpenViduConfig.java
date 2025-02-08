@@ -1,5 +1,7 @@
 package com.ssafy.dubdub.config;
 
+import io.openvidu.java.client.ConnectionProperties;
+import io.openvidu.java.client.SessionProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,5 +20,15 @@ public class OpenViduConfig {
     @Bean
     public OpenVidu openVidu() {
         return new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
+    }
+
+    @Bean
+    public SessionProperties sessionProperties() {
+        return new SessionProperties.Builder().build();
+    }
+
+    @Bean
+    public ConnectionProperties connectionProperties() {
+        return new ConnectionProperties.Builder().build();
     }
 }
