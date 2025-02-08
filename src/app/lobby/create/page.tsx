@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Description from "./_ components/Description";
 import Genre from "./_ components/Genre";
 import Title from "./_ components/Title";
@@ -8,9 +9,10 @@ import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button"; // Button 컴포넌트
-import { getRecruitment } from "@/app/_apis/getRecruitment";
+import { getRecruitment } from "@/app/_apis/recruitment";
 
 export default function Page() {
+  const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -35,11 +37,12 @@ export default function Page() {
     formData.append("genreTypes", JSON.stringify(genreTypes));
     formData.append("categoryTypes", JSON.stringify(categoryTypes));
     formData.append("script", script);
-    formData.append("video", videoFile); // 비디오 파일 추가
+    formData.append("video", videoFile);
 
     try {
       const result = await getRecruitment(formData); // FormData 전송
       alert("모집글이 성공적으로 작성되었습니다!");
+      router.replace("/studio");
     } catch (error) {
       console.error("Error creating recruitment post:", error);
       alert("모집글 작성 중 오류가 발생했습니다.");
@@ -51,33 +54,30 @@ export default function Page() {
       <div className="flex h-auto w-full items-start justify-start">
         <Header />
       </div>
+
       <form
         onSubmit={handleSubmit}
         className="flex h-full w-full flex-row items-start justify-start"
       >
-        {/* 왼쪽 컬럼 */}
         <div className="flex h-full w-1/3 flex-col items-start justify-start">
           <Title onChange={setTitle} />
           <Type onChange={setCategoryTypes} />
           <Genre onChange={setGenreTypes} />
         </div>
 
-        {/* 중앙 컬럼 */}
         <div className="flex h-full w-1/3 flex-col items-center justify-start">
           <div className="mb-10 flex h-auto w-full items-center justify-center">
-            <Video onChange={setVideoFile} /> {/* 비디오 파일 상태 업데이트 */}
+            <Video onChange={setVideoFile} />
           </div>
           <div className="flex h-auto w-full items-center justify-center">
             <Description onChange={setContent} />
           </div>
         </div>
 
-        {/* 오른쪽 컬럼 */}
         <div className="flex h-full w-1/3 items-start justify-end">
           <Script onChange={setScript} />
         </div>
 
-        {/* 제출 버튼 */}
         <div className="mt-8 flex justify-center">
           <Button
             outline={false}
