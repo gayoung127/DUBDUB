@@ -31,7 +31,7 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
     }
   }, [videoRef.current?.duration]);
 
-  // 녹음 시작하는 함수
+  // 녹음하는 함수
   const handleRecording = async () => {
     if (isRecording) {
       console.log("🎙️ 녹음 중지 요청됨");
@@ -39,6 +39,8 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
       stopRecording();
       pause();
     } else {
+      const currentTime = time;
+
       console.log("🎙️ 녹음 시작 요청됨");
       const activeMics = Object.entries(micStatus)
         .filter(([_, isOn]) => isOn)
@@ -78,7 +80,7 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
             return;
           }
 
-          addAudioFile(userId, url);
+          addAudioFile(userId, url, currentTime);
           audioChunksRef.current = [];
         };
 

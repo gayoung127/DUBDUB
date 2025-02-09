@@ -29,7 +29,7 @@ const AudioTrackTimeline = ({
   setTracks,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const { audioFiles } = useRecordingStore();
+  const { audioFiles, offsetMap } = useRecordingStore();
   const isSyncingRef = useRef(false);
   const lastFilesRef = useRef("");
 
@@ -104,10 +104,12 @@ const AudioTrackTimeline = ({
               return null;
             }
 
+            const starPoint = offsetMap[url] || 0;
+
             return {
               id: `${trackId}-${Date.now()}`,
               url,
-              startPoint: 0,
+              startPoint: starPoint,
               duration,
               trimStart: 0,
               trimEnd: 0,
