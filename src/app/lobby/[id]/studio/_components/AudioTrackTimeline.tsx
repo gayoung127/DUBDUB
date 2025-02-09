@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd"; // ✅ useDrop 추가
 import { AudioFile, Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { socket } from "@/app/_utils/socketClient";
+import LiveAudioBlock from "./LiveAudioBlock";
+import { useTimeStore } from "@/app/_store/TimeStore";
+
+const PX_PER_SECOND = 80;
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -29,9 +33,57 @@ const AudioTrackTimeline = ({
   setTracks,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const { audioFiles, offsetMap } = useRecordingStore();
+  const {
+    audioFiles,
+    offsetMap,
+    isRecording,
+    analyser,
+    currentRecordingTrackId,
+  } = useRecordingStore();
+  const { time } = useTimeStore();
   const isSyncingRef = useRef(false);
   const lastFilesRef = useRef("");
+  const [liveWidth, setLiveWidth] = useState(0);
+  const initialXRef = useRef<number | null>(null);
+  const recordStartRef = useRef<number | null>(null);
+  let animationIdRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isRecording && currentRecordingTrackId == trackId) {
+      // 녹음 시작
+      if (initialXRef.current === null) {
+        initialXRef.current = time * PX_PER_SECOND;
+      }
+      setLiveWidth(1);
+      recordStartRef.current = performance.now();
+      startWidthLoop();
+    } else {
+      if (recordStartRef.current) {
+        setLiveWidth(0);
+      }
+      recordStartRef.current = null;
+      initialXRef.current = null;
+
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+        animationIdRef.current = null;
+      }
+    }
+
+    return () => {
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+    };
+  }, [isRecording, time]);
+
+  const startWidthLoop = () => {
+    const updateWidth = () => {
+      if (!recordStartRef.current) return;
+      const currentX = time * PX_PER_SECOND;
+      setLiveWidth(Math.max(1, currentX - (initialXRef.current ?? 0)));
+      animationIdRef.current = requestAnimationFrame(updateWidth);
+    };
+    updateWidth();
+  };
 
   //서버로 변경사항 전송
   useEffect(() => {
@@ -232,6 +284,17 @@ const AudioTrackTimeline = ({
             </div>
           );
         })}
+
+        {isRecording && currentRecordingTrackId === trackId && analyser && (
+          <LiveAudioBlock
+            waveClolor={waveColor}
+            isRecording={isRecording}
+            analyser={analyser}
+            blockColor={blockColor}
+            width={liveWidth}
+            initialX={initialXRef.current ?? 0}
+          />
+        )}
       </div>
     </div>
   );

@@ -17,13 +17,21 @@ interface PlayBarProps {
 
 const PlayBar = ({ videoRef }: PlayBarProps) => {
   const userId = 1; //임시 유저 아이디
+  const trackId = 1; //임시 트랙 아이디
   const { time, isPlaying, play, pause, reset } = useTimeStore();
   const [duration, setDuration] = useState(0);
-  const { isRecording, startRecording, stopRecording, addAudioFile } =
-    useRecordingStore();
+  const {
+    isRecording,
+    audioContext,
+    startRecording,
+    stopRecording,
+    createAudioFile,
+    setMediaRecorder,
+    setAudioContext,
+    setAnalyser,
+  } = useRecordingStore();
   const { micStatus } = useMicStore();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -38,6 +46,14 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
       mediaRecorderRef.current?.stop();
       stopRecording();
       pause();
+
+      // 오디오 컨텍스트 정리
+      if (audioContext) {
+        audioContext.close();
+        setAudioContext(null);
+        setAnalyser(null);
+      }
+      setMediaRecorder(null);
     } else {
       const currentTime = time;
 
@@ -55,19 +71,20 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
+        const recorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = recorder;
 
-        mediaRecorder.ondataavailable = (event) => {
+        const chunks: Blob[] = [];
+        recorder.ondataavailable = (event) => {
           console.log("📌 데이터 저장됨:", event.data);
           if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data);
+            chunks.push(event.data);
           }
         };
 
-        mediaRecorder.onstop = () => {
+        recorder.onstop = () => {
           console.log("✅ 녹음 중지됨, 파일 생성 시작...");
-          const audioBlob = new Blob(audioChunksRef.current, {
+          const audioBlob = new Blob(chunks, {
             type: "audio/webm",
           });
           const url = URL.createObjectURL(audioBlob);
@@ -80,14 +97,24 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
             return;
           }
 
-          addAudioFile(userId, url, currentTime);
-          audioChunksRef.current = [];
+          createAudioFile(userId, url, currentTime);
         };
 
-        mediaRecorder.start();
+        recorder.start();
         console.log("🎬 녹음 시작됨");
-        startRecording();
+        startRecording(trackId);
         play();
+        setMediaRecorder(recorder);
+
+        const AudioCtx = window.AudioContext;
+        const audioCtx = new AudioCtx();
+        const source = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+
+        setAudioContext(audioCtx);
+        setAnalyser(analyser);
       } catch (error) {
         console.error("녹음 시작 오류: ", error);
       }
