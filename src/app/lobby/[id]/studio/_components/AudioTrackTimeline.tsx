@@ -5,6 +5,7 @@ import { useDrop } from "react-dnd"; // ✅ useDrop 추가
 import { AudioFile, Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
+import { socket } from "@/app/_utils/socketClient";
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -53,29 +54,33 @@ const AudioTrackTimeline = ({
       }
     };
 
-    // 녹음됨 파일 audioContext로 추가
-    const updateTracks = async () => {
+    // 녹음된 파일 audioContext로 추가
+    const updateTrack = async () => {
+      const existingFilesUrls = new Set(files.map((file) => file.url));
+
       const newFiles = await Promise.all(
-        (audioFiles[trackId] ?? []).map(async (url) => {
-          const duration = await loadAudioDuration(url);
+        (audioFiles[trackId] ?? [])
+          .filter((url) => !existingFilesUrls.has(url))
+          .map(async (url) => {
+            const duration = await loadAudioDuration(url);
 
-          if (duration <= 0) {
-            console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
-            return null;
-          }
+            if (duration <= 0) {
+              console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
+              return null;
+            }
 
-          return {
-            id: `${trackId}-${Date.now()}`,
-            url,
-            startPoint: 0,
-            duration,
-            trimStart: 0,
-            trimEnd: 0,
-            volume: 1,
-            isMuted: false,
-            speed: 1,
-          };
-        }),
+            return {
+              id: `${trackId}-${Date.now()}`,
+              url,
+              startPoint: 0,
+              duration,
+              trimStart: 0,
+              trimEnd: 0,
+              volume: 1,
+              isMuted: false,
+              speed: 1,
+            };
+          }),
       );
 
       const validFiles = newFiles.filter((file) => file !== null);
@@ -109,7 +114,7 @@ const AudioTrackTimeline = ({
       );
     };
 
-    updateTracks();
+    updateTrack();
   }, [audioFiles, trackId, setTracks, audioContext, audioBuffers]);
 
   // ✅ 드롭 가능하도록 `useDrop` 추가
