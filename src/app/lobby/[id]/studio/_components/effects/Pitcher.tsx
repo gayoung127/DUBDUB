@@ -1,15 +1,90 @@
-"use client";
-import React from "react";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useRef } from "react";
+import StartButton from "@/public/images/icons/icon-play.svg";
+import CheckButton from "@/public/images/icons/icon-check.svg";
+import RangeSlider from "./RangeSlider";
 
-const Pitcher = () => {
-  // 오디오의 재생 속도(피치)를 조절하는 상태를 초기화.
-  const [playbackRate, setPlaybackRate] = useState(1);
-  // Web Audio API의 AudioContext를 참조하기 위한 useRef 생성
-  const audioContextRef = useRef<AudioContext | null>(null);
-  // 디코딩된 오디오 데이터를 저장하는 AudioBuffer를 참조하기 위한 useRef
-  const audioBuffersRef = useRef<AudioBuffer | null>(null);
-  return <div></div>;
+interface PitcherProps {
+  context: RefObject<AudioContext | null>;
+  audioBuffer: RefObject<AudioBuffer | null>;
+  updateBuffer: (newBuf: AudioBuffer | null) => void;
+}
+
+const Pitcher = ({ context, audioBuffer, updateBuffer }: PitcherProps) => {
+  type AudioContextType = AudioContext | OfflineAudioContext;
+  const audioContext = context.current;
+
+  const playbackRate = useRef<number>(1);
+  const volume = useRef<number>(1);
+
+  function createPitcherNode(targetContext: AudioContextType) {
+    const source = targetContext.createBufferSource();
+    source.buffer = audioBuffer.current;
+
+    const gain = targetContext.createGain();
+
+    source.playbackRate.value = playbackRate.current;
+    source.connect(gain);
+
+    gain.gain.value = volume.current;
+    gain.connect(targetContext.destination);
+
+    return { source };
+  }
+
+  async function savePitch() {
+    if (!audioBuffer.current || !audioContext) {
+      return;
+    }
+
+    const offlineContext = new OfflineAudioContext(
+      audioBuffer.current.numberOfChannels,
+      audioBuffer.current.length,
+      audioBuffer.current.sampleRate,
+    );
+
+    const { source } = createPitcherNode(offlineContext);
+    source.start();
+    const newBuffer = await offlineContext.startRendering();
+    updateBuffer(newBuffer);
+  }
+
+  function startPitch() {
+    if (!audioContext) {
+      return;
+    }
+    const { source } = createPitcherNode(audioContext);
+    source.start();
+  }
+
+  return (
+    <div className="flex flex-col gap-10">
+      <div className="flex justify-end gap-4">
+        <StartButton className="cursor-pointer" onClick={startPitch} />
+        <CheckButton className="cursor-pointer" onClick={savePitch} />
+      </div>
+      <RangeSlider
+        title="PITCH"
+        min={0.1}
+        step={0.1}
+        max={2}
+        value={playbackRate.current}
+        onChange={(newValue: number) => {
+          playbackRate.current = newValue;
+        }}
+      />
+
+      <RangeSlider
+        title="VOLUME"
+        min={0}
+        max={5}
+        step={0.1}
+        value={volume.current}
+        onChange={(newValue: number) => {
+          volume.current = newValue;
+        }}
+      />
+    </div>
+  );
 };
 
 export default Pitcher;
