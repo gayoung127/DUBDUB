@@ -7,11 +7,18 @@ import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
 import { initialTracks } from "@/app/_types/studio";
 import Delay from "./Delay";
+import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 
 const EffectList = () => {
   const [tracks, setTracks] = useState(initialTracks);
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
+  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
+  const [selectedEffect, setSelectedEffect] = useState<{
+    name: string;
+    component: JSX.Element;
+  } | null>(null);
 
   useEffect(() => {
     async function loadAudio() {
@@ -27,6 +34,14 @@ const EffectList = () => {
     loadAudio();
   }, []);
 
+  useEffect(() => {
+    if (selectedEffect && activeSourceRef.current) {
+      activeSourceRef.current.stop();
+      activeSourceRef.current.disconnect();
+      activeSourceRef.current = null;
+    }
+  }, [selectedEffect]);
+
   function startAudio() {
     if (!audioContextRef.current) {
       return;
@@ -36,10 +51,19 @@ const EffectList = () => {
     source.connect(audioContextRef.current.destination);
 
     source.start();
+    activeSourceRef.current = source;
   }
 
   function updateBuffer(newBuf: AudioBuffer | null) {
     audioBuffer.current = newBuf;
+  }
+
+  function saveAsAssets() {
+    if (!audioBuffer.current) {
+      return;
+    }
+
+    // 추후 에셋 추가 기능 구현.
   }
 
   const effects = [
@@ -74,11 +98,6 @@ const EffectList = () => {
       ),
     },
   ];
-
-  const [selectedEffect, setSelectedEffect] = useState<{
-    name: string;
-    component: JSX.Element;
-  } | null>(null);
 
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
@@ -117,7 +136,7 @@ const EffectList = () => {
               <Button small outline className="flex-1" onClick={startAudio}>
                 재생
               </Button>
-              <Button small className="flex-1" onClick={() => {}}>
+              <Button small className="flex-1" onClick={saveAsAssets}>
                 에셋으로 저장
               </Button>
             </div>

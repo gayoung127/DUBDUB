@@ -1,6 +1,6 @@
-import { RefObject, useRef } from "react";
-import StartButton from "@/public/images/icons/icon-play.svg";
-import CheckButton from "@/public/images/icons/icon-check.svg";
+import { RefObject, useEffect, useRef } from "react";
+import StartButton from "@/public/images/icons/icon-play-asset.svg";
+import CheckButton from "@/public/images/icons/icon-store-effect.svg";
 import RangeSlider from "./RangeSlider";
 
 interface PitcherProps {
@@ -12,9 +12,20 @@ interface PitcherProps {
 const Pitcher = ({ context, audioBuffer, updateBuffer }: PitcherProps) => {
   type AudioContextType = AudioContext | OfflineAudioContext;
   const audioContext = context.current;
+  let activeSource: AudioBufferSourceNode | null = null;
 
   const playbackRate = useRef<number>(1);
   const volume = useRef<number>(1);
+
+  useEffect(() => {
+    return () => {
+      if (activeSource) {
+        activeSource.stop();
+        activeSource.disconnect();
+        activeSource = null;
+      }
+    };
+  }, []);
 
   function createPitcherNode(targetContext: AudioContextType) {
     const source = targetContext.createBufferSource();
@@ -53,11 +64,12 @@ const Pitcher = ({ context, audioBuffer, updateBuffer }: PitcherProps) => {
       return;
     }
     const { source } = createPitcherNode(audioContext);
+    activeSource = source;
     source.start();
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="relative flex h-[80%] flex-col gap-10">
       <div className="flex justify-end gap-4">
         <StartButton className="cursor-pointer" onClick={startPitch} />
         <CheckButton className="cursor-pointer" onClick={savePitch} />

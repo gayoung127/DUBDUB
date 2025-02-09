@@ -1,10 +1,10 @@
-import { RefObject, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import RangeSlider from "./RangeSlider";
-import StartButton from "@/public/images/icons/icon-play.svg";
-import CheckButton from "@/public/images/icons/icon-check.svg";
+import StartButton from "@/public/images/icons/icon-play-asset.svg";
+import CheckButton from "@/public/images/icons/icon-store-effect.svg";
 
 interface ReverbProps {
-  context: RefObject<AudioContext | null>; // Ref 타입 지정
+  context: RefObject<AudioContext | null>;
   audioBuffer: RefObject<AudioBuffer | null>;
   updateBuffer: (newBuf: AudioBuffer | null) => void;
 }
@@ -12,10 +12,21 @@ interface ReverbProps {
 const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
   type AudioContextType = AudioContext | OfflineAudioContext;
   const audioContext = context.current;
+  let activeSource: AudioBufferSourceNode | null = null;
 
   const mix = useRef<number>(0); // wet/dry의 비율
   const time = useRef<number>(3); // 잔향의 길이
   const decay = useRef<number>(2); // 잔향이 감소하는 빠르기
+
+  useEffect(() => {
+    return () => {
+      if (activeSource) {
+        activeSource.stop();
+        activeSource.disconnect();
+        activeSource = null;
+      }
+    };
+  }, []);
 
   function generateIR() {
     if (!audioContext) {
@@ -85,6 +96,7 @@ const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
       return;
     }
     const { source } = createReverbNodes(audioContext);
+    activeSource = source;
     source.start();
   }
 
@@ -99,10 +111,10 @@ const Reverb = ({ context, audioBuffer, updateBuffer }: ReverbProps) => {
         unit="%"
         min={0}
         step={0.05}
-        max={1}
-        value={mix.current}
+        max={100}
+        value={mix.current * 100}
         onChange={(newValue: number) => {
-          mix.current = newValue;
+          mix.current = newValue / 100;
         }}
       />
 

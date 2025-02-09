@@ -1,10 +1,10 @@
-import { RefObject, useRef } from "react";
-import StartButton from "@/public/images/icons/icon-play.svg";
-import CheckButton from "@/public/images/icons/icon-check.svg";
+import { RefObject, useEffect, useRef } from "react";
+import StartButton from "@/public/images/icons/icon-play-asset.svg";
+import CheckButton from "@/public/images/icons/icon-store-effect.svg";
 import RangeSlider from "./RangeSlider";
 
 interface DelayProps {
-  context: RefObject<AudioContext | null>; // Ref 타입 지정
+  context: RefObject<AudioContext | null>;
   audioBuffer: RefObject<AudioBuffer | null>;
   updateBuffer: (newBuf: AudioBuffer | null) => void;
 }
@@ -12,13 +12,21 @@ interface DelayProps {
 const Delay = ({ context, audioBuffer, updateBuffer }: DelayProps) => {
   type AudioContextType = AudioContext | OfflineAudioContext;
   const audioContext = context.current;
+  let activeSource: AudioBufferSourceNode | null = null;
 
-  //   const mix = 0.5; // wet / dry 비율
-  //   const feedback = 0.5; // 감소시킬 음량
-  //   const time = 0.3; // 메아리 간격
   const mix = useRef<number>(0.5); // wet/dry 비율
   const feedback = useRef<number>(0.5); // 감소시킬 음량
   const time = useRef<number>(0.3); // 메아리 간격
+
+  useEffect(() => {
+    return () => {
+      if (activeSource) {
+        activeSource.stop();
+        activeSource.disconnect();
+        activeSource = null;
+      }
+    };
+  }, []);
 
   function createDelayNode(targetContext: AudioContextType) {
     const source = targetContext.createBufferSource();
@@ -74,6 +82,7 @@ const Delay = ({ context, audioBuffer, updateBuffer }: DelayProps) => {
       return;
     }
     const { source } = createDelayNode(audioContext);
+    activeSource = source;
     source.start();
   }
 
