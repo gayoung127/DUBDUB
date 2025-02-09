@@ -6,30 +6,102 @@ import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
 import { initialTracks } from "@/app/_types/studio";
+import Delay from "./Delay";
+import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 
 const EffectList = () => {
   const [tracks, setTracks] = useState(initialTracks);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const [sourceNode, setSourceNode] = useState<AudioBufferSourceNode | null>(
-    null,
-  );
-
-  const effects = [
-    {
-      name: "리버브",
-      component: <Reverb />,
-    },
-    { name: "피치 조정", component: <Pitcher /> },
-  ];
+  const audioContextRef = useRef<AudioContext | null>(new AudioContext());
+  const audioBuffer = useRef<AudioBuffer | null>(null);
+  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
     component: JSX.Element;
   } | null>(null);
 
+  useEffect(() => {
+    async function loadAudio() {
+      if (!audioContextRef.current) {
+        return;
+      }
+      const response = await fetch(tracks[0].files[0].url);
+      console.log(tracks[0].files[0]);
+      const arrayBuffer = await response.arrayBuffer();
+      audioBuffer.current =
+        await audioContextRef.current.decodeAudioData(arrayBuffer);
+    }
+    loadAudio();
+  }, []);
+
+  useEffect(() => {
+    if (selectedEffect && activeSourceRef.current) {
+      activeSourceRef.current.stop();
+      activeSourceRef.current.disconnect();
+      activeSourceRef.current = null;
+    }
+  }, [selectedEffect]);
+
+  function startAudio() {
+    if (!audioContextRef.current) {
+      return;
+    }
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBuffer.current;
+    source.connect(audioContextRef.current.destination);
+
+    source.start();
+    activeSourceRef.current = source;
+  }
+
+  function updateBuffer(newBuf: AudioBuffer | null) {
+    audioBuffer.current = newBuf;
+  }
+
+  function saveAsAssets() {
+    if (!audioBuffer.current) {
+      return;
+    }
+
+    // 추후 에셋 추가 기능 구현.
+  }
+
+  const effects = [
+    {
+      name: "리버브",
+      component: (
+        <Reverb
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
+    },
+    {
+      name: "딜레이",
+      component: (
+        <Delay
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
+    },
+    {
+      name: "피치 조정",
+      component: (
+        <Pitcher
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
-      <div className="scrollbar flex h-full max-h-[393px] w-full flex-1 flex-wrap items-start justify-start gap-6 overflow-y-scroll">
+      <div className="scrollbar relative flex h-full max-h-[393px] w-full flex-1 flex-wrap items-start justify-start gap-6 overflow-y-scroll">
         {selectedEffect ? (
           <div className="h-full w-full">
             <div className="flex justify-between pb-5">
@@ -60,6 +132,14 @@ const EffectList = () => {
                 <H4 className="pl-3">{effect.name}</H4>
               </div>
             ))}
+            <div className="absolute bottom-1 flex w-full gap-2">
+              <Button small outline className="flex-1" onClick={startAudio}>
+                재생
+              </Button>
+              <Button small className="flex-1" onClick={saveAsAssets}>
+                에셋으로 저장
+              </Button>
+            </div>
           </div>
         )}
       </div>
