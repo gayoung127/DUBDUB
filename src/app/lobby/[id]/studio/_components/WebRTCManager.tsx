@@ -120,10 +120,14 @@ const WebRTCManager = ({ studioId }: WebRTCManagerProps) => {
         ).then((response) => response.text());
         await newSession.connect(token);
         */
+       const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
 
         const videoTrack = videoStream.getVideoTracks()[0];
+        const audioTrack = audioStream.getAudioTracks()[0]
+
         const newPublisher = ov.initPublisher(undefined, {
           videoSource: videoTrack,
+          audioSource: audioTrack,
           publishAudio: true,
         });
 

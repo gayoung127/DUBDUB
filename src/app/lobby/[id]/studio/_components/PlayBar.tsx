@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
@@ -8,14 +8,30 @@ import RenderingButton from "./RenderingButton";
 
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
+import { useRecordingStore } from "@/app/_store/RecordingStore";
+import { useMicStore } from "@/app/_store/MicStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
 }
 
 const PlayBar = ({ videoRef }: PlayBarProps) => {
+  const userId = 1; //임시 유저 아이디
+  const trackId = 1; //임시 트랙 아이디
   const { time, isPlaying, play, pause, reset } = useTimeStore();
   const [duration, setDuration] = useState(0);
+  const {
+    isRecording,
+    audioContext,
+    startRecording,
+    stopRecording,
+    createAudioFile,
+    setMediaRecorder,
+    setAudioContext,
+    setAnalyser,
+  } = useRecordingStore();
+  const { micStatus } = useMicStore();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -23,10 +39,92 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
     }
   }, [videoRef.current?.duration]);
 
+  // 녹음하는 함수
+  const handleRecording = async () => {
+    if (isRecording) {
+      console.log("🎙️ 녹음 중지 요청됨");
+      mediaRecorderRef.current?.stop();
+      stopRecording();
+      pause();
+
+      // 오디오 컨텍스트 정리
+      if (audioContext) {
+        audioContext.close();
+        setAudioContext(null);
+        setAnalyser(null);
+      }
+      setMediaRecorder(null);
+    } else {
+      const currentTime = time;
+
+      console.log("🎙️ 녹음 시작 요청됨");
+      const activeMics = Object.entries(micStatus)
+        .filter(([_, isOn]) => isOn)
+        .map(([userId]) => userId);
+
+      if (activeMics.length === 0) {
+        alert("Turn on Mic");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        const recorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = recorder;
+
+        const chunks: Blob[] = [];
+        recorder.ondataavailable = (event) => {
+          console.log("📌 데이터 저장됨:", event.data);
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+
+        recorder.onstop = () => {
+          console.log("✅ 녹음 중지됨, 파일 생성 시작...");
+          const audioBlob = new Blob(chunks, {
+            type: "audio/webm",
+          });
+          const url = URL.createObjectURL(audioBlob);
+          console.log("🎵 생성된 오디오 파일 URL:", url);
+
+          if (!userId) {
+            console.error(
+              "❌ recorderId가 없습니다. 녹음 파일을 추가할 수 없습니다.",
+            );
+            return;
+          }
+
+          createAudioFile(userId, url, currentTime);
+        };
+
+        recorder.start();
+        console.log("🎬 녹음 시작됨");
+        startRecording(trackId);
+        play();
+        setMediaRecorder(recorder);
+
+        const AudioCtx = window.AudioContext;
+        const audioCtx = new AudioCtx();
+        const source = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+
+        setAudioContext(audioCtx);
+        setAnalyser(analyser);
+      } catch (error) {
+        console.error("녹음 시작 오류: ", error);
+      }
+    }
+  };
+
   return (
     <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
-        <div>
+        <div onClick={handleRecording}>
           <RecordButton width={20} height={20} />
         </div>
         <div onClick={isPlaying ? pause : play}>
