@@ -30,7 +30,42 @@ const AudioTrackTimeline = ({
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const { audioFiles } = useRecordingStore();
+  const isSyncingRef = useRef(false);
+  const lastFilesRef = useRef("");
 
+  //서버로 변경사항 전송
+  useEffect(() => {
+    const newFilesString = JSON.stringify(files);
+
+    if (!isSyncingRef.current && lastFilesRef.current !== newFilesString) {
+      console.log(`📤 트랙(${trackId})의 변경 사항 서버로 전송`, {
+        trackId,
+        files,
+      });
+
+      socket.emit("update-track-files", {
+        trackId,
+        updatedFiles: files,
+      });
+
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => {
+          if (track.trackId !== trackId) return track;
+
+          return { ...track, files: files.map((f) => ({ ...f })) };
+        }),
+      );
+      isSyncingRef.current = true;
+      lastFilesRef.current = newFilesString;
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 300);
+    } else {
+      console.log(`⚠️ 트랙(${trackId}) 변경 없음 -> 서버 전송 생략`);
+    }
+  }, [files.map((f) => JSON.stringify(f)).join(","), trackId]);
+
+  //녹음된 파일을 추가하는 역할
   useEffect(() => {
     console.log(`🎙️ 트랙(${trackId})의 녹음된 파일 추가 확인:`, audioFiles);
 

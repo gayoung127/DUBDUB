@@ -38,6 +38,10 @@ const AudioBlock = ({
   );
 
   useEffect(() => {
+    setLocalStartPoint((file.startPoint + file.trimStart) * PX_PER_SECOND);
+  }, [file.startPoint, file.trimStart]);
+
+  useEffect(() => {
     if (!blockRef.current || !timelineRef.current) return;
 
     const blockElement = blockRef.current;
