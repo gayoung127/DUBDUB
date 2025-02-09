@@ -21,16 +21,16 @@ app.prepare().then(() => {
 
     // 클라이언트에서 트랙 정보를 동기화 요청
     socket.on("sync-client-tracks", (clientTracks: Track[]) => {
-      console.log(
-        `📩 [SERVER] 클라이언트 트랙 개수 동기화 요청 수신`,
-        clientTracks,
-      );
+      // console.log(
+      //   `📩 [SERVER] 클라이언트 트랙 개수 동기화 요청 수신`,
+      //   clientTracks,
+      // );
 
       if (tracks.size === 0) {
         clientTracks.forEach((track) => {
           tracks.set(track.trackId, { ...track, files: [...track.files] });
         });
-        console.log(`🔄 [SERVER] 클라이언트 트랙 개수에 맞춰 동기화 완료`);
+        // console.log(`🔄 [SERVER] 클라이언트 트랙 개수에 맞춰 동기화 완료`);
       }
 
       socket.emit("sync-track", Array.from(tracks.values())); // 해당 클라이언트에게 브로드캐스트
@@ -46,19 +46,19 @@ app.prepare().then(() => {
         trackId: number;
         updatedFiles: AudioFile[];
       }) => {
-        console.log(`📩 [SERVER] update-track-files 수신:`, {
-          trackId,
-          updatedFiles,
-        });
+        // console.log(`📩 [SERVER] update-track-files 수신:`, {
+        //   trackId,
+        //   updatedFiles,
+        // });
 
         if (!tracks.has(trackId)) {
-          console.error(
-            `❌ [SERVER] 트랙(${trackId})이 tracks 맵에 존재하지 않음`,
-          );
-          console.log(
-            "🗂 [SERVER] 현재 tracks 상태:",
-            Array.from(tracks.entries()),
-          );
+          // console.error(
+          //   `❌ [SERVER] 트랙(${trackId})이 tracks 맵에 존재하지 않음`,
+          // );
+          // console.log(
+          //   "🗂 [SERVER] 현재 tracks 상태:",
+          //   Array.from(tracks.entries()),
+          // );
           return;
         }
 
@@ -69,18 +69,18 @@ app.prepare().then(() => {
 
           if (prevFiles != newFiles) {
             track.files = updatedFiles;
-            console.log(`📡 [SERVER] sync-track-files 브로드캐스트 실행:`, {
-              trackId,
-              updatedFiles,
-            });
+            // console.log(`📡 [SERVER] sync-track-files 브로드캐스트 실행:`, {
+            //   trackId,
+            //   updatedFiles,
+            // });
             socket.broadcast.emit("sync-track-files", {
               trackId,
               updatedFiles,
             });
           } else {
-            console.log(
-              `⚠️ [SERVER] 변경사항 없음 -> sync-track-files 브로드캐스트 생략`,
-            );
+            // console.log(
+            //   `⚠️ [SERVER] 변경사항 없음 -> sync-track-files 브로드캐스트 생략`,
+            // );
           }
         }
       },
@@ -88,15 +88,8 @@ app.prepare().then(() => {
 
     // 커서 이동 이벤트 처리
     socket.on("cursorMove", ({ x, y, name }) => {
-      // console.log(
-      //   `Cursor move received from client (${socket.id}): x=${x}, y=${y} name=${name}`,
-      // );
-
       // 다른 사용자들에게 커서 위치 브로드캐스트
       socket.broadcast.emit("cursorUpdate", { id: socket.id, x, y, name });
-      // console.log(
-      //   `Broadcasted cursorUpdate event for ${socket.id}: x=${x}, y=${y}, name=${name}`,
-      // );
     });
 
     // 사용자 연결 종료 처리
