@@ -8,7 +8,7 @@ import Type from "./_ components/Type";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
-import Button from "@/app/_components/Button"; // Button 컴포넌트
+import Button from "@/app/_components/Button";
 import { getRecruitment } from "@/app/_apis/recruitment";
 
 export default function Page() {
