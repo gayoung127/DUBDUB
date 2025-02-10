@@ -29,6 +29,7 @@ const AudioBlock = ({
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const { time, isPlaying } = useTimeStore();
+  const { selectedBlock, setSelectedBlock } = useBlockStore();
 
   const blockRef = useRef<HTMLDivElement | null>(null);
   const [localStartPoint, setLocalStartPoint] = useState(
@@ -207,10 +208,13 @@ const AudioBlock = ({
         backgroundColor: blockColor,
         borderRadius: `8px`,
       }}
+      onClick={() => {
+        setSelectedBlock(file);
+      }}
     >
       <canvas
         ref={canvasRef}
-        className="h-10 w-full rounded-md border border-transparent hover:border-brand-300"
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${file.id === selectedBlock?.id ? "border border-yellow-600" : ""}`}
         style={{
           backgroundColor: blockColor,
         }}

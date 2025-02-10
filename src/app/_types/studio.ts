@@ -47,7 +47,7 @@ export const initialTracks: Track[] = [
       },
       {
         id: "file2",
-        url: "/examples/happyhappyhappysong.mp3",
+        url: "/examples/dummy-audio.mp3",
         startPoint: 12,
         duration: 7,
         trimStart: 2,
