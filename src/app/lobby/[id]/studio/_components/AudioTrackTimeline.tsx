@@ -46,7 +46,7 @@ const AudioTrackTimeline = ({
   const [liveWidth, setLiveWidth] = useState(0);
   const initialXRef = useRef<number | null>(null);
   const recordStartRef = useRef<number | null>(null);
-  let animationIdRef = useRef<number | null>(null);
+  const animationIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isRecording && currentRecordingTrackId == trackId) {
