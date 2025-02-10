@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import Description from "./_ components/Description";
 import Genre from "./_ components/Genre";
 import Title from "./_ components/Title";
+import Castings from "./_ components/Castings";
 import Type from "./_ components/Type";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
-import { getRecruitment } from "@/app/_apis/recruitment";
+import { RoleData } from "./type";
 
 export default function Page() {
   const router = useRouter();
@@ -19,7 +20,8 @@ export default function Page() {
   const [genreTypes, setGenreTypes] = useState<string[]>([]);
   const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
   const [script, setScript] = useState<string>("");
-  const [videoFile, setVideoFile] = useState<File | null>(null); // 비디오 파일 상태 추가
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [castings, setCastings] = useState<RoleData[]>([]);
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -35,7 +37,7 @@ export default function Page() {
     const recruitmentData = {
       title: title,
       content: content,
-      castings: [],
+      castings: castings,
       genreTypes: genreTypes,
       categoryTypes: categoryTypes,
       script: script,
@@ -67,7 +69,6 @@ export default function Page() {
       const result = await response.json();
       alert("모집글이 성공적으로 작성되었습니다!");
 
-      // 모집글 작성 성공 시 /studio로 이동
       router.replace("/studio");
     } catch (error) {
       console.error("Error creating recruitment post:", error);
@@ -96,6 +97,7 @@ export default function Page() {
       >
         <div className="flex h-full w-1/3 flex-col items-start justify-start">
           <Title onChange={setTitle} />
+          <Castings onChange={setCastings} />
           <Type onChange={setCategoryTypes} />
           <Genre onChange={setGenreTypes} />
         </div>
