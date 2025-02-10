@@ -69,6 +69,7 @@ export async function audioBufferToMp3(audioBuffer: AudioBuffer) {
 
   // MP3 다운로드
   saveAs(mp3Blob, "output.mp3");
+
   return mp3Blob;
 }
 
