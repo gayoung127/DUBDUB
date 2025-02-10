@@ -13,13 +13,15 @@ import { useMicStore } from "@/app/_store/MicStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const PlayBar = ({ videoRef }: PlayBarProps) => {
+const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
   const userId = 1; //임시 유저 아이디
   const trackId = 1; //임시 트랙 아이디
   const { time, isPlaying, play, pause, reset } = useTimeStore();
-  const [duration, setDuration] = useState(0);
+
   const {
     isRecording,
     audioContext,
