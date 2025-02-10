@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     }
 
     if (!response.ok) {
+      console.log(NextResponse);
       return NextResponse.json({ error: data }, { status: response.status });
     }
 
