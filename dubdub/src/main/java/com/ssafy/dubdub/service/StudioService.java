@@ -9,6 +9,7 @@ import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.repository.RecruitmentRepository;
 import com.ssafy.dubdub.repository.StudioRepository;
 import io.openvidu.java.client.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,5 +66,13 @@ public class StudioService {
                 .session(studio.getSession())
                 .script(null)
                 .build();
+    }
+
+    public void saveWorkspaceData(Long studioId, String workspaceData, Member member) {
+        Studio studio = studioRepository.findById(studioId)
+                .orElseThrow(() -> new EntityNotFoundException("스튜디오를 찾을 수 없습니다."));
+
+        Recruitment recruitment = studio.getRecruitment();
+        recruitment.updateWorkspaceData(workspaceData);
     }
 }

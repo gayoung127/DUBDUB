@@ -46,6 +46,9 @@ public class Recruitment extends Timestamped {
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RecruitmentCategory> categories = new LinkedHashSet<>();
 
+    @Column(columnDefinition = "json")
+    private String workspaceData;
+
     @Builder
     public Recruitment(Member author, String title, String content, LocalDateTime startTime, LocalDateTime endTime, boolean isRecruiting, String script, boolean isPrivate) {
         this.author = author;
@@ -66,5 +69,9 @@ public class Recruitment extends Timestamped {
 
     public void addCategory(RecruitmentCategory recruitmentCategory) {
         categories.add(recruitmentCategory);
+    }
+
+    public void updateWorkspaceData(String workspaceData) {
+        this.workspaceData = workspaceData;
     }
 }

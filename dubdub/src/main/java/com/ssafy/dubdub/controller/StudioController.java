@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/project/{pid}/studio")
+@RequestMapping("/project")
 public class StudioController {
 
     private final StudioService studioService;
 
     @Operation(summary = "[방장] 스튜디오 만들기")
-    @PostMapping
+    @PostMapping("/{pid}/studio")
     public ResponseEntity<StudioEnterResponseDto> createStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Member member = SecurityUtil.getCurrentUser();
 
@@ -30,11 +30,20 @@ public class StudioController {
     }
 
     @Operation(summary = "스튜디오 입장하기")
-    @GetMapping
+    @GetMapping("/{pid}/studio")
     public ResponseEntity<StudioEnterResponseDto> enterStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
 
         StudioEnterResponseDto responseDto = studioService.enterStudio(projectId);
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/{sId}/save")
+    public ResponseEntity<?> saveStudioState(@PathVariable("sId") Long studioId,
+            @RequestBody String workspaceData) {
+
+        Member member = SecurityUtil.getCurrentUser();
+        studioService.saveWorkspaceData(studioId, workspaceData, member);
+        return ResponseEntity.ok().build();
     }
 }

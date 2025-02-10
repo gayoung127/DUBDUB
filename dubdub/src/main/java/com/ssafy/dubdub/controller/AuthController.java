@@ -12,7 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +28,8 @@ public class AuthController {
     private int accessTokenExpiredMs;
     @Value("${jwt.refresh.expiration}")
     private int refreshTokenExpiredMs;
+    @Value("${spring.application.frontend-url}")
+    private String frontendBaseUrl;
 
     @Operation(summary = "CORS Preflight 요청 처리")
     @RequestMapping(method = RequestMethod.OPTIONS)
@@ -35,18 +39,19 @@ public class AuthController {
 
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
-    public ResponseEntity<Map<String, Long>> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
+    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException {
         AuthResponseDTO authResponse = authService.kakaoLogin(code);
 
         response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
         response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
 
-        Map<String, Long> responseBody = new HashMap<>();
-        responseBody.put("memberId", authResponse.getMemberId());
+        String redirectUrl = UriComponentsBuilder
+                .fromUriString(frontendBaseUrl)
+                .queryParam("memberId", authResponse.getMemberId())
+                .build()
+                .toUriString();
 
-        return ResponseEntity
-                .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
-                .body(responseBody);
+        response.sendRedirect(redirectUrl);
     }
 
 
