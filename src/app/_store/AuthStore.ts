@@ -5,8 +5,8 @@ interface AuthState {
   setPrevPage: (url: string) => void;
   accessToken: string | null;
   setAccessToken: (token: string | null) => void;
-  loggedInUserId: number | null;
-  setLoggedInUserId: (userId: number | null) => void;
+  loggedInUserId: string | null;
+  setLoggedInUserId: (userId: string | null) => void;
   logout: () => void;
 }
 
