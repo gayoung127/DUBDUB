@@ -5,14 +5,13 @@ import TimelinePointer from "@/public/images/icons/icon-timeline-pointer.svg";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useTimeStore } from "@/app/_store/TimeStore";
+import { PX_PER_SECOND } from "@/app/_types/studio";
 
 gsap.registerPlugin(Draggable);
 
 interface TimelineMarkerProps {
   timelineRef: React.RefObject<HTMLDivElement | null>;
 }
-
-const PX_PER_SECOND = 80; // ✅ 1초 = 80px
 
 const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
   const markerRef = useRef<HTMLDivElement | null>(null);

@@ -2,14 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd"; // ✅ useDrop 추가
-import { AudioFile, Track } from "@/app/_types/studio";
+import { AudioFile, PX_PER_SECOND, Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { socket } from "@/app/_utils/socketClient";
 import LiveAudioBlock from "./LiveAudioBlock";
 import { useTimeStore } from "@/app/_store/TimeStore";
-
-const PX_PER_SECOND = 80;
 
 interface AudioTrackTimelineProps {
   trackId: number;

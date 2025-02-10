@@ -1,7 +1,7 @@
 "use client";
 
 import { useTimeStore } from "@/app/_store/TimeStore";
-import { Block, Track } from "@/app/_types/studio";
+import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
 import gsap from "gsap";
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "gsap/Draggable";
@@ -12,8 +12,6 @@ export interface AudioBlockProps extends Block {
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
 }
-
-const PX_PER_SECOND = 80; // ✅ 1초 = 80px 변환 기준
 
 gsap.registerPlugin(Draggable);
 

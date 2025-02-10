@@ -1,6 +1,5 @@
 import { create } from "zustand";
-
-const PX_PER_SECOND = 80;
+import { PX_PER_SECOND } from "../_types/studio";
 
 interface TimeStore {
   time: number; // 현재 재생 시간 (초)
