@@ -4,6 +4,9 @@ server:
     context-path: /
     encoding:
       force-response: true
+  tomcat:
+    connection-timeout: 120s
+    max-http-form-post-size: 100MB
 
 spring:
   application:
