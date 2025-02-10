@@ -1,6 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import formidable from "formidable";
+import fs from "fs/promises";
+import path from "path";
 
-export async function POST(request: Request) {
+// 파일 업로드 처리를 위한 설정
+export const config = {
+  api: {
+    bodyParser: false, // formidable 사용 시 bodyParser 비활성화 필요
+  },
+};
+
+// POST 요청 처리 함수
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -12,43 +23,66 @@ export async function POST(request: Request) {
       );
     }
 
-    // 엔드포인트 추가
-    const fullUrl = `${backendUrl}/recruitment`;
-
-    // 요청 본문 읽기
-    const rawBody = await request.text();
-
-    // 헤더 변환
-    const headers: HeadersInit = {};
-    request.headers.forEach((value, key) => {
-      headers[key] = value;
+    // formidable 설정
+    const form = formidable({
+      uploadDir: path.join(process.cwd(), "/public/uploads"), // 파일 저장 경로
+      keepExtensions: true, // 확장자 유지
+      maxFileSize: 100 * 1024 * 1024, // 최대 파일 크기 (100MB)
     });
 
-    // 백엔드로 요청 전달
-    const response = await fetch(fullUrl, {
-      method: "POST",
-      headers,
-      body: rawBody,
-    });
+    // form.parse를 Promise로 래핑하여 사용
+    const parseForm = () =>
+      new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
+        (resolve, reject) => {
+          form.parse(request as any, (err, fields, files) => {
+            if (err) reject(err);
+            else resolve({ fields, files });
+          });
+        },
+      );
 
-    // 응답 처리
-    const contentType = response.headers.get("content-type");
-    let data;
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      data = await response.text();
+    const { fields, files } = await parseForm();
+
+    // 업로드된 파일 확인
+    if (!files.file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
+
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
+    const filePath = file.filepath; // 업로드된 파일 경로
+
+    // 파일 읽기 및 Blob으로 변환
+    const fileBuffer = await fs.readFile(filePath);
+    const fileBlob = new Blob([fileBuffer], {
+      type: file.mimetype || "video/mp4",
+    });
+
+    // FormData 생성 및 데이터 추가
+    const formData = new FormData();
+    formData.append("file", fileBlob, file.originalFilename || "video.mp4");
+
+    // Fetch 요청으로 백엔드에 전송
+    const response = await fetch(`${backendUrl}/recruitment`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
-      return NextResponse.json({ error: data }, { status: response.status });
+      const errorText = await response.text();
+      return NextResponse.json(
+        { error: errorText },
+        { status: response.status },
+      );
     }
 
+    const data = await response.json();
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error in API handler:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: error instanceof Error ? error.message : "Internal Server Error",
+      },
       { status: 500 },
     );
   }

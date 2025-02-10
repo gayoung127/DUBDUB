@@ -10,38 +10,14 @@ import { getCookie } from "@/app/_utils/getCookie";
 
 const Login = () => {
   const router = useRouter();
-  const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
+  const { setLoggedInUserId } = useAuthStore();
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get("code");
-
-    if (code) {
-      handleKakaoLogin(code);
-      url.searchParams.delete("code");
-      window.history.replaceState({}, document.title, url.toString());
-    }
-  }, []);
-
-  const handleKakaoLogin = async (code: string) => {
-    const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`;
+    const param = new URLSearchParams(window.location.search);
+    const isLogin = param.get("isLogin") === "true" ? true : false;
 
     try {
-      const response = await fetch(`${BASE_URL}?code=${code}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("로그인 성공!!");
-        setLoggedInUserId(data.memberId);
-
+      if (isLogin) {
         const prevPage = getCookie("prevPage");
         if (prevPage) {
           router.replace(prevPage);
@@ -50,22 +26,14 @@ const Login = () => {
           router.replace("/lobby");
         }
       } else {
-        console.error("로그인 실패: ", data.message);
-        alert("로그인 실패!");
+        // console.error("로그인 실패");
+        alert("로그인을 시도해주세요.");
       }
     } catch (error) {
-      console.error("로그인 에러: ", error);
+      // console.error("로그인 에러: ", error);
       alert("로그인 실패!");
     }
-  };
-
-  if (isFirstLogin === null) {
-    //로딩 중
-  }
-
-  if (isFirstLogin) {
-    return <SignUp />;
-  }
+  }, []);
 
   return (
     <div className="left-0 flex h-full w-[440px] flex-col items-center bg-brand-100 bg-opacity-80 px-[70px] py-[120px]">

@@ -1,8 +1,8 @@
-export const getRecruitment = async (recruitmentData: FormData) => {
+export const getRecruitment = async (formData: FormData) => {
   try {
-    const response = await fetch("/lobby/create", {
+    const response = await fetch("/api/createRoom", {
       method: "POST",
-      body: recruitmentData,
+      body: formData,
     });
 
     if (!response.ok) {
