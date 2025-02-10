@@ -20,7 +20,7 @@ public class StudioController {
     private final StudioService studioService;
 
     @Operation(summary = "스튜디오 입장하기")
-    @PostMapping
+    @PostMapping("{pid}")
     public ResponseEntity<StudioEnterResponseDto> createStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Member member = SecurityUtil.getCurrentUser();
 
