@@ -4,8 +4,6 @@ import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.domain.entity.Recruitment;
 import com.ssafy.dubdub.domain.entity.Studio;
-import com.ssafy.dubdub.exception.AuthException;
-import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.repository.RecruitmentRepository;
 import com.ssafy.dubdub.repository.StudioRepository;
 import io.openvidu.java.client.*;
@@ -27,8 +25,8 @@ public class StudioService {
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
 
-        Recruitment project = recruitmentRepository.findByIdAndAuthorId(projectId, member.getId()).orElseThrow(
-                () -> new AuthException(ErrorCode.UNAUTHORIZED_ACCESS)
+        Recruitment project = recruitmentRepository.findById(projectId).orElseThrow(
+                () -> new NoSuchElementException("해당 프로젝트가 존재하지 않습니다.")
         );
 
         Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElse(

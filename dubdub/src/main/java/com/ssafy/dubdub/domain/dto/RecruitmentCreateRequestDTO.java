@@ -4,10 +4,12 @@ import com.ssafy.dubdub.enums.CategoryType;
 import com.ssafy.dubdub.enums.GenreType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NoArgsConstructor
 @Getter
 public class RecruitmentCreateRequestDTO {
     @Schema(description = "모집글 제목", example = "짱구는 못말려 7기 3화 더빙하실 분")
