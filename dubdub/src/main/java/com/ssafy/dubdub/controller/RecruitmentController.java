@@ -1,5 +1,6 @@
 package com.ssafy.dubdub.controller;
 
+import com.ssafy.dubdub.domain.dto.CreationResponseDto;
 import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.http.HttpStatusCode;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,8 +42,8 @@ public class RecruitmentController {
         }
 
         Member member = SecurityUtil.getCurrentUser();
-        recruitmentService.addRecruitment(requestDTO, video, member);
-        return ResponseEntity.ok().body("업로드 성공");
+        Long pid = recruitmentService.addRecruitment(requestDTO, video, member);
+        return ResponseEntity.ok().body(new CreationResponseDto(pid, HttpStatusCode.CREATED));
     }
 
     @Operation(summary = "내 프로젝트 조회")
