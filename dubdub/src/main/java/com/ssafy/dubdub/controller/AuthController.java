@@ -7,15 +7,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -26,6 +30,9 @@ public class AuthController {
     private int accessTokenExpiredMs;
     @Value("${jwt.refresh.expiration}")
     private int refreshTokenExpiredMs;
+    @Value("${spring.application.frontend-url}")
+    private String frontendBaseUrl;
+
 
     @Operation(summary = "CORS Preflight 요청 처리")
     @RequestMapping(method = RequestMethod.OPTIONS)
@@ -35,18 +42,33 @@ public class AuthController {
 
     @Operation(summary = "카카오 소셜 로그인 통신")
     @GetMapping("/login")
-    public ResponseEntity<Map<String, Long>> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
-        AuthResponseDTO authResponse = authService.kakaoLogin(code);
+    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException{
+        try {
+            AuthResponseDTO authResponse = authService.kakaoLogin(code);
 
-        response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
-        response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
+            response.addCookie(createAccessTokenCookie(authResponse.getToken().getAccessToken()));
+            response.addCookie(createRefreshTokenCookie(authResponse.getToken().getRefreshToken()));
 
-        Map<String, Long> responseBody = new HashMap<>();
-        responseBody.put("memberId", authResponse.getMemberId());
+            String redirectUrl = UriComponentsBuilder
+                    .fromUriString(frontendBaseUrl)
+                    .queryParam("isLogin", "true")
+                    .build()
+                    .toUriString();
 
-        return ResponseEntity
-                .status(authResponse.isNewMember() ? HttpStatus.CREATED : HttpStatus.OK)
-                .body(responseBody);
+            response.sendRedirect(redirectUrl);
+
+        } catch (Exception e) {
+            log.error("카카오 로그인 실패: ", e);
+
+            String redirectUrl = UriComponentsBuilder
+                    .fromUriString(frontendBaseUrl)
+                    .queryParam("isLogin", "false")
+                    .queryParam("error", "소셜 로그인에 실패했습니다")
+                    .build()
+                    .toUriString();
+
+            response.sendRedirect(redirectUrl);
+        }
     }
 
 

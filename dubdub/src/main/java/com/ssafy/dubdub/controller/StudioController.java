@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/project/{pid}/studio")
+@RequestMapping("/project")
 public class StudioController {
 
     private final StudioService studioService;
@@ -27,5 +27,14 @@ public class StudioController {
         StudioEnterResponseDto responseDto = studioService.createStudio(member, projectId);
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/{sId}/save")
+    public ResponseEntity<?> saveStudioState(@PathVariable("sId") Long studioId,
+            @RequestBody String workspaceData) {
+
+        Member member = SecurityUtil.getCurrentUser();
+        studioService.saveWorkspaceData(studioId, workspaceData, member);
+        return ResponseEntity.ok().build();
     }
 }
