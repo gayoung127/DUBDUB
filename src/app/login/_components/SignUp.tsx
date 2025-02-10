@@ -23,7 +23,7 @@ const SignUp = () => {
     }
   }, [loggedInUserId]);
 
-  const getProfile = async (userId: number) => {
+  const getProfile = async (userId: string) => {
     try {
       const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
       if (!BASE_URL) {
