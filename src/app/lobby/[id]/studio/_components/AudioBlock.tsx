@@ -218,7 +218,7 @@ const AudioBlock = ({
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${file.id === selectedBlock?.id ? "border border-yellow-600" : ""}`}
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${file.id === selectedBlock?.id ? "border-2 border-yellow-600" : ""}`}
         style={{
           backgroundColor: blockColor,
         }}

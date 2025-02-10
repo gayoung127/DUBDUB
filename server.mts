@@ -5,7 +5,7 @@ import { AudioFile, Track } from "@/app/_types/studio";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME || "localhost";
-const port = parseInt(process.env.PORT || "3000", 10);
+const port = parseInt(process.env.PORT || "4000", 10);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -21,17 +21,18 @@ app.prepare().then(() => {
 
     // 클라이언트에서 트랙 정보를 동기화 요청
     socket.on("sync-client-tracks", (clientTracks: Track[]) => {
-      // console.log(
-      //   `📩 [SERVER] 클라이언트 트랙 개수 동기화 요청 수신`,
-      //   clientTracks,
-      // );
+      console.log(
+        `📩 [SERVER] 클라이언트 트랙 개수 동기화 요청 수신`,
+        clientTracks,
+      );
 
       if (tracks.size === 0) {
         clientTracks.forEach((track) => {
           tracks.set(track.trackId, { ...track, files: [...track.files] });
         });
-        // console.log(`🔄 [SERVER] 클라이언트 트랙 개수에 맞춰 동기화 완료`);
+        console.log(`🔄 [SERVER] 클라이언트 트랙 개수에 맞춰 동기화 완료`);
       }
+      console.log("싱크");
 
       socket.emit("sync-track", Array.from(tracks.values())); // 해당 클라이언트에게 브로드캐스트
     });
@@ -100,6 +101,58 @@ app.prepare().then(() => {
       socket.broadcast.emit("cursorRemove", socket.id);
       console.log(`Broadcasted cursorRemove event for ${socket.id}`);
     });
+
+    //
+
+    // 트랙의 mute 요청 처리
+    socket.on(
+      "mute-track",
+      ({ trackId, newIsMuted }: { trackId: number; newIsMuted: boolean }) => {
+        console.log("요청 들어옴 ㅠㅠ");
+        const track = tracks.get(trackId);
+        if (!track) {
+          console.error(`트랙(${trackId})이 tracks 맵에 존재하지 않음,,`);
+          return;
+        }
+        console.log("new is muted= ", newIsMuted);
+
+        track.isMuted = newIsMuted; // 해당 트랙의 mute 상태 변경
+
+        console.log(
+          `트랙(${trackId})의 mute 상태가 ${newIsMuted ? "활성화" : "비활성화"}됨!!!!!`,
+        );
+
+        io.emit("track-muted", { trackId, newIsMuted });
+        console.log("📡 track-muted 이벤트 브로드캐스트 실행:", {
+          trackId,
+          newIsMuted,
+        });
+
+        // socket.broadcast.emit("track-muted", { trackId, isMuted }); // 다른 클라이언트에 브로드캐스트
+      },
+    );
+
+    // 트랙의 solo 요청 처리
+    socket.on("solo-track", ({ trackId }: { trackId: number }) => {
+      console.log("track id= ", trackId);
+      const soloTrack = tracks.get(trackId);
+      if (!soloTrack) {
+        console.error(`트랙(${trackId})이 tracks 맵에 존재하지 않음!!`);
+        return;
+      }
+
+      tracks.forEach((track, id) => {
+        track.isMuted = id !== trackId; // solo 트랙 외 모든 트랙 mute
+      });
+
+      console.log(`트랙(${trackId})이 solo 상태로 설정됨`);
+      io.emit("track-solo", {
+        soloTrackId: trackId,
+        updatedTracks: Array.from(tracks.values()), // 업데이트된 트랙 상태를 전송
+      });
+    });
+
+    //
   });
 
   httpServer.listen(port, () => {
