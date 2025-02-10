@@ -41,7 +41,7 @@ export default function Page() {
     };
 
     formData.append(
-      "recruitment",
+      "recruitmentData",
       new Blob([JSON.stringify(recruitmentData)], { type: "application/json" }),
     );
 
