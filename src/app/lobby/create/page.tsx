@@ -10,7 +10,6 @@ import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
-import { RoleData } from "./type";
 
 export default function Page() {
   const router = useRouter();
@@ -21,7 +20,7 @@ export default function Page() {
   const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
   const [script, setScript] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [castings, setCastings] = useState<RoleData[]>([]);
+  const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -31,7 +30,7 @@ export default function Page() {
     console.log("title:", title);
     console.log("content:", content);
     console.log("castings:", castings);
-    console.log("genreTypes:", genreTypes); // 여기서 genreTypes 값을 확인
+    console.log("genreTypes:", genreTypes);
     console.log("categoryTypes:", categoryTypes);
     console.log("script:", script);
 
@@ -105,7 +104,12 @@ export default function Page() {
       >
         <div className="flex h-full w-1/3 flex-col items-start justify-start">
           <Title onChange={setTitle} />
-          <Castings onChange={setCastings} />
+          <Castings
+            onChange={(namesOnly) => {
+              console.log("Updated castings (names only):", namesOnly); // 디버깅 추가
+              setCastings(namesOnly); // 이름만 업데이트
+            }}
+          />
           <Type onChange={setCategoryTypes} />
           <Genre onChange={setGenreTypes} />
         </div>
