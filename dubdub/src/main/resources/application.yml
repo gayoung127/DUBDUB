@@ -8,6 +8,7 @@ server:
 spring:
   application:
     name: dubdub
+    frontend-url: ${FRONTEND_LOGIN_URL}
   profiles:
     active: local  # 기본적으로 로컬 환경 사용
   datasource:
