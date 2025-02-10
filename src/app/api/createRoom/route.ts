@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers,
-      body,
+      body: formData,
     });
 
     // 응답 처리
