@@ -1,28 +1,26 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable"; // 파일 업로드 처리 라이브러리
+import { NextRequest, NextResponse } from "next/server";
+import formidable from "formidable";
 import fs from "fs/promises";
 import path from "path";
 
+// 파일 업로드 처리를 위한 설정
 export const config = {
   api: {
     bodyParser: false, // formidable 사용 시 bodyParser 비활성화 필요
   },
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
+// POST 요청 처리 함수
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     if (!backendUrl) {
       console.error("Backend URL is not defined.");
-      return res.status(500).json({ error: "Backend URL is not defined." });
+      return NextResponse.json(
+        { error: "Backend URL is not defined." },
+        { status: 500 },
+      );
     }
 
     // formidable 설정
@@ -36,7 +34,7 @@ export default async function handler(
     const parseForm = () =>
       new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
         (resolve, reject) => {
-          form.parse(req, (err, fields, files) => {
+          form.parse(request as any, (err, fields, files) => {
             if (err) reject(err);
             else resolve({ fields, files });
           });
@@ -47,7 +45,7 @@ export default async function handler(
 
     // 업로드된 파일 확인
     if (!files.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
@@ -63,13 +61,6 @@ export default async function handler(
     const formData = new FormData();
     formData.append("file", fileBlob, file.originalFilename || "video.mp4");
 
-    // 추가 필드도 FormData에 포함
-    Object.entries(fields).forEach(([key, value]) => {
-      if (typeof value === "string") {
-        formData.append(key, value);
-      }
-    });
-
     // Fetch 요청으로 백엔드에 전송
     const response = await fetch(`${backendUrl}/recruitment`, {
       method: "POST",
@@ -78,15 +69,21 @@ export default async function handler(
 
     if (!response.ok) {
       const errorText = await response.text();
-      return res.status(response.status).json({ error: errorText });
+      return NextResponse.json(
+        { error: errorText },
+        { status: response.status },
+      );
     }
 
     const data = await response.json();
-    return res.status(200).json(data);
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error in API handler:", error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : "Internal Server Error",
-    });
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Internal Server Error",
+      },
+      { status: 500 },
+    );
   }
 }
