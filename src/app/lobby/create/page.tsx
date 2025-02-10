@@ -27,6 +27,14 @@ export default function Page() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // 기본 폼 제출 동작 방지
 
+    // 모든 상태 출력
+    console.log("title:", title);
+    console.log("content:", content);
+    console.log("castings:", castings);
+    console.log("genreTypes:", genreTypes); // 여기서 genreTypes 값을 확인
+    console.log("categoryTypes:", categoryTypes);
+    console.log("script:", script);
+
     if (!videoFile) {
       alert("비디오 파일을 업로드해주세요.");
       return;
