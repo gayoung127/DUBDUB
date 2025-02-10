@@ -10,38 +10,21 @@ import { getCookie } from "@/app/_utils/getCookie";
 
 const Login = () => {
   const router = useRouter();
-  const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
-  const { loggedInUserId, setLoggedInUserId } = useAuthStore();
+  const { setLoggedInUserId } = useAuthStore();
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get("code");
-
-    if (code) {
-      handleKakaoLogin(code);
-      url.searchParams.delete("code");
-      window.history.replaceState({}, document.title, url.toString());
+    if (isFirstRender) {
+      setIsFirstRender(false);
+      return;
     }
-  }, []);
 
-  const handleKakaoLogin = async (code: string) => {
-    const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`;
+    const memberIdElement = document.getElementById("memberId");
+    const id = memberIdElement?.textContent || null;
 
     try {
-      const response = await fetch(`${BASE_URL}?code=${code}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("로그인 성공!!");
-        setLoggedInUserId(data.memberId);
-
+      if (id) {
+        setLoggedInUserId(id);
         const prevPage = getCookie("prevPage");
         if (prevPage) {
           router.replace(prevPage);
@@ -50,22 +33,14 @@ const Login = () => {
           router.replace("/lobby");
         }
       } else {
-        console.error("로그인 실패: ", data.message);
+        console.error("로그인 실패");
         alert("로그인 실패!");
       }
     } catch (error) {
       console.error("로그인 에러: ", error);
       alert("로그인 실패!");
     }
-  };
-
-  if (isFirstLogin === null) {
-    //로딩 중
-  }
-
-  if (isFirstLogin) {
-    return <SignUp />;
-  }
+  }, []);
 
   return (
     <div className="left-0 flex h-full w-[440px] flex-col items-center bg-brand-100 bg-opacity-80 px-[70px] py-[120px]">
