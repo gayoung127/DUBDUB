@@ -26,6 +26,7 @@ export default function StudioPage() {
   */
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [session, setSession] = useState<Session | null>(null);
+  const [duration, setDuration] = useState<number>(160);
   const videoRef = useRef<VideoElementWithCapturestream>(null);
 
   if (!studioId) {
@@ -89,14 +90,19 @@ export default function StudioPage() {
               <Header />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
                 <StudioSideTab />
-                <VideoPlayer videoRef={videoRef} videoUrl={videoUrl} />
+                <VideoPlayer
+                  videoRef={videoRef}
+                  videoUrl={videoUrl}
+                  duration={duration}
+                  setDuration={setDuration}
+                />
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
               <StudioScript />
             </div>
           </div>
-          <RecordSection />
+          <RecordSection duration={duration} setDuration={setDuration} />
         </div>
         <CursorPresence />
         <WebRTCManager studioId={studioIdString} />

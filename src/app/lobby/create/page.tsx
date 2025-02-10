@@ -8,7 +8,7 @@ import Type from "./_ components/Type";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
-import Button from "@/app/_components/Button"; // Button 컴포넌트
+import Button from "@/app/_components/Button";
 import { getRecruitment } from "@/app/_apis/recruitment";
 
 export default function Page() {
@@ -32,12 +32,23 @@ export default function Page() {
 
     // FormData 객체 생성
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("genreTypes", JSON.stringify(genreTypes));
-    formData.append("categoryTypes", JSON.stringify(categoryTypes));
-    formData.append("script", script);
-    formData.append("video", videoFile);
+    const recruitmentData = {
+      title: title,
+      content: content,
+      genreTypes: genreTypes,
+      categoryTypes: categoryTypes,
+      script: script,
+    };
+
+    formData.append(
+      "recruitment",
+      new Blob([JSON.stringify(recruitmentData)], { type: "application/json" }),
+    );
+
+    // 비디오 파일 추가
+    if (videoFile) {
+      formData.append("video", videoFile);
+    }
 
     try {
       const result = await getRecruitment(formData); // FormData 전송
