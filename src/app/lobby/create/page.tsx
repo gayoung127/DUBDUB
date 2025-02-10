@@ -56,7 +56,7 @@ export default function Page() {
       router.replace("/studio");
     } catch (error) {
       console.error("Error creating recruitment post:", error);
-      alert("모집글 작성 중 오류가 발생했습니다: ${error.message}");
+      alert("모집글 작성 중 오류가 발생했습니다");
     }
   };
 
