@@ -53,17 +53,25 @@ export default function Page() {
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    const response = await fetch(`${backendUrl}/recruitment`, {
-      method: "POST",
-      body: formData, // Content-Type 자동 설정 (multipart/form-data)
-    });
+    try {
+      const response = await fetch(`${backendUrl}/recruitment`, {
+        method: "POST",
+        body: formData, // Content-Type 자동 설정 (multipart/form-data)
+      });
 
-    if (!response.ok) {
-      throw new Error(`서버 오류: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`서버 오류: ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert("모집글이 성공적으로 작성되었습니다!");
+
+      // 모집글 작성 성공 시 /studio로 이동
+      router.replace("/studio");
+    } catch (error) {
+      console.error("Error creating recruitment post:", error);
+      alert("모집글 작성 중 오류가 발생했습니다.");
     }
-
-    const result = await response.json();
-    alert("모집글이 성공적으로 작성되었습니다!");
 
     //   try {
     //     const result = await getRecruitment(formData); // FormData 전송
