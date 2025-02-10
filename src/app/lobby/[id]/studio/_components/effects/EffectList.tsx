@@ -5,8 +5,9 @@ import H2 from "@/app/_components/H2";
 import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
-import { initialTracks } from "@/app/_types/studio";
+import { initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
+import useBlockStore from "@/app/_store/BlockStore";
 import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 
 const EffectList = () => {
@@ -14,6 +15,7 @@ const EffectList = () => {
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const { selectedBlock, setSelectedBlock } = useBlockStore();
 
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
@@ -25,8 +27,13 @@ const EffectList = () => {
       if (!audioContextRef.current) {
         return;
       }
-      const response = await fetch(tracks[0].files[0].url);
-      console.log(tracks[0].files[0]);
+
+      const file = selectedBlock;
+      if (!file) {
+        alert("먼저 오디오 블럭을 선택해주세요.");
+        return;
+      }
+      const response = await fetch(file.url);
       const arrayBuffer = await response.arrayBuffer();
       audioBuffer.current =
         await audioContextRef.current.decodeAudioData(arrayBuffer);
@@ -58,12 +65,30 @@ const EffectList = () => {
     audioBuffer.current = newBuf;
   }
 
-  function saveAsAssets() {
-    if (!audioBuffer.current) {
+  async function saveAsAssets() {
+    if (!audioBuffer.current || !selectedBlock) {
       return;
     }
 
     // 추후 에셋 추가 기능 구현.
+    const newBlob = await audioBufferToMp3(audioBuffer.current);
+    const newFile = new File([newBlob], selectedBlock.url, {
+      type: newBlob.type,
+    });
+
+    const getTrackIdByFileId = (
+      fileId: string,
+      tracks: Track[],
+    ): number | null => {
+      for (const track of tracks) {
+        if (track.files.some((file) => file.id === fileId)) {
+          return track.trackId;
+        }
+      }
+      return null;
+    };
+
+    const trackId = getTrackIdByFileId(selectedBlock.id, initialTracks);
   }
 
   const effects = [
