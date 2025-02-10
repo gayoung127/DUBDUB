@@ -10,7 +10,9 @@ const Genre = ({ onChange }: GenreProps) => {
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
   const handleBadgeClick = (title: string) => {
-    setSelectedBadge((prev) => (prev === title ? null : title));
+    const newSelection = selectedBadge === title ? null : title; // 같은 배지를 클릭하면 선택 해제
+    setSelectedBadge(newSelection);
+    onChange(newSelection ? [newSelection] : []);
   };
 
   return (
