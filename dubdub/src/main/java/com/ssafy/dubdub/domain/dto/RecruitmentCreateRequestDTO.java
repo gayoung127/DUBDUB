@@ -4,10 +4,12 @@ import com.ssafy.dubdub.enums.CategoryType;
 import com.ssafy.dubdub.enums.GenreType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NoArgsConstructor
 @Getter
 public class RecruitmentCreateRequestDTO {
     @Schema(description = "모집글 제목", example = "짱구는 못말려 7기 3화 더빙하실 분")
@@ -19,7 +21,7 @@ public class RecruitmentCreateRequestDTO {
     @Schema(description = "역할 리스트", example = "[\"짱구\", \"철수\"]")
     private List<String> castings;
 
-    @Schema(description = "장르 리스트", example = "[\"액션\", \"코미디\", \"스릴러\", \"로맨스\", \"SF\", \"판타지\", \"일상\", \"기타\"]")
+    @Schema(description = "장르 리스트", example = "[\"액션\", \"코믹\", \"스릴러\", \"로맨스\", \"SF\", \"판타지\", \"일상\", \"기타\"]")
     private List<GenreType> genreTypes;
 
     @Schema(description = "카테고리 리스트", example = "[\"영화\", \"드라마\", \"다큐멘터리\", \"애니메이션\", \"광고\", \"기타\"]")
