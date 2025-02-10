@@ -12,13 +12,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // 엔드포인트 추가
+    // 백엔드 엔드포인트 URL 생성
     const fullUrl = `${backendUrl}/recruitment`;
 
-    // 요청 본문 읽기
-    const rawBody = await request.text();
+    // 요청 본문 읽기 (multipart/form-data 처리)
+    const formData = await request.formData();
+    const body = new FormData();
 
-    // 헤더 변환
+    // formData를 복사하여 새로운 FormData 생성
+    for (const [key, value] of formData.entries()) {
+      body.append(key, value);
+    }
+
+    // 헤더 복사
     const headers: HeadersInit = {};
     request.headers.forEach((value, key) => {
       headers[key] = value;
@@ -28,7 +34,7 @@ export async function POST(request: Request) {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers,
-      body: rawBody,
+      body,
     });
 
     // 응답 처리
