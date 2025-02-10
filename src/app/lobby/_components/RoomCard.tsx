@@ -11,13 +11,8 @@ const RoomCard = ({
   roomInfo: {
     id,
     title,
-    startTime,
-    endTime,
-    isRecruiting,
-    onAir,
     currentParticipants,
     totalParticipants,
-    authorId,
     genres,
     categories,
   },
@@ -38,18 +33,7 @@ const RoomCard = ({
     >
       <div className="relative">
         <img src={"https://picsum.photos/300/200"} className="rounded-[4px]" />
-        {onAir ? (
-          <Badge title="ON AIR" className="absolute right-2 top-2" />
-        ) : (
-          <Badge title="대기 중" className="absolute right-2 top-2" />
-        )}
       </div>
-      <C1>
-        <div className="flex items-center gap-2">
-          <ClockIcon /> {startTime} ~ {endTime}
-        </div>
-      </C1>
-
       <H3>{title}</H3>
       <div className="flex h-[4rem] flex-wrap items-center gap-2 overflow-hidden">
         {genres &&

@@ -13,10 +13,16 @@ import { getRoomList } from "../_apis/roomlist";
 import { useRouter } from "next/navigation";
 
 const LobbyPage = () => {
-  const { timeFilter, categoryFilter, genreFilter, isFiltered, setIsFiltered } =
-    useFilterStore();
+  const {
+    categoryFilter,
+    genreFilter,
+    isFiltered,
+    setIsFiltered,
+    keyword,
+    initiateFilter,
+  } = useFilterStore();
   const searchParams = useSearchParams();
-  const tab = searchParams.get("tab") || "all"; // 기본값: "all"
+  const tab = searchParams.get("tab") || "CREATED";
   const PAGE_SIZE = 16;
   const [dubbingRooms, setDubbingRooms] = useState<DubbingRoom[]>([]);
   const [page, setPage] = useState<number>(0);
@@ -38,20 +44,14 @@ const LobbyPage = () => {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       size: PAGE_SIZE.toString(),
-      onAir: timeFilter.includes("ON AIR")
-        ? "true"
-        : timeFilter.includes("대기 중")
-          ? "false"
-          : "",
-      isPrivate: "false",
-      isRecruiting: "true",
+      keyword: keyword,
       participationType: tab,
       genreIds: getIndexes(genreFilter, genres).join(","),
       categoryIds: getIndexes(categoryFilter, categories).join(","),
     });
 
-    const list = await getRoomList(`${queryParams}`, page, isFiltered);
-    if (list.length === 0) {
+    const { list, last } = await getRoomList(`${queryParams}`);
+    if (last) {
       setIsLastPage(true);
     }
 
@@ -81,8 +81,8 @@ const LobbyPage = () => {
   };
 
   const tabs = [
-    { title: "전체 더빙룸", href: "/lobby?tab=all" },
-    { title: "참여 예정 더빙룸", href: "/lobby?tab=my" },
+    { title: "나의 프로젝트", href: "/lobby?tab=CREATED" },
+    { title: "참여 프로젝트", href: "/lobby?tab=JOIN" },
   ];
 
   return (
@@ -94,6 +94,7 @@ const LobbyPage = () => {
           <div className="flex flex-[2] items-center justify-center pl-3">
             <Filter
               onClick={async () => {
+                await setIsFiltered(false);
                 await setIsFiltered(true);
               }}
             />
