@@ -10,7 +10,7 @@ public enum CategoryType {
     ANIMATION(2, "애니메이션"),
     DOCUMENTARY(3, "다큐멘터리"),
     DRAMA(4, "드라마"),
-    COMMERCIAL(5, "광고"),
+    COMMERCIAL(5, "광고/CF"),
     ETC(6, "기타");
 
     private final int id;
