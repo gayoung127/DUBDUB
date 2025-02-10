@@ -4,14 +4,17 @@ import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.domain.entity.Recruitment;
 import com.ssafy.dubdub.domain.entity.Studio;
+import com.ssafy.dubdub.domain.entity.WorkspaceData;
 import com.ssafy.dubdub.exception.AuthException;
 import com.ssafy.dubdub.exception.ErrorCode;
 import com.ssafy.dubdub.repository.RecruitmentRepository;
 import com.ssafy.dubdub.repository.StudioRepository;
+import com.ssafy.dubdub.repository.WorkspaceDataRepository;
 import io.openvidu.java.client.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -24,6 +27,7 @@ public class StudioService {
     private final OpenViduService openViduService;
     private final RecruitmentRepository recruitmentRepository;
     private final StudioRepository studioRepository;
+    private final WorkspaceDataRepository workspaceDataRepository;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
 
@@ -68,11 +72,34 @@ public class StudioService {
                 .build();
     }
 
+    @Transactional
     public void saveWorkspaceData(Long studioId, String workspaceData, Member member) {
         Studio studio = studioRepository.findById(studioId)
                 .orElseThrow(() -> new EntityNotFoundException("스튜디오를 찾을 수 없습니다."));
 
-        Recruitment recruitment = studio.getRecruitment();
-        recruitment.updateWorkspaceData(workspaceData);
+        Recruitment project = studio.getRecruitment();
+        validateAuthorization(project, member);
+
+        try {
+            Integer latestVersion = workspaceDataRepository
+                    .findLatestWorkspaceVersion(project.getId())
+                    .orElse(0);
+
+            WorkspaceData newVersion = WorkspaceData.builder()
+                    .project(project)
+                    .workspaceData(workspaceData)
+                    .workspaceVersion(latestVersion + 1)
+                    .build();
+
+            workspaceDataRepository.save(newVersion);
+        } catch (Exception e) {
+            throw new RuntimeException("작업 내용 저장에 실패했습니다.", e);
+        }
+    }
+
+    private void validateAuthorization(Recruitment project, Member currentUser) {
+        if (!project.getAuthor().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("작업정보 접근 권한이 없습니다.");
+        }
     }
 }

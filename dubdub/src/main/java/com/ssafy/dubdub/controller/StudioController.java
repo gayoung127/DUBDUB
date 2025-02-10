@@ -38,8 +38,9 @@ public class StudioController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/{sId}/save")
-    public ResponseEntity<?> saveStudioState(@PathVariable("sId") Long studioId,
+    @Operation(summary = "작업정보 저장", description = "프로젝트의 작업정보를 저장합니다.")
+    @PostMapping("/{sId}/workspace")
+    public ResponseEntity<?> saveWorkspaceData(@PathVariable("sId") Long studioId,
             @RequestBody String workspaceData) {
 
         Member member = SecurityUtil.getCurrentUser();
