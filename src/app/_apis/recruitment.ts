@@ -1,9 +1,8 @@
-export const getRecruitment = async (FormData: FormData) => {
+export const getRecruitment = async (formData: FormData) => {
   try {
     const response = await fetch("/api/createRoom", {
-      // Next.js API 라우트를 호출
       method: "POST",
-      body: FormData,
+      body: formData,
     });
 
     if (!response.ok) {
