@@ -46,26 +46,6 @@ public class StudioService {
                 .build();
     }
 
-    public StudioEnterResponseDto enterStudio(Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
-        Recruitment project = recruitmentRepository.findById(projectId).orElseThrow(
-                () -> new NoSuchElementException("해당 프로젝트가 존재하지 않습니다.")
-        );
-
-        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElseThrow(
-                () -> new NoSuchElementException("현재 참가할 수 있는 스튜디오 세션이 존재하지 않습니다.")
-        );
-
-        String token = openViduService.createConnection(studio.getSession());
-
-        return StudioEnterResponseDto.builder()
-                .title(project.getTitle())
-                .script(project.getScript())
-                .token(token)
-                .session(studio.getSession())
-                .script(null)
-                .build();
-    }
-
     public void saveWorkspaceData(Long studioId, String workspaceData, Member member) {
         Studio studio = studioRepository.findById(studioId)
                 .orElseThrow(() -> new EntityNotFoundException("스튜디오를 찾을 수 없습니다."));
