@@ -1,12 +1,12 @@
 "use client";
 
-import { useTimeStore } from "@/app/_store/TimeStore";
-import useBlockStore from "@/app/_store/BlockStore";
-
-import { Block, Track } from "@/app/_types/studio";
 import gsap from "gsap";
-import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "gsap/Draggable";
+import React, { useEffect, useRef, useState } from "react";
+
+import useBlockStore from "@/app/_store/BlockStore";
+import { useTimeStore } from "@/app/_store/TimeStore";
+import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
 
 export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
@@ -14,8 +14,6 @@ export interface AudioBlockProps extends Block {
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
 }
-
-const PX_PER_SECOND = 80; // ✅ 1초 = 80px 변환 기준
 
 gsap.registerPlugin(Draggable);
 
@@ -29,28 +27,30 @@ const AudioBlock = ({
   setTracks,
   timelineRef,
 }: AudioBlockProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const { time, isPlaying } = useTimeStore();
   const { selectedBlock, setSelectedBlock } = useBlockStore();
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const blockRef = useRef<HTMLDivElement | null>(null);
+
+  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const [localStartPoint, setLocalStartPoint] = useState(
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
 
+  // useEffect: 타임라인 내 시작점 업데이트 (자르기 시작 반영한 부분 반영)
   useEffect(() => {
     setLocalStartPoint((file.startPoint + file.trimStart) * PX_PER_SECOND);
   }, [file.startPoint, file.trimStart]);
 
+  // useEffect: 오디오 블록 드래그
   useEffect(() => {
     if (!blockRef.current || !timelineRef.current) return;
 
     const blockElement = blockRef.current;
     const timelineElement = timelineRef.current as HTMLElement;
 
-    // 🎯 개별 블록에 드래그 가능하도록 설정
     const draggable = Draggable.create(blockElement, {
       type: "x",
       bounds: timelineElement,
@@ -84,6 +84,7 @@ const AudioBlock = ({
     };
   }, [setTracks, file.id, timelineRef]);
 
+  // useEffect: 오디오 트랙 시작점 반영
   useEffect(() => {
     if (!audioContext) return;
 
@@ -107,7 +108,7 @@ const AudioBlock = ({
     }
   }, [time, isPlaying, file.startPoint]);
 
-  // 🎵 개별 오디오 파일 재생 함수
+  // playAudio : 개별 오디오 파일 재생 함수
   const playAudio = () => {
     if (!audioContext || audioSourceRef.current) return;
 
@@ -117,33 +118,32 @@ const AudioBlock = ({
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
 
-    // 볼륨 적용
     const gainNode = audioContext.createGain();
     gainNode.gain.value = file.isMuted ? 0 : file.volume;
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    // 속도 적용
     source.playbackRate.value = file.speed;
 
-    // ✅ 원본 오디오의 `trimStart` 부분부터 재생
-    const offset = Math.max(0, time - file.startPoint + file.trimStart); // 타임라인 바 진행 시간 + trimStart를 반영하여 재생
+    const offset = Math.max(0, time - file.startPoint + file.trimStart);
     const duration = Math.max(
       0,
       file.duration - (offset - file.startPoint) - file.trimEnd,
-    ); // 트리밍 반영된 길이
+    );
 
-    // ⏳ 원본 오디오에서 `trimStart`부터 `duration` 길이만큼 재생
     source.start(audioContext.currentTime, offset, duration);
 
-    // 참조 저장하여 중복 재생 방지
     audioSourceRef.current = source;
+
+    source.onended = () => {
+      audioSourceRef.current = null;
+    };
   };
 
-  // ⏹ 개별 오디오 파일 중단 함수
   const stopAudio = () => {
     if (audioSourceRef.current) {
       audioSourceRef.current.stop();
+      audioSourceRef.current.disconnect(); // 연결을 끊어 즉시 정지
       audioSourceRef.current = null;
     }
   };

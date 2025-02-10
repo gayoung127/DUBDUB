@@ -1,3 +1,6 @@
+// 0. PX/S = 80
+export const PX_PER_SECOND = 80;
+
 // 1. 오디오 파일 (AudioFile)
 export interface AudioFile {
   id: string; // 파일 아이디
