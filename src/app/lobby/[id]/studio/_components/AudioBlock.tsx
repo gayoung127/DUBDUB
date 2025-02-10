@@ -52,6 +52,9 @@ const AudioBlock = ({
       type: "x",
       bounds: timelineElement,
       inertia: true,
+      onPress: function () {
+        gsap.set(blockElement, { zIndex: 5 });
+      },
       onDrag: function () {
         const newStartPoint = Math.max(0, Math.round(this.x));
         setLocalStartPoint(newStartPoint);

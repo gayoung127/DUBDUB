@@ -13,13 +13,15 @@ import { useMicStore } from "@/app/_store/MicStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const PlayBar = ({ videoRef }: PlayBarProps) => {
+const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
   const userId = 1; //임시 유저 아이디
   const trackId = 1; //임시 트랙 아이디
   const { time, isPlaying, play, pause, reset } = useTimeStore();
-  const [duration, setDuration] = useState(0);
+
   const {
     isRecording,
     audioContext,
@@ -34,10 +36,26 @@ const PlayBar = ({ videoRef }: PlayBarProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0);
-    }
-  }, [videoRef.current?.duration]);
+    const videoElement = videoRef.current;
+
+    if (!videoElement) return; // videoRef가 아직 설정되지 않았다면 아무것도 하지 않음
+
+    const handleMetadataLoaded = () => {
+      setDuration(videoElement.duration || 0);
+      console.log(
+        "📌 비디오 메타데이터 로드됨, duration:",
+        videoElement.duration,
+      );
+    };
+
+    // 🎯 비디오의 `loadedmetadata` 이벤트를 감지하여 `duration`을 설정
+    videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
+
+    // 🎯 cleanup 함수에서 이벤트 제거
+    return () => {
+      videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
+    };
+  }, [videoRef]);
 
   // 녹음하는 함수
   const handleRecording = async () => {

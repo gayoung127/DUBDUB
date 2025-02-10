@@ -5,15 +5,17 @@ import TimelineMarker from "./TimelineMarker";
 import { formatTime } from "@/app/_utils/formatTime";
 
 interface TimelineProps {
-  totalDuration: number;
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Timeline = ({ totalDuration }: TimelineProps) => {
+const Timeline = ({ duration }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
-  const timelineWidth = totalDuration * 80;
-  const mainTickInterval = timelineWidth / totalDuration;
-  const subTickInterval = mainTickInterval / 10;
+  // ✅ 1초당 80px로 변환
+  const timelineWidth = duration * 80;
+  const mainTickInterval = 80; // ✅ 1초마다 눈금 생성
+  const subTickInterval = mainTickInterval / 10; // ✅ 0.1초마다 작은 눈금 생성
 
   return (
     <div
@@ -34,12 +36,10 @@ const Timeline = ({ totalDuration }: TimelineProps) => {
           overflow: "hidden",
         }}
       >
-        {Array.from({ length: Math.ceil(totalDuration) }).map((_, i) => {
-          const position = Math.round(i * mainTickInterval);
-          if (position > timelineWidth) {
-            return null;
-          }
-
+        {/* ✅ 1초 간격의 주요 눈금 */}
+        {Array.from({ length: duration + 1 }).map((_, i) => {
+          const position = i * mainTickInterval; // ✅ 초 단위 변환
+          if (position > timelineWidth) return null;
           return (
             <div
               key={`main-${i}`}
@@ -56,12 +56,10 @@ const Timeline = ({ totalDuration }: TimelineProps) => {
           );
         })}
 
-        {Array.from({ length: Math.ceil(totalDuration / 0.2) }).map((_, i) => {
-          const position = Math.round(i * subTickInterval);
-          if (position > timelineWidth) {
-            return null;
-          }
-
+        {/* ✅ 0.1초 간격의 서브 눈금 */}
+        {Array.from({ length: duration * 10 }).map((_, i) => {
+          const position = i * subTickInterval; // ✅ 0.1초 단위 변환
+          if (position > timelineWidth) return null;
           return (
             <div
               key={`sub-${i}`}

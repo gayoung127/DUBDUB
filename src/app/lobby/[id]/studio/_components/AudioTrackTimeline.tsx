@@ -14,7 +14,8 @@ const PX_PER_SECOND = 80;
 interface AudioTrackTimelineProps {
   trackId: number;
   files: AudioFile[];
-  totalDuration: number;
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
   waveColor: string;
   blockColor: string;
   audioContext: AudioContext | null;
@@ -25,7 +26,8 @@ interface AudioTrackTimelineProps {
 const AudioTrackTimeline = ({
   trackId,
   files,
-  totalDuration,
+  duration,
+  setDuration,
   waveColor,
   blockColor,
   audioContext,
@@ -258,7 +260,7 @@ const AudioTrackTimeline = ({
       className={`flex h-[60px] min-h-0 flex-shrink-0 flex-row items-center justify-start overflow-y-hidden border border-gray-300 ${
         isOver ? "bg-gray-200" : ""
       }`} // 드롭 시 색상 변경
-      style={{ width: `${totalDuration * 80}px` }}
+      style={{ width: `${duration * 80}px` }}
     >
       <div className="relative flex h-full items-center justify-center">
         {files.map((file, index) => {
