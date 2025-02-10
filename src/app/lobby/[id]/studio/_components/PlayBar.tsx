@@ -36,10 +36,26 @@ const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0);
-    }
-  }, [videoRef.current?.duration]);
+    const videoElement = videoRef.current;
+
+    if (!videoElement) return; // videoRef가 아직 설정되지 않았다면 아무것도 하지 않음
+
+    const handleMetadataLoaded = () => {
+      setDuration(videoElement.duration || 0);
+      console.log(
+        "📌 비디오 메타데이터 로드됨, duration:",
+        videoElement.duration,
+      );
+    };
+
+    // 🎯 비디오의 `loadedmetadata` 이벤트를 감지하여 `duration`을 설정
+    videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
+
+    // 🎯 cleanup 함수에서 이벤트 제거
+    return () => {
+      videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
+    };
+  }, [videoRef]);
 
   // 녹음하는 함수
   const handleRecording = async () => {

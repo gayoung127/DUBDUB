@@ -26,7 +26,7 @@ export default function StudioPage() {
   */
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [session, setSession] = useState<Session | null>(null);
-  const [duration, setDuration] = useState<boolean>(0);
+  const [duration, setDuration] = useState<number>(160);
   const videoRef = useRef<VideoElementWithCapturestream>(null);
 
   if (!studioId) {
@@ -102,7 +102,7 @@ export default function StudioPage() {
               <StudioScript />
             </div>
           </div>
-          <RecordSection />
+          <RecordSection duration={duration} setDuration={setDuration} />
         </div>
         <CursorPresence />
         <WebRTCManager studioId={studioIdString} />

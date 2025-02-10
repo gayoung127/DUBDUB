@@ -105,7 +105,7 @@ export const useRendering = () => {
           mediaRecorder.stop();
           console.log("녹화 종료");
         },
-        Math.min(videoElement.duration, audioElement.duration) * 1000,
+        Math.max(videoElement.duration, audioElement.duration) * 1000,
       );
     } catch (error) {
       console.error(error);

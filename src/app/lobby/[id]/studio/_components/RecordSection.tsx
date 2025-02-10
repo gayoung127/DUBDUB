@@ -18,7 +18,12 @@ import Button from "@/app/_components/Button";
 import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
 import { socket } from "@/app/_utils/socketClient";
 
-const RecordSection = () => {
+interface RecordSectionProps {
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
@@ -205,7 +210,7 @@ const RecordSection = () => {
       <div className="mb-2 flex h-full w-full flex-col items-start justify-start overflow-x-hidden border border-gray-300 bg-gray-400">
         <div className="scrollbar-horizontal overflow-x-scoll mb-2 h-full w-full overflow-y-hidden">
           <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
-            <Timeline totalDuration={160} />
+            <Timeline duration={duration} setDuration={setDuration} />
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
@@ -213,7 +218,8 @@ const RecordSection = () => {
                 key={track.trackId}
                 trackId={track.trackId}
                 files={track.files}
-                totalDuration={160}
+                duration={duration}
+                setDuration={setDuration}
                 waveColor={track.waveColor}
                 blockColor={track.blockColor}
                 audioContext={audioContextRef.current}
