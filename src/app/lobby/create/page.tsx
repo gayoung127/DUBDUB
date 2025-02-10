@@ -56,6 +56,7 @@ export default function Page() {
     try {
       const response = await fetch(`${backendUrl}/recruitment`, {
         method: "POST",
+        credentials: "include",
         body: formData, // Content-Type 자동 설정 (multipart/form-data)
       });
 
