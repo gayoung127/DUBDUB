@@ -15,17 +15,16 @@ export const createSession = async (): Promise<string | null> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failde to create Session: ${response.status}`);
+      throw new Error(`세션 생성 실패: ${response.status}`);
     }
 
-    // const data: string = await response.json();
-    const data: string = await response.text();
+    const data = await response.json();
 
-    console.log("Created session: ", data);
+    console.log("세션 생성 성공: ", data);
 
     return data;
   } catch (error) {
-    console.error("Error creating session: ", error);
+    console.error("세션 생성 오류: ", error);
     return null;
   }
 };
@@ -34,55 +33,38 @@ export const createConnection = async (
   sessionId: string,
 ): Promise<{ token: string } | null> => {
   try {
+    if (!sessionId || typeof sessionId !== "string") {
+      console.error("올바르지 않은 sessionId:", sessionId);
+      return null;
+    }
     console.log(BASE_URL);
     const response = await fetch(
-      `${BASE_URL}/api/openvidu/connections/${sessionId}`,
+      `${BASE_URL}/api/openvidu/connections/${encodeURIComponent(sessionId)}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Basic " + btoa("OPENVIDUAPP:ssafya801"),
         },
+        credentials: "include",
         body: JSON.stringify({}),
       },
     );
 
     if (!response.ok) {
-      throw new Error(`Failed create connection: ${response.status}`);
+      throw new Error(`세션 연결 실패: ${response.status}`);
     }
 
-    const connectionUrl = await response.text();
-    console.log("Created connection: ", connectionUrl);
+    const data = await response.json();
+    console.log("세션 연결 성공: ", data);
 
-    const urlParams = new URLSearchParams(new URL(connectionUrl).search);
-    const token = urlParams.get("token");
-
-    if (!token) {
+    if (!data.token) {
       throw new Error("Token not found in connection URL");
     }
 
-    return { token };
+    return { token: data.token };
   } catch (error) {
-    console.error("Error creating connection: ", error);
-    return null;
-  }
-};
-
-export const connectionToSession = async (sessionId: string, token: string) => {
-  try {
-    const OV = new OpenVidu();
-    const session = OV.initSession();
-
-    console.log("세션 연결 시도");
-    await session.connect(token);
-    console.log("세션 연결 성공");
-
-    session.on("streamCreated", (event) => {
-      const subscriber = session.subscribe(event.stream, undefined);
-      console.log("스트림 구독 완료:", subscriber);
-    });
-
-    return session;
-  } catch (error) {
+    console.error("세션 연결 오류: ", error);
     return null;
   }
 };
@@ -140,7 +122,7 @@ export const testOpenVidu = async (): Promise<string | null> => {
     console.log("토큰:", connectionData.token);
     return connectionData.token;
   } catch (error) {
-    console.error("Error in OpenVidu test:", error);
+    console.error("OpenVidu 테스트 오류:", error);
     return null;
   }
 };

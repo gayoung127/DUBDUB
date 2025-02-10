@@ -17,40 +17,70 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
+import { useParams } from "next/navigation";
+import { testOpenVidu } from "@/app/_apis/openvidu";
 
 export default function StudioPage() {
-  const studioId = "1"; // 임시 studioId
-  const sessionId = "test-session-123"; // 예시 sessionId
+  // const router = useRouter();
+  const { id } = useParams();
+  const studioId = Number(id);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const [sessionId, setSessionId] = useState<string>("");
+  const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
   const videoRef = useRef<VideoElementWithCapturestream>(null);
 
-  if (!studioId) {
-    throw new Error("studioId 없음");
-  }
-  const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
-
   useEffect(() => {
-    if (!studioId) return;
+    if (!studioId) {
+      return;
+    }
+
+    testOpenVidu();
 
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!BASE_URL) return;
 
     setVideoUrl("/examples/zzangu.mp4");
 
-    // 임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
-    /* 
+    /*임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
+    1. 비디오 url
+    2. 역할과 참여자 목록
+    3. 대본
+    4. 그 외 더빙 인포
+    */
     const getStudioInfo = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/studio/info/${studioId}`);
+        const response = await fetch(`${BASE_URL}/project/${studioId}/studio`);
         const data = await response.json();
-        
+
+        if (!data) {
+          console.log("data 없음");
+          return;
+        }
+
+        const sessionId =
+          typeof data.session === "string" ? data.session.trim() : "";
+        const sessionToken =
+          typeof data.token === "string" ? data.token.trim() : "";
+
+        if (!sessionId) {
+          console.log("세션 아이디 없음, 세션 생성 실패");
+          return;
+        }
+
+        if (!sessionToken) {
+          console.log("세션 토큰 없음, 세션 연결 실패");
+          return;
+        }
+
+        setSessionId(sessionId);
+        setSessionToken(sessionToken);
+
         setVideoUrl(data.videoUrl);
       } catch (error) {
         console.error("videoUrl 가져오기 실패: ", error);
       }
     };
-    */
   }, [studioId]);
 
   const { memberId, email, position, profileUrl } = useUserStore();
@@ -123,7 +153,11 @@ export default function StudioPage() {
           <RecordSection duration={duration} setDuration={setDuration} />
         </div>
         <CursorPresence />
-        <WebRTCManager studioId={studioIdString} />
+        <WebRTCManager
+          studioId={studioId}
+          sessionId={sessionId}
+          sessionToken={sessionToken}
+        />
       </div>
     </DndProvider>
   );
