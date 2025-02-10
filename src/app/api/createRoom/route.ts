@@ -12,7 +12,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 요청 본문을 읽어오기
+    // 엔드포인트 추가
+    const fullUrl = `${backendUrl}/recruitment`;
+
+    // 요청 본문 읽기
     const rawBody = await request.text();
 
     // 헤더 변환
@@ -22,7 +25,7 @@ export async function POST(request: Request) {
     });
 
     // 백엔드로 요청 전달
-    const response = await fetch(backendUrl, {
+    const response = await fetch(fullUrl, {
       method: "POST",
       headers,
       body: rawBody,
