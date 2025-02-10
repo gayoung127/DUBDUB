@@ -19,12 +19,11 @@ const Login = () => {
       return;
     }
 
-    const memberIdElement = document.getElementById("memberId");
-    const id = memberIdElement?.textContent || null;
+    const param = new URLSearchParams(window.location.search);
+    const isLogin = param.get("isLogin") === "true" ? true : false;
 
     try {
-      if (id) {
-        setLoggedInUserId(id);
+      if (isLogin) {
         const prevPage = getCookie("prevPage");
         if (prevPage) {
           router.replace(prevPage);
