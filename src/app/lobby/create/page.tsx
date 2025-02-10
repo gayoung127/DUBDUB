@@ -35,13 +35,14 @@ export default function Page() {
     const recruitmentData = {
       title: title,
       content: content,
+      castings: [],
       genreTypes: genreTypes,
       categoryTypes: categoryTypes,
       script: script,
     };
 
     formData.append(
-      "recruitmentData",
+      "requestDTO",
       new Blob([JSON.stringify(recruitmentData)], { type: "application/json" }),
     );
 
@@ -50,14 +51,28 @@ export default function Page() {
       formData.append("video", videoFile);
     }
 
-    try {
-      const result = await getRecruitment(formData); // FormData 전송
-      alert("모집글이 성공적으로 작성되었습니다!");
-      router.replace("/studio");
-    } catch (error) {
-      console.error("Error creating recruitment post:", error);
-      alert("모집글 작성 중 오류가 발생했습니다");
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    const response = await fetch(`${backendUrl}/recruitment`, {
+      method: "POST",
+      body: formData, // Content-Type 자동 설정 (multipart/form-data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`서버 오류: ${response.status}`);
     }
+
+    const result = await response.json();
+    alert("모집글이 성공적으로 작성되었습니다!");
+
+    //   try {
+    //     const result = await getRecruitment(formData); // FormData 전송
+    //     alert("모집글이 성공적으로 작성되었습니다!");
+    //     router.replace("/studio");
+    //   } catch (error) {
+    //     console.error("Error creating recruitment post:", error);
+    //     alert("모집글 작성 중 오류가 발생했습니다");
+    //   }
   };
 
   return (
