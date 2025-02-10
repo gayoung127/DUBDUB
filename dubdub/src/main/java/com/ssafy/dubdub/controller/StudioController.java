@@ -19,21 +19,12 @@ public class StudioController {
 
     private final StudioService studioService;
 
-    @Operation(summary = "[방장] 스튜디오 만들기")
+    @Operation(summary = "스튜디오 입장하기")
     @PostMapping
     public ResponseEntity<StudioEnterResponseDto> createStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Member member = SecurityUtil.getCurrentUser();
 
         StudioEnterResponseDto responseDto = studioService.createStudio(member, projectId);
-
-        return ResponseEntity.ok(responseDto);
-    }
-
-    @Operation(summary = "스튜디오 입장하기")
-    @GetMapping
-    public ResponseEntity<StudioEnterResponseDto> enterStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
-
-        StudioEnterResponseDto responseDto = studioService.enterStudio(projectId);
 
         return ResponseEntity.ok(responseDto);
     }
