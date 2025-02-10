@@ -1,6 +1,7 @@
 export const getRecruitment = async (recruitmentData: FormData) => {
   try {
-    const response = await fetch("/lobby/create", {
+    const response = await fetch("/api/recruitment", {
+      // Next.js API 라우트를 호출
       method: "POST",
       body: recruitmentData,
     });
