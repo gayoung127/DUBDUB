@@ -63,12 +63,16 @@ public class StudioService {
 
         String token = openViduService.createConnection(studio.getSession());
 
+        String latestWorkspaceData = workspaceDataRepository.findLatestWorkspaceData(projectId)
+                .map(WorkspaceData::getWorkspaceData)
+                .orElse(null);
+
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
                 .script(project.getScript())
                 .token(token)
                 .session(studio.getSession())
-                .script(null)
+                .workspaceData(latestWorkspaceData)
                 .build();
     }
 

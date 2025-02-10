@@ -12,4 +12,7 @@ public interface WorkspaceDataRepository extends JpaRepository<WorkspaceData, Lo
     @Modifying
     @Query("SELECT MAX(w.workspaceVersion) FROM WorkspaceData w WHERE w.project.id = :projectId")
     Optional<Integer> findLatestWorkspaceVersion(@Param("projectId") Long projectId);
+    @Query("SELECT w FROM WorkspaceData w WHERE w.project.id = :projectId AND w.workspaceVersion = " +
+            "(SELECT MAX(w2.workspaceVersion) FROM WorkspaceData w2 WHERE w2.project.id = :projectId)")
+    Optional<WorkspaceData> findLatestWorkspaceData(@Param("projectId") Long projectId);
 }
