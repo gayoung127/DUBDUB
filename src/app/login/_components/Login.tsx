@@ -11,14 +11,8 @@ import { getCookie } from "@/app/_utils/getCookie";
 const Login = () => {
   const router = useRouter();
   const { setLoggedInUserId } = useAuthStore();
-  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    if (isFirstRender) {
-      setIsFirstRender(false);
-      return;
-    }
-
     const param = new URLSearchParams(window.location.search);
     const isLogin = param.get("isLogin") === "true" ? true : false;
 
@@ -32,11 +26,11 @@ const Login = () => {
           router.replace("/lobby");
         }
       } else {
-        console.error("로그인 실패");
-        alert("로그인 실패!");
+        // console.error("로그인 실패");
+        alert("로그인을 시도해주세요.");
       }
     } catch (error) {
-      console.error("로그인 에러: ", error);
+      // console.error("로그인 에러: ", error);
       alert("로그인 실패!");
     }
   }, []);
