@@ -79,11 +79,9 @@ public class StudioService {
     }
 
     @Transactional
-    public void saveWorkspaceData(Long studioId, String workspaceData, Member member) {
-        Studio studio = studioRepository.findById(studioId)
-                .orElseThrow(() -> new EntityNotFoundException("스튜디오를 찾을 수 없습니다."));
-
-        Recruitment project = studio.getRecruitment();
+    public void saveWorkspaceData(Long projectId, String workspaceData, Member member) {
+        Recruitment project = recruitmentRepository.findById(projectId)
+                        .orElseThrow(() -> new EntityNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
         validateAuthorization(project, member);
 
         try {

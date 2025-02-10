@@ -30,12 +30,12 @@ public class StudioController {
     }
 
     @Operation(summary = "작업정보 저장", description = "프로젝트의 작업정보를 저장합니다.")
-    @PostMapping("/{sId}/workspace")
-    public ResponseEntity<?> saveWorkspaceData(@PathVariable("sId") Long studioId,
+    @PostMapping("/{pId}/workspace")
+    public ResponseEntity<?> saveWorkspaceData(@PathVariable("pId") Long projectId,
             @RequestBody String workspaceData) {
 
         Member member = SecurityUtil.getCurrentUser();
-        studioService.saveWorkspaceData(studioId, workspaceData, member);
+        studioService.saveWorkspaceData(projectId, workspaceData, member);
         return ResponseEntity.ok().build();
     }
 }
