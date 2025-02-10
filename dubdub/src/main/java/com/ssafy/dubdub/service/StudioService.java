@@ -42,7 +42,7 @@ public class StudioService {
                 .script(project.getScript())
                 .token(token)
                 .session(studio.getSession())
-                .snapShot(null)
+                .snapshot(null)
                 .build();
     }
 
