@@ -20,10 +20,16 @@ import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
 interface RecordSectionProps {
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
-const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
-  const [tracks, setTracks] = useState<Track[]>(initialTracks);
+const RecordSection = ({
+  duration,
+  setDuration,
+  tracks,
+  setTracks,
+}: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
