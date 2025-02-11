@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { socket } from "@/app/_utils/socketClient";
+import { stompClient } from "@/app/_utils/socketClient"; // 변경된 부분
 import Cursor from "./Cursor";
 
 interface CursorData {
@@ -15,8 +15,12 @@ const CursorPresence = () => {
   const [cursors, setCursors] = useState<Record<string, CursorData>>({});
 
   useEffect(() => {
+    const sessionId = "test-session-123"; // 예시 sessionId
+
     // 서버로부터 커서 업데이트 받기
-    socket.on("cursorUpdate", (data: CursorData) => {
+    stompClient.subscribe(`/topic/studio/${sessionId}/cursor`, (message) => {
+      const data: CursorData = JSON.parse(message.body);
+
       setCursors((prev) => ({
         ...prev,
         [data.id]: { id: data.id, x: data.x, y: data.y, name: data.name },
@@ -24,17 +28,22 @@ const CursorPresence = () => {
     });
 
     // 서버로부터 사용자 제거 이벤트 받기
-    socket.on("cursorRemove", (id: string) => {
-      setCursors((prev) => {
-        const updatedCursors = { ...prev };
-        delete updatedCursors[id];
-        return updatedCursors;
-      });
-    });
+    stompClient.subscribe(
+      `/topic/studio/${sessionId}/cursorRemove`,
+      (message) => {
+        const id: string = message.body;
 
+        setCursors((prev) => {
+          const updatedCursors = { ...prev };
+          delete updatedCursors[id];
+          return updatedCursors;
+        });
+      },
+    );
+
+    // 컴포넌트 언마운트 시 구독 해제
     return () => {
-      socket.off("cursorUpdate");
-      socket.off("cursorRemove");
+      stompClient.deactivate();
     };
   }, []);
 
