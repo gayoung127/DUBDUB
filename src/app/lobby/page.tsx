@@ -4,7 +4,7 @@ import Filter from "./_components/Filter";
 import TabMenu from "./_components/TabMenu";
 import Button from "../_components/Button";
 import { useSearchParams } from "next/navigation";
-import DubRoomArea from "./_components/DubRoomArea";
+import WorkSpace from "./_components/WorkSpace";
 import Header from "../_components/Header";
 import { useEffect, useRef, useState } from "react";
 import useFilterStore from "../_store/FilterStore";
@@ -105,11 +105,11 @@ const LobbyPage = () => {
               <div className="flex w-full justify-between border-b border-gray-200 px-5 pb-3">
                 <TabMenu tabs={tabs} />
                 <Button onClick={() => handleCreateRoom()}>
-                  + 더빙룸 생성하기
+                  + 프로젝트 만들기
                 </Button>
               </div>
               <div className="mt-5">
-                <DubRoomArea
+                <WorkSpace
                   dubbingRooms={dubbingRooms}
                   setPage={setPage}
                   isFetching={isFetching}

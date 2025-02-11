@@ -30,12 +30,8 @@ const AudioTrackHeader = ({
   // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
   const [isSolo, setIsSolo] = useState<boolean>(false);
 
+  // --------- 웹소켓 임시 ---------------
   useEffect(() => {
-    console.log("is muted = ", isMuted);
-  }, []);
-
-  useEffect(() => {
-    // 클라이언트 초기 동기화 요청
     console.log(
       `소켓 연결 상태: ${socket.connected ? "연결됨" : "연결되지 않음"}`,
     );
@@ -44,7 +40,6 @@ const AudioTrackHeader = ({
 
     // 서버로부터 초기 트랙 상태 수신
     socket.on("sync-track", (serverTracks: Track[]) => {
-      console.log("📥 초기 트랙 동기화 수신~~:", serverTracks);
       setTracks(serverTracks);
     });
 
@@ -77,7 +72,6 @@ const AudioTrackHeader = ({
       }) => {
         console.log(`📥 트랙 ${soloTrackId} solo 설정 수신`);
         setTracks(updatedTracks); // 전체 트랙 상태 업데이트
-        console.log("updatedTracks = ", updatedTracks);
       },
     );
 
@@ -92,18 +86,16 @@ const AudioTrackHeader = ({
   // 웹소켓으로 뮤트/솔로 제어
   function handleMute() {
     //setIsMuted(!isMuted);
-    console.log("now ismuted ", isMuted);
     const newIsMuted = !isMuted;
-    console.log("new is muted = ", newIsMuted);
     socket.emit("mute-track", { trackId, newIsMuted });
-    console.log(trackId, ", ", isMuted);
   }
 
   function handleSolo() {
     setIsSolo(!isSolo);
     socket.emit("solo-track", { trackId });
-    console.log("solo 호출");
   }
+
+  // ---------------------
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "MEMBER",

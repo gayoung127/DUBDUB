@@ -2,9 +2,15 @@ export const getRoomList = async (queryParams: string) => {
   console.log("query = ", queryParams);
 
   try {
-    const response = await fetch(`/recruitments/list/${queryParams}`, {
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/recruitments/list/?${queryParams}`,
+      {
+        cache: "no-store",
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      },
+    );
 
     const data = await response.json();
 

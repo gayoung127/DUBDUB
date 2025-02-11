@@ -1,25 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import RoomCard from "./RoomCard";
 import H2 from "@/app/_components/H2";
 import H3 from "@/app/_components/H3";
 import Button from "@/app/_components/Button";
 
-interface DubRoomAreaProps {
+interface WorkSpaceProps {
   dubbingRooms: DubbingRoom[];
   setPage: (prev: (prev: number) => number) => void;
   isFetching: boolean;
   isLastPage: boolean;
 }
 
-const DubRoomArea = ({
+const WorkSpace = ({
   dubbingRooms,
   setPage,
   isFetching,
   isLastPage,
-}: DubRoomAreaProps) => {
+}: WorkSpaceProps) => {
   const lastElementRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!lastElementRef.current) {
@@ -64,10 +66,15 @@ const DubRoomArea = ({
         </div>
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-10">
-          <H2>현재 참여할 수 있는 더빙룸이 없습니다.</H2>
-          <H3>더빙룸을 생성하여 사람들을 모아 보세요!</H3>
-          <Button outline onClick={() => {}}>
-            👉 더빙룸 생성하러 가기 👈
+          <H2>나의 작업물이 없습니다.</H2>
+          <H3>프로젝트를 생성하고 친구들을 초대해보세요.</H3>
+          <Button
+            outline
+            onClick={() => {
+              router.push("/lobby/create");
+            }}
+          >
+            👉 프로젝트 만들기 👈
           </Button>
         </div>
       )}
@@ -75,4 +82,4 @@ const DubRoomArea = ({
   );
 };
 
-export default DubRoomArea;
+export default WorkSpace;
