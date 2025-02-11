@@ -1,17 +1,14 @@
 "use client";
 
-import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
+import useStompClient from "@/app/_utils/socketClient";
 import Header from "@/app/_components/Header";
-import { stompClient } from "@/app/_utils/socketClient"; // 변경된 부분
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
-import TeamRole from "./_components/TeamRole";
 import VideoPlayer from "./_components/VideoPlayer";
-import { useEffect, useRef, useState } from "react";
 import WebRTCManager from "./_components/WebRTCManager";
-import { Session } from "openvidu-browser";
 
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -23,13 +20,36 @@ export default function StudioPage() {
   const sessionId = "test-session-123"; // 예시 sessionId
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [duration, setDuration] = useState<number>(160);
-  const videoRef = useRef<VideoElementWithCapturestream>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const stompClientRef = useStompClient(); // STOMP 클라이언트 관리 (이제 CursorPresence에 전달)
 
   if (!studioId) {
     throw new Error("studioId 없음");
   }
-  const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
 
+  const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
+  const { memberId, email, position, profileUrl } = useUserStore();
+
+  // STOMP를 통해 커서 위치 전송 (성능 최적화)
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!stompClientRef.current?.connected) return;
+
+    const x = e.clientX;
+    const y = e.clientY;
+    const name = email || "user123"; // 예시 사용자 ID (이메일 사용)
+
+    stompClientRef.current.publish({
+      destination: `/app/studio/${sessionId}/cursor`,
+      body: JSON.stringify({ x, y, name }),
+    });
+  };
+
+  // 유저 정보 가져오기
+  useEffect(() => {
+    getMyInfo();
+  }, []);
+
+  // 비디오 URL 설정
   useEffect(() => {
     if (!studioId) return;
 
@@ -37,60 +57,7 @@ export default function StudioPage() {
     if (!BASE_URL) return;
 
     setVideoUrl("/examples/zzangu.mp4");
-
-    // 임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
-    /* 
-    const getStudioInfo = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/studio/info/${studioId}`);
-        const data = await response.json();
-        
-        setVideoUrl(data.videoUrl);
-      } catch (error) {
-        console.error("videoUrl 가져오기 실패: ", error);
-      }
-    };
-    */
   }, [studioId]);
-
-  const { memberId, email, position, profileUrl } = useUserStore();
-
-  useEffect(() => {
-    getMyInfo();
-  }, []);
-
-  // STOMP 연결이 완료된 후 publish 호출
-  const handlePointerMove = (e: React.PointerEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const name = "user123"; // 예시 사용자 ID
-
-    if (stompClient.connected) {
-      // STOMP 클라이언트를 사용하여 커서 데이터를 서버로 전송
-      stompClient.publish({
-        destination: `/app/studio/${sessionId}/cursor`, // 커서 이동 전송
-        body: JSON.stringify({ x, y, name }),
-      });
-      console.log("📤 Sent Cursor Data:", { x, y, name });
-    } else {
-      console.log("STOMP client is not connected");
-    }
-  };
-
-  // STOMP 클라이언트 연결 및 설정
-  useEffect(() => {
-    stompClient.connectHeaders = {}; // 연결 헤더 설정
-    stompClient.onConnect = () => {
-      console.log("✅ STOMP WebSocket Connected!");
-    };
-
-    // STOMP 연결 시작
-    stompClient.activate();
-
-    return () => {
-      stompClient.deactivate();
-    };
-  }, []);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -122,7 +89,8 @@ export default function StudioPage() {
           </div>
           <RecordSection duration={duration} setDuration={setDuration} />
         </div>
-        <CursorPresence />
+        {/* STOMP 클라이언트를 CursorPresence로 전달 */}
+        <CursorPresence stompClientRef={stompClientRef} />
         <WebRTCManager studioId={studioIdString} />
       </div>
     </DndProvider>

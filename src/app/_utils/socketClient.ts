@@ -1,23 +1,37 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 
-export const stompClient = new Client({
-  brokerURL: "http://i12a801.p.ssafy.io:8081/ws-studio", // STOMP 서버 URL
-  connectHeaders: {},
-  debug: (str) => {
-    console.log("STOMP Debug:", str); // 디버그 정보 출력
-  },
-  onConnect: () => {
-    console.log("✅ STOMP WebSocket Connected!");
-  },
-  onStompError: (frame) => {
-    console.error("❌ STOMP Broker Error:", frame.headers["message"]);
-  },
-});
+const STOMP_URL = "ws://i12a801.p.ssafy.io:8081/ws-studio"; // STOMP 서버 URL
 
-// "use client";
+const useStompClient = () => {
+  const stompClientRef = useRef<Client | null>(null);
 
-// import { io } from "socket.io-client";
+  useEffect(() => {
+    stompClientRef.current = new Client({
+      brokerURL: STOMP_URL,
+      connectHeaders: {},
+      debug: (str) => console.log("STOMP Debug:", str),
+      onConnect: () => {
+        console.log("✅ STOMP WebSocket Connected!");
+      },
+      onStompError: (frame) => {
+        console.error("❌ STOMP Broker Error:", frame.headers["message"]);
+      },
+    });
 
-// export const socket = io();
+    stompClientRef.current.activate();
+
+    return () => {
+      if (stompClientRef.current?.connected) {
+        stompClientRef.current.deactivate();
+        console.log("🛑 STOMP WebSocket Disconnected");
+      }
+    };
+  }, []);
+
+  return stompClientRef;
+};
+
+export default useStompClient;
