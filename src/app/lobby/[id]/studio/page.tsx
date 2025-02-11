@@ -18,39 +18,46 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
-import { testOpenVidu } from "@/app/_apis/openvidu";
+import { createConnection, createSession } from "@/app/_apis/openvidu";
 
 export default function StudioPage() {
   // const router = useRouter();
   const { id } = useParams();
   const studioId = Number(id);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const [userAudioStreams, setUserAudioStreams] = useState<
+    Record<number, MediaStream>
+  >({});
   const [sessionId, setSessionId] = useState<string>("");
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
   const videoRef = useRef<VideoElementWithCapturestream>(null);
+  const [userId, setUserId] = useState<number>(0);
 
   useEffect(() => {
     if (!studioId) {
       return;
     }
 
-    testOpenVidu();
-
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!BASE_URL) return;
 
     setVideoUrl("/examples/zzangu.mp4");
 
-    /*임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
+    /*studioId를 토대로 더빙 정보를 가져오는 api 필요
     1. 비디오 url
     2. 역할과 참여자 목록
     3. 대본
-    4. 그 외 더빙 인포
     */
     const getStudioInfo = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/project/${studioId}/studio`);
+        const response = await fetch(`${BASE_URL}/project/${studioId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         const data = await response.json();
 
         if (!data) {
@@ -58,6 +65,7 @@ export default function StudioPage() {
           return;
         }
 
+        console.log(data);
         const sessionId =
           typeof data.session === "string" ? data.session.trim() : "";
         const sessionToken =
@@ -76,11 +84,13 @@ export default function StudioPage() {
         setSessionId(sessionId);
         setSessionToken(sessionToken);
 
-        setVideoUrl(data.videoUrl);
+        setUserId(data.member.id);
+        // setVideoUrl(data.videoUrl);
       } catch (error) {
         console.error("videoUrl 가져오기 실패: ", error);
       }
     };
+    getStudioInfo();
   }, [studioId]);
 
   const { memberId, email, position, profileUrl } = useUserStore();
@@ -122,6 +132,10 @@ export default function StudioPage() {
     };
   }, []);
 
+  const handleUserAudioUpodate = (userId: number, stream: MediaStream) => {
+    setUserAudioStreams((prev) => ({ ...prev, [userId]: stream }));
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div
@@ -137,7 +151,7 @@ export default function StudioPage() {
             <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
               <Header />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
-                <StudioSideTab />
+                <StudioSideTab userAudioStreams={userAudioStreams} />
                 <VideoPlayer
                   videoRef={videoRef}
                   videoUrl={videoUrl}
@@ -157,6 +171,8 @@ export default function StudioPage() {
           studioId={studioId}
           sessionId={sessionId}
           sessionToken={sessionToken}
+          onUserAudioUpdate={handleUserAudioUpodate}
+          userId={userId}
         />
       </div>
     </DndProvider>

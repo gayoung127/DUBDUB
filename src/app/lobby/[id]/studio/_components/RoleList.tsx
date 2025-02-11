@@ -40,7 +40,11 @@ const members = [
   },
 ];
 
-const RoleList = () => {
+interface RoleListProps {
+  userAudioStreams: Record<number, MediaStream>;
+}
+
+const RoleList = ({ userAudioStreams }: RoleListProps) => {
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
       <div className="scrollbar flex h-full max-h-[393px] w-full flex-col items-start justify-start gap-y-6 overflow-y-scroll">
@@ -51,6 +55,7 @@ const RoleList = () => {
             name={member.name}
             role={member.role}
             profileImageUrl={member.profileImageUrl}
+            stream={userAudioStreams[member.id]}
           />
         ))}
       </div>
