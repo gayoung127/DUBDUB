@@ -1,6 +1,9 @@
 import React, { useRef } from "react";
 import { AudioFile } from "@/app/_types/studio";
 import { playAudio } from "@/app/_utils/audioUtils";
+import H4 from "@/app/_components/H4";
+import C1 from "@/app/_components/C1";
+import Button from "@/app/_components/Button";
 
 interface VocalRemovalProps {
   context: React.RefObject<AudioContext | null>;
@@ -71,7 +74,7 @@ const VocalRemoval = ({
     }
 
     // 보컬 제거된 버퍼가 있으면 그 버퍼로 재생
-    const bufferToPlay = previewBufferRef.current || audioBuffer;
+    const bufferToPlay = previewBufferRef.current || audioBuffer.current;
 
     if (!bufferToPlay) {
       console.error("❌ 재생할 오디오 버퍼가 없습니다.");
@@ -91,9 +94,23 @@ const VocalRemoval = ({
   };
 
   return (
-    <section>
-      <button onClick={handleVocalRemoval}>보컬 제거</button>
-      <button onClick={() => handlePlay()}>재생</button>
+    <section className="flex h-full w-full flex-col items-center justify-between pb-2 pt-16">
+      <div className="flex w-full flex-col items-start justify-start gap-y-4 rounded-md bg-gray-200 px-3 py-3">
+        <C1 className="text-sm font-normal text-white-200">
+          선택된 오디오 블록
+        </C1>
+        <H4 className="text-base text-white-100">
+          ▶ {selectedBlock ? selectedBlock.id : "선택 없음"}
+        </H4>
+      </div>
+      <div className="flex w-full flex-col items-center justify-start gap-y-3">
+        <Button className="w-full" onClick={handleVocalRemoval}>
+          보컬 제거하기
+        </Button>
+        <Button className="w-full" onClick={handlePlay}>
+          미리 듣기
+        </Button>
+      </div>
     </section>
   );
 };

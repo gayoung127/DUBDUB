@@ -143,11 +143,11 @@ const EffectList = ({ tracks, setTracks }: EffectListProps) => {
   ];
 
   return (
-    <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
+    <div className="h-full min-h-[433px] w-full border border-gray-300 pb-4 pl-4 pr-3 pt-7">
       <div className="scrollbar relative flex h-full max-h-[393px] w-full flex-1 flex-wrap items-start justify-start gap-6 overflow-y-scroll">
         {selectedEffect ? (
-          <div className="h-full w-full">
-            <div className="flex justify-between pb-5">
+          <div className="flex h-full w-full flex-col items-center justify-between">
+            <div className="flex w-full justify-between pb-5">
               <BeforeIcon
                 className="cursor-pointer"
                 onClick={() => {
@@ -158,7 +158,7 @@ const EffectList = ({ tracks, setTracks }: EffectListProps) => {
                 {selectedEffect.name}
               </H2>
 
-              <div></div>
+              <div className="h-4 w-4" />
             </div>
             {selectedEffect.component}
           </div>
