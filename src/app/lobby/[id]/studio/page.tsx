@@ -16,6 +16,7 @@ import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
+import { initialTracks, Track } from "@/app/_types/studio";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -31,6 +32,7 @@ export default function StudioPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [userId, setUserId] = useState<number>(0);
   const { memberId, email, position, profileUrl } = useUserStore();
+  const [tracks, setTracks] = useState<Track[]>(initialTracks);
 
   if (!studioId) {
     throw new Error("studioId 없음");
@@ -167,7 +169,12 @@ export default function StudioPage() {
               <StudioScript />
             </div>
           </div>
-          <RecordSection duration={duration} setDuration={setDuration} />
+          <RecordSection
+            duration={duration}
+            setDuration={setDuration}
+            tracks={tracks}
+            setTracks={setTracks}
+          />
         </div>
         <CursorPresence stompClientRef={stompClientRef} sessionId={sessionId} />
         <WebRTCManager
