@@ -14,5 +14,6 @@ public class StudioEnterResponseDto {
     private final String videoUrl;
     private final String session;
     private final String token;
-    private final ProjectSnapshot snapshot;
+    private final ProjectSnapShot snapShot;
+    private final String workspaceData;
 }

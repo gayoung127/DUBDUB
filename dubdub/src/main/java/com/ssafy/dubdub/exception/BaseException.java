@@ -1,6 +1,9 @@
 package com.ssafy.dubdub.exception;
 
-public class BaseException extends RuntimeException{
+import lombok.Getter;
+
+@Getter
+public class BaseException extends RuntimeException {
     private final ErrorCode errorCode;
 
     public BaseException(ErrorCode errorCode) {
@@ -10,5 +13,9 @@ public class BaseException extends RuntimeException{
 
     public int getStatus() {
         return errorCode.getStatus();
+    }
+
+    public String getMessage() {
+        return errorCode.getMessage();
     }
 }
