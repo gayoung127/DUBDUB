@@ -81,7 +81,7 @@ const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
 
   useEffect(() => {
     console.log("📤 [CLIENT] 트랙 개수를 서버로 동기화 요청:", initialTracks);
-    socket.emit("sync-client-tracks", initialTracks);
+    // socket.emit("sync-client-tracks", initialTracks);
   }, []);
 
   useEffect(() => {
