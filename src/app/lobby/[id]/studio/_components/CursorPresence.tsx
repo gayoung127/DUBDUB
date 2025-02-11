@@ -22,20 +22,22 @@ const CursorPresence: React.FC<CursorPresenceProps> = ({ stompClientRef }) => {
 
   useEffect(() => {
     const stompClient = stompClientRef.current;
-    if (!stompClient || !stompClient.connected) return;
+    if (!stompClient || !stompClient.connected) {
+      console.log("❌ STOMP가 아직 연결되지 않음");
+      return;
+    }
 
     console.log("✅ STOMP 연결 후 커서 구독 시작");
 
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
+      console.log("📥 받은 커서 데이터:", data);
 
       setCursors((prev) => {
         const updatedCursors = { ...prev, [data.id]: data };
-
         if (Object.keys(updatedCursors).length >= 1) {
           setShouldRender(true);
         }
-
         return updatedCursors;
       });
     };
@@ -47,13 +49,16 @@ const CursorPresence: React.FC<CursorPresenceProps> = ({ stompClientRef }) => {
         const updatedCursors = { ...prev };
         delete updatedCursors[id];
 
-        if (Object.keys(updatedCursors).length < 2) {
+        if (Object.keys(updatedCursors).length < 1) {
           setShouldRender(false);
         }
 
         return updatedCursors;
       });
     };
+
+    // ✅ 구독 로그 추가
+    console.log(`📡 커서 구독 주소: /topic/studio/${sessionId}/cursor`);
 
     // 커서 위치 업데이트 구독
     const cursorSubscription = stompClient.subscribe(
