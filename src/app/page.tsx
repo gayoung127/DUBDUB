@@ -13,15 +13,16 @@ export default function MainPage() {
     useState<boolean>(false);
 
   useEffect(() => {
-    // Check if the microphone is available
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then(() => {
-        setMicrophoneConnected(true);
-      })
-      .catch(() => {
-        setMicrophoneConnected(false);
-      });
+    if (typeof window !== "undefined" && navigator.mediaDevices) {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(() => {
+          setMicrophoneConnected(true);
+        })
+        .catch(() => {
+          setMicrophoneConnected(false);
+        });
+    }
   }, []);
 
   return (
