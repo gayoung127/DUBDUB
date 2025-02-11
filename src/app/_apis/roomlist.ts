@@ -3,7 +3,7 @@ export const getRoomList = async (queryParams: string) => {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/recruitments/list/?${queryParams}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/recruitment/list/?${queryParams}`,
       {
         cache: "no-store",
         method: "GET",
