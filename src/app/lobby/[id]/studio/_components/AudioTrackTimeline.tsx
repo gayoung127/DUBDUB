@@ -97,10 +97,10 @@ const AudioTrackTimeline = ({
         files,
       });
 
-      socket.emit("update-track-files", {
-        trackId,
-        updatedFiles: files,
-      });
+      // socket.emit("update-track-files", {
+      //   trackId,
+      //   updatedFiles: files,
+      // });
 
       setTracks((prevTracks) =>
         prevTracks.map((track) => {
