@@ -125,11 +125,9 @@ const AudioBlock = ({
 
     source.playbackRate.value = file.speed;
 
-    const offset = Math.max(0, time - file.startPoint + file.trimStart);
-    const duration = Math.max(
-      0,
-      file.duration - (offset - file.startPoint) - file.trimEnd,
-    );
+    // 🎯 Right block의 경우, trimStart를 정확히 반영해야 함
+    const offset = Math.max(0, file.trimStart);
+    const duration = Math.max(0, file.duration - file.trimStart - file.trimEnd);
 
     source.start(audioContext.currentTime, offset, duration);
 
@@ -140,6 +138,7 @@ const AudioBlock = ({
     };
   };
 
+  // stopAudio : 개별 오디오 파일 즉시 정지 함수
   const stopAudio = () => {
     if (audioSourceRef.current) {
       audioSourceRef.current.stop();
@@ -148,6 +147,7 @@ const AudioBlock = ({
     }
   };
 
+  // useEffect : 모킹 데이터 불러오기
   useEffect(() => {
     const fetchMockAudioBuffer = async () => {
       if (!audioContext) {
@@ -163,13 +163,14 @@ const AudioBlock = ({
     fetchMockAudioBuffer();
   }, []);
 
-  // 파형 시각화
+  // useEffect : 파형 시각화
   useEffect(() => {
     if (audioBuffer) {
       visualizeWaveform();
     }
   }, [audioBuffer]);
 
+  // visualizeWaveForm : 파형 시각화 함수
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !audioBuffer) return;
@@ -200,6 +201,64 @@ const AudioBlock = ({
 
       context.fillRect(i, (1 + min) * amp, 2, Math.max(2, (max - min) * amp));
     }
+  };
+
+  // 🎯 C 키를 눌렀을 때 블록을 두 개로 분할
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "c" && selectedBlock?.id === file.id) {
+        splitBlock();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedBlock]);
+
+  // 🎯 블록을 현재 마커 위치 기준으로 두 개로 나누는 함수
+  const splitBlock = () => {
+    const blockStartX = localStartPoint; // 🎯 블록의 실제 시작 위치 (px)
+    const markerX = time * PX_PER_SECOND; // 🎯 현재 마커 위치 (px)
+
+    // 🎯 마커 기준으로 블록이 왼쪽/오른쪽으로 나뉘는 시간 계산
+    const cutTime = (markerX - blockStartX) / PX_PER_SECOND;
+
+    // 🎯 새로운 블록 생성
+    const newLeftBlock: Block = {
+      file: {
+        ...file,
+        id: `${file.id}-left`,
+        trimStart: file.trimStart, // 기존 trimStart 유지
+        trimEnd: file.duration - cutTime - file.trimStart, // trimEnd 변경 (마커 이후 잘라냄)
+      },
+      width: `${cutTime * PX_PER_SECOND}px`, // 블록 크기 조정
+      waveColor,
+      blockColor,
+    };
+
+    const newRightBlock: Block = {
+      file: {
+        ...file,
+        id: `${file.id}-right`,
+        startPoint: file.startPoint, // 🎯 기존 startPoint 유지
+        trimStart: file.trimStart + cutTime, // 🎯 trimStart 변경 (마커 이전 부분을 잘라내기)
+        trimEnd: file.trimEnd, // 🎯 기존 trimEnd 유지
+      },
+      width: `${(file.duration - cutTime) * PX_PER_SECOND}px`, // 🎯 블록 크기 조정
+      waveColor,
+      blockColor,
+    };
+
+    // 🎯 기존 블록을 삭제하고 새로운 두 블록 추가
+    setTracks((prevTracks) =>
+      prevTracks.map((track) => ({
+        ...track,
+        files: track.files.flatMap((f) =>
+          f.id === file.id ? [newLeftBlock.file, newRightBlock.file] : [f],
+        ),
+      })),
+    );
+
+    console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
   };
 
   return (

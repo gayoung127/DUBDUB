@@ -10,20 +10,30 @@ const Genre = ({ onChange }: GenreProps) => {
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
   const handleBadgeClick = (title: string) => {
-    setSelectedBadge((prev) => (prev === title ? null : title));
+    const newSelection = selectedBadge === title ? null : title; // 같은 배지를 클릭하면 선택 해제
+    setSelectedBadge(newSelection);
+    onChange(newSelection ? [newSelection] : []);
   };
 
   return (
     <div className="p-4">
       <H2 className="mb-2">GENRE</H2>
       <div className="flex flex-wrap gap-2">
-        {["액션", "코믹", "스릴러", "공포", "로맨스", "SF", "일상", "기타"].map(
-          (title) => (
-            <div key={title} onClick={() => handleBadgeClick(title)}>
-              <Badge title={title} selected={selectedBadge === title} />
-            </div>
-          ),
-        )}
+        {[
+          "액션",
+          "코믹",
+          "스릴러",
+          "공포",
+          "로맨스",
+          "SF",
+          "판타지",
+          "일상",
+          "기타",
+        ].map((title) => (
+          <div key={title} onClick={() => handleBadgeClick(title)}>
+            <Badge title={title} selected={selectedBadge === title} />
+          </div>
+        ))}
       </div>
     </div>
   );

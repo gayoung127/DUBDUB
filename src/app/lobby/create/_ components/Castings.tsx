@@ -6,7 +6,7 @@ import DeleteIcon from "@/public/images/icons/icon-delete.svg";
 import { RoleData } from "../type";
 
 interface CastingsProps {
-  onChange: (roles: RoleData[]) => void; // 역할 데이터 변경 시 호출되는 콜백
+  onChange: (roles: string[]) => void; // 역할 데이터 변경 시 호출되는 콜백
 }
 
 export default function Castings({ onChange }: CastingsProps) {
@@ -14,6 +14,7 @@ export default function Castings({ onChange }: CastingsProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newRoleName, setNewRoleName] = useState("");
 
+  // 역할 추가 핸들러
   const handleAddRole = () => {
     if (newRoleName.trim()) {
       const updatedRoles = [
@@ -21,18 +22,25 @@ export default function Castings({ onChange }: CastingsProps) {
         { id: Date.now().toString(), name: newRoleName.trim() },
       ];
       setRoles(updatedRoles);
-      onChange(updatedRoles); // 상위 컴포넌트로 변경된 역할 데이터 전달
+
+      // name만 포함된 배열을 상위 컴포넌트로 전달
+      const namesOnly = updatedRoles.map((role) => role.name);
+      onChange(namesOnly);
+
       setNewRoleName("");
       setIsAdding(false);
     }
   };
 
+  // 역할 삭제 핸들러
   const handleDeleteRole = (id: string) => {
     const updatedRoles = roles.filter((role) => role.id !== id);
     setRoles(updatedRoles);
-    onChange(updatedRoles); // 상위 컴포넌트로 변경된 역할 데이터 전달
-  };
 
+    // name만 포함된 배열을 상위 컴포넌트로 전달
+    const namesOnly = updatedRoles.map((role) => role.name);
+    onChange(namesOnly);
+  };
   return (
     <section className="mb-2 p-4">
       <H2 className="mb-2">ROLE</H2>
