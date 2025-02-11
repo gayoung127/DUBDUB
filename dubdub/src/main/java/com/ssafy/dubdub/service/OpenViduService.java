@@ -1,12 +1,15 @@
 package com.ssafy.dubdub.service;
 
 import io.openvidu.java.client.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class OpenViduService {
@@ -15,7 +18,7 @@ public class OpenViduService {
     private final SessionProperties sessionProperties;
     private final ConnectionProperties connectionProperties;
 
-    private final Map<String, Session> activeSessions = new HashMap<>();
+    private final ConcurrentHashMap<String, Session> activeSessions = new ConcurrentHashMap<>();
 
     public String createSession() throws OpenViduJavaClientException, OpenViduHttpException {
 
