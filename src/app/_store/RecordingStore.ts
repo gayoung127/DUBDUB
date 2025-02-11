@@ -24,11 +24,11 @@ export const useRecordingStore = create<RecordingStore>((set) => ({
   mediaRecorder: null,
   audioContext: null,
   analyser: null,
-  createAudioFile: (userId, url, startPoint) =>
+  createAudioFile: (trackId, url, startPoint) =>
     set((state) => {
       const updatedAudioFiles = {
         ...state.audioFiles,
-        [userId]: [...(state.audioFiles[userId] || []), url],
+        [trackId]: [...(state.audioFiles[trackId] || []), url],
       };
       const startTimeMap = {
         ...state.offsetMap,
