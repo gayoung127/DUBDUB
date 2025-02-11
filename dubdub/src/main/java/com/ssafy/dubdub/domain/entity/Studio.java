@@ -14,7 +14,7 @@ public class Studio extends Timestamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruitment_id", insertable = false, updatable = false)
+    @JoinColumn(name = "recruitment_id")
     private Recruitment recruitment;
 
     @Column(nullable = false)
