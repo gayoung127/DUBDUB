@@ -203,26 +203,12 @@ const AudioBlock = ({
     }
   };
 
-  // 🎯 C 키를 눌렀을 때 블록을 두 개로 분할
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === "c" && selectedBlock?.id === file.id) {
-        splitBlock();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedBlock]);
-
-  // 🎯 블록을 현재 마커 위치 기준으로 두 개로 나누는 함수
+  // splitBlock : 블록 자르기 기능
   const splitBlock = () => {
-    const blockStartX = localStartPoint; // 🎯 블록의 실제 시작 위치 (px)
-    const markerX = time * PX_PER_SECOND; // 🎯 현재 마커 위치 (px)
+    const blockStartX = localStartPoint; // 블록의 실제 시작 위치 (px)
+    const markerX = time * PX_PER_SECOND; // 현재 마커 위치 (px)
+    const cutTime = (markerX - blockStartX) / PX_PER_SECOND; // 마커 기준으로 블록이 왼쪽/오른쪽으로 나뉘는 시간 계산
 
-    // 🎯 마커 기준으로 블록이 왼쪽/오른쪽으로 나뉘는 시간 계산
-    const cutTime = (markerX - blockStartX) / PX_PER_SECOND;
-
-    // 🎯 새로운 블록 생성
     const newLeftBlock: Block = {
       file: {
         ...file,
@@ -239,11 +225,11 @@ const AudioBlock = ({
       file: {
         ...file,
         id: `${file.id}-right`,
-        startPoint: file.startPoint, // 🎯 기존 startPoint 유지
-        trimStart: file.trimStart + cutTime, // 🎯 trimStart 변경 (마커 이전 부분을 잘라내기)
-        trimEnd: file.trimEnd, // 🎯 기존 trimEnd 유지
+        startPoint: file.startPoint, // 기존 startPoint 유지
+        trimStart: file.trimStart + cutTime, // trimStart 변경 (마커 이전 부분을 잘라내기)
+        trimEnd: file.trimEnd, // 기존 trimEnd 유지
       },
-      width: `${(file.duration - cutTime) * PX_PER_SECOND}px`, // 🎯 블록 크기 조정
+      width: `${(file.duration - cutTime) * PX_PER_SECOND}px`, // 블록 크기 조정
       waveColor,
       blockColor,
     };
@@ -260,6 +246,32 @@ const AudioBlock = ({
 
     console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
   };
+
+  // useEffect : 오디오 블록 키보드 이벤트
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // c : 자르기 기능
+      if (event.key.toLowerCase() === "c" && selectedBlock?.id === file.id) {
+        splitBlock();
+      }
+
+      // delete : 오디오 블록 삭제 기능
+      if (
+        event.key.toLowerCase() === "delete" &&
+        selectedBlock?.id === file.id
+      ) {
+        setTracks((prevTracks) =>
+          prevTracks.map((track) => ({
+            ...track,
+            files: track.files.filter((f) => f.id !== file.id),
+          })),
+        );
+        console.log("✅ 블록이 삭제되었습니다!", file.id);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedBlock]);
 
   return (
     <div
