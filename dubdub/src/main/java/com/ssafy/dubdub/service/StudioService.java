@@ -1,13 +1,13 @@
 package com.ssafy.dubdub.service;
 
 import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
+import com.ssafy.dubdub.domain.entity.File;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.domain.entity.Recruitment;
 import com.ssafy.dubdub.domain.entity.Studio;
+import com.ssafy.dubdub.enums.FileType;
+import com.ssafy.dubdub.repository.*;
 import com.ssafy.dubdub.domain.entity.WorkspaceData;
-import com.ssafy.dubdub.repository.RecruitmentRepository;
-import com.ssafy.dubdub.repository.StudioRepository;
-import com.ssafy.dubdub.repository.WorkspaceDataRepository;
 import io.openvidu.java.client.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -25,43 +27,29 @@ public class StudioService {
     private final OpenViduService openViduService;
     private final RecruitmentRepository recruitmentRepository;
     private final StudioRepository studioRepository;
+    private final FileRepository fileRepository;
+    private final CastingRepository castingRepository;
     private final WorkspaceDataRepository workspaceDataRepository;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
-
         Recruitment project = recruitmentRepository.findById(projectId).orElseThrow(
                 () -> new NoSuchElementException("해당 프로젝트가 존재하지 않습니다.")
         );
 
-        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElse(
-            new Studio(project, openViduService.createSession())
-        );
+        List<String> roleList = castingRepository.findRoleNameListByRecruitmentId(projectId);
 
-        String token = openViduService.createConnection(studio.getSession());
+        Optional<File> video = fileRepository.findByRecruitmentIdAndFileType(projectId, FileType.ORIGINAL_VIDEO);
+        String videoUrl = video.map(File::getUrl).orElse(null);
 
-        studioRepository.save(studio);
-
-        String latestWorkspaceData = workspaceDataRepository.findLatestWorkspaceData(projectId)
-                .map(WorkspaceData::getWorkspaceData)
-                .orElse(null);
-
-        return StudioEnterResponseDto.builder()
-                .title(project.getTitle())
-                .script(project.getScript())
-                .token(token)
-                .session(studio.getSession())
-                .workspaceData(latestWorkspaceData)
-                .build();
-    }
-
-    public StudioEnterResponseDto enterStudio(Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
-        Recruitment project = recruitmentRepository.findById(projectId).orElseThrow(
-                () -> new NoSuchElementException("해당 프로젝트가 존재하지 않습니다.")
-        );
-
-        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId).orElseThrow(
-                () -> new NoSuchElementException("현재 참가할 수 있는 스튜디오 세션이 존재하지 않습니다.")
-        );
+        Studio studio = studioRepository.findFirstByRecruitmentIdAndIsClosedIsFalse(projectId)
+                .orElseGet(() -> {
+                    try {
+                        Studio newStudio = new Studio(project, openViduService.createSession());
+                        return studioRepository.save(newStudio);
+                    } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+                        throw new RuntimeException("OpenVidu 세션 생성 중 오류 발생", e);
+                    }
+                });
 
         String token = openViduService.createConnection(studio.getSession());
 
@@ -72,6 +60,8 @@ public class StudioService {
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
                 .script(project.getScript())
+                .videoUrl(videoUrl)
+                .roleList(roleList)
                 .token(token)
                 .session(studio.getSession())
                 .workspaceData(latestWorkspaceData)

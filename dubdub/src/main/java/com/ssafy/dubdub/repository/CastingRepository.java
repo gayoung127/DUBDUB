@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CastingRepository extends JpaRepository<Casting, Long> {
+public interface CastingRepository extends JpaRepository<Casting, Long>, CastingRepositoryCustom {
     Optional<Casting> findByIdAndRecruitmentId(Long castingId, Long recruitmentId);
 }

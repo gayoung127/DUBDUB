@@ -1,9 +1,12 @@
 package com.ssafy.dubdub.repository;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
+import com.ssafy.dubdub.domain.dto.RecruitmentWithVideoDto;
 import com.ssafy.dubdub.domain.entity.*;
+import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.enums.ParticipationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -99,4 +102,26 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
                 })
                 .orElse(null);
     }
+
+    @Override
+    public Optional<RecruitmentWithVideoDto> findRecruitmentWithVideo(Long recruitmentId) {
+        QRecruitment recruitment = QRecruitment.recruitment;
+        QFile file = QFile.file;
+
+        Tuple result = queryFactory
+                .select(recruitment, file.url)
+                .from(recruitment)
+                .leftJoin(file).on(file.recruitment.id.eq(recruitment.id)
+                        .and(file.fileType.eq(FileType.ORIGINAL_VIDEO)))
+                .where(recruitment.id.eq(recruitmentId))
+                .fetchOne();
+
+        if (result == null) return Optional.empty();
+
+        return Optional.of(new RecruitmentWithVideoDto(
+                result.get(recruitment),
+                result.get(file.url)
+        ));
+    }
+
 }
