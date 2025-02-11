@@ -64,7 +64,6 @@ public class StudioService {
                 .roleList(roleList)
                 .token(token)
                 .session(studio.getSession())
-                .snapshot(null)
                 .workspaceData(latestWorkspaceData)
                 .build();
     }
