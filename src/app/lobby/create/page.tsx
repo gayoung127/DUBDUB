@@ -21,10 +21,14 @@ export default function Page() {
   const [script, setScript] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // 기본 폼 제출 동작 방지
+
+    if (isSubmitting) return; // 이미 제출 중이라면 함수 종료
+    setIsSubmitting(true); // 제출 상태로 변경
 
     // 모든 상태 출력
     console.log("title:", title);
@@ -74,9 +78,10 @@ export default function Page() {
       }
 
       const result = await response.json();
+      const id = result.id; // 서버 응답에서 id 추출
       alert("모집글이 성공적으로 작성되었습니다!");
 
-      router.replace("/studio");
+      router.replace(`/lobby/${id}/studio`);
     } catch (error) {
       console.error("Error creating recruitment post:", error);
       alert("모집글 작성 중 오류가 발생했습니다.");
@@ -131,6 +136,7 @@ export default function Page() {
           <Button
             outline={false}
             large={true}
+            disabled={isSubmitting}
             onClick={() => {
               const form = document.querySelector("form");
               if (form) {
@@ -138,6 +144,7 @@ export default function Page() {
               }
             }}
           >
+            {isSubmitting ? "제출중" : "생성하기"}
             생성하기
           </Button>
         </div>
