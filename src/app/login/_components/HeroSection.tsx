@@ -17,9 +17,8 @@ const HeroSection = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((stream) => {
+    if (typeof window !== "undefined" && navigator.mediaDevices) {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         audioContextRef.current = new AudioContext();
         const audioContext = audioContextRef.current;
         const source = audioContext.createMediaStreamSource(stream);
@@ -69,6 +68,7 @@ const HeroSection = () => {
 
         drawParticles();
       });
+    }
 
     return () => {
       if (animationFrameRef.current)
