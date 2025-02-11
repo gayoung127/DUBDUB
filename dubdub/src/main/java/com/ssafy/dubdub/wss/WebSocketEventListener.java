@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.wss.controller;
+package com.ssafy.dubdub.wss;
 
 import com.ssafy.dubdub.util.SecurityUtil;
 import com.ssafy.dubdub.wss.dto.UserSession;
