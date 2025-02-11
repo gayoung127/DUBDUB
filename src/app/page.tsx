@@ -7,7 +7,7 @@ import MicrophoneCheck from "@/app/login/_components/MicrophoneCheck";
 
 export default function MainPage() {
   return (
-    <main className="relative flex h-screen w-full flex-row items-start justify-start overflow-y-hidden bg-[#000000]">
+    <main className="relative flex h-full w-full flex-row items-start justify-start overflow-y-hidden bg-[#000000]">
       <HeroSection />
       <Login />
       <MicrophoneCheck />
