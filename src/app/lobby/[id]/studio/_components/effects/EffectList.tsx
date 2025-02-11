@@ -9,13 +9,18 @@ import { initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
 import { audioBufferToArrayBuffer } from "@/app/_utils/audioBufferToMp3";
+import VocalRemoval from "./VocalRemoval";
 // import {
 //   audioBufferToMp3,
 //   audioBufferToWebm,
 // } from "@/app/_utils/audioBufferToMp3";
 
-const EffectList = () => {
-  const [tracks, setTracks] = useState(initialTracks);
+interface EffectListProps {
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+}
+
+const EffectList = ({ tracks, setTracks }: EffectListProps) => {
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -29,21 +34,30 @@ const EffectList = () => {
   useEffect(() => {
     async function loadAudio() {
       if (!audioContextRef.current) {
+        console.error("❌ AudioContext가 없습니다.");
         return;
       }
 
       const file = selectedBlock;
       if (!file) {
-        alert("먼저 오디오 블럭을 선택해주세요.");
+        console.error("❌ 선택된 오디오 블럭이 없습니다.");
         return;
       }
-      const response = await fetch(file.url);
-      const arrayBuffer = await response.arrayBuffer();
-      audioBuffer.current =
-        await audioContextRef.current.decodeAudioData(arrayBuffer);
+
+      console.log("📂 오디오 파일 로드 시작:", file.url);
+
+      try {
+        const response = await fetch(file.url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer.current =
+          await audioContextRef.current.decodeAudioData(arrayBuffer);
+        console.log("✅ 오디오 디코딩 완료:", audioBuffer.current);
+      } catch (error) {
+        console.error("🚨 오디오 파일 로드 실패:", error);
+      }
     }
     loadAudio();
-  }, []);
+  }, [selectedBlock]);
 
   useEffect(() => {
     if (selectedEffect && activeSourceRef.current) {
@@ -115,14 +129,25 @@ const EffectList = () => {
         />
       ),
     },
+    {
+      name: "보컬 제거",
+      component: (
+        <VocalRemoval
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+          selectedBlock={selectedBlock}
+        />
+      ),
+    },
   ];
 
   return (
-    <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
+    <div className="h-full min-h-[433px] w-full border border-gray-300 pb-4 pl-4 pr-3 pt-7">
       <div className="scrollbar relative flex h-full max-h-[393px] w-full flex-1 flex-wrap items-start justify-start gap-6 overflow-y-scroll">
         {selectedEffect ? (
-          <div className="h-full w-full">
-            <div className="flex justify-between pb-5">
+          <div className="flex h-full w-full flex-col items-center justify-between">
+            <div className="flex w-full justify-between pb-5">
               <BeforeIcon
                 className="cursor-pointer"
                 onClick={() => {
@@ -133,7 +158,7 @@ const EffectList = () => {
                 {selectedEffect.name}
               </H2>
 
-              <div></div>
+              <div className="h-4 w-4" />
             </div>
             {selectedEffect.component}
           </div>

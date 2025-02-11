@@ -6,12 +6,19 @@ import H4 from "@/app/_components/H4";
 import AssetList from "./AssetList";
 import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
+import { Track } from "@/app/_types/studio";
 
 interface StudioSideTabProps {
   userAudioStreams: Record<number, MediaStream>;
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
-const StudioSideTab = ({ userAudioStreams }: StudioSideTabProps) => {
+const StudioSideTab = ({
+  userAudioStreams,
+  tracks,
+  setTracks,
+}: StudioSideTabProps) => {
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(
     "asset",
   );
@@ -51,7 +58,9 @@ const StudioSideTab = ({ userAudioStreams }: StudioSideTabProps) => {
 
       {activeTab === "role" && <RoleList userAudioStreams={userAudioStreams} />}
       {activeTab === "asset" && <AssetList />}
-      {activeTab === "effect" && <EffectList />}
+      {activeTab === "effect" && (
+        <EffectList tracks={tracks} setTracks={setTracks} />
+      )}
     </section>
   );
 };
