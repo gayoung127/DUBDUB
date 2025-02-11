@@ -7,10 +7,12 @@ import com.ssafy.dubdub.domain.entity.Recruitment;
 import com.ssafy.dubdub.domain.entity.Studio;
 import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.repository.*;
+import com.ssafy.dubdub.domain.entity.WorkspaceData;
 import io.openvidu.java.client.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class StudioService {
     private final StudioRepository studioRepository;
     private final FileRepository fileRepository;
     private final CastingRepository castingRepository;
+    private final WorkspaceDataRepository workspaceDataRepository;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Recruitment project = recruitmentRepository.findById(projectId).orElseThrow(
@@ -50,6 +53,10 @@ public class StudioService {
 
         String token = openViduService.createConnection(studio.getSession());
 
+        String latestWorkspaceData = workspaceDataRepository.findLatestWorkspaceData(projectId)
+                .map(WorkspaceData::getWorkspaceData)
+                .orElse(null);
+
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
                 .script(project.getScript())
@@ -58,14 +65,31 @@ public class StudioService {
                 .token(token)
                 .session(studio.getSession())
                 .snapshot(null)
+                .workspaceData(latestWorkspaceData)
                 .build();
     }
 
-    public void saveWorkspaceData(Long studioId, String workspaceData, Member member) {
-        Studio studio = studioRepository.findById(studioId)
-                .orElseThrow(() -> new EntityNotFoundException("스튜디오를 찾을 수 없습니다."));
+    @Transactional
+    public void saveWorkspaceData(Long projectId, String workspaceData, Member member) {
+        Recruitment project = recruitmentRepository.findById(projectId)
+                        .orElseThrow(() -> new EntityNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
+        validateAuthorization(project, member);
 
-        Recruitment recruitment = studio.getRecruitment();
-        recruitment.updateWorkspaceData(workspaceData);
+        try {
+            WorkspaceData newVersion = WorkspaceData.builder()
+                    .project(project)
+                    .workspaceData(workspaceData)
+                    .build();
+
+            workspaceDataRepository.save(newVersion);
+        } catch (Exception e) {
+            throw new RuntimeException("작업 내용 저장에 실패했습니다.", e);
+        }
+    }
+
+    private void validateAuthorization(Recruitment project, Member currentUser) {
+        if (!project.getAuthor().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("작업정보 접근 권한이 없습니다.");
+        }
     }
 }
