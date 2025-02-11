@@ -150,6 +150,7 @@ const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
     const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
       track.files.map((file) => ({
         file,
+        isMuted: true,
         audioBuffers: audioBuffersRef.current,
         audioContext: audioContextRef.current,
         setTracks,
@@ -195,6 +196,7 @@ const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
             {tracks.map((track) => (
               <AudioTrackHeader
                 key={track.trackId}
+                isMuted={track.isMuted ?? false}
                 trackId={track.trackId}
                 recorderId={track.recorderId}
                 recorderName={track.recorderName}
@@ -217,6 +219,7 @@ const RecordSection = ({ duration, setDuration }: RecordSectionProps) => {
               <AudioTrackTimeline
                 key={track.trackId}
                 trackId={track.trackId}
+                isMuted={track.isMuted ?? false}
                 files={track.files}
                 duration={duration}
                 setDuration={setDuration}

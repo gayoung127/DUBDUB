@@ -97,3 +97,58 @@ function writeString(view: DataView, offset: number, str: string) {
     view.setUint8(offset + i, str.charCodeAt(i));
   }
 }
+
+export function audioBufferToArrayBuffer(
+  audioBuffer: AudioBuffer,
+): ArrayBuffer {
+  const numOfChannels = audioBuffer.numberOfChannels; // 채널 수 (예: 스테레오 = 2)
+  const sampleRate = audioBuffer.sampleRate; // 샘플 레이트 (예: 44100)
+  const format = 1; // PCM 형식 (Linear PCM)
+  const bitDepth = 16; // 16비트 오디오
+
+  // WAV 헤더를 포함한 총 길이 계산
+  const totalLength = 44 + audioBuffer.length * numOfChannels * (bitDepth / 8);
+  const arrayBuffer = new ArrayBuffer(totalLength);
+  const view = new DataView(arrayBuffer);
+
+  // Helper 함수들
+  const writeString = (offset: number, str: string): void => {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  };
+  const writeUint16 = (offset: number, data: number): void => {
+    view.setUint16(offset, data, true); // Little-endian
+  };
+  const writeUint32 = (offset: number, data: number): void => {
+    view.setUint32(offset, data, true); // Little-endian
+  };
+
+  // WAV 헤더 작성
+  writeString(0, "RIFF"); // ChunkID
+  writeUint32(4, totalLength - 8); // ChunkSize
+  writeString(8, "WAVE"); // Format
+  writeString(12, "fmt "); // Subchunk1ID
+  writeUint32(16, 16); // Subchunk1Size (PCM = 16)
+  writeUint16(20, format); // AudioFormat (PCM = 1)
+  writeUint16(22, numOfChannels); // NumChannels
+  writeUint32(24, sampleRate); // SampleRate
+  writeUint32(28, sampleRate * numOfChannels * (bitDepth / 8)); // ByteRate
+  writeUint16(32, numOfChannels * (bitDepth / 8)); // BlockAlign
+  writeUint16(34, bitDepth); // BitsPerSample
+  writeString(36, "data"); // Subchunk2ID
+  writeUint32(40, audioBuffer.length * numOfChannels * (bitDepth / 8)); // Subchunk2Size
+
+  // 오디오 데이터 작성
+  let offset = 44;
+  for (let i = 0; i < audioBuffer.length; i++) {
+    for (let channel = 0; channel < numOfChannels; channel++) {
+      const sample = audioBuffer.getChannelData(channel)[i];
+      const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7fff; // 16비트 PCM으로 변환
+      view.setInt16(offset, intSample, true); // Little-endian
+      offset += 2;
+    }
+  }
+
+  return arrayBuffer;
+}

@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import { Track } from "@/app/_types/studio";
 import Image from "next/image";
+import { socket } from "@/app/_utils/socketClient";
 
 interface AudioTrackHeaderProps {
   trackId: number;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 
+  isMuted: boolean;
   recorderId?: number;
   recorderName?: string;
   recorderRole?: string;
@@ -17,6 +19,7 @@ interface AudioTrackHeaderProps {
 
 const AudioTrackHeader = ({
   trackId,
+  isMuted,
   setTracks,
   recorderId,
   recorderName,
@@ -24,6 +27,75 @@ const AudioTrackHeader = ({
   recorderProfileUrl,
 }: AudioTrackHeaderProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
+  const [isSolo, setIsSolo] = useState<boolean>(false);
+
+  // --------- 웹소켓 임시 ---------------
+  useEffect(() => {
+    console.log(
+      `소켓 연결 상태: ${socket.connected ? "연결됨" : "연결되지 않음"}`,
+    );
+
+    socket.emit("sync-client-tracks", []); // 빈 배열로 동기화 요청
+
+    // 서버로부터 초기 트랙 상태 수신
+    socket.on("sync-track", (serverTracks: Track[]) => {
+      setTracks(serverTracks);
+    });
+
+    // mute-track 이벤트 수신
+    socket.on(
+      "track-muted",
+      ({ trackId, newIsMuted }: { trackId: number; newIsMuted: boolean }) => {
+        console.log(`📥 트랙 ${trackId}의 mute 상태 업데이트: ${newIsMuted}`);
+        setTracks((prevTracks) =>
+          prevTracks.map((track) =>
+            track.trackId === trackId
+              ? { ...track, isMuted: newIsMuted }
+              : track,
+          ),
+        );
+
+        //setIsMuted(newIsMuted);
+      },
+    );
+
+    // solo-track 이벤트 수신
+    socket.on(
+      "track-solo",
+      ({
+        soloTrackId,
+        updatedTracks,
+      }: {
+        soloTrackId: number;
+        updatedTracks: Track[];
+      }) => {
+        console.log(`📥 트랙 ${soloTrackId} solo 설정 수신`);
+        setTracks(updatedTracks); // 전체 트랙 상태 업데이트
+      },
+    );
+
+    // 클린업: 컴포넌트 언마운트 시 소켓 이벤트 제거
+    return () => {
+      socket.off("sync-track");
+      socket.off("track-muted");
+      socket.off("track-solo");
+    };
+  }, []);
+
+  // 웹소켓으로 뮤트/솔로 제어
+  function handleMute() {
+    //setIsMuted(!isMuted);
+    const newIsMuted = !isMuted;
+    socket.emit("mute-track", { trackId, newIsMuted });
+  }
+
+  function handleSolo() {
+    setIsSolo(!isSolo);
+    socket.emit("solo-track", { trackId });
+  }
+
+  // ---------------------
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "MEMBER",
@@ -81,13 +153,16 @@ const AudioTrackHeader = ({
           </div>
         )}
 
-        <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-white-100">
-          <span className="text-xs font-bold text-gray-400">E</span>
-        </div>
-        <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-white-100">
+        <div
+          className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm ${isMuted ? "bg-green-500" : "bg-white-100"}`}
+          onClick={handleMute}
+        >
           <span className="text-xs font-bold text-gray-400">M</span>
         </div>
-        <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-white-100">
+        <div
+          className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm ${isSolo ? "bg-orange-400" : "bg-white-100"}`}
+          onClick={handleSolo}
+        >
           <span className="text-xs font-bold text-gray-400">S</span>
         </div>
       </div>

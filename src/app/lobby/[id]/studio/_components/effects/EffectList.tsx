@@ -8,7 +8,11 @@ import Button from "@/app/_components/Button";
 import { initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
-import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
+import { audioBufferToArrayBuffer } from "@/app/_utils/audioBufferToMp3";
+// import {
+//   audioBufferToMp3,
+//   audioBufferToWebm,
+// } from "@/app/_utils/audioBufferToMp3";
 
 const EffectList = () => {
   const [tracks, setTracks] = useState(initialTracks);
@@ -67,28 +71,17 @@ const EffectList = () => {
 
   async function saveAsAssets() {
     if (!audioBuffer.current || !selectedBlock) {
+      console.log("먼저 오디오 블럭을 선택해주세요");
       return;
     }
 
-    // 추후 에셋 추가 기능 구현.
-    const newBlob = await audioBufferToMp3(audioBuffer.current);
-    const newFile = new File([newBlob], selectedBlock.url, {
-      type: newBlob.type,
-    });
+    // 에셋 저장 로직
 
-    const getTrackIdByFileId = (
-      fileId: string,
-      tracks: Track[],
-    ): number | null => {
-      for (const track of tracks) {
-        if (track.files.some((file) => file.id === fileId)) {
-          return track.trackId;
-        }
-      }
-      return null;
-    };
-
-    const trackId = getTrackIdByFileId(selectedBlock.id, initialTracks);
+    // audio buffer를 array buffer 로 변환 후 서버로 보내기.
+    const arrayBuffer = audioBufferToArrayBuffer(audioBuffer.current);
+    console.log("array buffer = ", arrayBuffer);
+    // 소켓에서 이 arraybuffer 클라이언트들에게 뿌리기
+    // mp3로 변환해서 에셋에 저장
   }
 
   const effects = [

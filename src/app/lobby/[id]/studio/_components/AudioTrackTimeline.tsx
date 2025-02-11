@@ -11,6 +11,7 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 
 interface AudioTrackTimelineProps {
   trackId: number;
+  isMuted: boolean;
   files: AudioFile[];
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
@@ -23,6 +24,7 @@ interface AudioTrackTimelineProps {
 
 const AudioTrackTimeline = ({
   trackId,
+  isMuted, // 트랙별 음소거 여부부
   files,
   duration,
   setDuration,
@@ -166,7 +168,7 @@ const AudioTrackTimeline = ({
               trimStart: 0,
               trimEnd: 0,
               volume: 1,
-              isMuted: false,
+              isMuted: isMuted,
               speed: 1,
             };
           }),
@@ -235,7 +237,7 @@ const AudioTrackTimeline = ({
                     trimStart: 0,
                     trimEnd: 0,
                     volume: 1,
-                    isMuted: false,
+                    isMuted: false, // 기본 false
                     speed: 1,
                   },
                 ],
@@ -272,7 +274,7 @@ const AudioTrackTimeline = ({
               className="relative flex items-center justify-start"
             >
               <AudioBlock
-                file={file}
+                file={{ ...file, isMuted: isMuted }} // 추가
                 width={width}
                 waveColor={waveColor}
                 blockColor={blockColor}
