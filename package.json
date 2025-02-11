@@ -17,6 +17,7 @@
     "@react-three/fiber": "^9.0.0-rc.7",
     "@scena/react-ruler": "^0.19.0",
     "@scena/ruler": "^0.20.0",
+    "@stomp/stompjs": "^7.0.0",
     "@types/three": "^0.173.0",
     "@wavesurfer/react": "^1.0.8",
     "audio-encoder": "^1.0.4",
