@@ -11,7 +11,16 @@ import C1 from "@/app/_components/C1";
 
 import { scripts } from "@/app/_temp/temp_scripts";
 
-const StudioScript = () => {
+interface StudioScriptProps {
+  script: {
+    id: number;
+    text: string;
+    timestamp: number;
+    role: string;
+  }[];
+}
+
+const StudioScript = ({ script }: StudioScriptProps) => {
   const { time } = useTimeStore();
 
   return (
@@ -25,8 +34,8 @@ const StudioScript = () => {
         </C1>
       </div>
       <div className="scrollbar flex h-full max-h-[451px] w-full flex-1 flex-col items-start justify-start gap-6 overflow-y-scroll">
-        {scripts.map((script, index) => (
-          <ScriptCard key={script.id} {...script} no={index} />
+        {script.map((item, index) => (
+          <ScriptCard key={item.id} {...item} no={index} />
         ))}
       </div>
     </section>
