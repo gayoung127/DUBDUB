@@ -7,6 +7,7 @@ import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
+import TeamRole from "./_components/TeamRole";
 import VideoPlayer from "./_components/VideoPlayer";
 import { useEffect, useRef, useState } from "react";
 import WebRTCManager from "./_components/WebRTCManager";
@@ -18,22 +19,11 @@ import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
 
 export default function StudioPage() {
+  const studioId = "1";
+  /* 임시 tudioId
   const router = useRouter();
-  const { studioId } = router.query; // studioId를 URL에서 가져옴
-  const [script, setScript] = useState<
-    {
-      id: number;
-      text: string;
-      timestamp: number;
-      role: string;
-    }[]
-  >([]);
-  const [title, setTitle] = useState<string | undefined>(undefined); // 제목
-  const [content, setContent] = useState<string | undefined>(undefined); // 내용
-  const [genreTypes, setGenreTypes] = useState<string[]>([]); // 장르 타입
-  const [categoryTypes, setCategoryTypes] = useState<string[]>([]); // 카테고리 타입
-  const [castings, setCastings] = useState<string[]>([]); // 캐스팅 정보
-  const [otherInfo, setOtherInfo] = useState<any>(null); // 기타 더빙 정보
+  const { studioId } = router.query;
+  */
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [session, setSession] = useState<Session | null>(null);
   const [duration, setDuration] = useState<number>(160);
@@ -44,44 +34,30 @@ export default function StudioPage() {
   }
   const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
 
-  // 스튜디오 정보를 가져오는 함수
   useEffect(() => {
     if (!studioId) return;
 
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!BASE_URL) return;
 
+    setVideoUrl("/examples/zzangu.mp4");
+
+    /*임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
+    1. 비디오 url
+    2. 역할과 참여자 목록
+    3. 대본
+    4. 그 외 더빙 인포
     const getStudioInfo = async () => {
       try {
-        // GET 요청을 통해 스튜디오 정보 가져오기
-        const response = await fetch(`${BASE_URL}/recruitment`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `스튜디오 정보를 가져오는 데 실패했습니다: ${response.status}`,
-          );
-        }
-
+        const response = await fetch(`${BASE_URL}/studio/info/${studioId}`);
         const data = await response.json();
-
-        // 가져온 데이터로 상태 업데이트
+        
         setVideoUrl(data.videoUrl);
-        setScript(data.script); // 대본
-        setTitle(data.title); // 제목
-        setContent(data.content); // 내용
-        setGenreTypes(data.genreTypes || []); // 장르 타입
-        setCategoryTypes(data.categoryTypes || []); // 카테고리 타입
-        setCastings(data.castings || []); // 캐스팅 정보
-        setOtherInfo(data.otherInfo || null); // 기타 더빙 정보
       } catch (error) {
-        console.error("스튜디오 정보를 가져오는 중 오류 발생: ", error);
+        console.error("videoUrl 가져오기 실패: ", error);
       }
     };
-
-    getStudioInfo();
+    */
   }, [studioId]);
 
   const { memberId, email, position, profileUrl } = useUserStore();
@@ -116,29 +92,20 @@ export default function StudioPage() {
                 <StudioSideTab />
                 <VideoPlayer
                   videoRef={videoRef}
-                  videoUrl={videoUrl} // 비디오 URL 상태 전달
+                  videoUrl={videoUrl}
                   duration={duration}
                   setDuration={setDuration}
                 />
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
-              <StudioScript script={script} /> {/* 대본 전달 */}
+              <StudioScript />
             </div>
           </div>
           <RecordSection duration={duration} setDuration={setDuration} />
         </div>
         <CursorPresence />
-        <WebRTCManager
-          studioId={studioIdString}
-          /*otherInfo={{
-            title,
-            content,
-            genreTypes,
-            categoryTypes,
-            castings,
-          }} // 기타 정보 전달 */
-        />
+        <WebRTCManager studioId={studioIdString} />
       </div>
     </DndProvider>
   );

@@ -5,6 +5,7 @@ import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
 import H4 from "@/app/_components/H4";
 import RenderingButton from "./RenderingButton";
+import ShareButton from "./ShareButton";
 
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
@@ -163,6 +164,7 @@ const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
       </div>
       <div className="flex h-full items-center justify-center">
         <RenderingButton />
+        <ShareButton />
       </div>
     </section>
   );
