@@ -18,7 +18,6 @@ import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
 
 export default function StudioPage() {
-  // const router = useRouter();
   const { id } = useParams();
   const studioId = Number(id);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
@@ -28,16 +27,14 @@ export default function StudioPage() {
   const [sessionId, setSessionId] = useState<string>("");
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
-  const stompClientRef = useStompClient(); // STOMP 클라이언트 관리 (이제 CursorPresence에 전달)
+  const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [userId, setUserId] = useState<number>(0);
+  const { memberId, email, position, profileUrl } = useUserStore();
 
   if (!studioId) {
     throw new Error("studioId 없음");
   }
-  const videoRef = useRef<VideoElementWithCapturestream>(null);
-  const [userId, setUserId] = useState<number>(0);
-
-  const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
-  const { memberId, email, position, profileUrl } = useUserStore();
 
   // STOMP를 통해 커서 위치 전송 (성능 최적화)
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -45,7 +42,7 @@ export default function StudioPage() {
 
     const x = e.clientX;
     const y = e.clientY;
-    const name = email || "user123"; // 예시 사용자 ID (이메일 사용)
+    const name = email || "user123"; // 예시 사용자 ID
 
     stompClientRef.current.publish({
       destination: `/app/studio/${sessionId}/cursor`,
@@ -60,24 +57,21 @@ export default function StudioPage() {
 
   // 비디오 URL 설정
   useEffect(() => {
-    if (!studioId) {
-      return;
-    }
+    if (!studioId) return;
 
-    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL; // `BASE_URL`을 여기에 선언
     if (!BASE_URL) return;
 
     setVideoUrl("/examples/zzangu.mp4");
   }, [studioId]);
 
-
-    /*studioId를 토대로 더빙 정보를 가져오는 api 필요
-    1. 비디오 url
-    2. 역할과 참여자 목록
-    3. 대본
-    */
+  // 스튜디오 정보 가져오기
+  useEffect(() => {
     const getStudioInfo = async () => {
       try {
+        const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!BASE_URL) return;
+
         const response = await fetch(`${BASE_URL}/project/${studioId}`, {
           method: "POST",
           headers: {
@@ -85,98 +79,63 @@ export default function StudioPage() {
           },
           credentials: "include",
         });
-        const data = await response.json();
 
+        const data = await response.json();
         if (!data) {
           console.log("data 없음");
           return;
         }
 
-        console.log(data);
+        console.log("📥 받은 스튜디오 데이터:", data);
         const sessionId =
           typeof data.session === "string" ? data.session.trim() : "";
         const sessionToken =
           typeof data.token === "string" ? data.token.trim() : "";
 
         if (!sessionId) {
-          console.log("세션 아이디 없음, 세션 생성 실패");
+          console.log("❌ 세션 아이디 없음");
           return;
         }
 
         if (!sessionToken) {
-          console.log("세션 토큰 없음, 세션 연결 실패");
+          console.log("❌ 세션 토큰 없음");
           return;
         }
 
         setSessionId(sessionId);
         setSessionToken(sessionToken);
-
         setUserId(data.member.id);
-        // setVideoUrl(data.videoUrl);
       } catch (error) {
-        console.error("videoUrl 가져오기 실패: ", error);
+        console.error("❌ 스튜디오 정보 가져오기 실패:", error);
       }
     };
-    getStudioInfo();
 
+    getStudioInfo();
+  }, [studioId]);
+
+  // OpenVidu 테스트 (비동기)
+  useEffect(() => {
     const testOv = async () => {
       const sessionId = await createSession();
-      console.log("세션 생성 응답: ", sessionId);
+      console.log("✅ 세션 생성 응답:", sessionId);
       if (!sessionId) {
-        console.error("세션 ID를 가져오지 못했습니다.");
+        console.error("❌ 세션 ID를 가져오지 못했습니다.");
         return;
       }
       const token = await createConnection(sessionId);
       if (!token) {
-        console.error("세션 토큰을 가져오지 못했습니다.");
+        console.error("❌ 세션 토큰을 가져오지 못했습니다.");
         return;
       }
       setSessionId(sessionId);
       setSessionToken(token);
     };
-    // testOv();
-  }, [studioId]);
 
-  const { memberId, email, position, profileUrl } = useUserStore();
-
-  useEffect(() => {
-    getMyInfo();
+    // testOv(); // 필요할 때 활성화
   }, []);
 
-  // STOMP 연결이 완료된 후 publish 호출
-  const handlePointerMove = (e: React.PointerEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const name = "user123"; // 예시 사용자 ID
-
-    if (stompClient.connected) {
-      // STOMP 클라이언트를 사용하여 커서 데이터를 서버로 전송
-      stompClient.publish({
-        destination: `/app/studio/${sessionId}/cursor`, // 커서 이동 전송
-        body: JSON.stringify({ x, y, name }),
-      });
-      console.log("📤 Sent Cursor Data:", { x, y, name });
-    } else {
-      console.log("STOMP client is not connected");
-    }
-  };
-
-  // STOMP 클라이언트 연결 및 설정
-  useEffect(() => {
-    stompClient.connectHeaders = {}; // 연결 헤더 설정
-    stompClient.onConnect = () => {
-      console.log("✅ STOMP WebSocket Connected!");
-    };
-
-    // STOMP 연결 시작
-    stompClient.activate();
-
-    return () => {
-      stompClient.deactivate();
-    };
-  }, []);
-
-  const handleUserAudioUpodate = (userId: number, stream: MediaStream) => {
+  // 사용자 오디오 스트림 업데이트
+  const handleUserAudioUpdate = (userId: number, stream: MediaStream) => {
     setUserAudioStreams((prev) => ({ ...prev, [userId]: stream }));
   };
 
@@ -215,7 +174,7 @@ export default function StudioPage() {
           studioId={studioId}
           sessionId={sessionId}
           sessionToken={sessionToken}
-          onUserAudioUpdate={handleUserAudioUpodate}
+          onUserAudioUpdate={handleUserAudioUpdate}
           userId={userId}
         />
       </div>
