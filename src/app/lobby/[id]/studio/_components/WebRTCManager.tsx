@@ -120,6 +120,9 @@ const WebRTCManager = ({
         await newSession.connect(sessionToken);
 
         setSession(newSession);
+
+        await publishAudioStream();
+
         newSession.signal({ type: "syncRequest" });
       } catch (error) {
         console.error("OpenVidu 세션 초기화 실패: ", error);
