@@ -24,7 +24,7 @@ export default function StudioPage() {
   const [userAudioStreams, setUserAudioStreams] = useState<
     Record<number, MediaStream>
   >({});
-  const [sessionId, setSessionId] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>("test-session-123");
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
   const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
@@ -169,7 +169,7 @@ export default function StudioPage() {
           </div>
           <RecordSection duration={duration} setDuration={setDuration} />
         </div>
-        <CursorPresence stompClientRef={stompClientRef} />
+        <CursorPresence stompClientRef={stompClientRef} sessionId={sessionId} />
         <WebRTCManager
           studioId={studioId}
           sessionId={sessionId}

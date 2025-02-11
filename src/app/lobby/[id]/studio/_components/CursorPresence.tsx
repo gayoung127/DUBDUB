@@ -13,12 +13,12 @@ interface CursorData {
 
 interface CursorPresenceProps {
   stompClientRef: React.MutableRefObject<Client | null>;
+  sessionId: string;
 }
 
-const CursorPresence: React.FC<CursorPresenceProps> = ({ stompClientRef }) => {
+const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
   const [cursors, setCursors] = useState<Record<string, CursorData>>({});
   const [shouldRender, setShouldRender] = useState(false); // 렌더링 여부 결정
-  const sessionId = "test-session-123"; // 예시 sessionId
 
   useEffect(() => {
     const stompClient = stompClientRef.current;
@@ -44,15 +44,12 @@ const CursorPresence: React.FC<CursorPresenceProps> = ({ stompClientRef }) => {
 
     const handleCursorRemove = (message: any) => {
       const id: string = message.body;
-
       setCursors((prev) => {
         const updatedCursors = { ...prev };
         delete updatedCursors[id];
-
         if (Object.keys(updatedCursors).length < 1) {
           setShouldRender(false);
         }
-
         return updatedCursors;
       });
     };
@@ -77,7 +74,7 @@ const CursorPresence: React.FC<CursorPresenceProps> = ({ stompClientRef }) => {
       cursorSubscription.unsubscribe();
       removeSubscription.unsubscribe();
     };
-  }, [sessionId, stompClientRef.current?.connected]); // STOMP가 연결되었을 때만 실행
+  }, [sessionId, stompClientRef.current?.connected]); // ✅ `cursors` 제거! 더 이상 불필요한 재구독 없음!
 
   return (
     <div
