@@ -91,6 +91,23 @@ export default function StudioPage() {
       }
     };
     getStudioInfo();
+
+    const testOv = async () => {
+      const sessionId = await createSession();
+      console.log("세션 생성 응답: ", sessionId);
+      if (!sessionId) {
+        console.error("세션 ID를 가져오지 못했습니다.");
+        return;
+      }
+      const token = await createConnection(sessionId);
+      if (!token) {
+        console.error("세션 토큰을 가져오지 못했습니다.");
+        return;
+      }
+      setSessionId(sessionId);
+      setSessionToken(token);
+    };
+    // testOv();
   }, [studioId]);
 
   const { memberId, email, position, profileUrl } = useUserStore();
