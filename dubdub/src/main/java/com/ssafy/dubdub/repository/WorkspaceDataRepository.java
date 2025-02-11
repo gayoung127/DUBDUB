@@ -9,10 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface WorkspaceDataRepository extends JpaRepository<WorkspaceData, Long> {
-    @Modifying
-    @Query("SELECT MAX(w.workspaceVersion) FROM WorkspaceData w WHERE w.project.id = :projectId")
-    Optional<Integer> findLatestWorkspaceVersion(@Param("projectId") Long projectId);
-    @Query("SELECT w FROM WorkspaceData w WHERE w.project.id = :projectId AND w.workspaceVersion = " +
-            "(SELECT MAX(w2.workspaceVersion) FROM WorkspaceData w2 WHERE w2.project.id = :projectId)")
+    @Query("SELECT w FROM WorkspaceData w WHERE w.project.id = :projectId " +
+            "AND w.id = (SELECT MAX(w2.id) FROM WorkspaceData w2 WHERE w2.project.id = :projectId)")
     Optional<WorkspaceData> findLatestWorkspaceData(@Param("projectId") Long projectId);
 }

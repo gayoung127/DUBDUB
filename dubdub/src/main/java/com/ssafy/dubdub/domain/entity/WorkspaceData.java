@@ -19,17 +19,10 @@ public class WorkspaceData extends Timestamped{
     @Column(columnDefinition = "json")
     private String workspaceData;
 
-    @Column(nullable = false)
-    private Integer workspaceVersion;
-
-    @Version
-    private Integer version;
-
     @Builder
-    public WorkspaceData(Recruitment project, String workspaceData, Integer workspaceVersion) {
+    public WorkspaceData(Recruitment project, String workspaceData) {
         this.project = project;
         this.workspaceData = workspaceData;
-        this.workspaceVersion = workspaceVersion;
     }
 }
 

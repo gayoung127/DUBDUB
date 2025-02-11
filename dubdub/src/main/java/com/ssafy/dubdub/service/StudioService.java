@@ -85,14 +85,9 @@ public class StudioService {
         validateAuthorization(project, member);
 
         try {
-            Integer latestVersion = workspaceDataRepository
-                    .findLatestWorkspaceVersion(project.getId())
-                    .orElse(0);
-
             WorkspaceData newVersion = WorkspaceData.builder()
                     .project(project)
                     .workspaceData(workspaceData)
-                    .workspaceVersion(latestVersion + 1)
                     .build();
 
             workspaceDataRepository.save(newVersion);
