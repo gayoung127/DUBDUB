@@ -17,29 +17,36 @@ const CursorPresence = () => {
   useEffect(() => {
     const sessionId = "test-session-123"; // 예시 sessionId
 
-    // 서버로부터 커서 업데이트 받기
-    stompClient.subscribe(`/topic/studio/${sessionId}/cursor`, (message) => {
-      const data: CursorData = JSON.parse(message.body);
+    // STOMP 클라이언트 활성화 및 연결 성공 후 구독 처리
+    stompClient.connectHeaders = {}; // 연결 헤더 설정
+    stompClient.onConnect = () => {
+      // 서버로부터 커서 업데이트 받기
+      stompClient.subscribe(`/topic/studio/${sessionId}/cursor`, (message) => {
+        const data: CursorData = JSON.parse(message.body);
 
-      setCursors((prev) => ({
-        ...prev,
-        [data.id]: { id: data.id, x: data.x, y: data.y, name: data.name },
-      }));
-    });
+        setCursors((prev) => ({
+          ...prev,
+          [data.id]: { id: data.id, x: data.x, y: data.y, name: data.name },
+        }));
+      });
 
-    // 서버로부터 사용자 제거 이벤트 받기
-    stompClient.subscribe(
-      `/topic/studio/${sessionId}/cursorRemove`,
-      (message) => {
-        const id: string = message.body;
+      // 서버로부터 사용자 제거 이벤트 받기
+      stompClient.subscribe(
+        `/topic/studio/${sessionId}/cursorRemove`,
+        (message) => {
+          const id: string = message.body;
 
-        setCursors((prev) => {
-          const updatedCursors = { ...prev };
-          delete updatedCursors[id];
-          return updatedCursors;
-        });
-      },
-    );
+          setCursors((prev) => {
+            const updatedCursors = { ...prev };
+            delete updatedCursors[id];
+            return updatedCursors;
+          });
+        },
+      );
+    };
+
+    // STOMP 연결 시작
+    stompClient.activate();
 
     // 컴포넌트 언마운트 시 구독 해제
     return () => {
