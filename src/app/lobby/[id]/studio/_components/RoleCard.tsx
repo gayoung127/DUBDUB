@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import H4 from "@/app/_components/H4";
 import C1 from "@/app/_components/C1";
@@ -13,9 +13,16 @@ interface RoleCardProps {
   name: string;
   role: string;
   profileImageUrl: string;
+  stream: MediaStream;
 }
 
-const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
+const RoleCard = ({
+  id,
+  name,
+  role,
+  profileImageUrl,
+  stream,
+}: RoleCardProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -33,21 +40,42 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
 
   drag(ref);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
   const { micStatus, toggleMic } = useMicStore();
   const isMicOn = micStatus[id] || false;
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
+  useEffect(() => {
+    if (audioRef.current && stream) {
+      if (audioRef.current.srcObject !== stream) {
+        audioRef.current.pause();
+        audioRef.current.srcObject = stream;
+      }
+      audioRef.current.volume = isMicOn ? 1 : 0;
+      audioRef.current.muted = !isMicOn;
+      audioRef.current
+        .play()
+        .catch((error) => console.error("오디오 스트림 재생 실패: ", error));
+    }
+  }, [stream, isMicOn]);
+
+  useEffect(() => {
+    localStream?.getAudioTracks().forEach((track) => {
+      track.enabled = isMicOn;
+    });
+  }, [isMicOn, localStream]);
 
   const handleToggleMic = async () => {
     if (isMicOn) {
-      stream?.getTracks().forEach((track) => track.stop());
-      setStream(null);
+      localStream?.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
       toggleMic(id);
     } else {
       try {
         const userStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        setStream(userStream);
+        setLocalStream(userStream);
         toggleMic(id);
       } catch (error) {
         console.error("마이크 접근 오류: ", error);
@@ -72,6 +100,7 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
       <div className="flex w-full flex-row items-center justify-start gap-x-3">
         <H4 className="text-white-100">{name}</H4>
         <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
+        <audio ref={audioRef} />
         <button
           onClick={handleToggleMic}
           className={`flex h-[24px] w-[24px] items-center justify-center rounded-[4px] ${isMicOn ? "bg-brand-100" : "bg-gray-100"}`}

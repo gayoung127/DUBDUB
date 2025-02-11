@@ -7,7 +7,11 @@ import AssetList from "./AssetList";
 import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
 
-const StudioSideTab = () => {
+interface StudioSideTabProps {
+  userAudioStreams: Record<number, MediaStream>;
+}
+
+const StudioSideTab = ({ userAudioStreams }: StudioSideTabProps) => {
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(
     "asset",
   );
@@ -45,7 +49,7 @@ const StudioSideTab = () => {
         </div>
       </div>
 
-      {activeTab === "role" && <RoleList />}
+      {activeTab === "role" && <RoleList userAudioStreams={userAudioStreams} />}
       {activeTab === "asset" && <AssetList />}
       {activeTab === "effect" && <EffectList />}
     </section>

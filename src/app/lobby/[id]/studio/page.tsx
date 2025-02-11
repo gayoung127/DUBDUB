@@ -17,40 +17,97 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
+import { useParams } from "next/navigation";
+import { createConnection, createSession } from "@/app/_apis/openvidu";
 
 export default function StudioPage() {
-  const studioId = "1"; // 임시 studioId
-  const sessionId = "test-session-123"; // 예시 sessionId
+  // const router = useRouter();
+  const { id } = useParams();
+  const studioId = Number(id);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const [userAudioStreams, setUserAudioStreams] = useState<
+    Record<number, MediaStream>
+  >({});
+  const [sessionId, setSessionId] = useState<string>("");
+  const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
   const videoRef = useRef<VideoElementWithCapturestream>(null);
-
-  if (!studioId) {
-    throw new Error("studioId 없음");
-  }
-  const studioIdString = Array.isArray(studioId) ? studioId[0] : studioId;
+  const [userId, setUserId] = useState<number>(0);
 
   useEffect(() => {
-    if (!studioId) return;
+    if (!studioId) {
+      return;
+    }
 
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!BASE_URL) return;
 
     setVideoUrl("/examples/zzangu.mp4");
 
-    // 임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
-    /* 
+    /*studioId를 토대로 더빙 정보를 가져오는 api 필요
+    1. 비디오 url
+    2. 역할과 참여자 목록
+    3. 대본
+    */
     const getStudioInfo = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/studio/info/${studioId}`);
+        const response = await fetch(`${BASE_URL}/project/${studioId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         const data = await response.json();
-        
-        setVideoUrl(data.videoUrl);
+
+        if (!data) {
+          console.log("data 없음");
+          return;
+        }
+
+        console.log(data);
+        const sessionId =
+          typeof data.session === "string" ? data.session.trim() : "";
+        const sessionToken =
+          typeof data.token === "string" ? data.token.trim() : "";
+
+        if (!sessionId) {
+          console.log("세션 아이디 없음, 세션 생성 실패");
+          return;
+        }
+
+        if (!sessionToken) {
+          console.log("세션 토큰 없음, 세션 연결 실패");
+          return;
+        }
+
+        setSessionId(sessionId);
+        setSessionToken(sessionToken);
+
+        setUserId(data.member.id);
+        // setVideoUrl(data.videoUrl);
       } catch (error) {
         console.error("videoUrl 가져오기 실패: ", error);
       }
     };
-    */
+    getStudioInfo();
+
+    const testOv = async () => {
+      const sessionId = await createSession();
+      console.log("세션 생성 응답: ", sessionId);
+      if (!sessionId) {
+        console.error("세션 ID를 가져오지 못했습니다.");
+        return;
+      }
+      const token = await createConnection(sessionId);
+      if (!token) {
+        console.error("세션 토큰을 가져오지 못했습니다.");
+        return;
+      }
+      setSessionId(sessionId);
+      setSessionToken(token);
+    };
+    // testOv();
   }, [studioId]);
 
   const { memberId, email, position, profileUrl } = useUserStore();
@@ -92,6 +149,10 @@ export default function StudioPage() {
     };
   }, []);
 
+  const handleUserAudioUpodate = (userId: number, stream: MediaStream) => {
+    setUserAudioStreams((prev) => ({ ...prev, [userId]: stream }));
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div
@@ -107,7 +168,7 @@ export default function StudioPage() {
             <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
               <Header />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
-                <StudioSideTab />
+                <StudioSideTab userAudioStreams={userAudioStreams} />
                 <VideoPlayer
                   videoRef={videoRef}
                   videoUrl={videoUrl}
@@ -123,7 +184,13 @@ export default function StudioPage() {
           <RecordSection duration={duration} setDuration={setDuration} />
         </div>
         <CursorPresence />
-        <WebRTCManager studioId={studioIdString} />
+        <WebRTCManager
+          studioId={studioId}
+          sessionId={sessionId}
+          sessionToken={sessionToken}
+          onUserAudioUpdate={handleUserAudioUpodate}
+          userId={userId}
+        />
       </div>
     </DndProvider>
   );
