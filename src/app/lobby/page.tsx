@@ -82,7 +82,7 @@ const LobbyPage = () => {
 
   const tabs = [
     { title: "나의 프로젝트", href: "/lobby?tab=CREATED" },
-    { title: "참여 프로젝트", href: "/lobby?tab=JOIN" },
+    { title: "참여 프로젝트", href: "/lobby?tab=JOINED" },
   ];
 
   return (
