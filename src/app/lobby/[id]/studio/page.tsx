@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/router";
 import Header from "@/app/_components/Header";
-import { socket } from "@/app/_utils/socketClient";
+import { stompClient } from "@/app/_utils/socketClient"; // 변경된 부분
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
@@ -19,11 +19,8 @@ import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
 
 export default function StudioPage() {
-  const studioId = "1";
-  /* 임시 tudioId
-  const router = useRouter();
-  const { studioId } = router.query;
-  */
+  const studioId = "1"; // 임시 studioId
+  const sessionId = "test-session-123"; // 예시 sessionId
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [session, setSession] = useState<Session | null>(null);
   const [duration, setDuration] = useState<number>(160);
@@ -42,11 +39,8 @@ export default function StudioPage() {
 
     setVideoUrl("/examples/zzangu.mp4");
 
-    /*임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
-    1. 비디오 url
-    2. 역할과 참여자 목록
-    3. 대본
-    4. 그 외 더빙 인포
+    // 임시 studioId를 토대로 더빙 정보를 가져오는 api 필요
+    /* 
     const getStudioInfo = async () => {
       try {
         const response = await fetch(`${BASE_URL}/studio/info/${studioId}`);
@@ -66,12 +60,19 @@ export default function StudioPage() {
     getMyInfo();
   }, []);
 
+  // 커서 이동 이벤트 처리
   const handlePointerMove = (e: React.PointerEvent) => {
     const x = e.clientX;
     const y = e.clientY;
-    const name = memberId != null ? memberId.toString() : "아무개";
+    const name = "user123"; // 예시 사용자 ID
 
-    socket.emit("cursorMove", { x, y, name });
+    // STOMP 클라이언트를 사용하여 커서 데이터를 서버로 전송
+    stompClient.publish({
+      destination: `/app/studio/${sessionId}/cursor`, // 커서 이동 전송
+      body: JSON.stringify({ x, y, name }),
+    });
+
+    console.log("📤 Sent Cursor Data:", { x, y, name });
   };
 
   return (
