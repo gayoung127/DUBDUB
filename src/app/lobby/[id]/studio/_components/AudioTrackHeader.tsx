@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import { Track } from "@/app/_types/studio";
 import Image from "next/image";
-import { socket } from "@/app/_utils/socketClient";
 
 interface AudioTrackHeaderProps {
   trackId: number;
