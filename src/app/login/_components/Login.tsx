@@ -13,12 +13,22 @@ import C2 from "@/app/_components/C2";
 
 import KakaoLoginButton from "./KakaoLoginButton";
 
-interface LoginProps {
-  microphoneConnected: boolean;
-  setMicrophoneConnected: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const Login = () => {
+  const [microphoneConnected, setMicrophoneConnected] =
+    useState<boolean>(false);
 
-const Login = ({ microphoneConnected, setMicrophoneConnected }: LoginProps) => {
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.mediaDevices) {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(() => {
+          setMicrophoneConnected(true);
+        })
+        .catch(() => {
+          setMicrophoneConnected(false);
+        });
+    }
+  }, []);
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
 
