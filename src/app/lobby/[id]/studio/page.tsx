@@ -156,7 +156,11 @@ export default function StudioPage() {
             <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
               <Header />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
-                <StudioSideTab userAudioStreams={userAudioStreams} />
+                <StudioSideTab
+                  userAudioStreams={userAudioStreams}
+                  tracks={tracks}
+                  setTracks={setTracks}
+                />
                 <VideoPlayer
                   videoRef={videoRef}
                   videoUrl={videoUrl}
