@@ -47,7 +47,7 @@ export default function MainPage() {
           </div>
           <H4 className="text-gray-200">
             {microphoneConnected
-              ? "좋아요! 목소리를 내볼까요?"
+              ? "좋아요! 목소리를 내보세요."
               : "마이크를 연결해주세요!"}
           </H4>
         </div>
