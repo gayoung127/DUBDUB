@@ -6,7 +6,7 @@ import HeroSection from "./_components/HeroSection";
 import H4 from "../_components/H4";
 import Image from "next/image";
 
-export default function page() {
+export default function LoginPage() {
   const [microphoneConnected, setMicrophoneConnected] =
     useState<boolean>(false);
 
