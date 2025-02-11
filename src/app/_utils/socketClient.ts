@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 
-const STOMP_URL = "ws://i12a801.p.ssafy.io:8081/ws-studio"; // STOMP 서버 URL
+const STOMP_URL = "wss://i12a801.p.ssafy.io/api/ws-studio"; // STOMP 서버 URL
 
 const useStompClient = () => {
   const stompClientRef = useRef<Client | null>(null);
