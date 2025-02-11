@@ -16,17 +16,6 @@ export const stompClient = new Client({
   },
 });
 
-// STOMP 클라이언트 활성화 (연결 시작)
-stompClient.activate();
-
-// STOMP 클라이언트 비활성화 (언마운트 시 처리)
-export const disconnectStompClient = () => {
-  if (stompClient.connected) {
-    stompClient.deactivate();
-    console.log("✅ STOMP WebSocket Disconnected");
-  }
-};
-
 // "use client";
 
 // import { io } from "socket.io-client";
