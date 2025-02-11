@@ -19,8 +19,8 @@ const Cursor = memo(({ id, name, x, y }: CursorProps) => {
     <div
       style={{
         position: "absolute",
-        top: `${y}px`,
-        left: `${x}px`,
+        top: y,
+        left: x,
         transform: "translate(-50%, -50%)", // 커서를 중앙으로 맞추기
         zIndex: 9999,
       }}
