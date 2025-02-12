@@ -22,6 +22,7 @@ public class CorsConfig {
                 "ws://localhost:8081",
                 "wss://localhost:8081",
                 "wss://i12a801.p.ssafy.io",
+                "wss://i12a801.p.ssafy.io:3000",
                 "wss://i12a801.p.ssafy.io:8081",
                 "wss://i12a801.p.ssafy.io:8443",
                 "wss://i12a801.p.ssafy.io/api/ws-studio"
