@@ -1,17 +1,30 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import useStompClient from "../_utils/socketClient";
-
-interface Member {
-  memberId: number;
-  email: string;
-  nickName: string;
-  position: string;
-  profileUrl: string;
-}
+import { useUserStore } from "@/app/_store/UserStore";
 
 export const useStudioMembers = () => {
-  const [studioMembers, setStudioMembers] = useState<Member[]>([]);
+  const { self, studioMembers, setStudioMembers } = useUserStore();
   const stompClientRef = useStompClient();
+
+  const publishSelf = () => {
+    if (!stompClientRef.current || !stompClientRef.current.connected || !self)
+      return;
+
+    const isAlreadyAdded = studioMembers.some(
+      (member) => member.memberId === self.memberId,
+    );
+    if (isAlreadyAdded) {
+      console.log("⚠️ Self already exists in studioMembers. Skipping publish.");
+      return;
+    }
+
+    console.log("🚀 Publishing self to studioMembers:", self);
+
+    stompClientRef.current.publish({
+      destination: "/app/studioMembers", // 서버에서 수신하는 경로
+      body: JSON.stringify(self), // 내 정보 전송
+    });
+  };
 
   useEffect(() => {
     const subscribeToMembers = () => {
@@ -20,12 +33,21 @@ export const useStudioMembers = () => {
       console.log("📡 Subscribing to studio members...");
 
       const subscription = stompClientRef.current.subscribe(
-        "/topic/studioMembers", // 서버에서 발행하는 경로
+        "/topic/studioMembers",
         (message) => {
           try {
-            const data: Member[] = JSON.parse(message.body);
+            const data = JSON.parse(message.body);
             setStudioMembers(data);
-            console.log("🎭 Received Studio Members:", data);
+
+            if (self) {
+              const updatedMembers = [
+                ...studioMembers.filter((m) => m.memberId !== self?.memberId),
+                self,
+              ];
+
+              setStudioMembers(updatedMembers);
+              console.log("🎭 Received Studio Members:", updatedMembers);
+            }
           } catch (error) {
             console.error("❌ Failed to parse STOMP message:", error);
           }
@@ -38,14 +60,14 @@ export const useStudioMembers = () => {
       };
     };
 
-    // STOMP 연결이 완료되었을 때 구독
     if (stompClientRef.current?.connected) {
       const unsubscribe = subscribeToMembers();
+      publishSelf();
       return unsubscribe;
     }
 
     return;
-  }, [stompClientRef.current?.connected]); // STOMP 연결 여부가 변경될 때만 실행
+  }, [stompClientRef.current?.connected, self]);
 
-  return studioMembers;
+  return { studioMembers, publishSelf };
 };

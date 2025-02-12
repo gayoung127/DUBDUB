@@ -55,8 +55,12 @@ const AudioBlock = ({
       type: "x",
       bounds: timelineElement,
       inertia: true,
+      cursor: "url('/images/icons/cursor-grab.svg') 10 10, grab;",
       onPress: function () {
-        gsap.set(blockElement, { zIndex: 5 });
+        gsap.set(blockElement, {
+          zIndex: 5,
+          cursor: "url('/images/icons/cursor-grabbing.svg') 10 10, grabbing", // 드래그 시작 시 커서 변경
+        });
       },
       onDrag: function () {
         const newStartPoint = Math.max(0, Math.round(this.x));
@@ -76,6 +80,11 @@ const AudioBlock = ({
             ),
           })),
         );
+      },
+      onRelease: function () {
+        gsap.set(blockElement, {
+          cursor: "url('/images/icons/cursor-grab.svg') 10 10, grab", // 드래그 종료 후 다시 grab
+        });
       },
     });
 
@@ -276,7 +285,7 @@ const AudioBlock = ({
   return (
     <div
       ref={blockRef}
-      className="absolute flex h-full items-center justify-start"
+      className="draggable absolute flex h-full items-center justify-start"
       style={{
         width: width,
         transform: `translateX(${localStartPoint}px)`,

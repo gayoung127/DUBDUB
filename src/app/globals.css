@@ -111,4 +111,34 @@ html {
 
 body {
   height: 100%;
+  cursor:
+    url("/images/icons/cursor-self.svg") 10 10,
+    auto;
+}
+
+body:active {
+  cursor: url("/images/icons/cursor-drag.svg") 10 10;
+}
+
+/* 클릭 가능한 요소 (cursor-pointer) */
+a,
+button,
+.cursor-pointer {
+  cursor:
+    url("/images/icons/cursor-pointer.svg") 10 10,
+    pointer;
+}
+
+/* 일반적인 드래그 가능한 요소 */
+.draggable {
+  cursor:
+    url("/images/icons/cursor-grab.svg") 10 10,
+    grab;
+}
+
+/* 드래그 중인 요소 */
+.is-dragging {
+  cursor:
+    url("/images/icons/cursor-grabbing.svg") 10 10,
+    grabbing;
 }
