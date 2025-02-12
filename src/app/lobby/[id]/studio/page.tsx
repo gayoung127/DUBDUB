@@ -141,13 +141,18 @@ export default function StudioPage() {
           genreTypes: data.genreTypes || [],
           categoryTypes: data.categoryTypes || [],
           castings: data.castings || [],
+          script: data.script || "",
+          videoFile:
+            data.videoFile && typeof data.videoFile === "string"
+              ? new File([], data.videoFile) // 서버에서 반환된 파일 경로를 File 객체로 변환
+              : null, // videoFile이 없으면 null로 설정
         });
       } catch (error) {
         console.error("❌ 스튜디오 정보 가져오기 실패:", error);
       }
     };
     getCreateInfo();
-  }, [studioId]);
+  }, [studioId, setRecruitmentData]);
   ////////////////////////////////////////////////////////////////////////////////
   // OpenVidu 테스트 (비동기)
   useEffect(() => {
