@@ -293,6 +293,8 @@ const AudioTrackTimeline = ({
             >
               <AudioBlock
                 file={{ ...file, isMuted: isMuted }} // 추가
+                trackId={trackId}
+                fileIdx={index}
                 width={width}
                 waveColor={waveColor}
                 blockColor={blockColor}

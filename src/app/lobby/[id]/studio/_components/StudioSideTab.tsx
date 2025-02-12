@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import H4 from "@/app/_components/H4";
 import AssetList from "./AssetList";
 import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
-import { Track } from "@/app/_types/studio";
+import { AudioFile, Track } from "@/app/_types/studio";
 
 interface StudioSideTabProps {
   userAudioStreams: Record<number, MediaStream>;
@@ -19,6 +19,29 @@ const StudioSideTab = ({
   tracks,
   setTracks,
 }: StudioSideTabProps) => {
+  const audioFilesRef = useRef<AudioFile[] | null>([]);
+
+  useEffect(() => {
+    const loadAudioFiles = () => {
+      for (const track of tracks) {
+        for (const file of track.files) {
+          if (!audioFilesRef.current?.some((obj) => obj.url === file.url)) {
+            audioFilesRef.current?.push(file);
+          }
+        }
+      }
+    };
+
+    loadAudioFiles();
+  }, [tracks]);
+
+  const updateAudioFile = (file: AudioFile | null) => {
+    if (!audioFilesRef.current || !file) {
+      return;
+    }
+    audioFilesRef.current.push(file);
+  };
+
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(
     "asset",
   );
@@ -57,9 +80,16 @@ const StudioSideTab = ({
       </div>
 
       {activeTab === "role" && <RoleList userAudioStreams={userAudioStreams} />}
-      {activeTab === "asset" && <AssetList />}
+      {activeTab === "asset" && (
+        <AssetList audioFiles={audioFilesRef.current} />
+      )}
       {activeTab === "effect" && (
-        <EffectList tracks={tracks} setTracks={setTracks} />
+        <EffectList
+          tracks={tracks}
+          setTracks={setTracks}
+          onUpdateFile={updateAudioFile}
+          audioFiles={audioFilesRef.current}
+        />
       )}
     </section>
   );
