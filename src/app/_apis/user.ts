@@ -5,11 +5,11 @@ export const getMyInfo = async () => {
     const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/member/profile`;
 
     if (!BASE_URL) {
-      console.error("백엔드 Url 환경 변수에서 못 찾아옴.");
+      console.error("백엔드 URL 환경 변수에서 찾을 수 없음.");
       return;
     }
 
-    const response = await fetch(`${BASE_URL}`, {
+    const response = await fetch(BASE_URL, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -18,9 +18,11 @@ export const getMyInfo = async () => {
     const data = await response.json();
 
     if (response.ok) {
-      useUserStore.getState().setUser(data);
+      const { setSelf } = useUserStore.getState();
+
+      setSelf(data);
     }
   } catch (error) {
-    console.error("회원정보 불러오기 에러: ", error);
+    console.error("❌ 회원정보 불러오기 에러: ", error);
   }
 };

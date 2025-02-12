@@ -87,7 +87,7 @@ const Delay = ({ context, audioBuffer, updateBuffer }: DelayProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex h-full w-full flex-col gap-10">
       <div className="flex justify-end gap-4">
         <StartButton className="cursor-pointer" onClick={startDelay} />
         <CheckButton className="cursor-pointer" onClick={saveDelay} />

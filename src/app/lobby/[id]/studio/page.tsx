@@ -17,6 +17,7 @@ import { useFormStore } from "@/app/_store/FormStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
+import { initialTracks, Track } from "@/app/_types/studio";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -30,8 +31,8 @@ export default function StudioPage() {
   const [duration, setDuration] = useState<number>(160);
   const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [userId, setUserId] = useState<number>(0);
   const { memberId, email, position, profileUrl } = useUserStore();
+  const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const { setRecruitmentData } = useFormStore();
 
   if (!studioId) {
@@ -106,7 +107,6 @@ export default function StudioPage() {
 
         setSessionId(sessionId);
         setSessionToken(sessionToken);
-        setUserId(data.member.id);
       } catch (error) {
         console.error("❌ 스튜디오 정보 가져오기 실패:", error);
       }
@@ -199,12 +199,18 @@ export default function StudioPage() {
             <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
               <Header />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
-                <StudioSideTab userAudioStreams={userAudioStreams} />
+                <StudioSideTab
+                  userAudioStreams={userAudioStreams}
+                  tracks={tracks}
+                  setTracks={setTracks}
+                />
                 <VideoPlayer
                   videoRef={videoRef}
                   videoUrl={videoUrl}
                   duration={duration}
                   setDuration={setDuration}
+                  tracks={tracks}
+                  setTracks={setTracks}
                 />
               </div>
             </div>
@@ -212,7 +218,12 @@ export default function StudioPage() {
               <StudioScript />
             </div>
           </div>
-          <RecordSection duration={duration} setDuration={setDuration} />
+          <RecordSection
+            duration={duration}
+            setDuration={setDuration}
+            tracks={tracks}
+            setTracks={setTracks}
+          />
         </div>
         <CursorPresence stompClientRef={stompClientRef} sessionId={sessionId} />
         <WebRTCManager
@@ -220,7 +231,7 @@ export default function StudioPage() {
           sessionId={sessionId}
           sessionToken={sessionToken}
           onUserAudioUpdate={handleUserAudioUpdate}
-          userId={userId}
+          userId={memberId!}
         />
       </div>
     </DndProvider>

@@ -40,6 +40,7 @@ const AudioTrackTimeline = ({
     isRecording,
     analyser,
     currentRecordingTrackId,
+    setAudioFiles,
   } = useRecordingStore();
   const { time } = useTimeStore();
   const isSyncingRef = useRef(false);
@@ -202,10 +203,28 @@ const AudioTrackTimeline = ({
           };
         }),
       );
+
+      setAudioFiles((prev) => ({
+        ...prev,
+        [trackId]: (prev[trackId] ?? []).filter(
+          (url) => !validFiles.some((file) => file.url === url),
+        ),
+      }));
+
+      validFiles.forEach((file) => {
+        delete offsetMap[file.url];
+      });
     };
 
     updateTrack();
-  }, [audioFiles, trackId, setTracks, audioContext, audioBuffers]);
+  }, [
+    audioFiles,
+    setAudioFiles,
+    trackId,
+    setTracks,
+    audioContext,
+    audioBuffers,
+  ]);
 
   // ✅ 드롭 가능하도록 `useDrop` 추가
   const [{ isOver }, drop] = useDrop(() => ({
