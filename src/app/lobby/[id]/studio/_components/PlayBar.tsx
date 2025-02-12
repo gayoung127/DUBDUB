@@ -11,18 +11,25 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
+import { initialTracks, Track } from "@/app/_types/studio";
+import { useUserStore } from "@/app/_store/UserStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
-const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
-  const userId = 1; //임시 유저 아이디
-  const trackId = 1; //임시 트랙 아이디
+const PlayBar = ({
+  videoRef,
+  duration,
+  setDuration,
+  tracks,
+  setTracks,
+}: PlayBarProps) => {
   const { time, isPlaying, play, pause, reset } = useTimeStore();
-
   const {
     isRecording,
     audioContext,
@@ -35,6 +42,8 @@ const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
   } = useRecordingStore();
   const { micStatus } = useMicStore();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  const userId = useUserStore.getState().self?.memberId!;
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -101,6 +110,12 @@ const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
           }
         };
 
+        const track = tracks.find((t) => t.recorderId === userId);
+        if (!track) {
+          console.error("할당된 트랙이 없음");
+          return;
+        }
+
         recorder.onstop = () => {
           console.log("✅ 녹음 중지됨, 파일 생성 시작...");
           const audioBlob = new Blob(chunks, {
@@ -109,19 +124,18 @@ const PlayBar = ({ videoRef, duration, setDuration }: PlayBarProps) => {
           const url = URL.createObjectURL(audioBlob);
           console.log("🎵 생성된 오디오 파일 URL:", url);
 
-          if (!userId) {
+          if (!track.recorderId) {
             console.error(
               "❌ recorderId가 없습니다. 녹음 파일을 추가할 수 없습니다.",
             );
             return;
           }
-
-          createAudioFile(userId, url, currentTime);
+          createAudioFile(track.trackId, url, currentTime);
         };
 
         recorder.start();
         console.log("🎬 녹음 시작됨");
-        startRecording(trackId);
+        startRecording(track.trackId);
         play();
         setMediaRecorder(recorder);
 
