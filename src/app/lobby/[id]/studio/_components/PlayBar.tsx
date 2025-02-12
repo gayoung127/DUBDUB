@@ -45,13 +45,13 @@ const PlayBar = ({
   const { self } = useUserStore();
   const userId = self?.memberId ?? null;
 
-  // useEffect(() => {
-  //   if (time >= duration) {
-  //     console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
-  //     pause();
-  //     reset();
-  //   }
-  // }, [time, duration]);
+  useEffect(() => {
+    if (time >= duration) {
+      console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
+      pause();
+      reset();
+    }
+  }, [time, duration]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -62,10 +62,14 @@ const PlayBar = ({
       ) {
         return;
       }
-
       if (event.code === "Space") {
         event.preventDefault();
-        isPlaying ? pause() : play();
+
+        if (isPlaying) {
+          pause(); // ✅ 재생 중이면 일시정지
+        } else {
+          play(); // ✅ 재생 중이 아니면 재생
+        }
       }
     };
 
