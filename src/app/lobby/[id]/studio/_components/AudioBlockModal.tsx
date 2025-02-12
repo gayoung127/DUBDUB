@@ -1,7 +1,7 @@
 import React from "react";
 
-import CropIcon from "@/public/images/icons/icon-scissor.svg";
-import DeleteIcon from "@/public/images/icons/icon-trashbin.svg";
+import CropIcon from "@/public/images/icons/icon-scissor-white.svg";
+import DeleteIcon from "@/public/images/icons/icon-trashbin-white.svg";
 
 interface AudioBlockModalProps {
   handleCrop: () => void;
@@ -13,7 +13,7 @@ const AudioBlockModal = ({
   handleDelete,
 }: AudioBlockModalProps) => {
   return (
-    <div className="absolute left-0 top-0 flex flex-row items-center justify-start rounded-lg bg-white-300 px-1 py-1">
+    <div className="absolute left-0 top-0 flex flex-row items-center justify-start rounded-lg bg-gray-200 px-1 py-1">
       <div
         className="flex h-8 w-8 cursor-pointer flex-row items-center justify-center"
         onClick={handleCrop}
