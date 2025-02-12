@@ -64,12 +64,15 @@ const AudioBlock = ({
         });
       },
       onDrag: function () {
-        const newStartPoint = Math.max(0, Math.round(this.x));
+        const newStartPoint = Math.max(0, Math.round(this.x * 100) / 100);
         setLocalStartPoint(newStartPoint);
         gsap.set(blockElement, { x: newStartPoint });
       },
       onDragEnd: function () {
-        const finalStartPoint = Math.max(0, Math.round(this.x / PX_PER_SECOND));
+        const finalStartPoint = Math.max(
+          0,
+          Math.round((this.x / PX_PER_SECOND) * 100) / 100,
+        );
 
         setTracks((prevTracks) =>
           prevTracks.map((track) => ({

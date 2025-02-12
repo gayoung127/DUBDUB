@@ -238,7 +238,7 @@ const AudioTrackTimeline = ({
 
       const rect = timelineRef.current.getBoundingClientRect();
       const dropX = offset.x - rect.left;
-      const startPoint = Math.max(0, Math.round(dropX / 80)); // 80px = 1초 기준
+      const startPoint = Math.max(0, Math.round((dropX / 80) * 100) / 100); // 80px = 1초 기준
 
       setTracks((prevTracks) =>
         prevTracks.map((track) =>
