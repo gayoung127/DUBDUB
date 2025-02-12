@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import UploadIcon from "@/public/images/icons/icon-upload.svg";
 import H2 from "@/app/_components/H2";
-import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumnail";
+import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumbnail";
 
 interface VideoProps {
   onChange: (file: File | null) => void;
