@@ -107,9 +107,18 @@ const VocalRemoval = ({
         <Button className="w-full" onClick={handleVocalRemoval}>
           보컬 제거하기
         </Button>
-        <Button className="w-full" onClick={handlePlay}>
-          미리 듣기
-        </Button>
+        <div className="flex w-full flex-row items-center justify-between gap-x-2">
+          <Button
+            className="w-full bg-white-bg"
+            outline={true}
+            onClick={handlePlay}
+          >
+            미리 듣기
+          </Button>
+          <Button className="w-full" onClick={() => {}}>
+            적용하기
+          </Button>
+        </div>
       </div>
     </section>
   );
