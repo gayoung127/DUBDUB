@@ -58,15 +58,15 @@ export default function StudioPage() {
     getMyInfo();
   }, []);
 
-  // // 비디오 URL 설정
-  // useEffect(() => {
-  //   if (!studioId) return;
+  // 비디오 URL 설정
+  useEffect(() => {
+    if (!studioId) return;
 
-  //   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL; // `BASE_URL`을 여기에 선언
-  //   if (!BASE_URL) return;
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL; // `BASE_URL`을 여기에 선언
+    if (!BASE_URL) return;
 
-  //   setVideoUrl("/examples/zzangu.mp4");
-  // }, [studioId]);
+    setVideoUrl("/examples/zzangu.mp4");
+  }, [studioId]);
 
   // 스튜디오 정보 가져오기
   useEffect(() => {
@@ -114,7 +114,7 @@ export default function StudioPage() {
 
     getStudioInfo();
   }, [studioId]);
-  /////////////////////////////////////////////////////////////////////////
+
   // 방 생성 정보 가져오기
   useEffect(() => {
     const getCreateInfo = async () => {
@@ -157,7 +157,7 @@ export default function StudioPage() {
     };
     getCreateInfo();
   }, [studioId, setRecruitmentData]);
-  ////////////////////////////////////////////////////////////////////////////////
+
   // OpenVidu 테스트 (비동기)
   useEffect(() => {
     const testOv = async () => {

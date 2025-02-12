@@ -10,9 +10,9 @@ function ShareButton() {
   };
 
   return (
-    <button className="flex items-center justify-center px-2 py-1.5">
+    <div className="flex items-center justify-center px-2 py-1.5">
       <Button onClick={handleShare}>URL 공유하기</Button>
-    </button>
+    </div>
   );
 }
 
