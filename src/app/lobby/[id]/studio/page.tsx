@@ -183,6 +183,7 @@ export default function StudioPage() {
           sessionToken={sessionToken}
           onUserAudioUpdate={handleUserAudioUpdate}
           userId={memberId!}
+          videoRef={videoRef}
         />
       </div>
     </DndProvider>
