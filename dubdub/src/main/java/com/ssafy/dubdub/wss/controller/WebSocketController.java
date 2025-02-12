@@ -32,6 +32,8 @@ public class WebSocketController {
     @MessageMapping("/studio/{sessionId}/track/recorder")
     @SendTo("/studio/{sessionId}/track/recorder")
     public TrackRecorder broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder) {
+            studioStoreService.saveTrackRecorder(sessionId, trackRecorder);
+
         return trackRecorder;
     }
 
