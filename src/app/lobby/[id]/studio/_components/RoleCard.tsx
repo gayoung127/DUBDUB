@@ -82,11 +82,10 @@ const RoleCard = ({
       }
     }
   };
-
   return (
     <div
       ref={ref}
-      className="flex w-full flex-row items-center justify-start gap-x-3"
+      className={`draggable ${isDragging ? "is-dragging" : ""} flex w-full flex-row items-center justify-start gap-x-3`}
     >
       <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-start rounded-full bg-gray-100">
         <Image
@@ -100,13 +99,6 @@ const RoleCard = ({
       <div className="flex w-full flex-row items-center justify-start gap-x-3">
         <H4 className="text-white-100">{name}</H4>
         <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
-        <audio ref={audioRef} />
-        <button
-          onClick={handleToggleMic}
-          className={`flex h-[24px] w-[24px] items-center justify-center rounded-[4px] ${isMicOn ? "bg-brand-100" : "bg-gray-100"}`}
-        >
-          {isMicOn ? <MicOn /> : <MicOff />}
-        </button>
       </div>
     </div>
   );

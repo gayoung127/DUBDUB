@@ -163,17 +163,17 @@ const PlayBar = ({
   return (
     <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
-        <div onClick={handleRecording}>
+        <div onClick={handleRecording} className="cursor-pointer">
           <RecordButton width={20} height={20} />
         </div>
-        <div onClick={isPlaying ? pause : play}>
+        <div onClick={isPlaying ? pause : play} className="cursor-pointer">
           {isPlaying ? (
             <PauseButton width={20} height={20} />
           ) : (
             <PlayButton width={20} height={20} />
           )}
         </div>
-        <div onClick={reset}>
+        <div onClick={reset} className="cursor-pointer">
           <StopButton width={20} height={20} />
         </div>
       </div>
