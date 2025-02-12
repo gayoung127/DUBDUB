@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import { Track } from "@/app/_types/studio";
 import Image from "next/image";
+import { ContextMenuItem, useContextMenu } from "@/app/_hooks/useContextMenu";
+import ContextMenu from "./ContextMenu";
 
 interface AudioTrackHeaderProps {
   trackId: number;
@@ -33,6 +35,8 @@ const AudioTrackHeader = ({
   const trackRef = useRef<HTMLDivElement | null>(null);
   // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
   const [isSolo, setIsSolo] = useState<boolean>(false);
+  const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
+    useContextMenu();
 
   // --------- 웹소켓 임시 ---------------
   // useEffect(() => {
@@ -165,6 +169,19 @@ const AudioTrackHeader = ({
       ),
     );
   };
+
+  const menuItems: ContextMenuItem[] = [
+    { label: "삭제", action: () => handleDelete() },
+    { label: "수정", action: () => handleDelete() },
+  ];
+
+  const handleRightClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (setSelectedTrackId) {
+      setSelectedTrackId(trackId);
+    }
+    handleContextMenu(event.nativeEvent, menuItems);
+  };
   return (
     <div
       ref={trackRef}
@@ -177,6 +194,7 @@ const AudioTrackHeader = ({
         {recorderId && (
           <div
             className={`relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 ${trackId === selectedTrackId ? "border-2 border-yellow-600" : ""}`}
+            onContextMenu={handleRightClick}
             onClick={() => {
               if (setSelectedTrackId) {
                 setSelectedTrackId((prev) =>
@@ -208,6 +226,13 @@ const AudioTrackHeader = ({
           <span className="text-xs font-bold text-gray-400">S</span>
         </div>
       </div>
+      <ContextMenu
+        x={contextMenuState.x}
+        y={contextMenuState.y}
+        menuItems={contextMenuState.menuItems}
+        isOpen={contextMenuState.isOpen}
+        onClose={handleCloseContextMenu}
+      />
     </div>
   );
 };
