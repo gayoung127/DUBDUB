@@ -238,7 +238,7 @@ const AudioTrackTimeline = ({
 
       const rect = timelineRef.current.getBoundingClientRect();
       const dropX = offset.x - rect.left;
-      const startPoint = Math.max(0, Math.round(dropX / 80)); // 80px = 1초 기준
+      const startPoint = Math.max(0, Math.round((dropX / 80) * 100) / 100); // 80px = 1초 기준
 
       setTracks((prevTracks) =>
         prevTracks.map((track) =>
@@ -275,7 +275,7 @@ const AudioTrackTimeline = ({
         drop(node);
         timelineRef.current = node;
       }}
-      className={`flex h-[60px] min-h-0 flex-shrink-0 flex-row items-center justify-start overflow-y-hidden border border-gray-300 ${
+      className={`relative flex h-[60px] min-h-0 flex-shrink-0 flex-row items-center justify-start overflow-y-hidden border border-gray-300 ${
         isOver ? "bg-gray-200" : ""
       }`} // 드롭 시 색상 변경
       style={{ width: `${duration * 80}px` }}
