@@ -93,7 +93,7 @@ const RoleCard = ({
           src={profileImageUrl}
           alt={name}
           fill
-          style={{ objectFit: "contain" }}
+          style={{ objectFit: "cover" }}
           className="rounded-full"
         />
       </div>
