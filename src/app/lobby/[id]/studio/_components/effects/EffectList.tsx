@@ -10,6 +10,7 @@ import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
 import { audioBufferToArrayBuffer } from "@/app/_utils/audioBufferToMp3";
 import VocalRemoval from "./VocalRemoval";
+import Compressor from "./Compressor";
 // import {
 //   audioBufferToMp3,
 //   audioBufferToWebm,
@@ -34,13 +35,13 @@ const EffectList = ({ tracks, setTracks }: EffectListProps) => {
   useEffect(() => {
     async function loadAudio() {
       if (!audioContextRef.current) {
-        console.error("❌ AudioContext가 없습니다.");
+        console.log("❌ AudioContext가 없습니다.");
         return;
       }
 
       const file = selectedBlock;
       if (!file) {
-        console.error("❌ 선택된 오디오 블럭이 없습니다.");
+        console.log("❌ 선택된 오디오 블럭이 없습니다.");
         return;
       }
 
@@ -133,6 +134,17 @@ const EffectList = ({ tracks, setTracks }: EffectListProps) => {
       name: "보컬 제거",
       component: (
         <VocalRemoval
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+          selectedBlock={selectedBlock}
+        />
+      ),
+    },
+    {
+      name: "컴프레서",
+      component: (
+        <Compressor
           context={audioContextRef}
           audioBuffer={audioBuffer}
           updateBuffer={updateBuffer}

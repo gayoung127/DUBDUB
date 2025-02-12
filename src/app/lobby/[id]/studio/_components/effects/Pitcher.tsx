@@ -69,7 +69,7 @@ const Pitcher = ({ context, audioBuffer, updateBuffer }: PitcherProps) => {
   }
 
   return (
-    <div className="relative flex h-[80%] flex-col gap-10">
+    <div className="relative flex h-full w-full flex-col gap-10">
       <div className="flex justify-end gap-4">
         <StartButton className="cursor-pointer" onClick={startPitch} />
         <CheckButton className="cursor-pointer" onClick={savePitch} />
