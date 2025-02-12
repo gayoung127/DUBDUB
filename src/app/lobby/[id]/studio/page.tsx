@@ -13,6 +13,7 @@ import WebRTCManager from "./_components/WebRTCManager";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
+import { useFormStore } from "@/app/_store/FormStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
@@ -31,6 +32,7 @@ export default function StudioPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [userId, setUserId] = useState<number>(0);
   const { memberId, email, position, profileUrl } = useUserStore();
+  const { setRecruitmentData } = useFormStore();
 
   if (!studioId) {
     throw new Error("studioId 없음");
@@ -112,7 +114,41 @@ export default function StudioPage() {
 
     getStudioInfo();
   }, [studioId]);
+  /////////////////////////////////////////////////////////////////////////
+  // 방 생성 정보 가져오기
+  useEffect(() => {
+    const getCreateInfo = async () => {
+      try {
+        const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!BASE_URL) return;
 
+        const response = await fetch(`${BASE_URL}/recruitment`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("📥 불러온 모집글 데이터:", data);
+
+        // 모집글 데이터를 Zustand 상태에 저장
+        setRecruitmentData({
+          title: data.title,
+          content: data.content,
+          genreTypes: data.genreTypes || [],
+          categoryTypes: data.categoryTypes || [],
+          castings: data.castings || [],
+        });
+      } catch (error) {
+        console.error("❌ 스튜디오 정보 가져오기 실패:", error);
+      }
+    };
+    getCreateInfo();
+  }, [studioId]);
+  ////////////////////////////////////////////////////////////////////////////////
   // OpenVidu 테스트 (비동기)
   useEffect(() => {
     const testOv = async () => {
