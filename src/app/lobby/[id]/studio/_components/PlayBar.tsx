@@ -12,11 +12,11 @@ import { formatTime } from "@/app/_utils/formatTime";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
 import { initialTracks, Track } from "@/app/_types/studio";
+import { useUserStore } from "@/app/_store/UserStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
   duration: number;
-  userId: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
@@ -26,7 +26,6 @@ const PlayBar = ({
   videoRef,
   duration,
   setDuration,
-  userId,
   tracks,
   setTracks,
 }: PlayBarProps) => {
@@ -43,6 +42,8 @@ const PlayBar = ({
   } = useRecordingStore();
   const { micStatus } = useMicStore();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  const userId = useUserStore.getState().self?.memberId!;
 
   useEffect(() => {
     const videoElement = videoRef.current;

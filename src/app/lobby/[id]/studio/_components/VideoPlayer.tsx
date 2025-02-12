@@ -4,7 +4,6 @@ import VideoBlock from "./VideoBlock";
 import { Track } from "@/app/_types/studio";
 
 interface VideoPlayerProps {
-  userId: number;
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
   videoUrl: string | undefined;
   duration: number;
@@ -18,7 +17,6 @@ const VideoPlayer = ({
   videoUrl,
   duration,
   setDuration,
-  userId,
   tracks,
   setTracks,
 }: VideoPlayerProps) => {
@@ -31,7 +29,6 @@ const VideoPlayer = ({
         videoRef={videoRef}
         duration={duration}
         setDuration={setDuration}
-        userId={userId}
         tracks={tracks}
         setTracks={setTracks}
       />
