@@ -14,6 +14,9 @@ interface AudioTrackHeaderProps {
   recorderName?: string;
   recorderRole?: string;
   recorderProfileUrl?: string;
+
+  selectedTrackId?: number | null;
+  setSelectedTrackId?: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const AudioTrackHeader = ({
@@ -24,6 +27,8 @@ const AudioTrackHeader = ({
   recorderName,
   recorderRole,
   recorderProfileUrl,
+  selectedTrackId,
+  setSelectedTrackId,
 }: AudioTrackHeaderProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
   // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
@@ -134,6 +139,32 @@ const AudioTrackHeader = ({
 
   drop(trackRef);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "delete" && selectedTrackId === trackId) {
+        handleDelete();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedTrackId]);
+
+  const handleDelete = () => {
+    setTracks((prev) =>
+      prev.map((track) =>
+        track.trackId === trackId
+          ? {
+              ...track,
+              recorderId: undefined,
+              recorderName: undefined,
+              recorderRole: undefined,
+              recorderProfileUrl: undefined,
+            }
+          : track,
+      ),
+    );
+  };
   return (
     <div
       ref={trackRef}
@@ -144,7 +175,16 @@ const AudioTrackHeader = ({
       </span>
       <div className="flex flex-row items-center gap-x-4">
         {recorderId && (
-          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
+          <div
+            className={`relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 ${trackId === selectedTrackId ? "border-2 border-yellow-600" : ""}`}
+            onClick={() => {
+              if (setSelectedTrackId) {
+                setSelectedTrackId((prev) =>
+                  prev === trackId ? null : trackId,
+                );
+              }
+            }}
+          >
             <Image
               src={recorderProfileUrl || "/images/tmp/dducip.jpg"}
               alt={recorderName || "프로필 이미지"}

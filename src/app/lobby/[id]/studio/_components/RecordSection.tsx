@@ -32,6 +32,7 @@ const RecordSection = ({
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const [selectedTrackId, setSelectedTrackId] = useState<number | null>(null);
 
   // 1. 트랙 세로 스크롤 동기화
   const trackListRef = useRef<HTMLDivElement | null>(null);
@@ -207,6 +208,8 @@ const RecordSection = ({
                 recorderRole={track.recorderRole}
                 recorderProfileUrl={track.recorderProfileUrl}
                 setTracks={setTracks}
+                selectedTrackId={selectedTrackId}
+                setSelectedTrackId={setSelectedTrackId}
               />
             ))}
           </div>
