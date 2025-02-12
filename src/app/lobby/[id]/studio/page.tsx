@@ -114,7 +114,7 @@ export default function StudioPage() {
 
     getStudioInfo();
   }, [studioId]);
-  /////////////////////////////////////////////////////////////////////////
+
   // 방 생성 정보 가져오기
   useEffect(() => {
     const getCreateInfo = async () => {
@@ -157,7 +157,7 @@ export default function StudioPage() {
     };
     getCreateInfo();
   }, [studioId, setRecruitmentData]);
-  ////////////////////////////////////////////////////////////////////////////////
+
   // OpenVidu 테스트 (비동기)
   useEffect(() => {
     const testOv = async () => {
