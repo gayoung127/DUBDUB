@@ -42,11 +42,8 @@ const PlayBar = ({
   } = useRecordingStore();
   const { micStatus } = useMicStore();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const { self } = useUserStore.getState();
-  if (!self?.memberId) {
-    throw new Error("⚠️ 사용자 ID가 존재하지 않습니다!");
-  }
-  const userId = self.memberId;
+  const { self } = useUserStore();
+  const userId = self?.memberId ?? null;
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -72,6 +69,12 @@ const PlayBar = ({
 
   // 녹음하는 함수
   const handleRecording = async () => {
+    if (!userId) {
+      console.error("🚨 사용자 ID가 없습니다. 녹음을 시작할 수 없습니다.");
+      alert("오류: 사용자 정보가 없습니다.");
+      return;
+    }
+
     if (isRecording) {
       console.log("🎙️ 녹음 중지 요청됨");
       mediaRecorderRef.current?.stop();
