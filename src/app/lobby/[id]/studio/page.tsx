@@ -13,7 +13,6 @@ import WebRTCManager from "./_components/WebRTCManager";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
-import { useFormStore } from "@/app/_store/FormStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
@@ -56,16 +55,6 @@ export default function StudioPage() {
   useEffect(() => {
     getMyInfo();
   }, []);
-
-  // 비디오 URL 설정
-  useEffect(() => {
-    if (!studioId) return;
-
-    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL; // `BASE_URL`을 여기에 선언
-    if (!BASE_URL) return;
-
-    setVideoUrl("/examples/zzangu.mp4");
-  }, [studioId]);
 
   // 스튜디오 정보 가져오기
   useEffect(() => {
