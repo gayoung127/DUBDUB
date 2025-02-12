@@ -22,7 +22,7 @@ const Timeline = ({ duration }: TimelineProps) => {
   useEffect(() => {
     if (!timelineRef.current) return;
 
-    let scrollContainer: HTMLElement | null = timelineRef.current.closest(
+    const scrollContainer: HTMLElement | null = timelineRef.current.closest(
       ".scrollbar-horizontal",
     );
     if (!scrollContainer) {

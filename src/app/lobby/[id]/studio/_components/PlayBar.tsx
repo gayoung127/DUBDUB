@@ -47,10 +47,10 @@ const PlayBar = ({
 
   useEffect(() => {
     if (time >= duration) {
-      pause(); // 재생 중지
-      reset(); // time을 00:00으로 리셋
+      pause();
+      reset();
     }
-  }, [time, duration, pause, reset]);
+  }, [time, duration]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
