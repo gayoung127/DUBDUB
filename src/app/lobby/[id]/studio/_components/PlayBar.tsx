@@ -46,6 +46,13 @@ const PlayBar = ({
   const userId = self?.memberId ?? null;
 
   useEffect(() => {
+    if (time >= duration) {
+      pause(); // 재생 중지
+      reset(); // time을 00:00으로 리셋
+    }
+  }, [time, duration, pause, reset]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
       if (
