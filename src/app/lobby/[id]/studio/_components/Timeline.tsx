@@ -30,21 +30,19 @@ const Timeline = ({ duration }: TimelineProps) => {
       return;
     }
 
-    const markerPosition = time * PX_PER_SECOND; // 현재 마커 위치(px)
-    const scrollWidth = scrollContainer.clientWidth; // 현재 보이는 영역 너비
-    const threshold = scrollWidth * 0.9; // 70% 지점에서 스크롤
+    const markerPosition = time * PX_PER_SECOND;
+    const scrollWidth = scrollContainer.clientWidth;
+    const threshold = scrollWidth * 0.9;
 
     console.log("🎯 마커 위치(px):", markerPosition);
     console.log("🖥️ 현재 스크롤 위치:", scrollContainer.scrollLeft);
     console.log("📏 현재 화면 너비:", scrollWidth);
 
-    // ✅ 마커가 70% 이상 진행되었을 때 오른쪽으로 스크롤 이동
     if (markerPosition > scrollContainer.scrollLeft + threshold) {
       console.log("📌 오른쪽으로 스크롤 이동 🚀");
       scrollContainer.scrollLeft = markerPosition - threshold;
     }
 
-    // ✅ 마커가 너무 왼쪽에 있으면 왼쪽으로 스크롤 이동
     if (markerPosition < scrollContainer.scrollLeft + scrollWidth * 0.1) {
       console.log("📌 왼쪽으로 스크롤 이동 🔙");
       scrollContainer.scrollLeft = markerPosition - scrollWidth * 0.1;
