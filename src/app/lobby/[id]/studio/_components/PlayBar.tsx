@@ -42,8 +42,11 @@ const PlayBar = ({
   } = useRecordingStore();
   const { micStatus } = useMicStore();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-
-  const userId = useUserStore.getState().self?.memberId!;
+  const { self } = useUserStore.getState();
+  if (!self?.memberId) {
+    throw new Error("⚠️ 사용자 ID가 존재하지 않습니다!");
+  }
+  const userId = self.memberId;
 
   useEffect(() => {
     const videoElement = videoRef.current;
