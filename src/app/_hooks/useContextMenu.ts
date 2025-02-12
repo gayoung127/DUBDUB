@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ContextMenuItem {
-  label: string;
+  icon: React.ReactNode;
   action: () => void;
 }
 

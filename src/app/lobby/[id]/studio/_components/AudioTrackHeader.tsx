@@ -6,6 +6,7 @@ import { Track } from "@/app/_types/studio";
 import Image from "next/image";
 import { ContextMenuItem, useContextMenu } from "@/app/_hooks/useContextMenu";
 import ContextMenu from "./ContextMenu";
+import MinusIcon from "@/public/images/icons/icon-minus.svg";
 
 interface AudioTrackHeaderProps {
   trackId: number;
@@ -171,8 +172,10 @@ const AudioTrackHeader = ({
   };
 
   const menuItems: ContextMenuItem[] = [
-    { label: "삭제", action: () => handleDelete() },
-    { label: "수정", action: () => handleDelete() },
+    {
+      icon: <MinusIcon width={16} height={16} />,
+      action: () => handleDelete(),
+    },
   ];
 
   const handleRightClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -210,6 +213,15 @@ const AudioTrackHeader = ({
               style={{ objectFit: "contain" }}
               className="rounded-full"
             />
+            <div className="relative">
+              <ContextMenu
+                x={contextMenuState.x}
+                y={contextMenuState.y}
+                menuItems={contextMenuState.menuItems}
+                isOpen={contextMenuState.isOpen}
+                onClose={handleCloseContextMenu}
+              />
+            </div>
           </div>
         )}
 
@@ -226,13 +238,6 @@ const AudioTrackHeader = ({
           <span className="text-xs font-bold text-gray-400">S</span>
         </div>
       </div>
-      <ContextMenu
-        x={contextMenuState.x}
-        y={contextMenuState.y}
-        menuItems={contextMenuState.menuItems}
-        isOpen={contextMenuState.isOpen}
-        onClose={handleCloseContextMenu}
-      />
     </div>
   );
 };

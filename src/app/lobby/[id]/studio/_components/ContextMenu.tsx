@@ -32,23 +32,28 @@ const ContextMenu = ({
   return (
     <div
       ref={menuRef}
-      style={{ top: y, left: x }}
-      className="shadow-lg absolute z-50 w-20 rounded-md border border-gray-200 bg-gray-400"
+      style={{
+        position: "fixed",
+        top: `${y}px`,
+        left: `${x}px`,
+        zIndex: 999999,
+      }}
+      className="bg-white shadow-md p-4"
     >
-      <ul className="py-1">
+      <div className="absolute left-0 top-0 flex flex-row items-center justify-start rounded-lg bg-gray-200 px-1 py-1">
         {menuItems.map((item, index) => (
-          <li
+          <div
             key={index}
-            className="cursor-pointer px-4 py-2 text-center text-sm text-white-100 hover:bg-gray-100"
+            className="flex h-8 w-8 cursor-pointer flex-row items-center justify-center"
             onClick={() => {
               item.action();
               onClose();
             }}
           >
-            {item.label}
-          </li>
+            {item.icon}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
