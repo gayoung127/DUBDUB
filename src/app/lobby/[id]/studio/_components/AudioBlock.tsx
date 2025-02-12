@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import useBlockStore from "@/app/_store/BlockStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import AudioBlockModal from "./AudioBlockModal";
 
 export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
@@ -256,6 +257,15 @@ const AudioBlock = ({
     console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
   };
 
+  const deleteBlock = () => {
+    setTracks((prevTracks) =>
+      prevTracks.map((track) => ({
+        ...track,
+        files: track.files.filter((f) => f.id !== file.id),
+      })),
+    );
+  };
+
   // useEffect : 오디오 블록 키보드 이벤트
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -269,12 +279,7 @@ const AudioBlock = ({
         event.key.toLowerCase() === "delete" &&
         selectedBlock?.id === file.id
       ) {
-        setTracks((prevTracks) =>
-          prevTracks.map((track) => ({
-            ...track,
-            files: track.files.filter((f) => f.id !== file.id),
-          })),
-        );
+        deleteBlock();
         console.log("✅ 블록이 삭제되었습니다!", file.id);
       }
     };
@@ -303,6 +308,16 @@ const AudioBlock = ({
           backgroundColor: blockColor,
         }}
       ></canvas>
+      {file.id === selectedBlock?.id && (
+        <div className="relative">
+          <div className="bg-white shadow-md absolute -top-5 left-2 z-10 w-[200px] p-4">
+            <AudioBlockModal
+              handleCrop={splitBlock}
+              handleDelete={deleteBlock}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
