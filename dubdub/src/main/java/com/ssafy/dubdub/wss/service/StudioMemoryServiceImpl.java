@@ -24,7 +24,7 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public AudioAsset addAsset(String sessionId, AudioAsset audioAsset) {
+    public AudioAsset saveAsset(String sessionId, AudioAsset audioAsset) {
         assetMap.computeIfAbsent(sessionId, k -> new ConcurrentHashMap<>())
                 .put(audioAsset.getId(), audioAsset);
         return audioAsset;
@@ -37,13 +37,6 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public AudioAsset updateAsset(String sessionId, AudioAsset audioAsset) {
-        return Optional.ofNullable(assetMap.get(sessionId))
-                .map(sessionAssets -> sessionAssets.put(audioAsset.getId(), audioAsset))
-                .orElse(null);
-    }
-
-    @Override
     public List<TrackRecorder> getTrackRecorderList(String sessionId) {
         return Optional.ofNullable(trackRecorderMap.get(sessionId))
                 .map(recorders -> List.copyOf(recorders.values()))
@@ -51,7 +44,7 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public TrackRecorder addTrackRecorder(String sessionId, TrackRecorder trackRecorder) {
+    public TrackRecorder saveTrackRecorder(String sessionId, TrackRecorder trackRecorder) {
         trackRecorderMap.computeIfAbsent(sessionId, k -> new ConcurrentHashMap<>())
                 .put(trackRecorder.getTrackId(), trackRecorder);
         return trackRecorder;
@@ -64,13 +57,6 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public TrackRecorder updateTrackRecorder(String sessionId, TrackRecorder trackRecorder) {
-        return Optional.ofNullable(trackRecorderMap.get(sessionId))
-                .map(recorders -> recorders.put(trackRecorder.getTrackId(), trackRecorder))
-                .orElse(null);
-    }
-
-    @Override
     public List<TrackFile> getTrackFileList(String sessionId) {
         return Optional.ofNullable(trackFileMap.get(sessionId))
                 .map(files -> List.copyOf(files.values()))
@@ -78,7 +64,7 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public TrackFile addTrackFile(String sessionId, TrackFile trackFile) {
+    public TrackFile saveTrackFile(String sessionId, TrackFile trackFile) {
         trackFileMap.computeIfAbsent(sessionId, k -> new ConcurrentHashMap<>())
                 .put(trackFile.getId(), trackFile);
         return trackFile;
@@ -88,12 +74,5 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     public void deleteTrackFile(String sessionId, String trackFileId) {
         Optional.ofNullable(trackFileMap.get(sessionId))
                 .ifPresent(files -> files.remove(trackFileId));
-    }
-
-    @Override
-    public TrackFile updateTrackFile(String sessionId, TrackFile trackFile) {
-        return Optional.ofNullable(trackFileMap.get(sessionId))
-                .map(files -> files.put(trackFile.getId(), trackFile))
-                .orElse(null);
     }
 }

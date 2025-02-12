@@ -36,18 +36,15 @@ public class WebSocketController {
     }
 
     //오디오 파일(에셋) 공유
-    @MessageMapping("/studio/{sesionId}/asset")
-    @SendTo("/studio/{sesionId}/assets")
+    @MessageMapping("/studio/{sessionId}/asset")
+    @SendTo("/studio/{sessionId}/assets")
     public AudioAssetRequestDto broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto) {
         switch (requestDto.getAction()) {
-            case ADD -> {
-                studioStoreService.addAsset(sessionId, requestDto.getAudioAsset());
+            case UPDATE -> {
+                studioStoreService.saveAsset(sessionId, requestDto.getAudioAsset());
             }
             case REMOVE -> {
                 studioStoreService.deleteAsset(sessionId, requestDto.getAudioAsset().getId());
-            }
-            case UPDATE -> {
-                studioStoreService.updateAsset(sessionId, requestDto.getAudioAsset());
             }
         }
 
@@ -60,14 +57,11 @@ public class WebSocketController {
     public TrackAssetDto broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto) {
 
         switch (requestDto.getAction()) {
-            case ADD -> {
-                studioStoreService.addTrackFile(sessionId, requestDto.getFile());
+            case UPDATE -> {
+                studioStoreService.saveTrackFile(sessionId, requestDto.getFile());
             }
             case REMOVE -> {
                 studioStoreService.deleteTrackFile(sessionId, requestDto.getFile().getId());
-            }
-            case UPDATE -> {
-                studioStoreService.updateTrackFile(sessionId, requestDto.getFile());
             }
         }
         return requestDto;

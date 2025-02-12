@@ -12,17 +12,14 @@ import java.util.List;
 @Service
 public interface StudioStoreService {
     List<AudioAsset> getAssetList(String sessionId);
-    AudioAsset addAsset(String sessionId, AudioAsset audioAsset);
+    AudioAsset saveAsset(String sessionId, AudioAsset audioAsset);
     void deleteAsset(String sessionId, String assetId);
-    AudioAsset updateAsset(String sessionId, AudioAsset audioAsset);
 
     List<TrackRecorder> getTrackRecorderList(String sessionId);
-    TrackRecorder addTrackRecorder(String sessionId, TrackRecorder trackRecorder);
+    TrackRecorder saveTrackRecorder(String sessionId, TrackRecorder trackRecorder);
     void deleteTrackRecorder(String sessionId, String trackRecorderId);
-    TrackRecorder updateTrackRecorder(String sessionId, TrackRecorder trackRecorder);
 
     List<TrackFile> getTrackFileList(String sessionId);
-    TrackFile addTrackFile(String sessionId, TrackFile trackFile);
+    TrackFile saveTrackFile(String sessionId, TrackFile trackFile);
     void deleteTrackFile(String sessionId, String trackFileId);
-    TrackFile updateTrackFile(String sessionId, TrackFile trackFile);
 }
