@@ -6,9 +6,13 @@ export interface UserStore {
   nickName: string | null;
   position: string | null;
   profileUrl: string | null;
-  studioMembers: UserStore[]; // 👈 추가
   setUser: (user: Partial<UserStore>) => void;
-  setStudioMembers: (members: UserStore[]) => void; // 👈 추가
+
+  self: UserStore | null;
+  setSelf: (user: UserStore) => void;
+
+  studioMembers: UserStore[];
+  setStudioMembers: (members: UserStore[]) => void;
 }
 
 export const useUserStore = create<UserStore>((set) => ({
@@ -17,7 +21,14 @@ export const useUserStore = create<UserStore>((set) => ({
   nickName: null,
   position: null,
   profileUrl: null,
-  studioMembers: [],
   setUser: (user) => set((state) => ({ ...state, ...user })),
+
+  self: null,
+  setSelf: (user) =>
+    set((state) => ({
+      self: { ...state.self, ...user },
+    })),
+
+  studioMembers: [],
   setStudioMembers: (members) => set(() => ({ studioMembers: members })),
 }));
