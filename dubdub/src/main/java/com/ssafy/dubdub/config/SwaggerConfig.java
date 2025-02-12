@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
                         API Description
                         """,
                 version = "v1.0.0"),
-        servers = @Server(url = "/"))
+        servers = @Server(url = "/api"))
 @SecurityScheme(
         name = "Bearer Authentication",
         type = SecuritySchemeType.HTTP,
