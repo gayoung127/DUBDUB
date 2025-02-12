@@ -46,6 +46,28 @@ const PlayBar = ({
   const userId = self?.memberId ?? null;
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement &&
+        ["INPUT", "TEXTAREA"].includes(activeElement.tagName)
+      ) {
+        return;
+      }
+
+      if (event.code === "Space") {
+        event.preventDefault();
+        isPlaying ? pause() : play();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPlaying, play, pause]);
+
+  useEffect(() => {
     const videoElement = videoRef.current;
 
     if (!videoElement) return; // videoRef가 아직 설정되지 않았다면 아무것도 하지 않음
