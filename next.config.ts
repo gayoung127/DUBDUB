@@ -22,6 +22,14 @@ const nextConfig: NextConfig = {
 
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "bucket-dubdub.s3.ap-northeast-2.amazonaws.com",
+      },
+    ],
+  },
   env: {
     NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY:
       process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY,
