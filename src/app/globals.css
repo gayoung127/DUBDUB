@@ -111,4 +111,15 @@ html {
 
 body {
   height: 100%;
+  cursor:
+    url("/images/icons/cursor-self.svg") 10 10,
+    auto;
+}
+
+/* 클릭 가능한 요소 (cursor-pointer) */
+button,
+.cursor-pointer {
+  cursor:
+    url("/images/icons/cursor-pointer.svg") 10 10,
+    pointer;
 }
