@@ -8,7 +8,10 @@ interface RecordingStore {
   mediaRecorder: MediaRecorder | null;
   audioContext: AudioContext | null;
   analyser: AnalyserNode | null;
-  createAudioFile: (userId: number, url: string, startPoint: number) => void;
+  setAudioFiles: (
+    updateFn: (prev: Record<number, string[]>) => Record<number, string[]>,
+  ) => void;
+  createAudioFile: (trackId: number, url: string, startPoint: number) => void;
   startRecording: (trackId: number) => void;
   stopRecording: () => void;
   setMediaRecorder: (recorder: MediaRecorder | null) => void;
@@ -19,11 +22,15 @@ interface RecordingStore {
 export const useRecordingStore = create<RecordingStore>((set) => ({
   isRecording: false,
   currentRecordingTrackId: null,
-  audioFiles: [],
+  audioFiles: {},
   offsetMap: {},
   mediaRecorder: null,
   audioContext: null,
   analyser: null,
+  setAudioFiles: (updateFn) =>
+    set((state) => ({
+      audioFiles: updateFn(state.audioFiles),
+    })),
   createAudioFile: (trackId, url, startPoint) =>
     set((state) => {
       const updatedAudioFiles = {

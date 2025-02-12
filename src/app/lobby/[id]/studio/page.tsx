@@ -30,7 +30,7 @@ export default function StudioPage() {
   const [duration, setDuration] = useState<number>(160);
   const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [userId, setUserId] = useState<number>(0);
+  const [userId, setUserId] = useState<number>(1);
   const { memberId, email, position, profileUrl } = useUserStore();
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
 
@@ -106,7 +106,8 @@ export default function StudioPage() {
 
         setSessionId(sessionId);
         setSessionToken(sessionToken);
-        setUserId(data.member.id);
+        const memberId = data?.member?.id ?? 1;
+        setUserId(memberId);
       } catch (error) {
         console.error("❌ 스튜디오 정보 가져오기 실패:", error);
       }
@@ -162,10 +163,13 @@ export default function StudioPage() {
                   setTracks={setTracks}
                 />
                 <VideoPlayer
+                  userId={userId}
                   videoRef={videoRef}
                   videoUrl={videoUrl}
                   duration={duration}
                   setDuration={setDuration}
+                  tracks={tracks}
+                  setTracks={setTracks}
                 />
               </div>
             </div>

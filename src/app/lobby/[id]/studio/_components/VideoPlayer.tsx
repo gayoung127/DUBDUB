@@ -1,12 +1,16 @@
 import React from "react";
 import PlayBar from "./PlayBar";
 import VideoBlock from "./VideoBlock";
+import { Track } from "@/app/_types/studio";
 
 interface VideoPlayerProps {
+  userId: number;
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
   videoUrl: string | undefined;
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
 const VideoPlayer = ({
@@ -14,6 +18,9 @@ const VideoPlayer = ({
   videoUrl,
   duration,
   setDuration,
+  userId,
+  tracks,
+  setTracks,
 }: VideoPlayerProps) => {
   return (
     <section className="flex h-full w-full min-w-[720px] flex-1 flex-col items-start justify-start bg-gray-400">
@@ -24,6 +31,9 @@ const VideoPlayer = ({
         videoRef={videoRef}
         duration={duration}
         setDuration={setDuration}
+        userId={userId}
+        tracks={tracks}
+        setTracks={setTracks}
       />
     </section>
   );

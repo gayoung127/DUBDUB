@@ -18,11 +18,19 @@ interface PlayBarProps {
   duration: number;
   userId: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
+  tracks: Track[];
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
-const PlayBar = ({ videoRef, duration, setDuration, userId }: PlayBarProps) => {
+const PlayBar = ({
+  videoRef,
+  duration,
+  setDuration,
+  userId,
+  tracks,
+  setTracks,
+}: PlayBarProps) => {
   const { time, isPlaying, play, pause, reset } = useTimeStore();
-  const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const {
     isRecording,
     audioContext,
@@ -115,7 +123,7 @@ const PlayBar = ({ videoRef, duration, setDuration, userId }: PlayBarProps) => {
           const url = URL.createObjectURL(audioBlob);
           console.log("🎵 생성된 오디오 파일 URL:", url);
 
-          if (!userId) {
+          if (!track.recorderId) {
             console.error(
               "❌ recorderId가 없습니다. 녹음 파일을 추가할 수 없습니다.",
             );
