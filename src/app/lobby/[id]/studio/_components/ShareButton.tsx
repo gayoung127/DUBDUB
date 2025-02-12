@@ -1,6 +1,6 @@
-import Button from "@/app/_components/Button";
+import ClipboardIcon from "@/public/images/icons/icon-clipboard.svg";
 
-function ShareButton() {
+export default function ShareButton() {
   const handleShare = () => {
     const currentURL = window.location.href; // 현재 페이지 URL 가져오기
     navigator.clipboard
@@ -11,9 +11,11 @@ function ShareButton() {
 
   return (
     <button className="flex items-center justify-center px-2 py-1.5">
-      <Button onClick={handleShare}>URL 공유하기</Button>
+      <ClipboardIcon onClick={handleShare} className="text-brand-100" />
     </button>
   );
 }
 
-export default ShareButton;
+{
+  /* <Button onClick={handleShare}>URL 공유하기</Button> */
+}

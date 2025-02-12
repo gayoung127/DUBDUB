@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import useBlockStore from "@/app/_store/BlockStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import AudioBlockModal from "./AudioBlockModal";
 
 export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
@@ -43,6 +44,17 @@ const AudioBlock = ({
   const [localStartPoint, setLocalStartPoint] = useState(
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
+  const [isDragging, setIsDragging] = useState(false);
+
+  const [zIndex, setZIndex] = useState(1);
+
+  useEffect(() => {
+    if (selectedBlock?.id === file.id) {
+      setZIndex(200);
+    } else {
+      setZIndex(1);
+    }
+  }, [selectedBlock]);
 
   // useEffect: 타임라인 내 시작점 업데이트 (자르기 시작 반영한 부분 반영)
   useEffect(() => {
@@ -60,16 +72,27 @@ const AudioBlock = ({
       type: "x",
       bounds: timelineElement,
       inertia: true,
+      cursor: "url('/images/icons/cursor-grab.svg') 10 10, grab;",
       onPress: function () {
-        gsap.set(blockElement, { zIndex: 5 });
+        setIsDragging(true);
+        setZIndex(200); // 드래그 시작하면 z-index 최상위로 변경
+        gsap.set(blockElement, {
+          zIndex: 200,
+          cursor: "url('/images/icons/cursor-grabbing.svg') 10 10, grabbing", // 드래그 시작 시 커서 변경
+        });
       },
       onDrag: function () {
-        const newStartPoint = Math.max(0, Math.round(this.x));
+        const newStartPoint = Math.max(0, Math.round(this.x * 100) / 100);
         setLocalStartPoint(newStartPoint);
-        gsap.set(blockElement, { x: newStartPoint });
+        gsap.set(blockElement, { zIndex: 200, x: newStartPoint });
       },
       onDragEnd: function () {
-        const finalStartPoint = Math.max(0, Math.round(this.x / PX_PER_SECOND));
+        setIsDragging(true);
+        gsap.set(blockElement, { zIndex: 200 });
+        const finalStartPoint = Math.max(
+          0,
+          Math.round((this.x / PX_PER_SECOND) * 100) / 100,
+        );
 
         setTracks((prevTracks) =>
           prevTracks.map((track) => ({
@@ -81,6 +104,12 @@ const AudioBlock = ({
             ),
           })),
         );
+      },
+      onRelease: function () {
+        gsap.set(blockElement, {
+          zIndex: 200,
+          cursor: "url('/images/icons/cursor-grab.svg') 10 10, grab", // 드래그 종료 후 다시 grab
+        });
       },
     });
 
@@ -252,6 +281,15 @@ const AudioBlock = ({
     console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
   };
 
+  const deleteBlock = () => {
+    setTracks((prevTracks) =>
+      prevTracks.map((track) => ({
+        ...track,
+        files: track.files.filter((f) => f.id !== file.id),
+      })),
+    );
+  };
+
   // useEffect : 오디오 블록 키보드 이벤트
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -265,12 +303,7 @@ const AudioBlock = ({
         event.key.toLowerCase() === "delete" &&
         selectedBlock?.id === file.id
       ) {
-        setTracks((prevTracks) =>
-          prevTracks.map((track) => ({
-            ...track,
-            files: track.files.filter((f) => f.id !== file.id),
-          })),
-        );
+        deleteBlock();
         console.log("✅ 블록이 삭제되었습니다!", file.id);
       }
     };
@@ -281,12 +314,13 @@ const AudioBlock = ({
   return (
     <div
       ref={blockRef}
-      className="absolute flex h-full items-center justify-start"
+      className="draggable absolute flex h-full items-center justify-start"
       style={{
         width: width,
         transform: `translateX(${localStartPoint}px)`,
         backgroundColor: blockColor,
         borderRadius: `8px`,
+        zIndex: zIndex,
       }}
       onClick={() => {
         setSelectedBlock(file);
@@ -295,6 +329,7 @@ const AudioBlock = ({
           trackId: trackId,
           blockIndex: fileIdx,
         });
+        setZIndex(100);
       }}
     >
       <canvas
@@ -304,6 +339,16 @@ const AudioBlock = ({
           backgroundColor: blockColor,
         }}
       ></canvas>
+      {file.id === selectedBlock?.id && (
+        <div className="relative z-[999999] overflow-visible">
+          <div className="bg-white shadow-md absolute -top-5 left-2 z-[999999] p-4">
+            <AudioBlockModal
+              handleCrop={splitBlock}
+              handleDelete={deleteBlock}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

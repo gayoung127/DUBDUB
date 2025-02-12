@@ -46,6 +46,40 @@ const PlayBar = ({
   const userId = self?.memberId ?? null;
 
   useEffect(() => {
+    if (time >= duration) {
+      console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
+      pause();
+      reset();
+    }
+  }, [time, duration]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement &&
+        ["INPUT", "TEXTAREA"].includes(activeElement.tagName)
+      ) {
+        return;
+      }
+      if (event.code === "Space") {
+        event.preventDefault();
+
+        if (isPlaying) {
+          pause(); // ✅ 재생 중이면 일시정지
+        } else {
+          play(); // ✅ 재생 중이 아니면 재생
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPlaying, play, pause]);
+
+  useEffect(() => {
     const videoElement = videoRef.current;
 
     if (!videoElement) return; // videoRef가 아직 설정되지 않았다면 아무것도 하지 않음
@@ -163,17 +197,17 @@ const PlayBar = ({
   return (
     <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
-        <div onClick={handleRecording}>
+        <div onClick={handleRecording} className="cursor-pointer">
           <RecordButton width={20} height={20} />
         </div>
-        <div onClick={isPlaying ? pause : play}>
+        <div onClick={isPlaying ? pause : play} className="cursor-pointer">
           {isPlaying ? (
             <PauseButton width={20} height={20} />
           ) : (
             <PlayButton width={20} height={20} />
           )}
         </div>
-        <div onClick={reset}>
+        <div onClick={reset} className="cursor-pointer">
           <StopButton width={20} height={20} />
         </div>
       </div>
@@ -182,7 +216,7 @@ const PlayBar = ({
         <H4 className="text-white-100">/</H4>
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center gap-x-4">
         <RenderingButton />
         <ShareButton />
       </div>

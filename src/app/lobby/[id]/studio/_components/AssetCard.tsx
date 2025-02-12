@@ -41,7 +41,7 @@ const AssetCard = ({ isAssetSelected, onClick, audioFile }: AssetCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
       ref={ref} // ✅ useRef 사용
       onClick={onClick}
-      className={`relative box-border flex flex-col items-center justify-center gap-y-2 border ${
+      className={`box-border flex cursor-pointer flex-col items-center justify-center gap-y-2 border ${
         isAssetSelected ? "border-[#3668FF]" : "border-transparent"
       } hover:border-[#3668FF]/50 ${isDragging ? "opacity-50" : "opacity-100"}`}
     >

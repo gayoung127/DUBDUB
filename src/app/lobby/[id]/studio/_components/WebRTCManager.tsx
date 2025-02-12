@@ -22,6 +22,7 @@ interface WebRTCManagerProps {
   sessionToken: string;
   userId: number;
   onUserAudioUpdate: (userId: number, stream: MediaStream) => void;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
 }
 
 interface SyncData {
@@ -36,6 +37,7 @@ const WebRTCManager = ({
   sessionToken,
   userId,
   onUserAudioUpdate,
+  videoRef,
 }: WebRTCManagerProps) => {
   const [openVidu, setOpenVidu] = useState<OpenVidu | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -117,13 +119,25 @@ const WebRTCManager = ({
           }
         });
 
+        const hasPermissions = await checkAudioPermissions();
+        if (!hasPermissions) {
+          alert("카메라 및 마이크 권한이 필요합니다.");
+          return;
+        }
+
         await newSession.connect(sessionToken);
 
         setSession(newSession);
 
-        await publishAudioStream();
-
-        newSession.signal({ type: "syncRequest" });
+        if (newSession.connection) {
+          await publishAudioStream();
+          await newSession.signal({ type: "syncRequest" });
+          setupVideoPublisher(newSession);
+        } else {
+          console.warn(
+            "🚨 세션 연결이 완료되지 않아 syncRequest 신호를 보낼 수 없습니다.",
+          );
+        }
       } catch (error) {
         console.error("OpenVidu 세션 초기화 실패: ", error);
       }
@@ -132,37 +146,51 @@ const WebRTCManager = ({
     initSession();
 
     return () => {
-      session?.disconnect();
-      setSession(null);
+      if (session) {
+        session.disconnect();
+        setSession(null);
+      }
       setSubscribers([]);
       setPublisher(null);
     };
   }, [sessionToken]);
 
-  useEffect(() => {
-    if (!session || !videoStream) return;
+  const setupVideoPublisher = async (session: Session) => {
+    if (!session) return;
+    try {
+      if (!videoRef.current) return;
 
-    const setupVideoPublisher = async () => {
-      try {
-        const videoTrack = videoStream.getVideoTracks()[0];
-
-        const newVideoPublisher = openVidu?.initPublisher(undefined, {
-          videoSource: videoTrack,
-          audioSource: false,
-          publishAudio: false,
-        });
-
-        if (newVideoPublisher) {
-          await session.publish(newVideoPublisher);
-          setPublisher(newVideoPublisher);
+      const getVideoStream = (
+        videoElement: VideoElementWithCapturestream,
+      ): MediaStream | null => {
+        if (!videoElement) return null;
+        if (typeof videoElement.captureStream === "function") {
+          return videoElement.captureStream();
         }
-      } catch (error) {
-        console.error("비디오 스트림 설정 실패: ", error);
-      }
-    };
+        return null;
+      };
 
-    setupVideoPublisher();
-  }, [videoStream, session]);
+      const mediaStream = videoRef.current
+        ? getVideoStream(videoRef.current)
+        : null;
+      if (!mediaStream) return;
+
+      const videoTrack = mediaStream.getVideoTracks()[0];
+
+      const newVideoPublisher = openVidu?.initPublisher(undefined, {
+        videoSource: videoTrack,
+        audioSource: false,
+        publishAudio: false,
+      });
+
+      if (newVideoPublisher) {
+        await session.publish(newVideoPublisher);
+        setPublisher(newVideoPublisher);
+      }
+    } catch (error) {
+      console.error("비디오 스트림 설정 실패: ", error);
+    }
+  };
 
   const publishAudioStream = async () => {
     if (!session) return;
@@ -183,6 +211,7 @@ const WebRTCManager = ({
         await session.publish(newAudioPublisher);
 
         onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
+        console.log("오디오 스트림 설정 성공: ");
       }
     } catch (error) {
       console.error("오디오 스트림 설정 실패: ", error);
@@ -218,6 +247,17 @@ const WebRTCManager = ({
       lastSentTime.current = time;
     }
   }, [time]);
+
+  const checkAudioPermissions = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+      console.log("🎤 카메라 및 마이크 접근 가능");
+      return true;
+    } catch (error) {
+      console.error("🚨 카메라/마이크 접근 거부됨:", error);
+      return false;
+    }
+  };
   return null;
 };
 

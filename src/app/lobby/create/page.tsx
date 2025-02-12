@@ -145,7 +145,6 @@ export default function Page() {
             }}
           >
             {isSubmitting ? "제출중" : "생성하기"}
-            생성하기
           </Button>
         </div>
       </form>

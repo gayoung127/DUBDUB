@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import TimelineMarker from "./TimelineMarker";
 import { formatTime } from "@/app/_utils/formatTime";
+import { useTimeStore } from "@/app/_store/TimeStore";
 
 interface TimelineProps {
   duration: number;
@@ -12,8 +13,42 @@ interface TimelineProps {
 const Timeline = ({ duration }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ 1초당 80px로 변환
-  const timelineWidth = duration * 80;
+  const { time } = useTimeStore(); // ✅ 현재 재생 위치 가져오기
+
+  // ✅ 1초당 80px 변환
+  const PX_PER_SECOND = 80;
+  const timelineWidth = duration * PX_PER_SECOND;
+
+  useEffect(() => {
+    if (!timelineRef.current) return;
+
+    const scrollContainer: HTMLElement | null = timelineRef.current.closest(
+      ".scrollbar-horizontal",
+    );
+    if (!scrollContainer) {
+      console.warn("❗ 타임라인 스크롤 컨테이너를 찾을 수 없음");
+      return;
+    }
+
+    const markerPosition = time * PX_PER_SECOND;
+    const scrollWidth = scrollContainer.clientWidth;
+    const threshold = scrollWidth * 0.9;
+
+    console.log("🎯 마커 위치(px):", markerPosition);
+    console.log("🖥️ 현재 스크롤 위치:", scrollContainer.scrollLeft);
+    console.log("📏 현재 화면 너비:", scrollWidth);
+
+    if (markerPosition > scrollContainer.scrollLeft + threshold) {
+      console.log("📌 오른쪽으로 스크롤 이동 🚀");
+      scrollContainer.scrollLeft = markerPosition - threshold;
+    }
+
+    if (markerPosition < scrollContainer.scrollLeft + scrollWidth * 0.1) {
+      console.log("📌 왼쪽으로 스크롤 이동 🔙");
+      scrollContainer.scrollLeft = markerPosition - scrollWidth * 0.1;
+    }
+  }, [time]);
+
   const mainTickInterval = 80; // ✅ 1초마다 눈금 생성
   const subTickInterval = mainTickInterval / 10; // ✅ 0.1초마다 작은 눈금 생성
 

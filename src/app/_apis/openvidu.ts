@@ -47,7 +47,6 @@ export const createConnection = async (
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Basic " + btoa("OPENVIDUAPP:비밀"),
         },
         mode: "cors",
         credentials: "include",

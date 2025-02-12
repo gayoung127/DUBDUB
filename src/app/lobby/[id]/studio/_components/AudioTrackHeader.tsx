@@ -4,6 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import { Track } from "@/app/_types/studio";
 import Image from "next/image";
+import { ContextMenuItem, useContextMenu } from "@/app/_hooks/useContextMenu";
+import ContextMenu from "./ContextMenu";
+import MinusIcon from "@/public/images/icons/icon-minus.svg";
 
 interface AudioTrackHeaderProps {
   trackId: number;
@@ -14,6 +17,9 @@ interface AudioTrackHeaderProps {
   recorderName?: string;
   recorderRole?: string;
   recorderProfileUrl?: string;
+
+  selectedTrackId?: number | null;
+  setSelectedTrackId?: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const AudioTrackHeader = ({
@@ -24,10 +30,14 @@ const AudioTrackHeader = ({
   recorderName,
   recorderRole,
   recorderProfileUrl,
+  selectedTrackId,
+  setSelectedTrackId,
 }: AudioTrackHeaderProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
   // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
   const [isSolo, setIsSolo] = useState<boolean>(false);
+  const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
+    useContextMenu();
 
   function handleMute() {}
 
@@ -70,6 +80,47 @@ const AudioTrackHeader = ({
 
   drop(trackRef);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "delete" && selectedTrackId === trackId) {
+        handleDelete();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedTrackId]);
+
+  const handleDelete = () => {
+    setTracks((prev) =>
+      prev.map((track) =>
+        track.trackId === trackId
+          ? {
+              ...track,
+              recorderId: undefined,
+              recorderName: undefined,
+              recorderRole: undefined,
+              recorderProfileUrl: undefined,
+            }
+          : track,
+      ),
+    );
+  };
+
+  const menuItems: ContextMenuItem[] = [
+    {
+      icon: <MinusIcon width={16} height={16} />,
+      action: () => handleDelete(),
+    },
+  ];
+
+  const handleRightClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (setSelectedTrackId) {
+      setSelectedTrackId(trackId);
+    }
+    handleContextMenu(event.nativeEvent, menuItems);
+  };
   return (
     <div
       ref={trackRef}
@@ -80,7 +131,17 @@ const AudioTrackHeader = ({
       </span>
       <div className="flex flex-row items-center gap-x-4">
         {recorderId && (
-          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
+          <div
+            className={`relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 ${trackId === selectedTrackId ? "border-2 border-yellow-600" : ""}`}
+            onContextMenu={handleRightClick}
+            onClick={() => {
+              if (setSelectedTrackId) {
+                setSelectedTrackId((prev) =>
+                  prev === trackId ? null : trackId,
+                );
+              }
+            }}
+          >
             <Image
               src={recorderProfileUrl || "/images/tmp/dducip.jpg"}
               alt={recorderName || "프로필 이미지"}
@@ -88,6 +149,15 @@ const AudioTrackHeader = ({
               style={{ objectFit: "contain" }}
               className="rounded-full"
             />
+            <div className="relative">
+              <ContextMenu
+                x={contextMenuState.x}
+                y={contextMenuState.y}
+                menuItems={contextMenuState.menuItems}
+                isOpen={contextMenuState.isOpen}
+                onClose={handleCloseContextMenu}
+              />
+            </div>
           </div>
         )}
 
