@@ -15,18 +15,16 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
+                "http://localhost:8081",
                 "http://localhost:3000",
                 "https://i12a801.p.ssafy.io",
-                "https://i12a801.p.ssafy.io:3000",
-                "http://i12a801.p.ssafy.io",
-                "http://i12a801.p.ssafy.io:3000",
+                "http://i12a801.p.ssafy.io:8080",
                 "ws://localhost:8081",
                 "wss://localhost:8081",
+                "wss://i12a801.p.ssafy.io",
                 "wss://i12a801.p.ssafy.io:8081",
-                "ws://i12a801.p.ssafy.io:8081",
-                "http://i12a801.p.ssafy.io:4443",
-                "wss://i12a801.p.ssafy.io:4443"
+                "wss://i12a801.p.ssafy.io:8443",
+                "wss://i12a801.p.ssafy.io/api/ws-studio"
                 ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*", "Content-Type", "Authorization"));
