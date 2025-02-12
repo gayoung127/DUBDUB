@@ -93,6 +93,8 @@ const RecordSection = ({
       track.files.map((file) => ({
         file,
         isMuted: true,
+        trackId: track.trackId,
+        fileIdx: 0,
         audioBuffers: audioBuffersRef.current,
         audioContext: audioContextRef.current,
         setTracks,
