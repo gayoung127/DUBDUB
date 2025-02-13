@@ -141,6 +141,7 @@ const RecordSection = ({
               <AudioTrackHeader
                 key={track.trackId}
                 isMuted={track.isMuted ?? false}
+                isSolo={track.isSolo ?? false}
                 trackId={track.trackId}
                 recorderId={track.recorderId}
                 recorderName={track.recorderName}

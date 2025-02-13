@@ -28,7 +28,7 @@ const AssetCard = ({ isAssetSelected, onClick, audioFile }: AssetCardProps) => {
 
   function getFileName(filePath: string): string {
     if (!filePath) return "";
-    const parts = filePath.split("/")[0];
+    const parts = filePath.split("/");
 
     return parts[parts.length - 1].split("-")[0];
   }

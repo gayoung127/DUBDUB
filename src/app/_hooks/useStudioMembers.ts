@@ -7,7 +7,12 @@ export const useStudioMembers = () => {
   const { isConnected, stompClientRef } = useStompClient();
 
   const publishSelf = () => {
-    if (!stompClientRef.current || !stompClientRef.current.connected || !self)
+    if (
+      !isConnected ||
+      !stompClientRef.current ||
+      !stompClientRef.current.connected ||
+      !self
+    )
       return;
 
     const isAlreadyAdded = studioMembers.some(
@@ -28,7 +33,12 @@ export const useStudioMembers = () => {
 
   useEffect(() => {
     const subscribeToMembers = () => {
-      if (!stompClientRef.current || !stompClientRef.current.connected) return;
+      if (
+        !isConnected ||
+        !stompClientRef.current ||
+        !stompClientRef.current.connected
+      )
+        return;
 
       console.log("📡 Subscribing to studio members...");
 

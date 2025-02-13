@@ -136,7 +136,7 @@ const EffectList = ({
     }
 
     // 에셋 저장 로직
-    const arrayBuffer = audioBufferToArrayBuffer(audioBuffer.current);
+    // const arrayBuffer = audioBufferToArrayBuffer(audioBuffer.current);
 
     const blob = await audioBufferToWav(audioBuffer.current);
     const url = URL.createObjectURL(blob);

@@ -17,6 +17,7 @@ import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
 import { initialTracks, Track } from "@/app/_types/studio";
+import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -39,17 +40,20 @@ export default function StudioPage() {
     throw new Error("studioId 없음");
   }
 
+  // ✅ 트랙 변경 사항을 자동으로 서버에 전송
+  useTrackSocket({ sessionId, tracks, setTracks });
+
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
 
-    const id = self?.memberId || "익명의 더비";
+    const memberId = self?.memberId || "익명의 더비";
     const x = e.clientX;
     const y = e.clientY;
     const name = self?.nickName || "익명의 더비";
 
     stompClientRef.current?.publish({
       destination: `/app/studio/${sessionId}/cursor`,
-      body: JSON.stringify({ id, x, y, name }),
+      body: JSON.stringify({ memberId, x, y, name }),
     });
   };
 
