@@ -23,11 +23,11 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
   useEffect(() => {
     const stompClient = stompClientRef.current;
     if (!stompClient || !stompClient.connected) {
-      console.log("❌ STOMP가 아직 연결되지 않음");
+      console.log("CursorPresence: 웹 소켓이 아직 연결되지 않음");
       return;
     }
 
-    console.log("✅ STOMP 연결 후 커서 구독 시작");
+    console.log("CursorPresence: 웹 소켓 커서 구독 시작");
 
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
@@ -54,7 +54,6 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
       });
     };
 
-    // ✅ 구독 로그 추가
     console.log(`📡 커서 구독 주소: /topic/studio/${sessionId}/cursor`);
 
     // 커서 위치 업데이트 구독
@@ -70,11 +69,11 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
     );
 
     return () => {
-      console.log("🛑 STOMP 커서 구독 해제");
+      console.log("웹 소켓 커서 구독 해제");
       cursorSubscription.unsubscribe();
       removeSubscription.unsubscribe();
     };
-  }, [sessionId, stompClientRef.current?.connected]); // ✅ `cursors` 제거! 더 이상 불필요한 재구독 없음!
+  }, [sessionId, stompClientRef.current?.connected]);
 
   return (
     <div
