@@ -192,22 +192,6 @@ const AudioBlock = ({
     }
   };
 
-  // WILLDELETE... useEffect : 모킹 데이터 불러오기
-  useEffect(() => {
-    const fetchMockAudioBuffer = async () => {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.AudioContext)();
-      }
-
-      const response = await fetch(file.url);
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = await audioContext.decodeAudioData(arrayBuffer);
-      setAudioBuffer(buffer);
-    };
-
-    fetchMockAudioBuffer();
-  }, []);
-
   // useEffect : 파형 시각화
   useEffect(() => {
     if (audioBuffer) {
