@@ -96,9 +96,18 @@ const RoleCard = ({
           className="rounded-full"
         />
       </div>
-      <div className="flex w-full flex-row items-center justify-start gap-x-3">
-        <H4 className="text-white-100">{name}</H4>
-        <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
+      <div className="flex w-full flex-row items-center justify-between gap-x-3">
+        <div className="flex items-center gap-x-3">
+          <H4 className="text-white-100">{name}</H4>
+          <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
+          <audio ref={audioRef} />
+        </div>
+        <button
+          onClick={handleToggleMic}
+          className={`flex h-[24px] w-[24px] items-center justify-center rounded-[4px] ${isMicOn ? "bg-brand-100" : "bg-gray-100"}`}
+        >
+          {isMicOn ? <MicOn /> : <MicOff />}
+        </button>
       </div>
     </div>
   );

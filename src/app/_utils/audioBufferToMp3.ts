@@ -5,7 +5,9 @@ import { saveAs } from "file-saver";
 /**
  * AudioBuffer를 WAV로 변환하는 함수
  */
-async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
+export async function audioBufferToWav(
+  audioBuffer: AudioBuffer,
+): Promise<Blob> {
   const numChannels = audioBuffer.numberOfChannels;
   const sampleRate = audioBuffer.sampleRate;
   const format = 1; // PCM

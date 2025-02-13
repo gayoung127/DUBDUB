@@ -14,6 +14,8 @@ export interface AudioBlockProps extends Block {
   audioBuffers: Map<string, AudioBuffer> | null;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
+  trackId: number | null;
+  fileIdx: number | null;
 }
 
 gsap.registerPlugin(Draggable);
@@ -27,9 +29,12 @@ const AudioBlock = ({
   audioBuffers,
   setTracks,
   timelineRef,
+  trackId,
+  fileIdx,
 }: AudioBlockProps) => {
   const { time, isPlaying } = useTimeStore();
-  const { selectedBlock, setSelectedBlock } = useBlockStore();
+  const { selectedBlock, setSelectedBlock, setSelectedBlockObj } =
+    useBlockStore();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -319,6 +324,11 @@ const AudioBlock = ({
       }}
       onClick={() => {
         setSelectedBlock(file);
+        setSelectedBlockObj({
+          applyToAll: false,
+          trackId: trackId,
+          blockIndex: fileIdx,
+        });
         setZIndex(100);
       }}
     >

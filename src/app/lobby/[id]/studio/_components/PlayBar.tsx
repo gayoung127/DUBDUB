@@ -216,7 +216,7 @@ const PlayBar = ({
         <H4 className="text-white-100">/</H4>
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center gap-x-4">
         <RenderingButton />
         <ShareButton />
       </div>

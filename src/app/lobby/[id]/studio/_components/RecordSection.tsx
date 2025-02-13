@@ -32,6 +32,7 @@ const RecordSection = ({
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const [selectedTrackId, setSelectedTrackId] = useState<number | null>(null);
 
   // 1. 트랙 세로 스크롤 동기화
   const trackListRef = useRef<HTMLDivElement | null>(null);
@@ -84,69 +85,6 @@ const RecordSection = ({
     loadAudioFiles();
   }, [tracks]);
 
-  useEffect(() => {
-    console.log("📤 [CLIENT] 트랙 개수를 서버로 동기화 요청:", initialTracks);
-    // socket.emit("sync-client-tracks", initialTracks);
-  }, []);
-
-  useEffect(() => {
-    // socket.on("sync-track", (receivedTracks: Track[]) => {
-    //   console.log("📥 [CLIENT] sync-track 수신:", receivedTracks);
-    //   setTracks(receivedTracks);
-    // });
-    // return () => {
-    //   socket.off("sync-track");
-    // };
-  }, []);
-
-  // 서버에서 받은 변경 사항 적용
-  // useEffect(() => {
-  //   const handleSyncTracks = ({
-  //     trackId,
-  //     updatedFiles,
-  //   }: {
-  //     trackId: number;
-  //     updatedFiles: AudioFile[];
-  //   }) => {
-  //     console.log(`📩 [CLIENT] sync-track-files 수신:`, {
-  //       trackId,
-  //       updatedFiles,
-  //     });
-
-  //     setTracks((prevTracks) => {
-  //       return prevTracks.map((track) => {
-  //         if (track.trackId !== trackId) return track;
-
-  //         const prevFiles = JSON.stringify(track.files);
-  //         const newFiles = JSON.stringify(updatedFiles);
-
-  //         if (prevFiles !== newFiles) {
-  //           console.log(
-  //             `📝 [CLIENT] 트랙(${trackId}) 업데이트됨:`,
-  //             updatedFiles,
-  //           );
-  //           return { ...track, files: updatedFiles };
-  //         } else {
-  //           console.log(
-  //             `⚠️ [CLIENT] 트랙(${trackId}) 변경 없음, 업데이트 생략`,
-  //           );
-  //           return track;
-  //         }
-  //       });
-  //     });
-
-  //     console.log(`🔄 트랙(${trackId})의 files 동기화 완료`, updatedFiles);
-  //   };
-
-  //   console.log("🛜 [CLIENT] sync-track-files 이벤트 리스너 등록");
-  //   socket.on("sync-track-files", handleSyncTracks);
-
-  //   return () => {
-  //     console.log("🛜 [CLIENT] sync-track-files 이벤트 리스너 해제");
-  //     socket.off("sync-track-files", handleSyncTracks);
-  //   };
-  // }, []);
-
   const handleDownloadMp3 = async () => {
     if (!audioContextRef.current) return;
 
@@ -155,6 +93,8 @@ const RecordSection = ({
       track.files.map((file) => ({
         file,
         isMuted: true,
+        trackId: track.trackId,
+        fileIdx: 0,
         audioBuffers: audioBuffersRef.current,
         audioContext: audioContextRef.current,
         setTracks,
@@ -207,6 +147,8 @@ const RecordSection = ({
                 recorderRole={track.recorderRole}
                 recorderProfileUrl={track.recorderProfileUrl}
                 setTracks={setTracks}
+                selectedTrackId={selectedTrackId}
+                setSelectedTrackId={setSelectedTrackId}
               />
             ))}
           </div>
