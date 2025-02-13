@@ -12,29 +12,31 @@ interface CursorProps {
   y: number; // 커서의 Y 좌표
 }
 
-const Cursor = memo(({ id, name, x, y }: CursorProps) => {
-  const { icon: CursorIcon, bgColor } = getCursorStyle(id);
+const Cursor = memo(
+  ({ id = "익명의 더비", name = "익명의 더비", x, y }: CursorProps) => {
+    const { icon: CursorIcon, bgColor } = getCursorStyle(id);
 
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: y,
-        left: x,
-        transform: "translate(-50%, -50%)", // 커서를 중앙으로 맞추기
-        zIndex: 9999,
-      }}
-    >
-      <CursorIcon width={32.5} height={32} />
+    return (
       <div
-        className="absolute left-5 flex max-w-56 flex-row items-center justify-center whitespace-nowrap rounded-md px-2 py-1"
-        style={{ backgroundColor: bgColor }}
+        style={{
+          position: "absolute",
+          top: y,
+          left: x,
+          transform: "translate(-50%, -50%)", // 커서를 중앙으로 맞추기
+          zIndex: 9999,
+        }}
       >
-        <C1 className="font-bold text-white-200">{name}</C1>
+        <CursorIcon width={32.5} height={32} />
+        <div
+          className="absolute left-5 flex max-w-56 flex-row items-center justify-center whitespace-nowrap rounded-md px-2 py-1"
+          style={{ backgroundColor: bgColor }}
+        >
+          <C1 className="font-bold text-white-200">{name}</C1>
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 Cursor.displayName = "Cursor";
 
