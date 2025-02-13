@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import useStompClient from "@/app/_utils/socketClient";
+import useStompClient from "@/app/_hooks/useStompClient";
 import Header from "@/app/_components/Header";
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
@@ -26,9 +26,10 @@ export default function StudioPage() {
     Record<number, MediaStream>
   >({});
   const [sessionId, setSessionId] = useState<string>("test-session-123");
+  const [isStompConnected, setIsStompConnected] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
-  const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
+  const { stompClientRef, isConnected } = useStompClient(); // STOMP 클라이언트 관리
   const videoRef = useRef<HTMLVideoElement>(null);
   const { memberId, email, position, profileUrl, nickName, self } =
     useUserStore();
@@ -39,14 +40,14 @@ export default function StudioPage() {
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!stompClientRef.current?.connected) return;
+    if (!isConnected) return;
 
     const id = self?.memberId || "익명의 더비";
     const x = e.clientX;
     const y = e.clientY;
     const name = self?.nickName || "익명의 더비";
 
-    stompClientRef.current.publish({
+    stompClientRef.current?.publish({
       destination: `/app/studio/${sessionId}/cursor`,
       body: JSON.stringify({ id, x, y, name }),
     });
@@ -178,7 +179,13 @@ export default function StudioPage() {
             setTracks={setTracks}
           />
         </div>
-        <CursorPresence stompClientRef={stompClientRef} sessionId={sessionId} />
+        {isConnected && (
+          <CursorPresence
+            isConnected={isConnected}
+            stompClientRef={stompClientRef}
+            sessionId={sessionId}
+          />
+        )}
         <WebRTCManager
           studioId={studioId}
           sessionId={sessionId}
