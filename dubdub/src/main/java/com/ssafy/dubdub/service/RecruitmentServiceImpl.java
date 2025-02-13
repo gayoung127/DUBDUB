@@ -71,28 +71,13 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .fileType(FileType.ORIGINAL_VIDEO)
                 .build();
 
-        for(String roleName: requestDTO.getCastings()) {
-            recruitment.addCasting(new Casting(recruitment, roleName));
-        }
+        requestDTO.getCastings().forEach(roleName -> recruitment.addCasting(new Casting(recruitment, roleName)));
 
-        // 장르 일괄 조회하여 매핑 (Enum name 사용)
-        List<String> genreNames = requestDTO.getGenreTypes().stream()
-                .map(Enum::name)
-                .collect(Collectors.toList());
-        List<Genre> genres = genreRepository.findByGenreNameIn(genreNames);
-        if (genres.size() != genreNames.size()) {
-            throw new IllegalArgumentException("존재하지 않는 장르가 포함되어 있습니다.");
-        }
+        List<Genre> genres = genreRepository.findByGenreNameIn(requestDTO.getGenreTypes());
         genres.forEach(genre -> recruitment.addGenre(new RecruitmentGenre(recruitment, genre)));
 
-
-        for (CategoryType categoryType : requestDTO.getCategoryTypes()) {
-            Category category = categoryRepository.findByCategoryName(categoryType)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리유형: " + categoryType));
-
-            RecruitmentCategory recruitmentCategory = new RecruitmentCategory(recruitment, category);
-            recruitment.addCategory(recruitmentCategory);
-        }
+        List<Category> categories = categoryRepository.findByCategoryNameIn(requestDTO.getGenreTypes());
+        categories.forEach(category -> recruitment.addCategory(new RecruitmentCategory(recruitment, category)));
 
         fileRepository.save(file);
         return recruitmentRepository.save(recruitment).getId();

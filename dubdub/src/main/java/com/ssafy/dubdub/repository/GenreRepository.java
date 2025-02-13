@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByGenreName(GenreType genreName);
 
-    List<Genre> findByGenreNameIn(List<String> genreNames);
+    List<Genre> findByGenreNameIn(List<GenreType> genreTypes);
 }
