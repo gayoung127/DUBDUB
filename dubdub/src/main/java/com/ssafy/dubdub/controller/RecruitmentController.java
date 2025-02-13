@@ -27,20 +27,11 @@ public class RecruitmentController {
 
     @Operation(summary = "모집글 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addRecruitment(
+    public ResponseEntity<CreationResponseDto> addRecruitment(
             @RequestPart(value = "requestDTO") RecruitmentCreateRequestDTO requestDTO,
             @RequestPart(value = "video") MultipartFile video,
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail
     ) throws Exception {
-        if (requestDTO == null) {
-            log.debug("requestDTO가 필요합니다.");
-            return ResponseEntity.badRequest().body("requestDTO가 필요합니다.");
-        }
-
-        if (video == null || video.isEmpty()) {
-            log.debug("비디오 파일이 필요합니다.");
-            return ResponseEntity.badRequest().body("비디오 파일이 필요합니다.");
-        }
 
         Member member = SecurityUtil.getCurrentUser();
         Long pid = recruitmentService.addRecruitment(requestDTO, video, thumbnail, member);
