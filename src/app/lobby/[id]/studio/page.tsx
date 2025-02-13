@@ -17,6 +17,7 @@ import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
 import { createConnection, createSession } from "@/app/_apis/openvidu";
 import { initialTracks, Track } from "@/app/_types/studio";
+import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -38,6 +39,9 @@ export default function StudioPage() {
   if (!studioId) {
     throw new Error("studioId 없음");
   }
+
+  // ✅ 트랙 변경 사항을 자동으로 서버에 전송
+  useTrackSocket({ sessionId, tracks, setTracks });
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
