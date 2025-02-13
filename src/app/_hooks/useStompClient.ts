@@ -12,7 +12,7 @@ const useStompClient = () => {
   useEffect(() => {
     stompClientRef.current = new Client({
       brokerURL: STOMP_URL,
-      connectHeaders: {},
+      connectHeaders: { sessionId: "test-session-123" },
       // debug: (str) => console.log("STOMP Debug:", str),
       onConnect: () => {
         console.log("✅ STOMP WebSocket Connected!");
