@@ -10,6 +10,7 @@ import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
+import StudioScript from "@/app/lobby/[id]/studio/_components/StudioScript";
 
 export default function Page() {
   const router = useRouter();
@@ -18,10 +19,28 @@ export default function Page() {
   const [content, setContent] = useState<string>("");
   const [genreTypes, setGenreTypes] = useState<string[]>([]);
   const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
-  const [script, setScript] = useState<string>("");
+  const [script, setScript] = useState<string>(""); //원본 script
+  const [parsedScripts, setParsedScripts] = useState<
+    { role: string; text: string }[]
+  >([]); //파싱된 script 배열
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // script 파싱 함수
+  const parseScript = (script: string): { role: string; text: string }[] => {
+    return script
+      .split("\n")
+      .map((line) => {
+        const [role, ...textParts] = line.split(":"); // : 기준으로 나눔
+        return {
+          role: role?.trim() || "",
+          text: textParts.join(":").trim() || "", //나머지 텍스트
+        };
+      })
+      .filter((item) => item.role && item.text); // 빈 값 제거
+    // return parsedLines.map((item) => `${item.role}: ${item.text}`).join("\n");
+  };
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -40,8 +59,13 @@ export default function Page() {
 
     if (!videoFile) {
       alert("비디오 파일을 업로드해주세요.");
+      setIsSubmitting(false);
       return;
     }
+
+    // script 파싱 및 상태 업데이트
+    const parsedScript = parseScript(script);
+    console.log("Parsed Script:", parsedScript);
 
     // FormData 객체 생성
     const formData = new FormData();
@@ -51,7 +75,9 @@ export default function Page() {
       castings: castings,
       genreTypes: genreTypes,
       categoryTypes: categoryTypes,
-      script: script,
+      script: parsedScript
+        .map((item) => `${item.role}: ${item.text}`)
+        .join("\n"),
     };
 
     formData.append(
@@ -86,6 +112,9 @@ export default function Page() {
       console.error("Error creating recruitment post:", error);
       alert("모집글 작성 중 오류가 발생했습니다.");
     }
+    // finally {
+    //   setIsSubmitting(false);
+    // }
 
     //   try {
     //     const result = await getRecruitment(formData); // FormData 전송
@@ -148,6 +177,7 @@ export default function Page() {
           </Button>
         </div>
       </form>
+      <StudioScript scripts={parsedScripts} />
     </div>
   );
 }
