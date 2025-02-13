@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class TrackRecorder {
     private String trackId;
-    private String recordId;
+    private String recorderId;
 }
