@@ -46,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
 
             return s3Service.uploadFile(file, filePath);
         } catch (IOException e) {
-            throw new MemberException(ErrorCode.IMAGE_UPLOAD_FAILED);
+            throw new MemberException(ErrorCode.FILE_UPLOAD_FAILED);
         }
     }
 
