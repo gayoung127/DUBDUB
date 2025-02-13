@@ -72,7 +72,7 @@ const RecordSection = ({
 
       for (const track of tracks) {
         for (const file of track.files) {
-          if (!audioBuffersRef.current.has(file.url)) {
+          if (!audioBuffersRef.current.has(file.url) && file.url) {
             const response = await fetch(file.url);
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await context.decodeAudioData(arrayBuffer);

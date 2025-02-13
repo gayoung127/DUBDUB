@@ -10,6 +10,9 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { useUserStore } from "@/app/_store/UserStore";
 import { useAssetsStore } from "@/app/_store/AssetsStore";
 import { findPossibleId } from "@/app/_utils/findPossibleId";
+import { createBlob } from "@/app/_utils/audioUtils";
+import { postAsset } from "@/app/_apis/studio";
+import { useParams } from "next/navigation";
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -54,6 +57,8 @@ const AudioTrackTimeline = ({
   const initialXRef = useRef<number | null>(null);
   const recordStartRef = useRef<number | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const params = useParams();
+  const pid = params.id;
 
   useEffect(() => {
     if (isRecording && currentRecordingTrackId == trackId) {
@@ -157,6 +162,8 @@ const AudioTrackTimeline = ({
           .filter((url) => !existingFilesUrls.has(url))
           .map(async (url) => {
             const duration = await loadAudioDuration(url);
+            const blob = await createBlob(audioBuffers?.get(url)!);
+            const newUrl = await postAsset(String(pid), blob);
 
             if (duration <= 0) {
               console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
@@ -168,7 +175,7 @@ const AudioTrackTimeline = ({
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
               id: findPossibleId(assetAudioFiles, studioMembers, "나"),
-              url,
+              url: newUrl,
               startPoint: starPoint,
               duration,
               trimStart: 0,
