@@ -15,37 +15,58 @@ export const useTrackSocket = ({
 }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
   const subscriptionRef = useRef<any>(null);
+  const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
 
-  // ✅ 트랙 변경 감지 및 개별적으로 서버로 전송
+  // ✅ 트랙 변경 감지 및 서버 전송 (불필요한 업데이트 방지)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
+    const prevTracks = prevTracksRef.current; // 🔥 이전 트랙 데이터
+
+    const hasChanges = tracks.some((track) =>
+      track.files.some((file) => {
+        const prevTrack = prevTracks.find((t) => t.trackId === track.trackId);
+        const prevFile = prevTrack?.files.find((f) => f.id === file.id);
+
+        return (
+          !prevFile ||
+          prevFile.startPoint !== file.startPoint ||
+          prevFile.duration !== file.duration ||
+          prevFile.trimStart !== file.trimStart ||
+          prevFile.trimEnd !== file.trimEnd ||
+          prevFile.volume !== file.volume ||
+          prevFile.isMuted !== file.isMuted ||
+          prevFile.speed !== file.speed
+        );
+      }),
+    );
+
+    if (!hasChanges) return; // 변경 사항이 없으면 서버 전송 X
+
     tracks.forEach((track) => {
       track.files.forEach((file) => {
-        const trackFile = {
-          trackId: track.trackId,
-          action: "SAVE",
-          file: {
-            id: file.id,
-            assetId: file.id.split("-")[0], // ✅ 대시(`-`) 기준으로 앞부분만 추출
-            startPoint: file.startPoint,
-            duration: file.duration,
-            trimStart: file.trimStart,
-            trimEnd: file.trimEnd,
-            volume: file.volume ?? 1,
-            isMuted: file.isMuted ?? false,
-            speed: file.speed ?? 1,
-          },
-        };
-
-        console.log("📤 변경된 파일 전송됨:", trackFile);
-
-        stompClientRef.current!.publish({
+        stompClientRef.current?.publish({
           destination: `/app/studio/${sessionId}/track/files`,
-          body: JSON.stringify(trackFile),
+          body: JSON.stringify({
+            trackId: track.trackId,
+            action: "SAVE",
+            file: {
+              id: file.id,
+              startPoint: file.startPoint,
+              duration: file.duration,
+              trimStart: file.trimStart,
+              trimEnd: file.trimEnd,
+              volume: file.volume ?? 1,
+              isMuted: file.isMuted ?? false,
+              speed: file.speed ?? 1,
+            },
+          }),
         });
       });
     });
+
+    console.log("📤 변경된 파일 전송 완료!");
+    prevTracksRef.current = JSON.parse(JSON.stringify(tracks)); // 🔥 깊은 복사로 상태 저장
   }, [tracks, isConnected, sessionId]);
 
   // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
@@ -57,7 +78,10 @@ export const useTrackSocket = ({
       subscriptionRef.current.unsubscribe();
     }
 
-    console.log("📡 트랙 변경 사항 구독 시작: /topic/studio/", sessionId);
+    console.log(
+      "📡 트랙 변경 사항 구독 시작:",
+      `/topic/studio/${sessionId}/track/files`,
+    );
 
     subscriptionRef.current = stompClientRef.current.subscribe(
       `/topic/studio/${sessionId}/track/files`,
@@ -66,8 +90,8 @@ export const useTrackSocket = ({
           JSON.parse(message.body);
         console.log("📥 서버에서 받은 트랙 파일:", receivedFile);
 
-        setTracks((prevTracks) =>
-          prevTracks.map((track) => {
+        setTracks((prevTracks) => {
+          const newTracks = prevTracks.map((track) => {
             if (track.trackId !== receivedFile.trackId) return track;
 
             const existingFileIndex = track.files.findIndex(
@@ -77,20 +101,29 @@ export const useTrackSocket = ({
             const updatedFiles = [...track.files];
 
             if (existingFileIndex !== -1) {
-              updatedFiles[existingFileIndex] = {
-                ...updatedFiles[existingFileIndex],
-                ...receivedFile.file,
-              };
+              const existingFile = updatedFiles[existingFileIndex];
+
+              // 🔥 변경 사항이 있는 경우만 업데이트
+              if (
+                JSON.stringify(existingFile) !==
+                JSON.stringify(receivedFile.file)
+              ) {
+                updatedFiles[existingFileIndex] = {
+                  ...existingFile,
+                  ...receivedFile.file,
+                };
+              }
             } else {
               updatedFiles.push(receivedFile.file);
             }
 
-            return {
-              ...track,
-              files: updatedFiles,
-            };
-          }),
-        );
+            return { ...track, files: updatedFiles };
+          });
+
+          return JSON.stringify(prevTracks) !== JSON.stringify(newTracks)
+            ? newTracks
+            : prevTracks;
+        });
 
         // ✅ 최신 tracks 상태 로그 찍기
         setTimeout(() => {
@@ -104,5 +137,10 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId, setTracks, tracks]);
+  }, [isConnected, sessionId, setTracks]); // ✅ `tracks` 의존성 제거 (불필요한 실행 방지)
+
+  // ✅ `tracks` 상태 변경 로그
+  useEffect(() => {
+    console.log("🔥 현재 tracks 상태:", tracks);
+  }, [tracks]);
 };
