@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface StudioRepository extends JpaRepository<Studio, Long> {
 
     Optional<Studio> findFirstByRecruitmentIdAndIsClosedIsFalse(Long recruitmentId);
+
+    Optional<Studio> findBySession(String session);
 }
