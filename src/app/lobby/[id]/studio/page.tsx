@@ -145,6 +145,7 @@ export default function StudioPage() {
           height: "100%",
           position: "relative",
         }}
+        className="overflow-hidden"
       >
         <div className="relative flex h-full min-h-screen w-full flex-col items-start justify-start">
           <div className="flex h-full w-full flex-row">
