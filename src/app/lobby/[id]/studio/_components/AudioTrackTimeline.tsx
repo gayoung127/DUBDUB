@@ -236,7 +236,7 @@ const AudioTrackTimeline = ({
 
     updateTrack();
   }, [
-    audioFiles,
+    // audioFiles,
     setAudioFiles,
     trackId,
     setTracks,
