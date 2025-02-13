@@ -49,6 +49,7 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
             action: "SAVE",
             file: {
               id: file.id,
+              url: file.url,
               startPoint: file.startPoint,
               duration: file.duration,
               trimStart: file.trimStart,
