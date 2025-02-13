@@ -1,5 +1,6 @@
-package com.ssafy.dubdub.wss;
+package com.ssafy.dubdub.wss.controller;
 
+import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.util.SecurityUtil;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.service.StudioSessionService;
@@ -23,33 +24,33 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        SecurityUtil.getCurrentUser();
-        Principal user = event.getUser();
+        Member user = SecurityUtil.getCurrentUser();
         if (user != null) {
-//            String sessionId = user.getName(); // 세션 ID 가져오기 (보통 userId 또는 unique 값)
-//            logger.info("사용자 연결: {}", sessionId);
-//
-//            // 사용자 정보 추가
-//            UserSession userSession = new UserSession();
-//            studioSessionService.addUserToSession(sessionId, userSession);
-//
-//            // 모든 사용자에게 변경된 참여자 목록 전송
-//            messagingTemplate.convertAndSend("/topic/studio/" + sessionId + "/users", studioSessionService.getUsersInSession(sessionId));
+            String sessionId = user.getId().toString(); // 세션 ID 가져오기 (member식별 userId)
+            logger.info("사용자 연결: {}", sessionId);
+
+            // 사용자 정보 추가
+            UserSession userSession = UserSession.builder()
+                    .id(user.getId().toString())
+                    .sessionId(sessionId)
+                    .name(user.getNickname())
+                    .role(user.getPosition().toString())
+                    .profileUrl(user.getProfileUrl())
+                    .build();
+
+            studioSessionService.addUserToSession(sessionId, userSession);
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        Principal user = event.getUser();
+        Member user = SecurityUtil.getCurrentUser();
         if (user != null) {
-            String sessionId = user.getName();
+            String sessionId = user.getId().toString();
             logger.info("사용자 연결 해제: {}", sessionId);
 
             // 세션에서 사용자 제거
-            studioSessionService.removeUserFromSession(sessionId, sessionId);
-
-            // 변경된 참여자 목록 전송
-            messagingTemplate.convertAndSend("/topic/studio/" + sessionId + "/users", studioSessionService.getUsersInSession(sessionId));
+            studioSessionService.removeUserFromSession(sessionId, user.getId().toString());
         }
     }
 }

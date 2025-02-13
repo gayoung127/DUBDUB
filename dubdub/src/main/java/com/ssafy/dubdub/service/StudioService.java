@@ -91,4 +91,13 @@ public class StudioService {
             throw new AccessDeniedException("작업정보 접근 권한이 없습니다.");
         }
     }
+
+    public void closeStudioIfEmpty(String session){
+        studioRepository.findBySession(session)
+                .ifPresent(studio -> {
+                    if(!studio.isClosed()){
+                        studio.close();
+                    }
+                });
+    }
 }
