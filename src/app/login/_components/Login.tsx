@@ -3,6 +3,7 @@
 import gsap from "gsap";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { getCookie } from "@/app/_utils/getCookie";
 import { useAuthStore } from "@/app/_store/AuthStore";
@@ -47,7 +48,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      alert("로그인 실패!");
+      toast.error("로그인 실패!");
     }
   }, [router]);
 
