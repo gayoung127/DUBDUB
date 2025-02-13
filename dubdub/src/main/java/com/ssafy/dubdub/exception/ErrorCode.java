@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.exception;
 
 import lombok.Getter;
+import org.hibernate.validator.internal.constraintvalidators.hv.ru.INNValidator;
 
 @Getter
 public enum ErrorCode {
@@ -20,7 +21,10 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(401, "토큰이 존재하지 않습니다."),
 
     INVALID_IMAGE_FORMAT(400, "지원하지 않는 이미지 형식입니다."),
-    IMAGE_UPLOAD_FAILED(500, "이미지 업로드 중 오류가 발생했습니다."),
+    INVALID_AUDIO_FORMAT(400, "지원하지 않는 오디오 형식입니다."),
+    INVALID_VIDEO_FORMAT(400, "지원하지 않는 비디오 형식입니다."),
+
+    FILE_UPLOAD_FAILED(500, "파일 업로드 중 오류가 발생했습니다."),
 
     UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다."),
 

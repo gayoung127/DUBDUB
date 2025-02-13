@@ -9,8 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface RecruitmentService {
-    public Long findRecruitment(Long recruitmentId);
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException;
+    Long findRecruitment(Long recruitmentId);
+    Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException;
     Page<RecruitmentListResponseDTO> getRecruitments(RecruitmentSearchRequestDTO request, Member member);
     void assignCasting(Long recruitmentId, Long castingId, Member member);
 }
