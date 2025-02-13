@@ -128,7 +128,7 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId, setTracks]);
+  }, [isConnected, sessionId, setTracks, tracks]);
 
   // ✅ `tracks` 상태가 변경될 때마다 로그 찍기 (최신 상태 확인)
   useEffect(() => {
