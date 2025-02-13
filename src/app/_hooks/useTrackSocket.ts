@@ -145,11 +145,6 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
           prevTracksRef.current = newTracks; // 🔥 최신 상태 유지
           return newTracks;
         });
-
-        // ✅ 최신 tracks 상태 로그 찍기
-        setTimeout(() => {
-          console.log("🔥 [트랙 최종 상태] 확인:", tracks);
-        }, 100);
       },
     );
 
