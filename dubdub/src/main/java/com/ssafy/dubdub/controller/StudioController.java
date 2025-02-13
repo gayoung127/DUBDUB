@@ -4,13 +4,13 @@ package com.ssafy.dubdub.controller;
 import com.ssafy.dubdub.domain.dto.FileUploadResponseDTO;
 import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.Member;
-import com.ssafy.dubdub.service.RecruitmentService;
 import com.ssafy.dubdub.service.StudioService;
 import com.ssafy.dubdub.util.SecurityUtil;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class StudioController {
 
     private final StudioService studioService;
-    private final RecruitmentService recruitmentService;
 
     @Operation(summary = "스튜디오 입장하기")
     @PostMapping("/{pid}")
@@ -42,8 +41,8 @@ public class StudioController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation
-    @PostMapping("/{pid}/asset")
+    @Operation(summary = "스튜디오 오디오 에셋 업로드")
+    @PostMapping(path = "/{pid}/asset", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileUploadResponseDTO> saveAsset(@PathVariable("pid") Long projectId,
                                                            @RequestPart MultipartFile file) {
 
