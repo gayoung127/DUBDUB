@@ -15,13 +15,13 @@ export const useTrackSocket = ({
 }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
   const subscriptionRef = useRef<any>(null);
-  const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
+  const prevTracksRef = useRef<Track[]>([]); // 🔥 최신 상태 저장용 ref
 
   // ✅ 트랙 변경 감지 및 개별적으로 서버로 전송
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    const prevTracks = prevTracksRef.current; // 🔥 이전 트랙 데이터
+    const prevTracks = prevTracksRef.current; // 🔥 최신 상태
 
     tracks.forEach((track) => {
       track.files.forEach((file) => {
@@ -67,8 +67,8 @@ export const useTrackSocket = ({
       });
     });
 
-    // 🔥 현재 상태를 저장하여 다음 변경 감지에 활용
-    prevTracksRef.current = tracks;
+    // 🔥 현재 상태를 최신 상태로 유지 (이전 값으로 덮어씌워지는 문제 방지)
+    prevTracksRef.current = JSON.parse(JSON.stringify(tracks));
   }, [tracks, isConnected, sessionId]);
 
   // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
@@ -90,7 +90,7 @@ export const useTrackSocket = ({
         console.log("📥 서버에서 받은 트랙 파일:", receivedFile);
 
         setTracks((prevTracks) => {
-          return prevTracks.map((track) => {
+          const updatedTracks = prevTracks.map((track) => {
             if (track.trackId !== receivedFile.trackId) return track;
 
             // ✅ 기존 파일이 있으면 업데이트, 없으면 추가
@@ -114,11 +114,18 @@ export const useTrackSocket = ({
               files: updatedFiles,
             };
           });
+
+          console.log("✅ 최신 tracks 업데이트 완료:", updatedTracks);
+
+          // 🔥 최신 상태를 prevTracksRef에도 반영하여 다시 초기화되는 문제 방지
+          prevTracksRef.current = JSON.parse(JSON.stringify(updatedTracks));
+
+          return updatedTracks;
         });
 
         // ✅ 최신 tracks 상태 로그 찍기
         setTimeout(() => {
-          console.log("🔥 [트랙 최종 상태] 확인:", tracks);
+          console.log("🔥 [트랙 최종 상태] 확인:", prevTracksRef.current);
         }, 100);
       },
     );
@@ -128,7 +135,7 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId, setTracks, tracks]);
+  }, [isConnected, sessionId, setTracks]);
 
   // ✅ `tracks` 상태가 변경될 때마다 로그 찍기 (최신 상태 확인)
   useEffect(() => {
