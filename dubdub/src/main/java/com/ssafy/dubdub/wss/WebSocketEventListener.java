@@ -33,7 +33,6 @@ public class WebSocketEventListener {
 
             // 사용자 정보 추가
             UserSession userSession = UserSession.builder()
-                    .userSessionId(user.getId())
                     .sessionId(sessionId)
                     .email(user.getEmail())
                     .memberId(user.getId().toString())
@@ -50,12 +49,12 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         Member user = SecurityUtil.getCurrentUser();
         if (user != null) {
-            UserSession userSession = userSessionRepository.findByUserSessionId(user.getId());
+            UserSession userSession = userSessionRepository.findByMemberId(user.getId().toString());
             String sessionId = userSession.getSessionId();
             logger.info("사용자 연결 해제: {}", sessionId);
 
             // 세션에서 사용자 제거
-            studioSessionService.removeUserFromSession(sessionId, userSession.getUserSessionId());
+            studioSessionService.removeUserFromSession(sessionId, userSession.getMemberId());
         }
     }
 }
