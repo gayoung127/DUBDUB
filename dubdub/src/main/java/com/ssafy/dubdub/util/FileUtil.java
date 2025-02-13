@@ -22,6 +22,17 @@ public class FileUtil {
             "video/quicktime"   //.mov
     );
 
+    private static final List<String> ALLOWED_AUDIO_MIME_TYPES = Arrays.asList(
+            "audio/wav",      // WAV
+            "audio/webm",      // WebM Audio
+            "audio/mpeg",     // MP3
+            "audio/ogg",      // OGG
+            "audio/mp4",      // MP4 Audio
+            "audio/aac",      // AAC
+            "audio/x-ms-wma", // WMA
+            "audio/flac"     // FLAC
+    );
+
     private static final MimetypesFileTypeMap FILE_TYPE_MAP = new MimetypesFileTypeMap();
 
     public static boolean isValidImageFile(MultipartFile file) {
@@ -30,6 +41,10 @@ public class FileUtil {
 
     public static boolean isValidVideoFile(MultipartFile file) {
         return isValidFile(file, ALLOWED_VIDEO_MIME_TYPES);
+    }
+
+    public static boolean isValidAudioFile(MultipartFile file) {
+        return isValidFile(file, ALLOWED_AUDIO_MIME_TYPES);
     }
 
     private static boolean isValidFile(MultipartFile file, List<String> mimeTypes) {
