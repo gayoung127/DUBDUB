@@ -13,7 +13,7 @@ const useStompClient = () => {
     stompClientRef.current = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: {},
-      debug: (str) => console.log("STOMP Debug:", str),
+      // debug: (str) => console.log("STOMP Debug:", str),
       onConnect: () => {
         console.log("✅ STOMP WebSocket Connected!");
         setIsConnected(true); // 연결 성공 시 상태 변경
