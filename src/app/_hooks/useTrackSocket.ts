@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import useStompClient from "@/app/_hooks/useStompClient";
 import { Track } from "@/app/_types/studio";
 
@@ -14,28 +14,13 @@ export const useTrackSocket = ({
   setTracks,
 }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
-  const [debouncedTracks, setDebouncedTracks] = useState(tracks);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const subscriptionRef = useRef<any>(null); // ✅ 구독 참조 저장
+  const subscriptionRef = useRef<any>(null);
 
-  // 🎯 디바운스 로직 (500ms 대기 후 전송)
-  useEffect(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = setTimeout(() => {
-      setDebouncedTracks(tracks);
-    }, 500);
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [tracks]);
-
-  // 🎯 트랙 데이터 서버로 전송
+  // ✅ 트랙 데이터 서버로 전송 (트랙 변경 감지)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    const trackFiles = debouncedTracks.flatMap((track) =>
+    const trackFiles = tracks.flatMap((track) =>
       track.files.map((file) => ({
         trackId: track.trackId,
         action: "SAVE",
@@ -59,16 +44,17 @@ export const useTrackSocket = ({
     });
 
     console.log("📤 트랙 데이터 전송됨:", trackFiles);
-  }, [debouncedTracks, isConnected, sessionId]);
+  }, [tracks, isConnected, sessionId]);
+
+  // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    // ✅ 기존 구독이 있다면 정리
+    // ✅ 기존 구독 해제
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
     }
 
-    // ✅ 새롭게 구독 설정
     subscriptionRef.current = stompClientRef.current.subscribe(
       `/topic/studio/${sessionId}/track/files`,
       (message) => {
@@ -77,9 +63,8 @@ export const useTrackSocket = ({
         console.log("📥 서버에서 받은 트랙 데이터:", receivedFiles);
 
         setTracks((prevTracks) => {
-          // 🎯 기존 트랙을 복사해서 새로운 데이터 적용
           const updatedTracks = prevTracks.map((track) => {
-            // ✅ 이 트랙에 해당하는 새로운 파일 목록 찾기
+            // ✅ 서버에서 받은 파일 중 이 트랙에 해당하는 것만 필터링
             const newFiles = receivedFiles
               .filter((item) => item.trackId === track.trackId)
               .map((item) => {
@@ -88,23 +73,37 @@ export const useTrackSocket = ({
                 );
 
                 return {
-                  ...existingFile, // 기존 파일 정보 유지
-                  ...item.file, // 서버에서 받은 데이터 덮어쓰기
+                  ...existingFile, // ✅ 기존 데이터 유지
+                  ...item.file, // ✅ 서버에서 받은 데이터 덮어쓰기
                   url: existingFile?.url || "", // ✅ 기존 URL 유지
                 };
               });
 
-            // ✅ 만약 이 트랙에 해당하는 새로운 파일이 없으면 기존 트랙 유지
-            if (newFiles.length === 0) return track;
+            // ✅ 기존 파일과 새로운 파일을 병합하여 업데이트
+            const mergedFiles = [...track.files];
+
+            newFiles.forEach((newFile) => {
+              const index = mergedFiles.findIndex((f) => f.id === newFile.id);
+              if (index !== -1) {
+                mergedFiles[index] = newFile; // ✅ 기존 파일 업데이트
+              } else {
+                mergedFiles.push(newFile); // ✅ 새 파일 추가
+              }
+            });
 
             return {
               ...track,
-              files: newFiles, // ✅ 기존 값 유지하며 업데이트된 파일 적용
+              files: mergedFiles,
             };
           });
 
           return updatedTracks;
         });
+
+        // 🔥 트랙 업데이트 후 `setTimeout`을 사용해 다음 렌더링에서 `tracks`를 찍음
+        setTimeout(() => {
+          console.log("✅ 트랙 업데이트 완료! 최신 tracks:", tracks);
+        }, 100);
       },
     );
 
@@ -113,7 +112,10 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId]);
+  }, [isConnected, sessionId, setTracks]);
 
-  return null;
+  // ✅ `tracks` 상태가 변경될 때마다 로그 찍기 (최신 상태 확인)
+  useEffect(() => {
+    console.log("🔥 현재 tracks 상태:", tracks);
+  }, [tracks]);
 };
