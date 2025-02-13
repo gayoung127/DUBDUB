@@ -131,7 +131,7 @@ const PlayBar = ({
         .map(([userId]) => userId);
 
       if (activeMics.length === 0) {
-        alert("Turn on Mic");
+        toast.warning("역할 탭에서 자신의 마이크를 켜주세요!");
         return;
       }
 
