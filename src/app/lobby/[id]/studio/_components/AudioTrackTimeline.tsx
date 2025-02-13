@@ -129,7 +129,7 @@ const AudioTrackTimeline = ({
     }
   }, [files.map((f) => JSON.stringify(f)).join(","), trackId]);
 
-  //녹음된 파일을 추가하는 역할
+  //녹음된 파일을 추가하는 역할 -------------------------------------------
   useEffect(() => {
     console.log(`🎙️ 트랙(${trackId})의 녹음된 파일 추가 확인:`, audioFiles);
 
@@ -177,8 +177,8 @@ const AudioTrackTimeline = ({
 
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
-              id: findPossibleId(assetAudioFiles, studioMembers, "나"),
-              url: newUrl,
+              id: findPossibleId(assetAudioFiles, studioMembers, "나"), // role 추가
+              url, // url : fileUrl;
               startPoint: starPoint,
               duration,
               trimStart: 0,
@@ -236,13 +236,14 @@ const AudioTrackTimeline = ({
 
     updateTrack();
   }, [
-    // audioFiles,
+    audioFiles,
     setAudioFiles,
     trackId,
     setTracks,
     audioContext,
     audioBuffers,
   ]);
+  // ------------------------------------------------------------------
 
   // ✅ 드롭 가능하도록 `useDrop` 추가
   const [{ isOver }, drop] = useDrop(() => ({
