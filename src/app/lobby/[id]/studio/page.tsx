@@ -173,7 +173,7 @@ export default function StudioPage() {
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
-              <StudioScript />
+              {/* <StudioScript scripts={scripts} /> */}
             </div>
           </div>
           <RecordSection
