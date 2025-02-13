@@ -46,14 +46,14 @@ export default function StudioPage() {
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
 
-    const id = self?.memberId || "익명의 더비";
+    const memberId = self?.memberId || "익명의 더비";
     const x = e.clientX;
     const y = e.clientY;
     const name = self?.nickName || "익명의 더비";
 
     stompClientRef.current?.publish({
       destination: `/app/studio/${sessionId}/cursor`,
-      body: JSON.stringify({ id, x, y, name }),
+      body: JSON.stringify({ memberId, x, y, name }),
     });
   };
 
