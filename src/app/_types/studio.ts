@@ -27,12 +27,14 @@ export interface Track {
   recorderProfileUrl?: string;
 
   isMuted?: boolean;
+  isSolo?: boolean;
 }
 
 // 3. 초기 트랙
 export const initialTracks: Track[] = [
   {
     isMuted: false,
+    isSolo: false,
     trackId: 1,
     waveColor: "#99A5FF",
     blockColor: "#4202B5",
@@ -63,6 +65,7 @@ export const initialTracks: Track[] = [
   },
   {
     isMuted: false,
+    isSolo: false,
     trackId: 2,
     waveColor: "#FF6DDE",
     blockColor: "#92005A",
@@ -93,6 +96,7 @@ export const initialTracks: Track[] = [
   },
   {
     isMuted: false,
+    isSolo: false,
     trackId: 3,
     waveColor: "#00D76E",
     blockColor: "#005230",
@@ -100,12 +104,14 @@ export const initialTracks: Track[] = [
   },
   {
     trackId: 4,
+    isSolo: false,
     waveColor: "#00D76E",
     blockColor: "#005230",
     files: [],
   },
   {
     trackId: 5,
+    isSolo: false,
     waveColor: "#00D76E",
     blockColor: "#005230",
     files: [],
