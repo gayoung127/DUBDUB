@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import useStompClient from "@/app/_hooks/useStompClient";
 import { Track } from "@/app/_types/studio";
 
@@ -14,97 +14,121 @@ export const useTrackSocket = ({
   setTracks,
 }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
-  const [debouncedTracks, setDebouncedTracks] = useState(tracks);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const subscriptionRef = useRef<any>(null); // ✅ 구독 참조 저장
+  const subscriptionRef = useRef<any>(null);
+  const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
 
-  // 🎯 디바운스 로직 (500ms 대기 후 전송)
-  useEffect(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = setTimeout(() => {
-      setDebouncedTracks(tracks);
-    }, 500);
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [tracks]);
-
-  // 🎯 트랙 데이터 서버로 전송
+  // ✅ 트랙 변경 감지 및 서버 전송 (불필요한 업데이트 방지)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    const trackFiles = debouncedTracks.flatMap((track) =>
-      track.files.map((file) => ({
-        trackId: track.trackId,
-        action: "SAVE",
-        file: {
-          id: file.id,
-          assetId: file.id.split("-")[0], // ✅ 대시(`-`) 기준으로 앞부분만 추출
-          startPoint: file.startPoint,
-          duration: file.duration,
-          trimStart: file.trimStart,
-          trimEnd: file.trimEnd,
-          volume: file.volume ?? 1,
-          isMuted: file.isMuted ?? false,
-          speed: file.speed ?? 1,
-        },
-      })),
+    const prevTracks = prevTracksRef.current; // 🔥 이전 트랙 데이터
+
+    const hasChanges = tracks.some((track) =>
+      track.files.some((file) => {
+        const prevTrack = prevTracks.find((t) => t.trackId === track.trackId);
+        const prevFile = prevTrack?.files.find((f) => f.id === file.id);
+
+        return (
+          !prevFile ||
+          prevFile.startPoint !== file.startPoint ||
+          prevFile.duration !== file.duration ||
+          prevFile.trimStart !== file.trimStart ||
+          prevFile.trimEnd !== file.trimEnd ||
+          prevFile.volume !== file.volume ||
+          prevFile.isMuted !== file.isMuted ||
+          prevFile.speed !== file.speed
+        );
+      }),
     );
 
-    stompClientRef.current.publish({
-      destination: `/app/studio/${sessionId}/track/files`,
-      body: JSON.stringify(trackFiles),
+    if (!hasChanges) return; // 변경 사항이 없으면 서버 전송 X
+
+    tracks.forEach((track) => {
+      track.files.forEach((file) => {
+        stompClientRef.current?.publish({
+          destination: `/app/studio/${sessionId}/track/files`,
+          body: JSON.stringify({
+            trackId: track.trackId,
+            action: "SAVE",
+            file: {
+              id: file.id,
+              startPoint: file.startPoint,
+              duration: file.duration,
+              trimStart: file.trimStart,
+              trimEnd: file.trimEnd,
+              volume: file.volume ?? 1,
+              isMuted: file.isMuted ?? false,
+              speed: file.speed ?? 1,
+            },
+          }),
+        });
+      });
     });
 
-    console.log("📤 트랙 데이터 전송됨:", trackFiles);
-  }, [debouncedTracks, isConnected, sessionId]);
+    console.log("📤 변경된 파일 전송 완료!");
+    prevTracksRef.current = JSON.parse(JSON.stringify(tracks)); // 🔥 깊은 복사로 상태 저장
+  }, [tracks, isConnected, sessionId]);
+
+  // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    // ✅ 기존 구독이 있다면 정리
+    // ✅ 기존 구독 해제
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
     }
 
-    // ✅ 새롭게 구독 설정
+    console.log(
+      "📡 트랙 변경 사항 구독 시작:",
+      `/topic/studio/${sessionId}/track/files`,
+    );
+
     subscriptionRef.current = stompClientRef.current.subscribe(
       `/topic/studio/${sessionId}/track/files`,
       (message) => {
-        const receivedFiles: { trackId: number; action: string; file: any }[] =
+        const receivedFile: { trackId: number; action: string; file: any } =
           JSON.parse(message.body);
-        console.log("📥 서버에서 받은 트랙 데이터:", receivedFiles);
+        console.log("📥 서버에서 받은 트랙 파일:", receivedFile);
 
         setTracks((prevTracks) => {
-          // 🎯 기존 트랙을 복사해서 새로운 데이터 적용
-          const updatedTracks = prevTracks.map((track) => {
-            // ✅ 이 트랙에 해당하는 새로운 파일 목록 찾기
-            const newFiles = receivedFiles
-              .filter((item) => item.trackId === track.trackId)
-              .map((item) => {
-                const existingFile = track.files.find(
-                  (f) => f.id === item.file.id,
-                );
+          const newTracks = prevTracks.map((track) => {
+            if (track.trackId !== receivedFile.trackId) return track;
 
-                return {
-                  ...existingFile, // 기존 파일 정보 유지
-                  ...item.file, // 서버에서 받은 데이터 덮어쓰기
-                  url: existingFile?.url || "", // ✅ 기존 URL 유지
+            const existingFileIndex = track.files.findIndex(
+              (f) => f.id === receivedFile.file.id,
+            );
+
+            const updatedFiles = [...track.files];
+
+            if (existingFileIndex !== -1) {
+              const existingFile = updatedFiles[existingFileIndex];
+
+              // 🔥 변경 사항이 있는 경우만 업데이트
+              if (
+                JSON.stringify(existingFile) !==
+                JSON.stringify(receivedFile.file)
+              ) {
+                updatedFiles[existingFileIndex] = {
+                  ...existingFile,
+                  ...receivedFile.file,
                 };
-              });
+              }
+            } else {
+              updatedFiles.push(receivedFile.file);
+            }
 
-            // ✅ 만약 이 트랙에 해당하는 새로운 파일이 없으면 기존 트랙 유지
-            if (newFiles.length === 0) return track;
-
-            return {
-              ...track,
-              files: newFiles, // ✅ 기존 값 유지하며 업데이트된 파일 적용
-            };
+            return { ...track, files: updatedFiles };
           });
 
-          return updatedTracks;
+          return JSON.stringify(prevTracks) !== JSON.stringify(newTracks)
+            ? newTracks
+            : prevTracks;
         });
+
+        // ✅ 최신 tracks 상태 로그 찍기
+        setTimeout(() => {
+          console.log("🔥 [트랙 최종 상태] 확인:", tracks);
+        }, 100);
       },
     );
 
@@ -113,7 +137,10 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId]);
+  }, [isConnected, sessionId, setTracks]); // ✅ `tracks` 의존성 제거 (불필요한 실행 방지)
 
-  return null;
+  // ✅ `tracks` 상태 변경 로그
+  useEffect(() => {
+    console.log("🔥 현재 tracks 상태:", tracks);
+  }, [tracks]);
 };

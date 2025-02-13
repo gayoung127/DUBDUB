@@ -9,9 +9,14 @@ import ScriptCard from "./ScriptCard";
 import H4 from "@/app/_components/H4";
 import C1 from "@/app/_components/C1";
 
-import { scripts } from "@/app/_temp/temp_scripts";
+import { scripts } from "@/app/_temp/temp_scripts"; //임시 데이터(주석처리 해야함)
 
-const StudioScript = () => {
+//  전달받는 스크립트 데이터 타입 정의
+interface StudioScriptProps {
+  scripts: { role: string; text: string }[];
+}
+
+const StudioScript = ({ scripts }: StudioScriptProps) => {
   const { time } = useTimeStore();
 
   return (
@@ -26,7 +31,14 @@ const StudioScript = () => {
       </div>
       <div className="scrollbar flex h-full max-h-[451px] w-full flex-1 flex-col items-start justify-start gap-6 overflow-y-scroll">
         {scripts.map((script, index) => (
-          <ScriptCard key={script.id} {...script} no={index} />
+          <ScriptCard
+            key={index}
+            id={index}
+            role={script.role}
+            text={script.text}
+            timestamp={0} // 타임스탬프 기본값 사용
+            no={index + 1}
+          />
         ))}
       </div>
     </section>
