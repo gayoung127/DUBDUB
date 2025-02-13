@@ -83,9 +83,17 @@ const CursorPresence = ({
       }}
     >
       {Object.values(cursors)
-        .filter((cursor) => cursor.memberId !== self?.memberId?.toString())
+        .filter(
+          (cursor) => cursor.memberId.toString() !== self?.memberId?.toString(),
+        )
         .map(({ memberId, x, y, name }) => (
-          <Cursor key={memberId} id={memberId} x={x} y={y} name={name} />
+          <Cursor
+            key={memberId}
+            id={memberId.toString()}
+            x={x}
+            y={y}
+            name={name}
+          />
         ))}
     </div>
   );
