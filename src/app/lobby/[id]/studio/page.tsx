@@ -37,14 +37,11 @@ export default function StudioPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { memberId, email, position, profileUrl, nickName, self } =
     useUserStore();
-  const [tracks, setTracks] = useState<Track[]>(initialTracks);
+  const { tracks, setTracks } = useTrackSocket({ sessionId });
 
   if (!studioId) {
     throw new Error("studioId 없음");
   }
-
-  // ✅ 트랙 변경 사항을 자동으로 서버에 전송
-  useTrackSocket({ sessionId, tracks, setTracks });
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;

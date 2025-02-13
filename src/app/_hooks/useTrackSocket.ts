@@ -1,23 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useStompClient from "@/app/_hooks/useStompClient";
-import { Track } from "@/app/_types/studio";
+import { Track, initialTracks } from "@/app/_types/studio";
 
 interface UseTrackSocketProps {
   sessionId: string;
-  tracks: Track[];
-  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
 
-export const useTrackSocket = ({
-  sessionId,
-  tracks,
-  setTracks,
-}: UseTrackSocketProps) => {
+export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
   const subscriptionRef = useRef<any>(null);
+
+  // ✅ tracks 상태를 useState로 관리
+  const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
 
-  // ✅ 트랙 변경 감지 및 서버 전송 (불필요한 업데이트 방지)
+  // ✅ 트랙 변경 감지 및 서버로 전송
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
@@ -137,10 +134,12 @@ export const useTrackSocket = ({
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [isConnected, sessionId, setTracks]); // ✅ `tracks` 의존성 제거 (불필요한 실행 방지)
+  }, [isConnected, sessionId]); // ✅ `tracks` 의존성 제거 (불필요한 실행 방지)
 
   // ✅ `tracks` 상태 변경 로그
   useEffect(() => {
     console.log("🔥 현재 tracks 상태:", tracks);
   }, [tracks]);
+
+  return { tracks, setTracks };
 };
