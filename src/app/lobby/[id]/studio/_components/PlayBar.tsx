@@ -45,13 +45,13 @@ const PlayBar = ({
   const { self } = useUserStore();
   const userId = self?.memberId ?? null;
 
-  useEffect(() => {
-    if (time >= duration) {
-      console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
-      pause();
-      reset();
-    }
-  }, [time, duration]);
+  // useEffect(() => {
+  //   if (time >= duration) {
+  //     console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
+  //     pause();
+  //     reset();
+  //   }
+  // }, [time, duration]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

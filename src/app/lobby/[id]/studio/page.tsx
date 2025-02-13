@@ -31,7 +31,8 @@ export default function StudioPage() {
   const [duration, setDuration] = useState<number>(160);
   const stompClientRef = useStompClient(); // STOMP 클라이언트 관리
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { memberId, email, position, profileUrl } = useUserStore();
+  const { memberId, email, position, profileUrl, nickName, self } =
+    useUserStore();
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const { setRecruitmentData } = useFormStore();
 
@@ -39,17 +40,17 @@ export default function StudioPage() {
     throw new Error("studioId 없음");
   }
 
-  // STOMP를 통해 커서 위치 전송 (성능 최적화)
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!stompClientRef.current?.connected) return;
 
+    const id = self?.memberId || "익명의 더비";
     const x = e.clientX;
     const y = e.clientY;
-    const name = email || "user123"; // 예시 사용자 ID
+    const name = self?.nickName || "익명의 더비";
 
     stompClientRef.current.publish({
       destination: `/app/studio/${sessionId}/cursor`,
-      body: JSON.stringify({ x, y, name }),
+      body: JSON.stringify({ id, x, y, name }),
     });
   };
 
