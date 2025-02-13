@@ -6,7 +6,7 @@ import Cursor from "./Cursor";
 import { useUserStore } from "@/app/_store/UserStore";
 
 interface CursorData {
-  id: string;
+  memberId: string;
   x: number;
   y: number;
   name: string;
@@ -36,15 +36,14 @@ const CursorPresence = ({
 
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
-      console.log("📥 받은 커서 데이터:", data);
-      setCursors((prev) => ({ ...prev, [data.id]: data }));
+      setCursors((prev) => ({ ...prev, [data.memberId]: data }));
     };
 
     const handleCursorRemove = (message: any) => {
-      const id: string = message.body;
+      const memberId: string = message.body;
       setCursors((prev) => {
         const updatedCursors = { ...prev };
-        delete updatedCursors[id];
+        delete updatedCursors[memberId];
         return updatedCursors;
       });
     };
@@ -84,9 +83,9 @@ const CursorPresence = ({
       }}
     >
       {Object.values(cursors)
-        .filter((cursor) => cursor.id !== self?.memberId?.toString())
-        .map(({ id, x, y, name }) => (
-          <Cursor key={id} id={id} x={x} y={y} name={name} />
+        .filter((cursor) => cursor.memberId !== self?.memberId?.toString())
+        .map(({ memberId, x, y, name }) => (
+          <Cursor key={memberId} id={memberId} x={x} y={y} name={name} />
         ))}
     </div>
   );
