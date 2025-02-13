@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class CursorData {
-    private String id; // 참여자 식별자
+    private Long memberId; //dubdub memebr Id
+    private String openviduId; // 참여자 식별자
     private double x;  // 마우스 X 좌표
     private double y;  // 마우스 Y 좌표
     private String name; // 사용자 이름
