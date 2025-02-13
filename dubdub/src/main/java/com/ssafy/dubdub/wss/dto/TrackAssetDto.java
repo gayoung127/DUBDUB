@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class TrackAssetDto {
-    int trackId;
-    Action action;
-    TrackFile file;
+    private final int trackId;
+    private final Action action;
+    private final TrackFile file;
 }

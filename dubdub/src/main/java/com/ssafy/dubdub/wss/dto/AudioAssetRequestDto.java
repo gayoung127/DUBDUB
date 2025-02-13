@@ -1,9 +1,11 @@
 package com.ssafy.dubdub.wss.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class AudioAssetRequestDto {
-    Action action;
-    AudioAsset audioAsset;
+    private final Action action;
+    private final AudioAsset audioAsset;
 }

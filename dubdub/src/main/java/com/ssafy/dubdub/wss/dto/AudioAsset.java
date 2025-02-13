@@ -7,5 +7,6 @@ import lombok.Getter;
 @Getter
 public class AudioAsset {
     private String id;
-    private String src;
+    private long tableId;
+    private String url;
 }

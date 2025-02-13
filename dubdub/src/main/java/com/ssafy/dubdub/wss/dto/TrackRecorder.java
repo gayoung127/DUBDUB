@@ -1,9 +1,11 @@
 package com.ssafy.dubdub.wss.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class TrackRecorder {
-    private String trackId;
-    private String recorderId;
+    private final String trackId;
+    private final String recorderId;
 }
