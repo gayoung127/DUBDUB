@@ -120,6 +120,15 @@ const AudioBlock = ({
     };
   }, [setTracks, file.id, timelineRef]);
 
+  // ✅ startPoint 변경 시 GSAP와 동기화
+  useEffect(() => {
+    if (blockRef.current) {
+      gsap.set(blockRef.current, {
+        x: (file.startPoint + file.trimStart) * PX_PER_SECOND,
+      });
+    }
+  }, [file.startPoint, file.trimStart]);
+
   // useEffect: 오디오 트랙 시작점 반영
   useEffect(() => {
     if (!audioContext) return;
