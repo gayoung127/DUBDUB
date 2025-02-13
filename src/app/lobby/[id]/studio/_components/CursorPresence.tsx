@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import Cursor from "./Cursor";
 
@@ -14,32 +14,28 @@ interface CursorData {
 interface CursorPresenceProps {
   stompClientRef: React.MutableRefObject<Client | null>;
   sessionId: string;
+  isConnected: boolean; // STOMP 연결 상태 추가
 }
 
-const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
+const CursorPresence = ({
+  stompClientRef,
+  sessionId,
+  isConnected,
+}: CursorPresenceProps) => {
   const [cursors, setCursors] = useState<Record<string, CursorData>>({});
-  const [shouldRender, setShouldRender] = useState(false); // 렌더링 여부 결정
 
   useEffect(() => {
-    const stompClient = stompClientRef.current;
-    if (!stompClient || !stompClient.connected) {
-      console.log("❌ STOMP가 아직 연결되지 않음");
+    if (!isConnected || !stompClientRef.current) {
+      console.log("❌ STOMP 연결 안 됨. CursorPresence 대기 중...");
       return;
     }
 
-    console.log("✅ STOMP 연결 후 커서 구독 시작");
+    const stompClient = stompClientRef.current;
 
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
       console.log("📥 받은 커서 데이터:", data);
-
-      setCursors((prev) => {
-        const updatedCursors = { ...prev, [data.id]: data };
-        if (Object.keys(updatedCursors).length >= 1) {
-          setShouldRender(true);
-        }
-        return updatedCursors;
-      });
+      setCursors((prev) => ({ ...prev, [data.id]: data }));
     };
 
     const handleCursorRemove = (message: any) => {
@@ -47,14 +43,10 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
       setCursors((prev) => {
         const updatedCursors = { ...prev };
         delete updatedCursors[id];
-        if (Object.keys(updatedCursors).length < 1) {
-          setShouldRender(false);
-        }
         return updatedCursors;
       });
     };
 
-    // ✅ 구독 로그 추가
     console.log(`📡 커서 구독 주소: /topic/studio/${sessionId}/cursor`);
 
     // 커서 위치 업데이트 구독
@@ -70,11 +62,11 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
     );
 
     return () => {
-      console.log("🛑 STOMP 커서 구독 해제");
+      console.log("🛑 커서 구독 해제");
       cursorSubscription.unsubscribe();
       removeSubscription.unsubscribe();
     };
-  }, [sessionId, stompClientRef.current?.connected]); // ✅ `cursors` 제거! 더 이상 불필요한 재구독 없음!
+  }, [sessionId, isConnected]); // isConnected와 sessionId가 변경될 때만 실행
 
   return (
     <div
@@ -89,16 +81,9 @@ const CursorPresence = ({ stompClientRef, sessionId }: CursorPresenceProps) => {
         pointerEvents: "none",
       }}
     >
-      {shouldRender &&
-        Object.entries(cursors).map(([id, cursor]) => (
-          <Cursor
-            key={id}
-            id={id}
-            x={cursor.x}
-            y={cursor.y}
-            name={cursor.name}
-          />
-        ))}
+      {Object.values(cursors).map(({ id, x, y, name }) => (
+        <Cursor key={id} id={id} x={x} y={y} name={name} />
+      ))}
     </div>
   );
 };

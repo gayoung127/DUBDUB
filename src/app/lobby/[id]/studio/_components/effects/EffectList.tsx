@@ -5,27 +5,34 @@ import H2 from "@/app/_components/H2";
 import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
-import { initialTracks, Track } from "@/app/_types/studio";
+import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
-import { audioBufferToArrayBuffer } from "@/app/_utils/audioBufferToMp3";
+import {
+  audioBufferToArrayBuffer,
+  audioBufferToWav,
+} from "@/app/_utils/audioBufferToMp3";
 import VocalRemoval from "./VocalRemoval";
 import Compressor from "./Compressor";
-// import {
-//   audioBufferToMp3,
-//   audioBufferToWebm,
-// } from "@/app/_utils/audioBufferToMp3";
 
 interface EffectListProps {
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  onUpdateFile: (file: AudioFile | null) => void;
+  audioFiles: AudioFile[] | null;
 }
 
-const EffectList = ({ tracks, setTracks }: EffectListProps) => {
+const EffectList = ({
+  tracks,
+  setTracks,
+  onUpdateFile,
+  audioFiles,
+}: EffectListProps) => {
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const { selectedBlock, setSelectedBlock } = useBlockStore();
+  const { selectedBlock, selectedBlockObj } = useBlockStore();
+  const [aid, setAid] = useState<number>(0);
 
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
@@ -84,19 +91,111 @@ const EffectList = ({ tracks, setTracks }: EffectListProps) => {
     audioBuffer.current = newBuf;
   }
 
+  useEffect(() => {
+    if (!selectedBlock) {
+      return;
+    }
+    setAid(findPossibleID(selectedBlock.id));
+  }, [audioFiles]);
+
+  function isSameFile(str1: string, str2: string, seperate: string): boolean {
+    return str1.split(seperate)[0] === str2.split(seperate)[0];
+  }
+
+  function hasSameBase(str1: string, str2: string) {
+    return (
+      str1.split("-")[0].split("_")[0] === str2.split("-")[0].split("_")[0]
+    );
+  }
+
+  function getMiddle(input: string) {
+    const underscoreSplit = input.split("_");
+    if (underscoreSplit.length < 2) {
+      return 0;
+    }
+    const dashSplit = underscoreSplit[1].split("-");
+    const middleValue = Number(dashSplit[0]);
+    return isNaN(middleValue) ? 0 : middleValue;
+  }
+
+  function findPossibleID(id: string) {
+    let ret = 0;
+    for (const audio of audioFiles!) {
+      const input = audio.id;
+      if (!hasSameBase(input, id)) {
+        continue;
+      }
+      ret = Math.max(ret, getMiddle(input));
+    }
+    return ret + 1;
+  }
+
   async function saveAsAssets() {
     if (!audioBuffer.current || !selectedBlock) {
-      console.log("먼저 오디오 블럭을 선택해주세요");
       return;
     }
 
     // 에셋 저장 로직
-
-    // audio buffer를 array buffer 로 변환 후 서버로 보내기.
     const arrayBuffer = audioBufferToArrayBuffer(audioBuffer.current);
-    console.log("array buffer = ", arrayBuffer);
-    // 소켓에서 이 arraybuffer 클라이언트들에게 뿌리기
-    // mp3로 변환해서 에셋에 저장
+
+    const blob = await audioBufferToWav(audioBuffer.current);
+    const url = URL.createObjectURL(blob);
+
+    let newFile = {
+      ...selectedBlock,
+      id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${aid}`,
+      url,
+    };
+
+    // 선택한 에셋 전체 블럭에 적용
+    if (selectedBlockObj.applyToAll) {
+      setTracks(() =>
+        tracks.map((prevTracks) => {
+          return {
+            ...prevTracks,
+            files: prevTracks.files.map((file) => {
+              if (
+                isSameFile(file.id, selectedBlockObj.selectedAudioFile!.id, "-")
+              ) {
+                newFile = {
+                  ...selectedBlock,
+                  startPoint: file.startPoint,
+                  trimStart: file.trimStart,
+                  trimEnd: file.trimEnd,
+                  id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${aid}-${Date.now() + Math.floor(Math.random() * 1000)}`,
+                  url,
+                };
+                return newFile;
+              }
+              return file;
+            }),
+          };
+        }),
+      );
+    } else {
+      // 특정 오디오 블럭에만 적용
+      // onUpdateFile(newFile);
+
+      setTracks(
+        tracks.map((track, index) => {
+          if (index === selectedBlockObj.trackId! - 1) {
+            return {
+              ...track,
+              files: track.files.map((file, fIndex) => {
+                if (fIndex === selectedBlockObj.blockIndex) {
+                  return newFile;
+                } else {
+                  return file;
+                }
+              }),
+            };
+          } else {
+            return track;
+          }
+        }),
+      );
+    }
+    onUpdateFile(newFile);
   }
 
   const effects = [

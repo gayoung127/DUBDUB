@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import useStompClient from "../_utils/socketClient";
+import useStompClient from "./useStompClient";
 import { useUserStore } from "@/app/_store/UserStore";
 
 export const useStudioMembers = () => {
   const { self, studioMembers, setStudioMembers } = useUserStore();
-  const stompClientRef = useStompClient();
+  const { isConnected, stompClientRef } = useStompClient();
 
   const publishSelf = () => {
     if (!stompClientRef.current || !stompClientRef.current.connected || !self)
