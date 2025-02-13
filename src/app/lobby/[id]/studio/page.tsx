@@ -30,18 +30,18 @@ export default function StudioPage() {
   const [isStompConnected, setIsStompConnected] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
+  const [parsedScripts, setParsedScripts] = useState<
+    { role: string; text: string }[]
+  >([]);
   const { stompClientRef, isConnected } = useStompClient(); // STOMP 클라이언트 관리
   const videoRef = useRef<HTMLVideoElement>(null);
   const { memberId, email, position, profileUrl, nickName, self } =
     useUserStore();
-  const [tracks, setTracks] = useState<Track[]>(initialTracks);
+  const { tracks, setTracks } = useTrackSocket({ sessionId });
 
   if (!studioId) {
     throw new Error("studioId 없음");
   }
-
-  // ✅ 트랙 변경 사항을 자동으로 서버에 전송
-  useTrackSocket({ sessionId, tracks, setTracks });
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
@@ -61,6 +61,20 @@ export default function StudioPage() {
   useEffect(() => {
     getMyInfo();
   }, []);
+
+  // script 파싱 함수
+  const parseScript = (script: string): { role: string; text: string }[] => {
+    return script
+      .split("\n")
+      .map((line) => {
+        const [role, ...textParts] = line.split(":"); // ':' 기준으로 나눔
+        return {
+          role: role?.trim() || "", // 역할 (예: 철수)
+          text: textParts.join(":").trim() || "", // 대사 (예: 안녕하세요)
+        };
+      })
+      .filter((item) => item.role && item.text); // 빈 값 제거
+  };
 
   // 스튜디오 정보 가져오기
   useEffect(() => {
@@ -88,6 +102,13 @@ export default function StudioPage() {
         // 비디오 URL 설정
         if (data.videoUrl && typeof data.videoUrl === "string") {
           setVideoUrl(data.videoUrl); // 서버에서 받은 videoUrl로 상태 업데이트
+        }
+
+        // 스크립트 파싱 및 상태 업데이트
+        if (data.script && typeof data.script === "string") {
+          const parsedServerScript = parseScript(data.script);
+          console.log("파싱된 스크립트:", parsedServerScript);
+          setParsedScripts(parsedServerScript); // 파싱된 데이터를 상태로 저장
         }
 
         const sessionId =
@@ -173,7 +194,7 @@ export default function StudioPage() {
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
-              {/* <StudioScript scripts={scripts} /> */}
+              <StudioScript scripts={parsedScripts} />
             </div>
           </div>
           <RecordSection
