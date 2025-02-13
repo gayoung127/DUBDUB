@@ -42,10 +42,10 @@ public class WebSocketController {
     @SendTo("/studio/{sessionId}/assets")
     public AudioAssetRequestDto broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto) {
         switch (requestDto.getAction()) {
-            case UPDATE -> {
+            case SAVE -> {
                 studioStoreService.saveAsset(sessionId, requestDto.getAudioAsset());
             }
-            case REMOVE -> {
+            case DELETE -> {
                 studioStoreService.deleteAsset(sessionId, requestDto.getAudioAsset().getId());
             }
         }
@@ -59,10 +59,10 @@ public class WebSocketController {
     public TrackAssetDto broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto) {
 
         switch (requestDto.getAction()) {
-            case UPDATE -> {
+            case SAVE -> {
                 studioStoreService.saveTrackFile(sessionId, requestDto.getFile());
             }
-            case REMOVE -> {
+            case DELETE -> {
                 studioStoreService.deleteTrackFile(sessionId, requestDto.getFile().getId());
             }
         }
