@@ -12,7 +12,6 @@ interface AssetListProps {
 const AssetList = ({ audioFiles }: AssetListProps) => {
   const [selectedAsset, setSelectedAsset] = useState<number | null>(null);
   const { setSelectedBlock, setSelectedBlockObj } = useBlockStore();
-  const [uniqueFiles, setUniqueFiles] = useState<AudioFile[]>([]);
 
   const handleClick = (index: number) => {
     setSelectedAsset(index);

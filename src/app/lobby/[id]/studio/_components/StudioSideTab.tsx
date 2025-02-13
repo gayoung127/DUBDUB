@@ -7,6 +7,7 @@ import AssetList from "./AssetList";
 import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
 import { AudioFile, Track } from "@/app/_types/studio";
+import { useAssetsStore } from "@/app/_store/AssetsStore";
 
 interface StudioSideTabProps {
   userAudioStreams: Record<number, MediaStream>;
@@ -19,27 +20,32 @@ const StudioSideTab = ({
   tracks,
   setTracks,
 }: StudioSideTabProps) => {
-  const audioFilesRef = useRef<AudioFile[] | null>([]);
+  //const audioFilesRef = useRef<AudioFile[] | null>([]);
 
-  useEffect(() => {
-    const loadAudioFiles = () => {
-      for (const track of tracks) {
-        for (const file of track.files) {
-          if (!audioFilesRef.current?.some((obj) => obj.url === file.url)) {
-            audioFilesRef.current?.push(file);
-          }
-        }
-      }
-    };
+  const { audioFiles, addAudioFile } = useAssetsStore();
+  // useEffect(() => {
+  //   const loadAudioFiles = () => {
+  //     for (const track of tracks) {
+  //       for (const file of track.files) {
+  //         if (!audioFilesRef.current?.some((obj) => obj.url === file.url)) {
+  //           audioFilesRef.current?.push(file);
+  //         }
+  //       }
+  //     }
+  //   };
 
-    loadAudioFiles();
-  }, [tracks]);
+  //   loadAudioFiles();
+  // }, [tracks]);
 
   const updateAudioFile = (file: AudioFile | null) => {
-    if (!audioFilesRef.current || !file) {
+    // if (!audioFilesRef.current || !file) {
+    //   return;
+    // }
+    // audioFilesRef.current.push(file);
+    if (!file) {
       return;
     }
-    audioFilesRef.current.push(file);
+    addAudioFile(file);
   };
 
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(
@@ -80,15 +86,13 @@ const StudioSideTab = ({
       </div>
 
       {activeTab === "role" && <RoleList userAudioStreams={userAudioStreams} />}
-      {activeTab === "asset" && (
-        <AssetList audioFiles={audioFilesRef.current} />
-      )}
+      {activeTab === "asset" && <AssetList audioFiles={audioFiles} />}
       {activeTab === "effect" && (
         <EffectList
           tracks={tracks}
           setTracks={setTracks}
           onUpdateFile={updateAudioFile}
-          audioFiles={audioFilesRef.current}
+          audioFiles={audioFiles}
         />
       )}
     </section>

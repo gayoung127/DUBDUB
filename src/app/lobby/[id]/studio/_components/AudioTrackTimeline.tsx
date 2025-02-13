@@ -7,6 +7,9 @@ import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import LiveAudioBlock from "./LiveAudioBlock";
 import { useTimeStore } from "@/app/_store/TimeStore";
+import { useUserStore } from "@/app/_store/UserStore";
+import { useAssetsStore } from "@/app/_store/AssetsStore";
+import { findPossibleId } from "@/app/_utils/findPossibleId";
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -43,6 +46,8 @@ const AudioTrackTimeline = ({
     setAudioFiles,
   } = useRecordingStore();
   const { time } = useTimeStore();
+  const { studioMembers, self } = useUserStore();
+  const { audioFiles: assetAudioFiles, addAudioFile } = useAssetsStore();
   const isSyncingRef = useRef(false);
   const lastFilesRef = useRef("");
   const [liveWidth, setLiveWidth] = useState(0);
@@ -160,8 +165,13 @@ const AudioTrackTimeline = ({
 
             const starPoint = offsetMap[url] || 0;
 
-            return {
-              id: `${trackId}-${Date.now()}`,
+            const createdFile = {
+              // id: `${trackId}-${Date.now()}`,
+              id: findPossibleId(
+                assetAudioFiles,
+                studioMembers,
+                self?.position!,
+              ),
               url,
               startPoint: starPoint,
               duration,
@@ -171,6 +181,8 @@ const AudioTrackTimeline = ({
               isMuted: isMuted,
               speed: 1,
             };
+            addAudioFile(createdFile);
+            return createdFile;
           }),
       );
 
