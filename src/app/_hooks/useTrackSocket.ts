@@ -60,8 +60,6 @@ export const useTrackSocket = ({
 
     console.log("📤 트랙 데이터 전송됨:", trackFiles);
   }, [debouncedTracks, isConnected, sessionId]);
-
-  // 🎯 트랙 데이터 구독 및 반영
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
@@ -74,10 +72,39 @@ export const useTrackSocket = ({
     subscriptionRef.current = stompClientRef.current.subscribe(
       `/topic/studio/${sessionId}/track/files`,
       (message) => {
-        const receivedTracks: Track[] = JSON.parse(message.body);
-        console.log("📥 서버에서 받은 트랙 데이터:", receivedTracks);
+        const receivedFiles: { trackId: number; action: string; file: any }[] =
+          JSON.parse(message.body);
+        console.log("📥 서버에서 받은 트랙 데이터:", receivedFiles);
 
-        setTracks(receivedTracks); // ✅ 서버에서 받은 데이터로 업데이트
+        setTracks((prevTracks) => {
+          // 🎯 기존 트랙을 복사해서 새로운 데이터 적용
+          const updatedTracks = prevTracks.map((track) => {
+            // ✅ 이 트랙에 해당하는 새로운 파일 목록 찾기
+            const newFiles = receivedFiles
+              .filter((item) => item.trackId === track.trackId)
+              .map((item) => {
+                const existingFile = track.files.find(
+                  (f) => f.id === item.file.id,
+                );
+
+                return {
+                  ...existingFile, // 기존 파일 정보 유지
+                  ...item.file, // 서버에서 받은 데이터 덮어쓰기
+                  url: existingFile?.url || "", // ✅ 기존 URL 유지
+                };
+              });
+
+            // ✅ 만약 이 트랙에 해당하는 새로운 파일이 없으면 기존 트랙 유지
+            if (newFiles.length === 0) return track;
+
+            return {
+              ...track,
+              files: newFiles, // ✅ 기존 값 유지하며 업데이트된 파일 적용
+            };
+          });
+
+          return updatedTracks;
+        });
       },
     );
 
