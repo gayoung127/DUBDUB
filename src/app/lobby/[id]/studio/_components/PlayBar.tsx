@@ -13,6 +13,7 @@ import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useUserStore } from "@/app/_store/UserStore";
+import { toast } from "sonner";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -104,8 +105,7 @@ const PlayBar = ({
   // 녹음하는 함수
   const handleRecording = async () => {
     if (!userId) {
-      console.error("🚨 사용자 ID가 없습니다. 녹음을 시작할 수 없습니다.");
-      alert("오류: 사용자 정보가 없습니다.");
+      toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
       return;
     }
 

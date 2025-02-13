@@ -3,6 +3,7 @@ import { UserProfile } from "../type";
 import Button from "@/app/_components/Button";
 import H4 from "@/app/_components/H4";
 import { useAuthStore } from "@/app/_store/AuthStore";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const [user, setUser] = useState<UserProfile>({
@@ -80,7 +81,7 @@ const SignUp = () => {
     e.preventDefault();
 
     if (!isAgreed || !user.nickname || !user.userType) {
-      alert("다 안 채워짐");
+      toast.warning("필요로 하는 부분을 모두 입력해주세요!");
       return;
     }
 
@@ -115,8 +116,7 @@ const SignUp = () => {
 
       window.location.replace("/lobby");
     } catch (error) {
-      console.error("가입 실패: ", error);
-      alert("가입 중 오류!");
+      toast.error("가입 실패");
     }
   };
 
