@@ -17,10 +17,9 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     private final Map<String, Map<String, TrackFile>> trackFileMap = new ConcurrentHashMap<>();
 
     @Override
-    public List<AudioAsset> getAssetList(String sessionId) {
+    public Optional<List<AudioAsset>> getAssetList(String sessionId) {
         return Optional.ofNullable(assetMap.get(sessionId))
-                .map(sessionAssets -> List.copyOf(sessionAssets.values()))
-                .orElse(Collections.emptyList());
+                .map(sessionAssets -> List.copyOf(sessionAssets.values()));
     }
 
     @Override
@@ -37,10 +36,9 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public List<TrackRecorder> getTrackRecorderList(String sessionId) {
+    public Optional<List<TrackRecorder>> getTrackRecorderList(String sessionId) {
         return Optional.ofNullable(trackRecorderMap.get(sessionId))
-                .map(recorders -> List.copyOf(recorders.values()))
-                .orElse(Collections.emptyList());
+                .map(recorders -> List.copyOf(recorders.values()));
     }
 
     @Override
@@ -57,10 +55,9 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public List<TrackFile> getTrackFileList(String sessionId) {
+    public Optional<List<TrackFile>> getTrackFileList(String sessionId) {
         return Optional.ofNullable(trackFileMap.get(sessionId))
-                .map(files -> List.copyOf(files.values()))
-                .orElse(Collections.emptyList());
+                .map(files -> List.copyOf(files.values()));
     }
 
     @Override
