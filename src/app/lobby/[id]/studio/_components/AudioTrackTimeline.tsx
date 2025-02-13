@@ -162,7 +162,10 @@ const AudioTrackTimeline = ({
           .filter((url) => !existingFilesUrls.has(url))
           .map(async (url) => {
             const duration = await loadAudioDuration(url);
-            const blob = await createBlob(audioBuffers?.get(url)!);
+            const buffer =
+              audioBuffers?.get(url) ??
+              new AudioBuffer({ length: 1, sampleRate: 44100 });
+            const blob = await createBlob(buffer);
             const newUrl = await postAsset(String(pid), blob);
 
             if (duration <= 0) {
