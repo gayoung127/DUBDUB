@@ -1,5 +1,6 @@
 export const postAsset = async (pid: string, blob: Blob) => {
   const formData = new FormData();
+  console.log("pid = ", pid, ", blob = ", blob);
   formData.append("file", blob);
   try {
     const response = await fetch(
