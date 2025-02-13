@@ -94,7 +94,6 @@ const EffectList = ({
     audioBuffer.current = newBuf;
   }
 
-  //
   useEffect(() => {
     if (!selectedBlock) {
       return;
