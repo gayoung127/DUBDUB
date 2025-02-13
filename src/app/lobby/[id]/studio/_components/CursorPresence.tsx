@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import Cursor from "./Cursor";
+import { useUserStore } from "@/app/_store/UserStore";
 
 interface CursorData {
   id: string;
@@ -23,6 +24,7 @@ const CursorPresence = ({
   isConnected,
 }: CursorPresenceProps) => {
   const [cursors, setCursors] = useState<Record<string, CursorData>>({});
+  const { self } = useUserStore();
 
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) {
@@ -81,9 +83,11 @@ const CursorPresence = ({
         pointerEvents: "none",
       }}
     >
-      {Object.values(cursors).map(({ id, x, y, name }) => (
-        <Cursor key={id} id={id} x={x} y={y} name={name} />
-      ))}
+      {Object.values(cursors)
+        .filter((cursor) => cursor.id !== self?.memberId?.toString())
+        .map(({ id, x, y, name }) => (
+          <Cursor key={id} id={id} x={x} y={y} name={name} />
+        ))}
     </div>
   );
 };
