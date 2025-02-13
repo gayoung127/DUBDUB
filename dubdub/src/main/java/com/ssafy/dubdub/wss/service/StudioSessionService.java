@@ -4,12 +4,10 @@ import com.ssafy.dubdub.service.StudioService;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.repository.UserSessionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +23,8 @@ public class StudioSessionService {
     }
 
     // 사용자를 세션에서 제거
-    public void removeUserFromSession(String sessionId, String userId) {
-        userSessionRepository.deleteById(userId);
+    public void removeUserFromSession(String sessionId, Long userSessionId) {
+        userSessionRepository.deleteByUserSessionId(userSessionId);
         List<UserSession> remainingUsers = getUsersInSession(sessionId);
 
         // 참여자가 없으면 스튜디오 종료

@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.wss.controller;
 
 import com.ssafy.dubdub.wss.dto.*;
+import com.ssafy.dubdub.wss.service.StudioSessionService;
 import com.ssafy.dubdub.wss.service.StudioStoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -8,11 +9,14 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Controller
 public class WebSocketController {
 
     private final StudioStoreService studioStoreService;
+    private final StudioSessionService studioSessionService;
 
     // 마우스 데이터 공유
     @MessageMapping("/studio/{sessionId}/cursor")
@@ -66,5 +70,12 @@ public class WebSocketController {
             }
         }
         return requestDto;
+    }
+
+    // 참여자 목록 조회
+    @MessageMapping("/studio/{sessionId}/users")
+    @SendTo("/topic/studio/{sessionId}/users")
+    public List<UserSession> requestCurrentUsers(@DestinationVariable String sessionId) {
+        return studioSessionService.getUsersInSession(sessionId);
     }
 }

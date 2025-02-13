@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface UserSessionRepository extends CrudRepository<UserSession, String> {
     List<UserSession> findBySessionId(String sessionId);
+    UserSession findByUserSessionId(Long userSessionId);
+    void deleteByUserSessionId(Long userSessionId);
 }
