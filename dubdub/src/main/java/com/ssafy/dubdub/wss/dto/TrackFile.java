@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class TrackFile {
     private final String id;
-    private final String assetId;
+    private final String url;
     private final float startPoint;
     private final float duration;
     private final float trimStart;
