@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -44,10 +45,14 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     }
 
     @Override
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, Member author) throws BadRequestException {
+    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member author) throws BadRequestException {
         if(!FileUtil.isValidVideoFile(video)) {
             log.debug("Invalid video file");
             throw new BadRequestException("비디오를 업로드해주세요.");
+        }
+        else if(!FileUtil.isValidImageFile(thumbnail)) {
+            log.debug("Invalid thumbnail file");
+            throw new BadRequestException("이미지를 업로드해주세요.");
         }
 
         Recruitment recruitment = Recruitment.builder()
@@ -70,13 +75,16 @@ public class RecruitmentServiceImpl implements RecruitmentService{
             recruitment.addCasting(new Casting(recruitment, roleName));
         }
 
-        for (GenreType genreType : requestDTO.getGenreTypes()) {
-            Genre genre = genreRepository.findByGenreName(genreType) // 장르 조회
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장르: " + genreType));
-
-            RecruitmentGenre recruitmentGenre = new RecruitmentGenre(recruitment, genre);
-            recruitment.addGenre(recruitmentGenre);
+        // 장르 일괄 조회하여 매핑 (Enum name 사용)
+        List<String> genreNames = requestDTO.getGenreTypes().stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());
+        List<Genre> genres = genreRepository.findByGenreNameIn(genreNames);
+        if (genres.size() != genreNames.size()) {
+            throw new IllegalArgumentException("존재하지 않는 장르가 포함되어 있습니다.");
         }
+        genres.forEach(genre -> recruitment.addGenre(new RecruitmentGenre(recruitment, genre)));
+
 
         for (CategoryType categoryType : requestDTO.getCategoryTypes()) {
             Category category = categoryRepository.findByCategoryName(categoryType)
