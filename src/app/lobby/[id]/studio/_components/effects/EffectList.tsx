@@ -142,7 +142,7 @@ const EffectList = ({
       url,
     };
 
-    // 전체 블럭에 효과 적용
+    // 전체 블럭에 효과 적용,
     if (selectedBlockObj.applyToAll) {
       setTracks(() =>
         tracks.map((prevTracks) => {
