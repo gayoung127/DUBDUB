@@ -34,17 +34,17 @@ const Timeline = ({ duration }: TimelineProps) => {
     const scrollWidth = scrollContainer.clientWidth;
     const threshold = scrollWidth * 0.9;
 
-    console.log("🎯 마커 위치(px):", markerPosition);
-    console.log("🖥️ 현재 스크롤 위치:", scrollContainer.scrollLeft);
-    console.log("📏 현재 화면 너비:", scrollWidth);
+    //console.log("🎯 마커 위치(px):", markerPosition);
+    //console.log("🖥️ 현재 스크롤 위치:", scrollContainer.scrollLeft);
+    //console.log("📏 현재 화면 너비:", scrollWidth);
 
     if (markerPosition > scrollContainer.scrollLeft + threshold) {
-      console.log("📌 오른쪽으로 스크롤 이동 🚀");
+      //console.log("📌 오른쪽으로 스크롤 이동 🚀");
       scrollContainer.scrollLeft = markerPosition - threshold;
     }
 
     if (markerPosition < scrollContainer.scrollLeft + scrollWidth * 0.1) {
-      console.log("📌 왼쪽으로 스크롤 이동 🔙");
+      //console.log("📌 왼쪽으로 스크롤 이동 🔙");
       scrollContainer.scrollLeft = markerPosition - scrollWidth * 0.1;
     }
   }, [time]);
