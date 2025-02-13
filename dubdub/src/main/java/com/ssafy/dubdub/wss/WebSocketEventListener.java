@@ -1,4 +1,4 @@
-package com.ssafy.dubdub.wss.controller;
+package com.ssafy.dubdub.wss;
 
 import com.ssafy.dubdub.util.SecurityUtil;
 import com.ssafy.dubdub.wss.dto.UserSession;
@@ -26,15 +26,15 @@ public class WebSocketEventListener {
         SecurityUtil.getCurrentUser();
         Principal user = event.getUser();
         if (user != null) {
-            String sessionId = user.getName(); // 세션 ID 가져오기 (보통 userId 또는 unique 값)
-            logger.info("사용자 연결: {}", sessionId);
-
-            // 사용자 정보 추가
-            UserSession userSession = new UserSession();
-            studioSessionService.addUserToSession(sessionId, userSession);
-
-            // 모든 사용자에게 변경된 참여자 목록 전송
-            messagingTemplate.convertAndSend("/topic/studio/" + sessionId + "/users", studioSessionService.getUsersInSession(sessionId));
+//            String sessionId = user.getName(); // 세션 ID 가져오기 (보통 userId 또는 unique 값)
+//            logger.info("사용자 연결: {}", sessionId);
+//
+//            // 사용자 정보 추가
+//            UserSession userSession = new UserSession();
+//            studioSessionService.addUserToSession(sessionId, userSession);
+//
+//            // 모든 사용자에게 변경된 참여자 목록 전송
+//            messagingTemplate.convertAndSend("/topic/studio/" + sessionId + "/users", studioSessionService.getUsersInSession(sessionId));
         }
     }
 
