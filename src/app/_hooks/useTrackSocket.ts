@@ -15,35 +15,60 @@ export const useTrackSocket = ({
 }: UseTrackSocketProps) => {
   const { isConnected, stompClientRef } = useStompClient();
   const subscriptionRef = useRef<any>(null);
+  const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
 
-  // ✅ 트랙 데이터 서버로 전송 (트랙 변경 감지)
+  // ✅ 트랙 변경 감지 및 개별적으로 서버로 전송
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    const trackFiles = tracks.flatMap((track) =>
-      track.files.map((file) => ({
-        trackId: track.trackId,
-        action: "SAVE",
-        file: {
-          id: file.id,
-          assetId: file.id.split("-")[0], // ✅ 대시(`-`) 기준으로 앞부분만 추출
-          startPoint: file.startPoint,
-          duration: file.duration,
-          trimStart: file.trimStart,
-          trimEnd: file.trimEnd,
-          volume: file.volume ?? 1,
-          isMuted: file.isMuted ?? false,
-          speed: file.speed ?? 1,
-        },
-      })),
-    );
+    const prevTracks = prevTracksRef.current; // 🔥 이전 트랙 데이터
 
-    stompClientRef.current.publish({
-      destination: `/app/studio/${sessionId}/track/files`,
-      body: JSON.stringify(trackFiles),
+    tracks.forEach((track) => {
+      track.files.forEach((file) => {
+        // 🔥 기존 데이터에서 동일한 파일 찾기
+        const prevTrack = prevTracks.find((t) => t.trackId === track.trackId);
+        const prevFile = prevTrack?.files.find((f) => f.id === file.id);
+
+        // 🔥 새 파일이거나 기존 파일이 변경되었을 경우만 publish
+        const hasChanged =
+          !prevFile || // 새 파일이 추가됨
+          prevFile.startPoint !== file.startPoint ||
+          prevFile.duration !== file.duration ||
+          prevFile.trimStart !== file.trimStart ||
+          prevFile.trimEnd !== file.trimEnd ||
+          prevFile.volume !== file.volume ||
+          prevFile.isMuted !== file.isMuted ||
+          prevFile.speed !== file.speed;
+
+        if (hasChanged && stompClientRef.current) {
+          const trackFile = {
+            trackId: track.trackId,
+            action: "SAVE",
+            file: {
+              id: file.id,
+              assetId: file.id.split("-")[0], // ✅ 대시(`-`) 기준으로 앞부분만 추출
+              startPoint: file.startPoint,
+              duration: file.duration,
+              trimStart: file.trimStart,
+              trimEnd: file.trimEnd,
+              volume: file.volume ?? 1,
+              isMuted: file.isMuted ?? false,
+              speed: file.speed ?? 1,
+            },
+          };
+
+          console.log("📤 변경된 파일 전송됨:", trackFile);
+
+          stompClientRef.current.publish({
+            destination: `/app/studio/${sessionId}/track/files`,
+            body: JSON.stringify(trackFile),
+          });
+        }
+      });
     });
 
-    console.log("📤 트랙 데이터 전송됨:", trackFiles);
+    // 🔥 현재 상태를 저장하여 다음 변경 감지에 활용
+    prevTracksRef.current = tracks;
   }, [tracks, isConnected, sessionId]);
 
   // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
@@ -55,54 +80,45 @@ export const useTrackSocket = ({
       subscriptionRef.current.unsubscribe();
     }
 
+    console.log("📡 트랙 변경 사항 구독 시작: /topic/studio/", sessionId);
+
     subscriptionRef.current = stompClientRef.current.subscribe(
       `/topic/studio/${sessionId}/track/files`,
       (message) => {
-        const receivedFiles: { trackId: number; action: string; file: any }[] =
+        const receivedFile: { trackId: number; action: string; file: any } =
           JSON.parse(message.body);
-        console.log("📥 서버에서 받은 트랙 데이터:", receivedFiles);
+        console.log("📥 서버에서 받은 트랙 파일:", receivedFile);
 
         setTracks((prevTracks) => {
-          const updatedTracks = prevTracks.map((track) => {
-            // ✅ 서버에서 받은 파일 중 이 트랙에 해당하는 것만 필터링
-            const newFiles = receivedFiles
-              .filter((item) => item.trackId === track.trackId)
-              .map((item) => {
-                const existingFile = track.files.find(
-                  (f) => f.id === item.file.id,
-                );
+          return prevTracks.map((track) => {
+            if (track.trackId !== receivedFile.trackId) return track;
 
-                return {
-                  ...existingFile, // ✅ 기존 데이터 유지
-                  ...item.file, // ✅ 서버에서 받은 데이터 덮어쓰기
-                  url: existingFile?.url || "", // ✅ 기존 URL 유지
-                };
-              });
+            // ✅ 기존 파일이 있으면 업데이트, 없으면 추가
+            const existingFileIndex = track.files.findIndex(
+              (f) => f.id === receivedFile.file.id,
+            );
 
-            // ✅ 기존 파일과 새로운 파일을 병합하여 업데이트
-            const mergedFiles = [...track.files];
+            const updatedFiles = [...track.files];
 
-            newFiles.forEach((newFile) => {
-              const index = mergedFiles.findIndex((f) => f.id === newFile.id);
-              if (index !== -1) {
-                mergedFiles[index] = newFile; // ✅ 기존 파일 업데이트
-              } else {
-                mergedFiles.push(newFile); // ✅ 새 파일 추가
-              }
-            });
+            if (existingFileIndex !== -1) {
+              updatedFiles[existingFileIndex] = {
+                ...updatedFiles[existingFileIndex],
+                ...receivedFile.file,
+              };
+            } else {
+              updatedFiles.push(receivedFile.file);
+            }
 
             return {
               ...track,
-              files: mergedFiles,
+              files: updatedFiles,
             };
           });
-
-          return updatedTracks;
         });
 
-        // 🔥 트랙 업데이트 후 `setTimeout`을 사용해 다음 렌더링에서 `tracks`를 찍음
+        // ✅ 최신 tracks 상태 로그 찍기
         setTimeout(() => {
-          console.log("✅ 트랙 업데이트 완료! 최신 tracks:", tracks);
+          console.log("🔥 [트랙 최종 상태] 확인:", tracks);
         }, 100);
       },
     );
