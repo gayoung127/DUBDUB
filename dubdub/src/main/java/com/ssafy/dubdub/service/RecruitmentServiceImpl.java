@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -33,8 +32,6 @@ public class RecruitmentServiceImpl implements RecruitmentService{
     private final GenreRepository genreRepository;
     private final CategoryRepository categoryRepository;
     private final CastingRepository castingRepository;
-    private final MemberRepository memberRepository;
-    private final StudioRepository studioRepository;
 
     private final S3Service s3Service;
 
