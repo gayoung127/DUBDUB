@@ -8,12 +8,11 @@ import Button from "@/app/_components/Button";
 import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
-import {
-  audioBufferToArrayBuffer,
-  audioBufferToWav,
-} from "@/app/_utils/audioBufferToMp3";
+import { audioBufferToWav } from "@/app/_utils/audioBufferToMp3";
 import VocalRemoval from "./VocalRemoval";
 import Compressor from "./Compressor";
+import { findPossibleId } from "@/app/_utils/findPossibleId";
+import { useUserStore } from "@/app/_store/UserStore";
 
 interface EffectListProps {
   tracks: Track[];
@@ -32,7 +31,7 @@ const EffectList = ({
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const { selectedBlock, selectedBlockObj } = useBlockStore();
-  const [aid, setAid] = useState<number>(0);
+  const [version, setVersion] = useState<number>(0);
 
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
@@ -91,18 +90,15 @@ const EffectList = ({
     audioBuffer.current = newBuf;
   }
 
+  //
   useEffect(() => {
     if (!selectedBlock) {
       return;
     }
-    setAid(findPossibleID(selectedBlock.id));
+    setVersion(findPossibleVersion(selectedBlock.id));
   }, [audioFiles]);
 
-  function isSameFile(str1: string, str2: string, seperate: string): boolean {
-    return str1.split(seperate)[0] === str2.split(seperate)[0];
-  }
-
-  function hasSameBase(str1: string, str2: string) {
+  function isSameFile(str1: string, str2: string) {
     return (
       str1.split("-")[0].split("_")[0] === str2.split("-")[0].split("_")[0]
     );
@@ -118,11 +114,11 @@ const EffectList = ({
     return isNaN(middleValue) ? 0 : middleValue;
   }
 
-  function findPossibleID(id: string) {
+  function findPossibleVersion(id: string) {
     let ret = 0;
     for (const audio of audioFiles!) {
       const input = audio.id;
-      if (!hasSameBase(input, id)) {
+      if (!isSameFile(input, id)) {
         continue;
       }
       ret = Math.max(ret, getMiddle(input));
@@ -136,18 +132,17 @@ const EffectList = ({
     }
 
     // 에셋 저장 로직
-    // const arrayBuffer = audioBufferToArrayBuffer(audioBuffer.current);
-
     const blob = await audioBufferToWav(audioBuffer.current);
     const url = URL.createObjectURL(blob);
 
+    // 추가된 파일
     let newFile = {
       ...selectedBlock,
-      id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${aid}`,
+      id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${version}`,
       url,
     };
 
-    // 선택한 에셋 전체 블럭에 적용
+    // 전체 블럭에 효과 적용,
     if (selectedBlockObj.applyToAll) {
       setTracks(() =>
         tracks.map((prevTracks) => {
@@ -155,14 +150,15 @@ const EffectList = ({
             ...prevTracks,
             files: prevTracks.files.map((file) => {
               if (
-                isSameFile(file.id, selectedBlockObj.selectedAudioFile!.id, "-")
+                file.id.split("-")[0] ===
+                selectedBlockObj.selectedAudioFile!.id.split("-")[0]
               ) {
                 newFile = {
                   ...selectedBlock,
                   startPoint: file.startPoint,
                   trimStart: file.trimStart,
                   trimEnd: file.trimEnd,
-                  id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${aid}-${Date.now() + Math.floor(Math.random() * 1000)}`,
+                  id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${version}-${Date.now() + Math.floor(Math.random() * 1000)}`,
                   url,
                 };
                 return newFile;
@@ -174,8 +170,6 @@ const EffectList = ({
       );
     } else {
       // 특정 오디오 블럭에만 적용
-      // onUpdateFile(newFile);
-
       setTracks(
         tracks.map((track, index) => {
           if (index === selectedBlockObj.trackId! - 1) {
@@ -195,6 +189,7 @@ const EffectList = ({
         }),
       );
     }
+    // 파일 추가
     onUpdateFile(newFile);
   }
 
