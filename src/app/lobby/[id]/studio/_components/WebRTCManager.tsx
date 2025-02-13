@@ -122,7 +122,7 @@ const WebRTCManager = ({
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
-          toast.warning("카메라 및 마이크 권한이 필요합니다.");
+          alert("마이크 권한이 필요합니다.");
           return;
         }
 
