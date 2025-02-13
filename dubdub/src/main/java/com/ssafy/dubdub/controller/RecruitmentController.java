@@ -30,11 +30,13 @@ public class RecruitmentController {
     public ResponseEntity<CreationResponseDto> addRecruitment(
             @RequestPart(value = "requestDTO") RecruitmentCreateRequestDTO requestDTO,
             @RequestPart(value = "video") MultipartFile video,
-            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail
+            @RequestPart(value = "thumbnail") MultipartFile thumbnail
     ) throws Exception {
 
         Member member = SecurityUtil.getCurrentUser();
+
         Long pid = recruitmentService.addRecruitment(requestDTO, video, thumbnail, member);
+
         return ResponseEntity.ok().body(new CreationResponseDto(pid, HttpStatusCode.CREATED));
     }
 

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class RecruitmentServiceImpl implements RecruitmentService{
+public class RecruitmentServiceImpl implements RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final FileRepository fileRepository;
     private final GenreRepository genreRepository;
@@ -46,11 +48,10 @@ public class RecruitmentServiceImpl implements RecruitmentService{
 
     @Override
     public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member author) throws BadRequestException {
-        if(!FileUtil.isValidVideoFile(video)) {
+        if (!FileUtil.isValidVideoFile(video)) {
             log.debug("Invalid video file");
             throw new BadRequestException("비디오를 업로드해주세요.");
-        }
-        else if(!FileUtil.isValidImageFile(thumbnail)) {
+        } else if (!FileUtil.isValidImageFile(thumbnail)) {
             log.debug("Invalid thumbnail file");
             throw new BadRequestException("이미지를 업로드해주세요.");
         }
@@ -62,13 +63,22 @@ public class RecruitmentServiceImpl implements RecruitmentService{
                 .script(requestDTO.getScript())
                 .build();
 
-        String filePath = FileUtil.generateFilePath(author.getEmail(), FileType.ORIGINAL_VIDEO);
-        String fileUrl = s3Service.uploadFile(video, filePath);
+        String videoPath = FileUtil.generateFilePath(author.getEmail(), FileType.ORIGINAL_VIDEO);
+        String thumbnailPath = FileUtil.generateFilePath(author.getEmail(), FileType.ORIGINAL_VIDEO);
 
-        File file = File.builder()
-                .url(fileUrl)
+        String videoUrl = s3Service.uploadFile(video, videoPath);
+        String thumbnailUrl = s3Service.uploadFile(thumbnail, thumbnailPath);
+
+        File videoFile = File.builder()
+                .url(videoUrl)
                 .recruitment(recruitment)
                 .fileType(FileType.ORIGINAL_VIDEO)
+                .build();
+
+        File thumbnailFile = File.builder()
+                .url(thumbnailUrl)
+                .recruitment(recruitment)
+                .fileType(FileType.THUMBNAIL)
                 .build();
 
         requestDTO.getCastings().forEach(roleName -> recruitment.addCasting(new Casting(recruitment, roleName)));
@@ -79,7 +89,8 @@ public class RecruitmentServiceImpl implements RecruitmentService{
         List<Category> categories = categoryRepository.findByCategoryNameIn(requestDTO.getGenreTypes());
         categories.forEach(category -> recruitment.addCategory(new RecruitmentCategory(recruitment, category)));
 
-        fileRepository.save(file);
+        fileRepository.save(videoFile);
+        fileRepository.save(thumbnailFile);
         return recruitmentRepository.save(recruitment).getId();
     }
 
