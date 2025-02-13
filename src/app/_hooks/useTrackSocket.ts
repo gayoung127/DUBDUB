@@ -12,33 +12,19 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
 
   // ✅ tracks 상태를 useState로 관리
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
-  const prevTracksRef = useRef<Track[]>(tracks); // 🔥 이전 상태 저장
+  const prevTracksRef = useRef<Track[]>(initialTracks); // 🔥 이전 상태 저장
 
-  // ✅ 트랙 변경 감지 및 서버로 전송
+  // ✅ 트랙 변경 감지 및 서버로 전송 (최적화)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
-    const prevTracks = prevTracksRef.current; // 🔥 이전 트랙 데이터
+    const prevTracks = prevTracksRef.current;
 
-    const hasChanges = tracks.some((track) =>
-      track.files.some((file) => {
-        const prevTrack = prevTracks.find((t) => t.trackId === track.trackId);
-        const prevFile = prevTrack?.files.find((f) => f.id === file.id);
-
-        return (
-          !prevFile ||
-          prevFile.startPoint !== file.startPoint ||
-          prevFile.duration !== file.duration ||
-          prevFile.trimStart !== file.trimStart ||
-          prevFile.trimEnd !== file.trimEnd ||
-          prevFile.volume !== file.volume ||
-          prevFile.isMuted !== file.isMuted ||
-          prevFile.speed !== file.speed
-        );
-      }),
-    );
-
-    if (!hasChanges) return; // 변경 사항이 없으면 서버 전송 X
+    // 🚀 **불필요한 전송 방지: 실제 변경이 없으면 실행 안 함**
+    if (JSON.stringify(prevTracks) === JSON.stringify(tracks)) {
+      console.log("⏭ [트랙 전송 생략] 변경 없음");
+      return;
+    }
 
     console.log("🚀 [트랙 변경 감지] tracks 상태 변경 감지됨!");
 
@@ -72,7 +58,7 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
     prevTracksRef.current = JSON.parse(JSON.stringify(tracks)); // 🔥 깊은 복사로 상태 저장
   }, [tracks, isConnected, sessionId]);
 
-  // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신)
+  // ✅ 트랙 데이터 구독 및 반영 (서버에서 변경된 데이터 수신, 최적화)
   useEffect(() => {
     if (!isConnected || !stompClientRef.current) return;
 
@@ -142,8 +128,10 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
 
           console.log("✅ [트랙 업데이트 완료] 새로운 tracks 상태:", newTracks);
 
-          prevTracksRef.current = newTracks; // 🔥 최신 상태 유지
-          return newTracks;
+          // 🚀 **불필요한 상태 업데이트 방지**
+          return JSON.stringify(prevTracks) === JSON.stringify(newTracks)
+            ? prevTracks
+            : [...newTracks];
         });
       },
     );
