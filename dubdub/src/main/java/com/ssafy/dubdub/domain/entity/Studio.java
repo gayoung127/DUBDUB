@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class Studio extends Timestamped {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,5 +30,10 @@ public class Studio extends Timestamped {
     public Studio(Recruitment recruitment, String session) {
         this.recruitment = recruitment;
         this.session = session;
+    }
+
+    public void close() {
+        this.isClosed = true;
+        this.closedAt = LocalDateTime.now();
     }
 }

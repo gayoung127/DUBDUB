@@ -78,7 +78,7 @@ public class StudioService {
     @Transactional
     public void saveWorkspaceData(Long projectId, String workspaceData, Member member) {
         Recruitment project = recruitmentRepository.findById(projectId)
-                        .orElseThrow(() -> new EntityNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
         validateAuthorization(project, member);
 
         try {
@@ -100,7 +100,7 @@ public class StudioService {
     }
 
     public FileUploadResponseDTO uploadAudioAsset(Member member, Long projectId, MultipartFile asset) {
-        if(!FileUtil.isValidAudioFile(asset)) {
+        if (!FileUtil.isValidAudioFile(asset)) {
             throw new BaseException(ErrorCode.INVALID_AUDIO_FORMAT);
         }
         String filePath = FileUtil.generateFilePath(member.getEmail(), FileType.AUDIO);
@@ -120,4 +120,13 @@ public class StudioService {
 
         return new FileUploadResponseDTO(url, recruitment.getId());
     }
-}
+
+        public void closeStudioIfEmpty(String session){
+            studioRepository.findBySession(session)
+                    .ifPresent(studio -> {
+                        if(!studio.isClosed()){
+                            studio.close();
+                        }
+                    });
+        }
+    }
