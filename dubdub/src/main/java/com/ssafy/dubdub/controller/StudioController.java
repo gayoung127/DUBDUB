@@ -41,7 +41,7 @@ public class StudioController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation
+    @Operation(summary = "스튜디오 오디오 에셋 업로드")
     @PostMapping(path = "/{pid}/asset", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileUploadResponseDTO> saveAsset(@PathVariable("pid") Long projectId,
                                                            @RequestPart MultipartFile file) {
