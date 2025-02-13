@@ -152,6 +152,7 @@ const PlayBar = ({
 
         const track = tracks.find((t) => t.recorderId === userId);
         if (!track) {
+          toast.warning("오디오 트랙에 참여자를 할당해주세요!");
           console.error("할당된 트랙이 없음");
           return;
         }
