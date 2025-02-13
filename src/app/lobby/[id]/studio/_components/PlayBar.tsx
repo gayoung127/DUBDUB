@@ -13,6 +13,7 @@ import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useUserStore } from "@/app/_store/UserStore";
+import { toast } from "sonner";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -45,13 +46,13 @@ const PlayBar = ({
   const { self } = useUserStore();
   const userId = self?.memberId ?? null;
 
-  useEffect(() => {
-    if (time >= duration) {
-      console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
-      pause();
-      reset();
-    }
-  }, [time, duration]);
+  // useEffect(() => {
+  //   if (time >= duration) {
+  //     console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
+  //     pause();
+  //     reset();
+  //   }
+  // }, [time, duration]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -104,8 +105,7 @@ const PlayBar = ({
   // 녹음하는 함수
   const handleRecording = async () => {
     if (!userId) {
-      console.error("🚨 사용자 ID가 없습니다. 녹음을 시작할 수 없습니다.");
-      alert("오류: 사용자 정보가 없습니다.");
+      toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
       return;
     }
 
@@ -131,7 +131,7 @@ const PlayBar = ({
         .map(([userId]) => userId);
 
       if (activeMics.length === 0) {
-        alert("Turn on Mic");
+        toast.warning("역할 탭에서 자신의 마이크를 켜주세요!");
         return;
       }
 

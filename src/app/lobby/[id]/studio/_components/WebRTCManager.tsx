@@ -11,6 +11,7 @@ import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 /*
 videoStream → 공유할 비디오 스트림 (VideoBlock에서 전달)
 isPlaying → 비디오 재생 상태
@@ -121,7 +122,7 @@ const WebRTCManager = ({
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
-          alert("카메라 및 마이크 권한이 필요합니다.");
+          toast.warning("카메라 및 마이크 권한이 필요합니다.");
           return;
         }
 
