@@ -12,7 +12,8 @@ interface AudioTrackHeaderProps {
   trackId: number;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 
-  isMuted: boolean;
+  isMuted?: boolean;
+  isSolo?: boolean;
   recorderId?: number;
   recorderName?: string;
   recorderRole?: string;
@@ -25,6 +26,7 @@ interface AudioTrackHeaderProps {
 const AudioTrackHeader = ({
   trackId,
   isMuted,
+  isSolo,
   setTracks,
   recorderId,
   recorderName,
@@ -34,14 +36,40 @@ const AudioTrackHeader = ({
   setSelectedTrackId,
 }: AudioTrackHeaderProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
-  // const [isTrackMuted, setIsTrackMuted] = useState<boolean>(isMuted);
-  const [isSolo, setIsSolo] = useState<boolean>(false);
   const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
     useContextMenu();
 
-  function handleMute() {}
+  function handleMute() {
+    setTracks((prevTracks) => {
+      return prevTracks.map((track, index) => {
+        if (track.trackId === trackId) {
+          return {
+            ...track,
+            isMuted: !isMuted,
+            isSolo: isMuted ? isSolo : false,
+          };
+        } else {
+          return { ...track, isSolo: false };
+        }
+      });
+    });
+  }
 
-  function handleSolo() {}
+  function handleSolo() {
+    setTracks((prevTracks) => {
+      return prevTracks.map((track, index) => {
+        if (track.trackId === trackId) {
+          return { ...track, isSolo: !track.isSolo, isMuted: false };
+        } else {
+          return {
+            ...track,
+            isSolo: isSolo ? track.isSolo : false,
+            isMuted: isSolo ? false : true,
+          };
+        }
+      });
+    });
+  }
 
   // ---------------------
 
