@@ -89,7 +89,7 @@ const CursorPresence = ({
         .map(({ memberId, x, y, name }) => (
           <Cursor
             key={memberId}
-            id={memberId.toString()}
+            id={memberId && memberId.toString()}
             x={x}
             y={y}
             name={name}
