@@ -1,12 +1,14 @@
 "use client";
 
 import gsap from "gsap";
+import { toast } from "sonner";
 import { Draggable } from "gsap/Draggable";
 import React, { useEffect, useRef, useState } from "react";
 
 import useBlockStore from "@/app/_store/BlockStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
+
 import AudioBlockModal from "./AudioBlockModal";
 
 export interface AudioBlockProps extends Block {
@@ -181,7 +183,7 @@ const AudioBlock = ({
     }
   };
 
-  // useEffect : 모킹 데이터 불러오기
+  // WILLDELETE... useEffect : 모킹 데이터 불러오기
   useEffect(() => {
     const fetchMockAudioBuffer = async () => {
       if (!audioContext) {
@@ -237,11 +239,19 @@ const AudioBlock = ({
     }
   };
 
-  // splitBlock : 블록 자르기 기능
+  // splitBlock : 코드 자르기 함수
   const splitBlock = () => {
     const blockStartX = localStartPoint; // 블록의 실제 시작 위치 (px)
+    const blockEndX = blockStartX + file.duration * PX_PER_SECOND; // 블록 끝 위치 (px)
     const markerX = time * PX_PER_SECOND; // 현재 마커 위치 (px)
-    const cutTime = (markerX - blockStartX) / PX_PER_SECOND; // 마커 기준으로 블록이 왼쪽/오른쪽으로 나뉘는 시간 계산
+
+    // 🎯 마커가 블록 범위를 벗어난 경우 예외 처리
+    if (markerX <= blockStartX || markerX >= blockEndX) {
+      toast.warning("마커를 오디오 블록 위로 이동해주세요!");
+      return;
+    }
+
+    const cutTime = (markerX - blockStartX) / PX_PER_SECOND; // 마커 기준으로 블록이 나뉘는 시간 계산
 
     const newLeftBlock: Block = {
       file: {
@@ -279,6 +289,7 @@ const AudioBlock = ({
     );
 
     console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
+    toast.success("블록 자르기가 성공적으로 이뤄졌습니다!");
   };
 
   const deleteBlock = () => {
