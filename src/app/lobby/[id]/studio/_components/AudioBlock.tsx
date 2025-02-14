@@ -194,15 +194,24 @@ const AudioBlock = ({
 
   // useEffect : 파형 시각화
   useEffect(() => {
-    if (audioBuffer) {
+    if (audioBuffers && file.url) {
+      const buffer = audioBuffers.get(file.url);
+      setAudioBuffer(buffer || null);
+    }
+  }, [audioBuffers, file.url]);
+
+  useEffect(() => {
+    if (audioBuffers && file.url && audioBuffers.get(file.url)) {
       visualizeWaveform();
     }
-  }, [audioBuffer]);
+  }, [audioBuffers, file.url]);
 
-  // visualizeWaveForm : 파형 시각화 함수
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
-    if (!canvas || !audioBuffer) return;
+    if (!canvas || !audioBuffers || !file.url) return;
+
+    const audioBuffer = audioBuffers.get(file.url);
+    if (!audioBuffer) return;
 
     const context = canvas.getContext("2d");
     if (!context) return;
