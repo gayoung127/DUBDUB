@@ -43,7 +43,7 @@ const WebRTCManager = ({
   userId,
   onUserAudioUpdate,
 }: WebRTCManagerProps) => {
-  const [openVidu, setOpenVidu] = useState<OpenVidu | null>(null);
+  const openViduRef = useRef<OpenVidu | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -72,10 +72,9 @@ const WebRTCManager = ({
     const initSession = async () => {
       try {
         if (!sessionToken) return;
-        const ov = new OpenVidu();
-        setOpenVidu(ov);
+        openViduRef.current = new OpenVidu();
 
-        const newSession = ov.initSession();
+        const newSession = openViduRef.current.initSession();
         setSession(newSession);
 
         newSession.on("streamCreated", handleStreamCreated);
@@ -111,10 +110,8 @@ const WebRTCManager = ({
     initSession();
 
     return () => {
-      if (session) {
-        console.log("🔌 기존 세션 종료");
-        session.disconnect();
-      }
+      console.log("🔌 세션 종료");
+      session?.disconnect();
       setSession(null);
       setSubscribers([]);
       setPublisher(null);
@@ -124,6 +121,11 @@ const WebRTCManager = ({
   // 오디오 스트림 퍼블리싱
   const publishAudioStream = async (session: Session) => {
     try {
+      if (!openViduRef.current) {
+        console.error("🚨 OpenVidu 인스턴스가 존재하지 않음");
+        return;
+      }
+
       const audioStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
@@ -137,10 +139,6 @@ const WebRTCManager = ({
       const audioTrack = audioStream.getAudioTracks()[0];
       console.log("🎵 오디오 트랙 정보:", audioTrack);
 
-      if (!openVidu) {
-        console.error("🚨 OpenVidu 인스턴스가 존재하지 않음");
-        return;
-      }
       const newAudioPublisher = session.openvidu.initPublisher(undefined, {
         videoSource: false,
         audioSource: audioTrack,
