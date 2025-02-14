@@ -51,7 +51,7 @@ const RenderingButton = () => {
           className="flex items-center justify-center px-2 py-1.5"
           onClick={handleStartRendering}
         >
-          동영상 추출하기
+          영상 저장하기
         </Button>
       ) : (
         <Button
