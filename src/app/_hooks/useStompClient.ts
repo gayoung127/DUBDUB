@@ -18,13 +18,17 @@ const useStompClient = () => {
     stompClientRef.current = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: { sessionId: sessionId },
-      // debug: (str) => console.log("STOMP Debug:", str),
+      // heartbeat 설정
+      heartbeatIncoming: 0, // 들어오는 heartbeat 비활성화
+      heartbeatOutgoing: 0, // 나가는 heartbeat 비활성화
+      // 재연결 설정
+      reconnectDelay: 0, // 자동 재연결 비활성화
       onConnect: () => {
-        console.log("✅ STOMP WebSocket Connected!");
+        console.log("useStompClient : 소켓 연결에 성공했습니다!");
         setIsConnected(true); // 연결 성공 시 상태 변경
       },
       onStompError: (frame) => {
-        console.error("❌ STOMP Broker Error:", frame.headers["message"]);
+        console.error("useStompClient : 소켓 연결에 실패했습니다!");
         setIsConnected(false);
       },
     });
@@ -34,7 +38,7 @@ const useStompClient = () => {
     return () => {
       if (stompClientRef.current?.connected) {
         stompClientRef.current.deactivate();
-        console.log("🛑 STOMP WebSocket Disconnected");
+        console.log("useStompClient : 소켓 연결을 중지했습니다.");
         setIsConnected(false);
       }
     };

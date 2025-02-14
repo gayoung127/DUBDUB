@@ -195,7 +195,7 @@ const AudioBlock = ({
   const playAudio = async () => {
     if (!audioContext || audioSourceRef.current) return;
 
-    let audioBuffer = audioBuffers!.get(file.url) ?? null;
+    const audioBuffer = audioBuffers!.get(file.url) ?? null;
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
