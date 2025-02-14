@@ -270,6 +270,27 @@ const AudioBlock = ({
       blockColor,
     };
 
+    // 🔥 기존 블록을 STOMP 서버에서 삭제 (DELETE 액션)
+    if (stompClientRef?.connected && sessionId) {
+      const deleteAction = {
+        trackId: trackId,
+        action: "DELETE",
+        file: {
+          id: file.id,
+        },
+      };
+
+      stompClientRef.publish({
+        destination: `/app/studio/${sessionId}/track/files`,
+        body: JSON.stringify(deleteAction),
+      });
+
+      console.log(
+        "🗑️ useTrackSocket: [트랙 삭제] 서버에 DELETE 액션 전송:",
+        deleteAction,
+      );
+    }
+
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
