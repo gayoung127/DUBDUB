@@ -7,7 +7,7 @@ import AssetList from "./AssetList";
 import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
 import { AudioFile, Track } from "@/app/_types/studio";
-import { useAssetsStore } from "@/app/_store/AssetsStore";
+// import { useAssetsStore } from "@/app/_store/AssetsStore";
 import { UserStore } from "@/app/_store/UserStore";
 
 interface StudioSideTabProps {
@@ -15,6 +15,9 @@ interface StudioSideTabProps {
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   studioMembers: UserStore[];
+  assets: AudioFile[];
+  setAssets: React.Dispatch<React.SetStateAction<AudioFile[]>>;
+  sendAsset: (asset: AudioFile) => void;
 }
 
 const StudioSideTab = ({
@@ -22,16 +25,20 @@ const StudioSideTab = ({
   tracks,
   setTracks,
   studioMembers,
+  assets,
+  setAssets,
+  sendAsset,
 }: StudioSideTabProps) => {
   //const audioFilesRef = useRef<AudioFile[] | null>([]);
 
-  const { audioFiles, addAudioFile } = useAssetsStore();
+  // const { audioFiles, addAudioFile } = useAssetsStore();
 
   const updateAudioFile = (file: AudioFile | null) => {
     if (!file) {
       return;
     }
-    addAudioFile(file); // audioFiles 추가
+    // addAudioFile(file); // audioFiles 추가
+    sendAsset(file);
   };
 
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(
@@ -77,13 +84,13 @@ const StudioSideTab = ({
           userAudioStreams={userAudioStreams}
         />
       )}
-      {activeTab === "asset" && <AssetList audioFiles={audioFiles} />}
+      {activeTab === "asset" && <AssetList audioFiles={assets} />}
       {activeTab === "effect" && (
         <EffectList
           tracks={tracks}
           setTracks={setTracks}
           onUpdateFile={updateAudioFile}
-          audioFiles={audioFiles}
+          audioFiles={assets}
         />
       )}
     </section>
