@@ -31,7 +31,10 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
 
   // ✅ 구독 및 해제 로직
   useEffect(() => {
-    if (!isConnected || !stompClientRef?.connected || !sessionId) return;
+    if (!isConnected || !stompClientRef?.connected || !sessionId) {
+      console.log("구독에 문제가 생김");
+      return;
+    }
 
     // 기존 구독 해제
     if (subscriptionRef.current) {
