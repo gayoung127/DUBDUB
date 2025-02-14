@@ -8,7 +8,14 @@
 */
 import { useMicStore } from "@/app/_store/MicStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
-import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
+import {
+  OpenVidu,
+  Publisher,
+  Session,
+  Subscriber,
+  Stream,
+  SignalEvent,
+} from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 /*
@@ -43,6 +50,24 @@ const WebRTCManager = ({
   const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
   const { micStatus, setMicStatus } = useMicStore();
 
+  // 마이크 접근 권한 확인
+  const checkAudioPermissions = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: true,
+      });
+      console.log("🎤 마이크 접근 가능");
+
+      stream.getTracks().forEach((track) => track.stop());
+      return true;
+    } catch (error) {
+      console.error("🚨 마이크 접근 거부됨:", error);
+      return false;
+    }
+  };
+
+  // OpenVidu 세션 초기화
   useEffect(() => {
     const initSession = async () => {
       try {
@@ -53,102 +78,11 @@ const WebRTCManager = ({
         const newSession = ov.initSession();
         setSession(newSession);
 
-        newSession.on("streamCreated", (event) => {
-          console.log("📌 새로운 스트림이 생성됨:", event.stream);
-          const subscriber = newSession.subscribe(event.stream, undefined);
-          console.log("🔍 구독한 스트림 정보:", subscriber.stream);
-          const mediaStream = subscriber.stream.getMediaStream();
-          console.log("🎵 구독한 미디어 스트림:", mediaStream);
-
-          const audioTracks = mediaStream.getAudioTracks();
-          if (audioTracks.length === 0) {
-            console.warn("⚠️ 구독한 스트림에 오디오 트랙이 없습니다.");
-          } else {
-            console.log("🎤 구독한 오디오 트랙:", audioTracks);
-          }
-
-          subscriber.stream
-            .getMediaStream()
-            .getTracks()
-            .forEach((track) => {
-              console.log(
-                "🔊 추가된 트랙 종류:",
-                track.kind,
-                "상태:",
-                track.enabled,
-              );
-            });
-
-          const peerConnection = (
-            subscriber.stream as any
-          ).getRTCPeerConnection();
-          peerConnection.ontrack = (event: RTCTrackEvent) => {
-            console.log(
-              "🎤 ontrack 이벤트 발생!",
-              event.track.kind,
-              event.streams,
-            );
-          };
-          onUserAudioUpdate(userId, mediaStream);
-        });
-
-        newSession.on("signal:syncRequest", () => {
-          if (session && session.connection) {
-            session.signal({
-              type: "syncRequest",
-              data: JSON.stringify({ isPlaying, time }),
-            });
-          }
-        });
-
-        // 새로운 사용자가 기존 상태를 수신
-        newSession.on("signal:syncResponse", (event) => {
-          let data: SyncData = {};
-          if (typeof event.data === "string") {
-            try {
-              const parseData = JSON.parse(event.data);
-              if (typeof parseData === "object" && parseData !== null) {
-                data = parseData;
-              }
-            } catch (error) {}
-          }
-
-          if (typeof data.isPlaying === "boolean") {
-            data.isPlaying ? play() : pause();
-          }
-          if (typeof data.time === "number") {
-            setTimeFromPx(data.time);
-          }
-        });
-
-        newSession.on("streamDestroyed", (event) => {
-          if (!event.stream || !event.stream.connection) return;
-
-          console.log(
-            "🛑 스트림 제거됨:",
-            event.stream.connection.connectionId,
-          );
-
-          setSubscribers((prev) =>
-            prev.filter((sub) => sub && sub !== event.stream?.streamManager),
-          );
-        });
-
-        newSession.on("signal:control", (event) => {
-          let data: SyncData = {};
-
-          if (typeof event.data === "string") {
-            try {
-              const parseData = JSON.parse(event.data);
-              if (typeof parseData === "object" && parseData !== null) {
-                data = parseData;
-              }
-            } catch (error) {}
-          }
-
-          if (data.type === "play") play();
-          if (data.type === "pause") pause();
-        });
+        newSession.on("streamCreated", handleStreamCreated);
+        newSession.on("streamDestroyed", handleStreamDestroyed);
+        newSession.on("signal:syncRequest", handleSyncRequest);
+        newSession.on("signal:syncResponse", handleSyncResponse);
+        newSession.on("signal:mic-status", handleMicStatusSignal);
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
@@ -157,11 +91,12 @@ const WebRTCManager = ({
         }
 
         await newSession.connect(sessionToken);
+        console.log("✅ OpenVidu 세션에 연결됨");
 
         setSession(newSession);
 
         if (newSession.connection) {
-          await publishAudioStream();
+          await publishAudioStream(newSession);
           await newSession.signal({ type: "syncRequest" });
         } else {
           console.warn(
@@ -177,18 +112,17 @@ const WebRTCManager = ({
 
     return () => {
       if (session) {
-        console.log("🔌 세션 종료");
+        console.log("🔌 기존 세션 종료");
         session.disconnect();
-        setSession(null);
       }
+      setSession(null);
       setSubscribers([]);
       setPublisher(null);
     };
   }, [sessionToken]);
 
-  const publishAudioStream = async () => {
-    if (!session) return;
-
+  // 오디오 스트림 퍼블리싱
+  const publishAudioStream = async (session: Session) => {
     try {
       const audioStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -203,7 +137,11 @@ const WebRTCManager = ({
       const audioTrack = audioStream.getAudioTracks()[0];
       console.log("🎵 오디오 트랙 정보:", audioTrack);
 
-      const newAudioPublisher = openVidu?.initPublisher(undefined, {
+      if (!openVidu) {
+        console.error("🚨 OpenVidu 인스턴스가 존재하지 않음");
+        return;
+      }
+      const newAudioPublisher = session.openvidu.initPublisher(undefined, {
         videoSource: false,
         audioSource: audioTrack,
         publishAudio: true,
@@ -226,31 +164,72 @@ const WebRTCManager = ({
     }
   };
 
-  useEffect(() => {
-    if (!session || !session.connection) return;
+  // 새로운 스트림 생성 시
+  const handleStreamCreated = (event: { stream: Stream }) => {
+    console.log("📌 새로운 스트림이 생성됨:", event.stream);
+    if (!session) {
+      console.error("🚨 세션이 존재하지 않음");
+      return;
+    }
+    const subscriber = session.subscribe(event.stream, undefined);
+    if (!subscriber) {
+      console.warn("⚠️ 구독자 생성 실패");
+      return;
+    }
 
-    session.signal({
-      type: "control",
-      data: JSON.stringify({ type: isPlaying ? "play" : "pause" }),
-    });
-  }, [isPlaying]);
+    const mediaStream = subscriber.stream.getMediaStream();
+    console.log("🎵 구독한 미디어 스트림:", mediaStream);
 
-  const checkAudioPermissions = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: false,
-        audio: true,
+    if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+      console.warn("⚠️ 유효한 오디오 트랙이 없음");
+      return;
+    }
+
+    setSubscribers((prev) => [...prev, subscriber]);
+    onUserAudioUpdate(userId, mediaStream);
+  };
+
+  // 스트림 제거
+  const handleStreamDestroyed = (event: { stream: Stream }) => {
+    if (!event.stream || !event.stream.connection) return;
+
+    console.log("🛑 스트림 제거됨:", event.stream.connection.connectionId);
+
+    setSubscribers((prev) => prev.filter((sub) => sub.stream !== event.stream));
+  };
+
+  // syncRequest 수신 시 동기화
+  const handleSyncRequest = async () => {
+    if (session?.connection) {
+      await session.signal({
+        type: "syncRequest",
+        data: JSON.stringify({ isPlaying, time }),
       });
-      console.log("🎤 마이크 접근 가능");
-
-      stream.getTracks().forEach((track) => track.stop());
-      return true;
-    } catch (error) {
-      console.error("🚨 마이크 접근 거부됨:", error);
-      return false;
     }
   };
 
+  // syncResponse 수신 시 상태 동기화
+  const handleSyncResponse = (event: SignalEvent) => {
+    if (!event.data) {
+      console.warn("⚠️ syncResponse 이벤트에 데이터가 없음");
+      return;
+    }
+
+    try {
+      const data: SyncData = JSON.parse(event.data);
+
+      if (typeof data.isPlaying === "boolean") {
+        data.isPlaying ? play() : pause();
+      }
+      if (typeof data.time === "number") {
+        setTimeFromPx(data.time);
+      }
+    } catch (error) {
+      console.error("🚨 syncResponse 데이터 파싱 오류:", error);
+    }
+  };
+
+  // 마이크 상태 전송
   const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
     if (!session) return;
     session
@@ -260,6 +239,8 @@ const WebRTCManager = ({
       })
       .catch((error) => console.error("Signal Error:", error));
   };
+
+  // 마이크 상태 변경 시 전송
   useEffect(() => {
     if (!session) return;
 
@@ -270,22 +251,32 @@ const WebRTCManager = ({
     }
   }, [micStatus[userId]]);
 
-  useEffect(() => {
-    if (!session) return;
+  // mic-status 신호 수신
+  const handleMicStatusSignal = (event: SignalEvent) => {
+    if (!event.data) {
+      console.warn("⚠️ mic-status 이벤트에 데이터가 없음");
+      return;
+    }
 
-    session.on("signal:mic-status", (event) => {
-      if (!event.data) return;
+    try {
+      const parseData = JSON.parse(event.data);
 
-      const { userId: senderId, isMicOn } = JSON.parse(event.data);
-      if (senderId !== userId) {
-        useMicStore.getState().setMicStatus(senderId, isMicOn);
+      if (
+        typeof parseData.userId !== "number" ||
+        typeof parseData.isMicOn !== "boolean"
+      ) {
+        console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
+        return;
       }
-    });
 
-    return () => {
-      session?.off("signal:mic-status");
-    };
-  }, [session]);
+      if (parseData.userId !== userId) {
+        setMicStatus(parseData.userId, parseData.isMicOn);
+      }
+    } catch (error) {
+      console.error("🚨 mic-status 데이터 파싱 오류:", error);
+    }
+  };
+
   return null;
 };
 export default WebRTCManager;
