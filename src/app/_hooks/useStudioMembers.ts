@@ -1,15 +1,16 @@
 import { useEffect } from "react";
-import useStompClient from "./useStompClient";
+
+import { useStompStore } from "@/app/_store/StompStore";
 import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useUserStore, UserStore } from "@/app/_store/UserStore";
 
 export const useStudioMembers = () => {
   const { sessionId } = useSessionIdStore();
   const { self, studioMembers, setStudioMembers } = useUserStore();
-  const { isConnected, stompClientRef } = useStompClient(sessionId);
+  const { isConnected, stompClientRef } = useStompStore();
 
   const publishSelf = () => {
-    if (!isConnected || !stompClientRef.current?.connected || !self) return;
+    if (!isConnected || !stompClientRef?.connected || !self) return;
 
     const isAlreadyAdded = studioMembers.some(
       (member) => member.memberId === self.memberId,
@@ -28,7 +29,7 @@ export const useStudioMembers = () => {
     };
 
     try {
-      stompClientRef.current.publish({
+      stompClientRef.publish({
         destination: `/app/studio/${selfDataForServer.sessionId}/users/`,
         body: JSON.stringify(selfDataForServer),
       });
@@ -38,12 +39,12 @@ export const useStudioMembers = () => {
   };
 
   useEffect(() => {
-    const subscribeToMembers = () => {
-      if (!isConnected || !stompClientRef.current?.connected) return;
+    if (!isConnected || !stompClientRef?.connected) return;
 
+    const subscribeToMembers = () => {
       try {
-        const subscription = stompClientRef.current.subscribe(
-          `/topic/studio/${sessionId}/users`, // ✅ sessionId 반영됨!
+        const subscription = stompClientRef.subscribe(
+          `/topic/studio/${sessionId}/users`,
           (message) => {
             try {
               const data = JSON.parse(message.body);
@@ -73,22 +74,20 @@ export const useStudioMembers = () => {
         );
 
         return () => {
-          subscription?.unsubscribe();
+          subscription.unsubscribe();
         };
       } catch (error) {
         console.error("❌ STOMP Subscription 실패:", error);
       }
     };
 
-    if (isConnected && stompClientRef.current?.connected) {
-      const unsubscribe = subscribeToMembers();
-      publishSelf();
+    const unsubscribe = subscribeToMembers();
+    publishSelf();
 
-      return () => {
-        if (unsubscribe) unsubscribe();
-      };
-    }
-  }, [sessionId, isConnected, stompClientRef.current?.connected, self]); // ✅ sessionId 추가됨!
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [sessionId, isConnected, stompClientRef, self]);
 
   return { studioMembers, publishSelf };
 };

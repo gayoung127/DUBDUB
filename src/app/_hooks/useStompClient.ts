@@ -1,23 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { Client } from "@stomp/stompjs";
+import { useStompStore } from "@/app/_store/StompStore";
 
-const STOMP_URL = "wss://i12a801.p.ssafy.io/api/ws-studio"; // STOMP 서버 URL
+const STOMP_URL = "wss://i12a801.p.ssafy.io/api/ws-studio";
 
 const useStompClient = (sessionId: string) => {
-  const stompClientRef = useRef<Client | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const { stompClientRef, isConnected, setStompClient, setIsConnected } =
+    useStompStore();
 
   useEffect(() => {
-    if (!sessionId) return; // sessionId가 없으면 실행 X
+    if (!sessionId) return;
+    if (stompClientRef) return;
 
-    console.log("🔄 useStompClient: sessionId 변경됨", sessionId);
-
-    stompClientRef.current = new Client({
+    const client = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: { sessionId },
       heartbeatIncoming: 0,
       heartbeatOutgoing: 0,
-      reconnectDelay: 0,
+      reconnectDelay: 5000,
       onConnect: () => {
         console.log("✅ useStompClient: 소켓 연결 성공!");
         setIsConnected(true);
@@ -28,16 +28,17 @@ const useStompClient = (sessionId: string) => {
       },
     });
 
-    stompClientRef.current.activate();
+    client.activate();
+    setStompClient(client);
 
     return () => {
-      if (stompClientRef.current?.connected) {
-        stompClientRef.current.deactivate();
-        console.log("🛑 useStompClient: 소켓 연결 해제");
+      if (client.connected) {
+        client.deactivate();
         setIsConnected(false);
+        setStompClient(null);
       }
     };
-  }, [sessionId]); // sessionId가 변경될 때마다 실행됨
+  }, [sessionId]);
 
   return { stompClientRef, isConnected };
 };
