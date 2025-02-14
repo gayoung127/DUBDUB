@@ -24,6 +24,8 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
 
     tracks.forEach((track) => {
       track.files.forEach((file) => {
+        if (file.duration === 0) return;
+
         const trackFile = {
           trackId: track.trackId,
           action: "SAVE",
