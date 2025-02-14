@@ -317,7 +317,7 @@ const AudioTrackTimeline = ({
 
         {isRecording && currentRecordingTrackId === trackId && analyser && (
           <LiveAudioBlock
-            waveClolor={waveColor}
+            waveColor={waveColor}
             isRecording={isRecording}
             analyser={analyser}
             blockColor={blockColor}
