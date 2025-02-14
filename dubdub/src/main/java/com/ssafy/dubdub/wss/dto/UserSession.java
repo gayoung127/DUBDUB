@@ -17,6 +17,19 @@ public class UserSession {
     @Indexed
     private final String sessionId;
     private final String email; // 멤버 email
+
+    @Override
+    public String toString() {
+        return "UserSession{" +
+                "memberId='" + memberId + '\'' +
+                ", sessionId='" + sessionId + '\'' +
+                ", email='" + email + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", position='" + position + '\'' +
+                ", profileUrl='" + profileUrl + '\'' +
+                '}';
+    }
+
     private final String nickName;
     private final String position;
     private final String profileUrl;
