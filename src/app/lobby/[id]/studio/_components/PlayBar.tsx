@@ -164,7 +164,7 @@ const PlayBar = ({
         recorder.onstop = async () => {
           console.log("✅ 녹음 중지됨, 파일 생성 시작...");
           const audioBlob = new Blob(chunks, {
-            type: "audio/wav",
+            type: "audio/webm",
           });
           const url = URL.createObjectURL(audioBlob);
           console.log("🎵 생성된 오디오 파일 URL:", url);

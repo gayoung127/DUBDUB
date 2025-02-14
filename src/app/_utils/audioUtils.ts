@@ -1,5 +1,5 @@
 import { AudioFile } from "@/app/_types/studio";
-import { audioBufferToWav } from "./audioBufferToMp3";
+import { audioBufferToWav, audioBufferToWebm } from "./audioBufferToMp3";
 
 // 오디오 블록 재생
 export const playAudio = ({
@@ -43,6 +43,6 @@ export const playAudio = ({
 };
 
 export async function createBlob(audioBuffer: AudioBuffer) {
-  const ret = await audioBufferToWav(audioBuffer);
+  const ret = await audioBufferToWebm(audioBuffer);
   return ret;
 }

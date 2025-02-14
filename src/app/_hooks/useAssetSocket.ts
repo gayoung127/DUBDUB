@@ -23,7 +23,7 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
       if (!stompClientRef?.connected) {
         console.log("!stompClientRef?.connected");
       }
-      if (!!sessionId) {
+      if (!sessionId) {
         console.log("!sessionId");
       }
       return;

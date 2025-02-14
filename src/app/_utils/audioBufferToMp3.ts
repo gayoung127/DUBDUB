@@ -154,3 +154,60 @@ export function audioBufferToArrayBuffer(
 
   return arrayBuffer;
 }
+
+export const audioBufferToWebm = async (
+  audioBuffer: AudioBuffer,
+): Promise<Blob> => {
+  return new Promise<Blob>((resolve, reject) => {
+    try {
+      // 1. AudioContext 생성 (인자로 받지 않음)
+      const audioContext = new AudioContext();
+
+      // 2. MediaStreamDestination 생성
+      const destination = audioContext.createMediaStreamDestination();
+
+      // 3. AudioBufferSourceNode 생성 및 MediaStreamDestination에 연결
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(destination);
+
+      // 4. MediaRecorder 생성 (webm 형식)
+      const mediaRecorder = new MediaRecorder(destination.stream, {
+        mimeType: "audio/webm",
+      });
+
+      const chunks: BlobPart[] = [];
+
+      // 5. MediaRecorder로 데이터 수집
+      mediaRecorder.ondataavailable = (event: BlobEvent) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      // 6. 녹음 종료 시 Blob 생성 및 반환
+      mediaRecorder.onstop = () => {
+        const webmBlob = new Blob(chunks, { type: "audio/webm" });
+        resolve(webmBlob); // webm Blob 반환
+
+        // AudioContext 닫기 (리소스 해제)
+        audioContext.close();
+      };
+
+      mediaRecorder.onerror = (error: Event) => {
+        reject(`MediaRecorder error: ${(error as any).message}`);
+      };
+
+      // 7. 녹음 시작 및 AudioBuffer 재생
+      mediaRecorder.start();
+      source.start();
+
+      // 8. AudioBuffer 재생 종료 시 녹음 중지
+      source.onended = () => {
+        mediaRecorder.stop();
+      };
+    } catch (error) {
+      reject(`Error in audioBufferToWebm: ${(error as Error).message}`);
+    }
+  });
+};
