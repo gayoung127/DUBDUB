@@ -40,16 +40,11 @@ export default function StudioPage() {
 
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();
-  const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
   const { studioMembers } = useStudioMembers();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
 
-  // ✅ STOMP 클라이언트 한 번만 초기화
-  useEffect(() => {
-    if (sessionId) {
-      useStompClient(sessionId);
-    }
-  }, [sessionId]);
+  useStompClient(sessionId);
+  const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
 
   // studioId 확인
   if (!studioId) {
