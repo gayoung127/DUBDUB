@@ -61,7 +61,32 @@ const WebRTCManager = ({
         setSession(newSession);
 
         newSession.on("streamCreated", (event) => {
+          console.log("📌 새로운 스트림이 생성됨:", event.stream);
           const subscriber = newSession.subscribe(event.stream, undefined);
+          const mediaStream = subscriber.stream.getMediaStream();
+
+          subscriber.stream
+            .getMediaStream()
+            .getTracks()
+            .forEach((track) => {
+              console.log(
+                "🔊 추가된 트랙 종류:",
+                track.kind,
+                "상태:",
+                track.enabled,
+              );
+            });
+
+          const peerConnection = (
+            subscriber.stream as any
+          ).getRTCPeerConnection();
+          peerConnection.ontrack = (event: RTCTrackEvent) => {
+            console.log(
+              "🎤 ontrack 이벤트 발생!",
+              event.track.kind,
+              event.streams,
+            );
+          };
           onUserAudioUpdate(userId, subscriber.stream.getMediaStream());
         });
 
