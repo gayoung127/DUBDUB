@@ -7,6 +7,7 @@
 3. 비디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
 4. 비디오 컨트롤 (재생, 정지, 타임라인 이동) 동기화
 */
+import { useMicStore } from "@/app/_store/MicStore";
 import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
@@ -47,6 +48,7 @@ const WebRTCManager = ({
   const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
   const lastSentTime = useRef<number>(0); //마지막으로 time을 전송한 시간
   const { videoStream } = useStreamStore();
+  const { micStatus, setMicStatus } = useMicStore();
 
   useEffect(() => {
     const initSession = async () => {
@@ -59,7 +61,32 @@ const WebRTCManager = ({
         setSession(newSession);
 
         newSession.on("streamCreated", (event) => {
+          console.log("📌 새로운 스트림이 생성됨:", event.stream);
           const subscriber = newSession.subscribe(event.stream, undefined);
+          const mediaStream = subscriber.stream.getMediaStream();
+
+          subscriber.stream
+            .getMediaStream()
+            .getTracks()
+            .forEach((track) => {
+              console.log(
+                "🔊 추가된 트랙 종류:",
+                track.kind,
+                "상태:",
+                track.enabled,
+              );
+            });
+
+          const peerConnection = (
+            subscriber.stream as any
+          ).getRTCPeerConnection();
+          peerConnection.ontrack = (event: RTCTrackEvent) => {
+            console.log(
+              "🎤 ontrack 이벤트 발생!",
+              event.track.kind,
+              event.streams,
+            );
+          };
           onUserAudioUpdate(userId, subscriber.stream.getMediaStream());
         });
 
@@ -112,17 +139,11 @@ const WebRTCManager = ({
 
           if (data.type === "play") play();
           if (data.type === "pause") pause();
-          if (data.type === "seek" && typeof data.time === "number") {
-            //1초 이상 차이나면 동기화
-            if (Math.abs(time - data.time) > 1) {
-              setTimeFromPx(data.time);
-            }
-          }
         });
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
-          toast.warning("카메라 및 마이크 권한이 필요합니다.");
+          toast.warning("마이크 권한이 필요합니다.");
           return;
         }
 
@@ -228,38 +249,52 @@ const WebRTCManager = ({
     });
   }, [isPlaying]);
 
-  useEffect(() => {
-    if (!session) return;
-
-    if (typeof lastSentTime.current !== "number") {
-      lastSentTime.current = 0;
-    }
-
-    // 2초 이상 차이나면 time 동기화 전송
-    if (
-      session &&
-      session.connection &&
-      Math.abs(time - lastSentTime.current) > 2
-    ) {
-      session.signal({
-        type: "control",
-        data: JSON.stringify({ type: "seek", time }),
-      });
-      lastSentTime.current = time;
-    }
-  }, [time]);
-
   const checkAudioPermissions = async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      console.log("🎤 카메라 및 마이크 접근 가능");
+      console.log("🎤 마이크 접근 가능");
       return true;
     } catch (error) {
-      console.error("🚨 카메라/마이크 접근 거부됨:", error);
+      console.error("🚨 마이크 접근 거부됨:", error);
       return false;
     }
   };
+
+  const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
+    if (!session) return;
+    session
+      .signal({
+        type: "mic-status",
+        data: JSON.stringify({ userId, isMicOn }),
+      })
+      .catch((error) => console.error("Signal Error:", error));
+  };
+  useEffect(() => {
+    if (!session) return;
+
+    const latestStatus = useMicStore.getState().micStatus;
+    const myMicStatus = latestStatus[userId];
+    if (myMicStatus !== undefined) {
+      handleSendMicstatus(userId, myMicStatus);
+    }
+  }, [micStatus[userId]]);
+
+  useEffect(() => {
+    if (!session) return;
+
+    session.on("signal:mic-status", (event) => {
+      if (!event.data) return;
+
+      const { userId: senderId, isMicOn } = JSON.parse(event.data);
+      if (senderId !== userId) {
+        useMicStore.getState().setMicStatus(senderId, isMicOn);
+      }
+    });
+
+    return () => {
+      session?.off("signal:mic-status");
+    };
+  }, [session]);
   return null;
 };
-
 export default WebRTCManager;

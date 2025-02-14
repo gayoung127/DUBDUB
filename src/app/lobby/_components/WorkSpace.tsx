@@ -52,7 +52,7 @@ const WorkSpace = ({
   }, [dubbingRooms, isFetching]);
 
   return (
-    <div className="h-[730px] w-full overflow-scroll px-5 py-3">
+    <div className="h-[700px] w-full overflow-auto rounded-[8px] bg-gray-200 px-3 py-3">
       {dubbingRooms.length != 0 ? (
         <div className="grid grid-cols-4 gap-5">
           {dubbingRooms.map((room, index) => (
@@ -65,11 +65,14 @@ const WorkSpace = ({
           ))}
         </div>
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-10">
-          <H2>나의 작업물이 없습니다.</H2>
-          <H3>프로젝트를 생성하고 친구들을 초대해보세요.</H3>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-10 rounded-[8px] bg-gray-200">
+          <H2 className="text-white-100">생성된 프로젝트가 없습니다.</H2>
+          <H3 className="text-white-100">
+            프로젝트를 생성하고 친구들을 초대해보세요.
+          </H3>
           <Button
             outline
+            className="bg-white-100"
             onClick={() => {
               router.push("/lobby/create");
             }}

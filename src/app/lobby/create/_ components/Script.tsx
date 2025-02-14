@@ -16,7 +16,9 @@ const Script = ({ onChange }: ScriptProps) => {
         <div className="w-full">
           <textarea
             className="min-h-[320px] w-full resize-none rounded-lg bg-gray-50 p-4 focus:outline-none"
-            placeholder="대사를 입력해주세요."
+            placeholder={` : 형태로 대사를 입력해주세요.
+              예시)
+              짱구 : 안녕하세요.`}
             onChange={handleInputChange}
           />
         </div>

@@ -23,29 +23,12 @@ const StudioSideTab = ({
   //const audioFilesRef = useRef<AudioFile[] | null>([]);
 
   const { audioFiles, addAudioFile } = useAssetsStore();
-  // useEffect(() => {
-  //   const loadAudioFiles = () => {
-  //     for (const track of tracks) {
-  //       for (const file of track.files) {
-  //         if (!audioFilesRef.current?.some((obj) => obj.url === file.url)) {
-  //           audioFilesRef.current?.push(file);
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   loadAudioFiles();
-  // }, [tracks]);
 
   const updateAudioFile = (file: AudioFile | null) => {
-    // if (!audioFilesRef.current || !file) {
-    //   return;
-    // }
-    // audioFilesRef.current.push(file);
     if (!file) {
       return;
     }
-    addAudioFile(file);
+    addAudioFile(file); // audioFiles 추가
   };
 
   const [activeTab, setActiveTab] = useState<"role" | "asset" | "effect">(

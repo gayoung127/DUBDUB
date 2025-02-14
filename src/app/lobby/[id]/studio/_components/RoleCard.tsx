@@ -13,7 +13,7 @@ interface RoleCardProps {
   name: string;
   role: string;
   profileImageUrl: string;
-  stream: MediaStream;
+  stream?: MediaStream;
 }
 
 const RoleCard = ({
@@ -46,9 +46,49 @@ const RoleCard = ({
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
+    if (!stream) return;
+
+    setLocalStream(stream);
+  }, [stream]);
+
+  useEffect(() => {
+    const checkMicStatus = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInput = devices.find(
+          (device) => device.kind === "audioinput",
+        );
+
+        if (audioInput) {
+          const userStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          if (userStream.getAudioTracks().some((track) => track.enabled)) {
+            setLocalStream(userStream);
+            toggleMic(id);
+          } else {
+            userStream.getTracks().forEach((track) => track.stop());
+          }
+        }
+      } catch (error) {
+        console.error("마이크 상태 확인 오류: ", error);
+      }
+    };
+
+    checkMicStatus();
+  }, []);
+
+  useEffect(() => {
     if (audioRef.current && stream) {
       if (audioRef.current.srcObject !== stream) {
-        audioRef.current.pause();
+        if (
+          audioRef.current.srcObject &&
+          audioRef.current.srcObject instanceof MediaStream
+        ) {
+          audioRef.current.srcObject
+            .getTracks()
+            .forEach((track) => track.stop());
+        }
         audioRef.current.srcObject = stream;
       }
       audioRef.current.volume = isMicOn ? 1 : 0;
@@ -75,6 +115,7 @@ const RoleCard = ({
         const userStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
+        localStream?.getTracks().forEach((track) => track.stop());
         setLocalStream(userStream);
         toggleMic(id);
       } catch (error) {

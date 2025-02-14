@@ -13,6 +13,9 @@ import VocalRemoval from "./VocalRemoval";
 import Compressor from "./Compressor";
 import { findPossibleId } from "@/app/_utils/findPossibleId";
 import { useUserStore } from "@/app/_store/UserStore";
+import { postAsset } from "@/app/_apis/studio";
+import { useParams } from "next/navigation";
+import { createBlob } from "@/app/_utils/audioUtils";
 
 interface EffectListProps {
   tracks: Track[];
@@ -32,11 +35,12 @@ const EffectList = ({
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const { selectedBlock, selectedBlockObj } = useBlockStore();
   const [version, setVersion] = useState<number>(0);
-
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
     component: JSX.Element;
   } | null>(null);
+  const params = useParams();
+  const pid = params.id;
 
   useEffect(() => {
     async function loadAudio() {
@@ -90,7 +94,6 @@ const EffectList = ({
     audioBuffer.current = newBuf;
   }
 
-  //
   useEffect(() => {
     if (!selectedBlock) {
       return;
@@ -132,8 +135,11 @@ const EffectList = ({
     }
 
     // 에셋 저장 로직
-    const blob = await audioBufferToWav(audioBuffer.current);
-    const url = URL.createObjectURL(blob);
+    // const blob = await audioBufferToWav(audioBuffer.current);
+    // await postAsset(String(pid), blob);
+    // const url = URL.createObjectURL(blob); //
+    const blob = await createBlob(audioBuffer.current);
+    const url = await postAsset(String(pid), blob);
 
     // 추가된 파일
     let newFile = {

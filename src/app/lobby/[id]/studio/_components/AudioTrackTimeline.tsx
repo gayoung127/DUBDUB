@@ -10,6 +10,9 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { useUserStore } from "@/app/_store/UserStore";
 import { useAssetsStore } from "@/app/_store/AssetsStore";
 import { findPossibleId } from "@/app/_utils/findPossibleId";
+import { createBlob } from "@/app/_utils/audioUtils";
+import { postAsset } from "@/app/_apis/studio";
+import { useParams } from "next/navigation";
 
 interface AudioTrackTimelineProps {
   trackId: number;
@@ -54,6 +57,8 @@ const AudioTrackTimeline = ({
   const initialXRef = useRef<number | null>(null);
   const recordStartRef = useRef<number | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const params = useParams();
+  const pid = params.id;
 
   useEffect(() => {
     if (isRecording && currentRecordingTrackId == trackId) {
@@ -124,7 +129,7 @@ const AudioTrackTimeline = ({
     }
   }, [files.map((f) => JSON.stringify(f)).join(","), trackId]);
 
-  //녹음된 파일을 추가하는 역할
+  //녹음된 파일을 추가하는 역할 -------------------------------------------
   useEffect(() => {
     console.log(`🎙️ 트랙(${trackId})의 녹음된 파일 추가 확인:`, audioFiles);
 
@@ -157,6 +162,11 @@ const AudioTrackTimeline = ({
           .filter((url) => !existingFilesUrls.has(url))
           .map(async (url) => {
             const duration = await loadAudioDuration(url);
+            // const buffer =
+            //   audioBuffers?.get(url) ??
+            //   new AudioBuffer({ length: 1, sampleRate: 44100 });
+            // const blob = await createBlob(buffer);
+            // const newUrl = await postAsset(String(pid), blob);
 
             if (duration <= 0) {
               console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
@@ -167,7 +177,8 @@ const AudioTrackTimeline = ({
 
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
-              id: findPossibleId(assetAudioFiles, studioMembers, "나"),
+              id: findPossibleId(assetAudioFiles, studioMembers, "나"), // role 추가
+              // url: newUrl,
               url,
               startPoint: starPoint,
               duration,
@@ -178,6 +189,7 @@ const AudioTrackTimeline = ({
               speed: 1,
             };
             addAudioFile(createdFile);
+            // 여기서 publish 하면 되겟넨용
             return createdFile;
           }),
       );
@@ -227,12 +239,13 @@ const AudioTrackTimeline = ({
     updateTrack();
   }, [
     audioFiles,
-    setAudioFiles,
+    // setAudioFiles,
     trackId,
     setTracks,
     audioContext,
     audioBuffers,
   ]);
+  // ------------------------------------------------------------------
 
   // ✅ 드롭 가능하도록 `useDrop` 추가
   const [{ isOver }, drop] = useDrop(() => ({

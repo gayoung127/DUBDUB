@@ -86,7 +86,7 @@ const LobbyPage = () => {
   ];
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className="flex h-full flex-col gap-5 bg-gray-400">
       <Header />
 
       <div className="flex h-full w-full flex-col gap-4">
@@ -101,14 +101,14 @@ const LobbyPage = () => {
           </div>
 
           <div className="flex flex-[8] flex-col justify-center">
-            <div className="p-5">
+            <div className="border-gray-300 bg-gray-400 p-1">
               <div className="flex w-full justify-between border-b border-gray-200 px-5 pb-3">
                 <TabMenu tabs={tabs} />
                 <Button onClick={() => handleCreateRoom()}>
                   + 프로젝트 만들기
                 </Button>
               </div>
-              <div className="mt-5">
+              <div className="mt-5 px-4">
                 <WorkSpace
                   dubbingRooms={dubbingRooms}
                   setPage={setPage}

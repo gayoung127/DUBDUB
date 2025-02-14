@@ -14,6 +14,8 @@ import { useMicStore } from "@/app/_store/MicStore";
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useUserStore } from "@/app/_store/UserStore";
 import { toast } from "sonner";
+import { postAsset } from "@/app/_apis/studio";
+import { useParams } from "next/navigation";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -45,6 +47,8 @@ const PlayBar = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const { self } = useUserStore();
   const userId = self?.memberId ?? null;
+  const params = useParams();
+  const pid = params.id;
 
   // useEffect(() => {
   //   if (time >= duration) {
@@ -152,14 +156,15 @@ const PlayBar = ({
 
         const track = tracks.find((t) => t.recorderId === userId);
         if (!track) {
+          toast.warning("오디오 트랙에 참여자를 할당해주세요!");
           console.error("할당된 트랙이 없음");
           return;
         }
 
-        recorder.onstop = () => {
+        recorder.onstop = async () => {
           console.log("✅ 녹음 중지됨, 파일 생성 시작...");
           const audioBlob = new Blob(chunks, {
-            type: "audio/webm",
+            type: "audio/wav",
           });
           const url = URL.createObjectURL(audioBlob);
           console.log("🎵 생성된 오디오 파일 URL:", url);
@@ -170,6 +175,9 @@ const PlayBar = ({
             );
             return;
           }
+
+          // 서버에 전송해서 url 을 받아옵니당,,,,
+          const newUrl = await postAsset(String(pid), audioBlob);
           createAudioFile(track.trackId, url, currentTime);
         };
 

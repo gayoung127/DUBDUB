@@ -39,7 +39,7 @@ const Filter = ({ onClick }: { onClick: () => void }) => {
   }
 
   return (
-    <div className="flex h-fit w-[300px] flex-col gap-4 rounded-[4px] bg-white-100 p-3 shadow-dub">
+    <div className="flex h-fit w-[300px] flex-col gap-4 rounded-[8px] bg-gray-200 p-5 shadow-dub">
       <FilteredArea />
 
       <div className="mb-4">
@@ -55,7 +55,7 @@ const Filter = ({ onClick }: { onClick: () => void }) => {
           />
         </div>
       </div>
-      <div className="mb-4">
+      <div className="mb-4 text-white-100">
         <H3 className="mb-2 py-1 font-semibold">영상 유형</H3>
         <div className="grid grid-cols-2 gap-4">
           {categories.map((category) => (
@@ -75,7 +75,7 @@ const Filter = ({ onClick }: { onClick: () => void }) => {
           ))}
         </div>
       </div>
-      <div className="mb-4">
+      <div className="mb-4 text-white-100">
         <H3 className="mb-2 py-1 font-semibold">영상 장르</H3>
         <div className="grid grid-cols-2 gap-4">
           {genres.map((genre) => (
@@ -102,7 +102,7 @@ const Filter = ({ onClick }: { onClick: () => void }) => {
             onClick();
           }}
           outline
-          className="w-full"
+          className="w-full bg-white-100"
         >
           검색
         </Button>

@@ -1,28 +1,49 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import UploadIcon from "@/public/images/icons/icon-upload.svg";
 import H2 from "@/app/_components/H2";
 import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumbnail";
 
 interface VideoProps {
   onChange: (file: File | null) => void;
+  onThumbnailChange: (thumbnail: File | null) => void;
 }
 
-const Video = ({ onChange }: VideoProps) => {
-  const { thumbnail, generateThumbnail } = useGenerateThumbnail();
-  const [videoFileName, setVideoFileName] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null); // <section> 요소 참조
+const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
+  const { generateThumbnail } = useGenerateThumbnail();
+  const [thumbnail, setThumbnail] = useState<string | null>(null); // 썸네일 상태 추가
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null; // 선택된 파일 가져오기
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0] || null;
     if (file && sectionRef.current) {
-      // 부모 요소의 너비와 높이를 계산
       const containerWidth = sectionRef.current.offsetWidth;
       const containerHeight = sectionRef.current.offsetHeight;
-      generateThumbnail(file, containerWidth, containerHeight); // 썸네일 생성
-      setVideoFileName(file.name); // 파일 이름 저장
+
+      try {
+        const generatedThumbnail = await generateThumbnail(
+          file,
+          containerWidth,
+          containerHeight,
+        );
+        if (generatedThumbnail) {
+          setThumbnail(URL.createObjectURL(generatedThumbnail)); // Blob URL로 변환하여 상태 업데이트
+          onThumbnailChange(generatedThumbnail); // 부모 컴포넌트에 전달
+        } else {
+          console.error("썸네일 생성 실패");
+          setThumbnail(null);
+          onThumbnailChange(null);
+        }
+      } catch (error) {
+        console.error("썸네일 생성 중 오류:", error);
+        setThumbnail(null); // 오류 발생 시 초기화
+        onThumbnailChange(null);
+      }
     }
     onChange(file); // 부모 컴포넌트로 파일 전달
   };
+
   return (
     <section ref={sectionRef} className="mx-auto w-full max-w-2xl p-4">
       <H2 className="mb-4">VIDEO</H2>
