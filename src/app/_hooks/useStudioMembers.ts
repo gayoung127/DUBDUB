@@ -49,8 +49,10 @@ export const useStudioMembers = () => {
         !isConnected ||
         !stompClientRef.current ||
         !stompClientRef.current.connected
-      )
+      ) {
+        console.log("⚠️ STOMP is not connected yet. Skipping subscription.");
         return;
+      }
 
       console.log("📡 Subscribing to studio members...");
 
@@ -91,19 +93,22 @@ export const useStudioMembers = () => {
       );
 
       return () => {
-        subscription.unsubscribe();
-        console.log("📴 Unsubscribed from studio members");
+        console.log("📴 Unsubscribing from studio members");
+        subscription?.unsubscribe();
       };
     };
 
-    if (stompClientRef.current?.connected) {
+    if (isConnected && stompClientRef.current?.connected) {
+      console.log("✅ STOMP is connected. Subscribing now...");
       const unsubscribe = subscribeToMembers();
       publishSelf();
-      return unsubscribe;
-    }
 
-    return;
-  }, [stompClientRef.current?.connected, self]);
+      return () => {
+        console.log("📴 Cleaning up subscription...");
+        if (unsubscribe) unsubscribe();
+      };
+    }
+  }, [isConnected, stompClientRef.current?.connected, self]); // ✅ `isConnected` 추가
 
   return { studioMembers, publishSelf };
 };
