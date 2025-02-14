@@ -8,7 +8,7 @@ import BreadCrumb from "./Breadcrumb";
 import Logo from "@/public/images/icons/logo-header.svg";
 
 interface HeaderProps {
-  studioTitle: string;
+  studioTitle?: string;
 }
 
 const Header = ({ studioTitle }: HeaderProps) => {
