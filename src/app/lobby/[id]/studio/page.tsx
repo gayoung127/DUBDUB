@@ -216,7 +216,7 @@ export default function StudioPage() {
           sessionId={sessionId}
           sessionToken={sessionToken}
           onUserAudioUpdate={handleUserAudioUpdate}
-          userId={self?.memberId!}
+          userId={self?.memberId ?? -1}
         />
       </div>
     </DndProvider>
