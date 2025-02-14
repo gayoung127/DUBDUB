@@ -227,16 +227,23 @@ const AudioBlock = ({
       source.buffer = audioBuffer;
 
       const gainNode = audioContext.createGain();
-      gainNode.gain.value = file.isMuted ? 0 : file.volume;
+
+      // ✅ `volume`이 유효한 값인지 확인 후 적용
+      const volume = Number.isFinite(file.volume) ? file.volume : 1;
+      gainNode.gain.value = file.isMuted ? 0 : volume;
+
       source.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      source.playbackRate.value = file.speed;
+      // ✅ `speed`도 유효한 값인지 확인 후 적용
+      const playbackRate = Number.isFinite(file.speed) ? file.speed : 1;
+      source.playbackRate.value = playbackRate;
 
-      const offset = Math.max(0, file.trimStart);
+      // ✅ trimStart, trimEnd 검증 후 값 설정
+      const offset = Math.max(0, file.trimStart || 0);
       const duration = Math.max(
         0,
-        file.duration - file.trimStart - file.trimEnd,
+        (file.duration || 0) - offset - (file.trimEnd || 0),
       );
 
       source.start(audioContext.currentTime, offset, duration);
