@@ -2,9 +2,7 @@
 
 import { Client } from "@stomp/stompjs";
 import React, { useEffect, useState } from "react";
-
 import { useUserStore } from "@/app/_store/UserStore";
-
 import Cursor from "./Cursor";
 
 interface CursorData {
@@ -15,7 +13,7 @@ interface CursorData {
 }
 
 interface CursorPresenceProps {
-  stompClientRef: React.MutableRefObject<Client | null>;
+  stompClientRef: Client | null; // ✅ 수정: MutableRefObject 제거
   sessionId: string;
   isConnected: boolean;
 }
@@ -29,11 +27,11 @@ const CursorPresence = ({
   const { self } = useUserStore();
 
   useEffect(() => {
-    if (!isConnected || !stompClientRef.current || sessionId === "") {
+    if (!isConnected || !stompClientRef || sessionId === "") {
       return;
     }
 
-    const stompClient = stompClientRef.current;
+    const stompClient = stompClientRef;
 
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
