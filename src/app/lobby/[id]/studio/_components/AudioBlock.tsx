@@ -329,6 +329,7 @@ const AudioBlock = ({
       );
     }
 
+    // ✅ 기존 블록을 삭제하고 새로운 블록 추가
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
@@ -337,6 +338,15 @@ const AudioBlock = ({
         ),
       })),
     );
+
+    // ✅ 선택된 블록 초기화 (삭제된 블록을 참조하는 문제 해결)
+    setSelectedBlock(null);
+    setSelectedBlockObj({
+      applyToAll: false,
+      selectedAudioFile: null,
+      trackId: null,
+      blockIndex: null,
+    });
 
     toast.success("블록 자르기가 성공적으로 이뤄졌습니다!");
   };
@@ -349,6 +359,14 @@ const AudioBlock = ({
         files: track.files.filter((f) => f.id !== file.id),
       })),
     );
+
+    setSelectedBlock(null);
+    setSelectedBlockObj({
+      applyToAll: false,
+      selectedAudioFile: null,
+      trackId: null,
+      blockIndex: null,
+    });
 
     if (stompClientRef?.connected && sessionId) {
       const deleteAction = {
