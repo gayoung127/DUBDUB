@@ -23,27 +23,31 @@ import {
 } from "@/app/_apis/openvidu";
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
+import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 
 export default function StudioPage() {
   const { id } = useParams();
   const studioId = Number(id);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [videoUrl, setVideoUrl] = useState<string>("/examples/zzangu.mp4");
   const [userAudioStreams, setUserAudioStreams] = useState<
     Record<number, MediaStream>
   >({});
-  const [sessionId, setSessionId] = useState<string>("");
-  const [isStompConnected, setIsStompConnected] = useState<boolean>(false);
-  const [sessionToken, setSessionToken] = useState<string>("");
+
   const [duration, setDuration] = useState<number>(160);
+  const [sessionToken, setSessionToken] = useState<string>("");
   const [parsedScripts, setParsedScripts] = useState<
     { role: string; text: string }[]
   >([]);
-  const { stompClientRef, isConnected } = useStompClient(); // STOMP 클라이언트 관리
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const { memberId, email, position, profileUrl, nickName, self } =
-    useUserStore();
+
+  const { sessionId, setSessionId } = useSessionIdStore();
+  const { memberId, self } = useUserStore();
+
+  const { stompClientRef, isConnected } = useStompClient();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
 
+  // studioId 확인
   if (!studioId) {
     throw new Error("studioId 없음");
   }
@@ -84,7 +88,7 @@ export default function StudioPage() {
       .filter((item) => item.role && item.text); // 빈 값 제거
   };
 
-  // 스튜디오 정보 가져오기
+  // useEffect(): 스튜디오 정보 가져오기
   useEffect(() => {
     const getStudioInfo = async () => {
       try {
@@ -144,7 +148,7 @@ export default function StudioPage() {
     getStudioInfo();
   }, [studioId]);
 
-  // OpenVidu 테스트 (비동기)
+  // useEffect(): OpenVidu 테스트 (비동기)
   useEffect(() => {
     const testOv1 = async () => {
       const sessionId = await createSession();
@@ -182,7 +186,7 @@ export default function StudioPage() {
     // testOv2(); // 필요할 때 활성화
   }, []);
 
-  // 사용자 오디오 스트림 업데이트
+  // handleUserAudioUpdate(): 사용자 오디오 스트림 업데이트
   const handleUserAudioUpdate = (userId: number, stream: MediaStream) => {
     setUserAudioStreams((prev) => {
       if (prev[userId]) {

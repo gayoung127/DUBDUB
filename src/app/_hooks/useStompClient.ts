@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { Client } from "@stomp/stompjs";
 
+import { useSessionIdStore } from "../_store/SessionIdStore";
+
 const STOMP_URL = "wss://i12a801.p.ssafy.io/api/ws-studio"; // STOMP 서버 URL
+
+const sessionId = useSessionIdStore.getState().sessionId;
 
 const useStompClient = () => {
   const stompClientRef = useRef<Client | null>(null);
@@ -12,7 +17,7 @@ const useStompClient = () => {
   useEffect(() => {
     stompClientRef.current = new Client({
       brokerURL: STOMP_URL,
-      connectHeaders: { sessionId: "test-session-123" },
+      connectHeaders: { sessionId: sessionId },
       // debug: (str) => console.log("STOMP Debug:", str),
       onConnect: () => {
         console.log("✅ STOMP WebSocket Connected!");
