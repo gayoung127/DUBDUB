@@ -155,18 +155,36 @@ const AudioBlock = ({
 
   // useEffect: 파일 URL 반영시, 파형 생성
   useEffect(() => {
-    if (audioBuffers && file.url && audioBuffers.get(file.url)) {
-      visualizeWaveform();
+    if (!file.url) return;
+
+    if (audioBuffers?.get(file.url)) {
+      // 🔹 이미 `audioBuffers`에 있으면 바로 시각화
+      visualizeWaveform(audioBuffers.get(file.url)!);
+    } else {
+      // 🔹 없으면 fetch()로 받아와서 시각화
+      fetchAudioBuffer(file.url).then((audioBuffer) => {
+        if (audioBuffer) visualizeWaveform(audioBuffer);
+      });
     }
   }, [audioBuffers, file.url]);
 
-  // visualizeWaveForm() : 파형 생성
-  const visualizeWaveform = () => {
-    const canvas = canvasRef.current;
-    if (!canvas || !audioBuffers || !file.url) return;
+  const fetchAudioBuffer = async (url: string): Promise<AudioBuffer | null> => {
+    if (!audioContext) return null;
 
-    const audioBuffer = audioBuffers.get(file.url);
-    if (!audioBuffer) return;
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      return await audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error("❌ 오디오 버퍼 가져오기 실패:", error);
+      return null;
+    }
+  };
+
+  // visualizeWaveForm() : 파형 생성
+  const visualizeWaveform = (audioBuffer: AudioBuffer) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     const context = canvas.getContext("2d");
     if (!context) return;
@@ -197,30 +215,43 @@ const AudioBlock = ({
   };
 
   const playAudio = async () => {
-    if (!audioContext || audioSourceRef.current) return;
+    if (!audioContext || audioSourceRef.current || !file.url) return;
 
-    const audioBuffer = audioBuffers!.get(file.url) ?? null;
+    try {
+      // 🔥 fetch로 오디오 파일 불러오기
+      const response = await fetch(file.url);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
 
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = file.isMuted ? 0 : file.volume;
-    source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = file.isMuted ? 0 : file.volume;
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
 
-    source.playbackRate.value = file.speed;
+      source.playbackRate.value = file.speed;
 
-    const offset = Math.max(0, file.trimStart);
-    const duration = Math.max(0, file.duration - file.trimStart - file.trimEnd);
+      const offset = Math.max(0, file.trimStart);
+      const duration = Math.max(
+        0,
+        file.duration - file.trimStart - file.trimEnd,
+      );
 
-    source.start(audioContext.currentTime, offset, duration);
+      source.start(audioContext.currentTime, offset, duration);
 
-    audioSourceRef.current = source;
+      audioSourceRef.current = source;
 
-    source.onended = () => {
-      audioSourceRef.current = null;
-    };
+      source.onended = () => {
+        audioSourceRef.current = null;
+      };
+
+      console.log("🎵 오디오 재생 시작:", file.url);
+    } catch (error) {
+      console.error("❌ 오디오 로드 실패:", error);
+      toast.error("오디오 파일을 불러오는 데 실패했습니다.");
+    }
   };
 
   // stopAudio(): 개별 오디오 파일 즉시 정지 함수
