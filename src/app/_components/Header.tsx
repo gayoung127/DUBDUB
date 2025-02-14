@@ -6,6 +6,7 @@ import H3 from "./H3";
 import BreadCrumb from "./Breadcrumb";
 
 import Logo from "@/public/images/icons/logo-header.svg";
+import Link from "next/link";
 
 interface HeaderProps {
   studioTitle?: string;
@@ -20,7 +21,9 @@ const Header = ({ studioTitle }: HeaderProps) => {
       className={`flex h-full max-h-[68px] w-full flex-row items-center border border-gray-300 bg-gray-400`}
     >
       <section className="border-white flex w-[280px] flex-shrink-0 flex-row items-center justify-start gap-x-3 py-6 pl-[34px]">
-        <Logo width={32} height={20} />
+        <Link href="/">
+          <Logo width={32} height={20} />
+        </Link>
         <H3 className="text-brand-200">DUB DUB</H3>
       </section>
       <BreadCrumb pathSegments={pathSegments} studioTitle={studioTitle} />

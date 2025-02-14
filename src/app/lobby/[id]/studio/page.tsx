@@ -24,6 +24,7 @@ import {
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 import { useSessionIdStore } from "@/app/_store/SessionIdStore";
+import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -46,6 +47,7 @@ export default function StudioPage() {
   const { memberId, self } = useUserStore();
 
   const { stompClientRef, isConnected } = useStompClient();
+  const { studioMembers } = useStudioMembers();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
 
   // studioId 확인
@@ -224,6 +226,7 @@ export default function StudioPage() {
                   userAudioStreams={userAudioStreams}
                   tracks={tracks}
                   setTracks={setTracks}
+                  studioMembers={studioMembers}
                 />
                 <VideoPlayer
                   videoRef={videoRef}
