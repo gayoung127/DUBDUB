@@ -154,7 +154,6 @@ const WebRTCManager = ({
         if (newSession.connection) {
           await publishAudioStream();
           await newSession.signal({ type: "syncRequest" });
-          setupVideoPublisher(newSession);
         } else {
           console.warn(
             "🚨 세션 연결이 완료되지 않아 syncRequest 신호를 보낼 수 없습니다.",
@@ -176,43 +175,6 @@ const WebRTCManager = ({
       setPublisher(null);
     };
   }, [sessionToken]);
-
-  const setupVideoPublisher = async (session: Session) => {
-    if (!session) return;
-    try {
-      if (!videoRef.current) return;
-
-      const getVideoStream = (
-        videoElement: VideoElementWithCapturestream,
-      ): MediaStream | null => {
-        if (!videoElement) return null;
-        if (typeof videoElement.captureStream === "function") {
-          return videoElement.captureStream();
-        }
-        return null;
-      };
-
-      const mediaStream = videoRef.current
-        ? getVideoStream(videoRef.current)
-        : null;
-      if (!mediaStream) return;
-
-      const videoTrack = mediaStream.getVideoTracks()[0];
-
-      const newVideoPublisher = openVidu?.initPublisher(undefined, {
-        videoSource: videoTrack,
-        audioSource: false,
-        publishAudio: false,
-      });
-
-      if (newVideoPublisher) {
-        await session.publish(newVideoPublisher);
-        setPublisher(newVideoPublisher);
-      }
-    } catch (error) {
-      console.error("비디오 스트림 설정 실패: ", error);
-    }
-  };
 
   const publishAudioStream = async () => {
     if (!session) return;
