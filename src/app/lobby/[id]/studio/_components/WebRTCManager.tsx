@@ -232,6 +232,8 @@ const WebRTCManager = ({
       if (newAudioPublisher) {
         await session.publish(newAudioPublisher);
 
+        setPublisher(newAudioPublisher);
+
         onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
         console.log("오디오 스트림 설정 성공: ");
       }
