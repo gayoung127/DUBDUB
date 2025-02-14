@@ -7,6 +7,7 @@
 3. 비디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
 4. 비디오 컨트롤 (재생, 정지, 타임라인 이동) 동기화
 */
+import { useMicStore } from "@/app/_store/MicStore";
 import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
@@ -47,6 +48,7 @@ const WebRTCManager = ({
   const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
   const lastSentTime = useRef<number>(0); //마지막으로 time을 전송한 시간
   const { videoStream } = useStreamStore();
+  const { micStatus, setMicStatus } = useMicStore();
 
   useEffect(() => {
     const initSession = async () => {
@@ -122,7 +124,7 @@ const WebRTCManager = ({
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
-          toast.warning("마이크 권한이 필요합니다.");
+          toast.warning("카메라 및 마이크 권한이 필요합니다.");
           return;
         }
 
@@ -259,7 +261,42 @@ const WebRTCManager = ({
       return false;
     }
   };
+
+  const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
+    if (!session) return;
+    session
+      .signal({
+        type: "mic-status",
+        data: JSON.stringify({ userId, isMicOn }),
+      })
+      .catch((error) => console.error("Signal Error:", error));
+  };
+  useEffect(() => {
+    if (!session) return;
+
+    const latestStatus = useMicStore.getState().micStatus;
+    const myMicStatus = latestStatus[userId];
+    if (myMicStatus !== undefined) {
+      handleSendMicstatus(userId, myMicStatus);
+    }
+  }, [micStatus[userId]]);
+
+  useEffect(() => {
+    if (!session) return;
+
+    session.on("signal:mic-status", (event) => {
+      if (!event.data) return;
+
+      const { userId: senderId, isMicOn } = JSON.parse(event.data);
+      if (senderId !== userId) {
+        useMicStore.getState().setMicStatus(senderId, isMicOn);
+      }
+    });
+
+    return () => {
+      session?.off("signal:mic-status");
+    };
+  }, [session]);
   return null;
 };
-
 export default WebRTCManager;
