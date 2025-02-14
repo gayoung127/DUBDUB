@@ -47,19 +47,27 @@ export default function Page() {
 
     // FormData 객체 생성
     const formData = new FormData();
-    const recruitmentData = {
-      title: title,
-      content: content,
-      castings: castings,
-      genreTypes: genreTypes,
-      categoryTypes: categoryTypes,
-      script: script,
-    };
-
     formData.append(
       "requestDTO",
-      new Blob([JSON.stringify(recruitmentData)], { type: "application/json" }),
+      new Blob(
+        [
+          JSON.stringify({
+            title,
+            content,
+            castings,
+            genreTypes,
+            categoryTypes,
+            script,
+          }),
+        ],
+        { type: "application/json" },
+      ),
     );
+
+    // formData.append(
+    //   "requestDTO",
+    //   new Blob([JSON.stringify(recruitmentData)], { type: "application/json" }),
+    // );
 
     // 비디오 파일 추가
     if (videoFile) {
@@ -128,7 +136,12 @@ export default function Page() {
 
         <div className="flex h-full w-1/3 flex-col items-center justify-start">
           <div className="mb-10 flex h-auto w-full items-center justify-center">
-            <Video onChange={setVideoFile} />
+            <Video
+              onChange={setVideoFile}
+              onThumbnailChange={(generatedThumbnail) => {
+                setThumbnail(generatedThumbnail);
+              }}
+            />
           </div>
           <div className="flex h-auto w-full items-center justify-center">
             <Description onChange={setContent} />
