@@ -20,6 +20,7 @@ export default function Page() {
   const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
   const [script, setScript] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,6 +38,7 @@ export default function Page() {
     console.log("genreTypes:", genreTypes);
     console.log("categoryTypes:", categoryTypes);
     console.log("script:", script);
+    console.log("thumbnail:", thumbnail);
 
     if (!videoFile) {
       alert("비디오 파일을 업로드해주세요.");
@@ -62,6 +64,11 @@ export default function Page() {
     // 비디오 파일 추가
     if (videoFile) {
       formData.append("video", videoFile);
+    }
+
+    // 썸네일 파일 추가
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
     }
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
