@@ -18,10 +18,8 @@ const useStompClient = () => {
     stompClientRef.current = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: { sessionId: sessionId },
-      // heartbeat 설정
       heartbeatIncoming: 0, // 들어오는 heartbeat 비활성화
       heartbeatOutgoing: 0, // 나가는 heartbeat 비활성화
-      // 재연결 설정
       reconnectDelay: 0, // 자동 재연결 비활성화
       onConnect: () => {
         console.log("useStompClient : 소켓 연결에 성공했습니다!");
