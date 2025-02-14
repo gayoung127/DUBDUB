@@ -67,7 +67,11 @@ export const useStudioMembers = () => {
         return;
       }
 
-      console.log("📡 Subscribing to studio members...");
+      // ✅ STOMP 디버그 로그 활성화
+      stompClientRef.current.debug = (msg) =>
+        console.log("🐛 STOMP DEBUG:", msg);
+
+      console.log("📡 Trying to subscribe to STOMP topic...");
       console.log("✅ STOMP Client 상태:", stompClientRef.current);
       console.log(
         "✅ STOMP Client 연결 상태:",
