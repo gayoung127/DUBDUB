@@ -192,12 +192,10 @@ const AudioBlock = ({
     }
   };
 
-  // playAudio(): 개별 오디오 파일 재생 함수
-  const playAudio = () => {
+  const playAudio = async () => {
     if (!audioContext || audioSourceRef.current) return;
 
-    const audioBuffer = audioBuffers!.get(file.url);
-    if (!audioBuffer) return;
+    let audioBuffer = audioBuffers!.get(file.url) ?? null;
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
