@@ -37,10 +37,23 @@ export const useStudioMembers = () => {
 
     console.log("🚀 Publishing self to studioMembers:", selfDataForServer);
 
-    stompClientRef.current.publish({
-      destination: `/app/studio/${selfDataForServer.sessionId}/users/`,
-      body: JSON.stringify(selfDataForServer),
-    });
+    try {
+      console.log("📤 Publishing message to STOMP server...");
+      console.log("📨 Payload:", JSON.stringify(selfDataForServer));
+      console.log(
+        "📡 Destination:",
+        `/app/studio/${selfDataForServer.sessionId}/users/`,
+      );
+
+      stompClientRef.current.publish({
+        destination: `/app/studio/${selfDataForServer.sessionId}/users/`,
+        body: JSON.stringify(selfDataForServer),
+      });
+
+      console.log("✅ STOMP Publish successful!");
+    } catch (error) {
+      console.error("❌ STOMP Publish failed:", error);
+    }
   };
 
   useEffect(() => {
