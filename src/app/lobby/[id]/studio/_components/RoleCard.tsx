@@ -45,12 +45,14 @@ const RoleCard = ({
   const isMicOn = micStatus[id] || false;
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
+  // 스트림 업데이트
   useEffect(() => {
     if (!stream) return;
 
     setLocalStream(stream);
   }, [stream]);
 
+  // 마이크 상태 확인 및 초기화
   useEffect(() => {
     const checkMicStatus = async () => {
       try {
@@ -78,6 +80,14 @@ const RoleCard = ({
     checkMicStatus();
   }, []);
 
+  // 언마운트 시 스트림 정리
+  useEffect(() => {
+    return () => {
+      localStream?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
+  // 오디오 출력 관리
   useEffect(() => {
     if (audioRef.current && stream) {
       if (audioRef.current.srcObject !== stream) {
@@ -99,17 +109,12 @@ const RoleCard = ({
     }
   }, [stream, isMicOn]);
 
-  useEffect(() => {
-    localStream?.getAudioTracks().forEach((track) => {
-      track.enabled = isMicOn;
-    });
-  }, [isMicOn, localStream]);
-
+  //마이크 토글
   const handleToggleMic = async () => {
+    toggleMic(id);
     if (isMicOn) {
       localStream?.getTracks().forEach((track) => track.stop());
       setLocalStream(null);
-      toggleMic(id);
     } else {
       try {
         const userStream = await navigator.mediaDevices.getUserMedia({
@@ -117,7 +122,6 @@ const RoleCard = ({
         });
         localStream?.getTracks().forEach((track) => track.stop());
         setLocalStream(userStream);
-        toggleMic(id);
       } catch (error) {
         console.error("마이크 접근 오류: ", error);
       }

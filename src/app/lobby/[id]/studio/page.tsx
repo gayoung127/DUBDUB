@@ -70,6 +70,14 @@ export default function StudioPage() {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      Object.values(userAudioStreams).forEach((stream) => {
+        stream.getTracks().forEach((track) => track.stop());
+      });
+    };
+  }, [userAudioStreams]);
+
   // useEffect(): 유저 정보 가져오기 (HTTP API Request)
   useEffect(() => {
     getMyInfo();
@@ -139,9 +147,13 @@ export default function StudioPage() {
       if (prev[userId]) {
         prev[userId].getTracks().forEach((track) => track.stop());
       }
-      return prev[userId] === stream ? prev : { ...prev, [userId]: stream };
+      return { ...prev, [userId]: stream };
     });
   };
+
+  useEffect(() => {
+    console.log("🎵 최신 userAudioStreams 상태:", userAudioStreams);
+  }, [userAudioStreams]); // ✅ 상태 변경 시 로그 출력
 
   return (
     <DndProvider backend={HTML5Backend}>
