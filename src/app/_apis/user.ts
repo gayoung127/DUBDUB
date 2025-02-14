@@ -32,9 +32,9 @@ export const getMyInfo = async () => {
       data = {
         memberId: 1,
         email: null,
-        nickName: "Guest",
+        nickName: "게스트 더비",
         position: "visitor",
-        profileUrl: "/tmp/profile1.png",
+        profileUrl: "/images/icons/defaultAvatar.png",
       };
     }
 
@@ -51,9 +51,9 @@ export const getMyInfo = async () => {
     const fallbackData = {
       memberId: 1,
       email: null,
-      nickName: "Guest",
-      position: "visitor",
-      profileUrl: "/tmp/profile1.png",
+      nickName: "게스트 더비",
+      position: "관전자",
+      profileUrl: "/images/icons/defaultAvatar.png",
     };
 
     console.log("⚠️ 네트워크 에러 발생. 기본 데이터 적용:", fallbackData);
