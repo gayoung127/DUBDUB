@@ -89,7 +89,7 @@ const LiveAudioBlock = ({
 
         const newData = [...smoothedData, ...normalizedData];
 
-        return newData.length > width * 5 ? newData : newData;
+        return newData;
       });
 
       animationRef.current = requestAnimationFrame(updateWaveformData);
