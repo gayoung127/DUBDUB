@@ -26,7 +26,7 @@ export default function StudioPage() {
   const [userAudioStreams, setUserAudioStreams] = useState<
     Record<number, MediaStream>
   >({});
-  const [sessionId, setSessionId] = useState<string>("test-session-123");
+  const [sessionId, setSessionId] = useState<string>("");
   const [isStompConnected, setIsStompConnected] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string>("");
   const [duration, setDuration] = useState<number>(160);
@@ -43,6 +43,7 @@ export default function StudioPage() {
     throw new Error("studioId 없음");
   }
 
+  // handlePointerMove(): 커서 움직이는 함수
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
 
@@ -51,18 +52,20 @@ export default function StudioPage() {
     const y = e.clientY;
     const name = self?.nickName || "익명의 더비";
 
-    stompClientRef.current?.publish({
-      destination: `/app/studio/${sessionId}/cursor`,
-      body: JSON.stringify({ memberId, x, y, name }),
-    });
+    if (sessionId !== "") {
+      stompClientRef.current?.publish({
+        destination: `/app/studio/${sessionId}/cursor`,
+        body: JSON.stringify({ memberId, x, y, name }),
+      });
+    }
   };
 
-  // 유저 정보 가져오기
+  // useEffect(): 유저 정보 가져오기 (HTTP API Request)
   useEffect(() => {
     getMyInfo();
   }, []);
 
-  // script 파싱 함수
+  // parseScript(): 스크립트 파싱 함수
   const parseScript = (script: string): { role: string; text: string }[] => {
     return script
       .split("\n")
