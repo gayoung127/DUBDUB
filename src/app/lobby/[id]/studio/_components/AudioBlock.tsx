@@ -42,14 +42,12 @@ const AudioBlock = ({
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const blockRef = useRef<HTMLDivElement | null>(null);
 
-  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
-  const [localStartPoint, setLocalStartPoint] = useState(
+  const [zIndex, setZIndex] = useState<number>(1);
+  const [localStartPoint, setLocalStartPoint] = useState<number>(
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
-  const [isDragging, setIsDragging] = useState(false);
 
-  const [zIndex, setZIndex] = useState(1);
-
+  // useEffect: 블록 선택 시, 가장 위로 올라오게 두기 (z-index = 200 설정)
   useEffect(() => {
     if (selectedBlock?.id === file.id) {
       setZIndex(200);
@@ -76,7 +74,6 @@ const AudioBlock = ({
       inertia: true,
       cursor: "url('/images/icons/cursor-grab.svg') 10 10, grab;",
       onPress: function () {
-        setIsDragging(true);
         setZIndex(200); // 드래그 시작하면 z-index 최상위로 변경
         gsap.set(blockElement, {
           zIndex: 200,
@@ -89,7 +86,6 @@ const AudioBlock = ({
         gsap.set(blockElement, { zIndex: 200, x: newStartPoint });
       },
       onDragEnd: function () {
-        setIsDragging(true);
         gsap.set(blockElement, { zIndex: 200 });
         const finalStartPoint = Math.max(
           0,
@@ -120,7 +116,7 @@ const AudioBlock = ({
     };
   }, [setTracks, file.id, timelineRef]);
 
-  // ✅ startPoint 변경 시 GSAP와 동기화
+  // useEffect: 다른 사람이 블록 드래그 시, 해당 좌표 동기화
   useEffect(() => {
     if (blockRef.current) {
       gsap.set(blockRef.current, {
@@ -153,59 +149,14 @@ const AudioBlock = ({
     }
   }, [time, isPlaying, file.startPoint]);
 
-  // playAudio : 개별 오디오 파일 재생 함수
-  const playAudio = () => {
-    if (!audioContext || audioSourceRef.current) return;
-
-    const audioBuffer = audioBuffers!.get(file.url);
-    if (!audioBuffer) return;
-
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = file.isMuted ? 0 : file.volume;
-    source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    source.playbackRate.value = file.speed;
-
-    // 🎯 Right block의 경우, trimStart를 정확히 반영해야 함
-    const offset = Math.max(0, file.trimStart);
-    const duration = Math.max(0, file.duration - file.trimStart - file.trimEnd);
-
-    source.start(audioContext.currentTime, offset, duration);
-
-    audioSourceRef.current = source;
-
-    source.onended = () => {
-      audioSourceRef.current = null;
-    };
-  };
-
-  // stopAudio : 개별 오디오 파일 즉시 정지 함수
-  const stopAudio = () => {
-    if (audioSourceRef.current) {
-      audioSourceRef.current.stop();
-      audioSourceRef.current.disconnect(); // 연결을 끊어 즉시 정지
-      audioSourceRef.current = null;
-    }
-  };
-
-  // useEffect : 파형 시각화
-  useEffect(() => {
-    if (audioBuffers && file.url) {
-      const buffer = audioBuffers.get(file.url);
-      setAudioBuffer(buffer || null);
-    }
-  }, [audioBuffers, file.url]);
-
+  // useEffect: 파일 URL 반영시, 파형 생성
   useEffect(() => {
     if (audioBuffers && file.url && audioBuffers.get(file.url)) {
       visualizeWaveform();
     }
   }, [audioBuffers, file.url]);
 
+  // visualizeWaveForm() : 파형 생성
   const visualizeWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !audioBuffers || !file.url) return;
@@ -241,13 +192,50 @@ const AudioBlock = ({
     }
   };
 
-  // splitBlock : 코드 자르기 함수
+  // playAudio(): 개별 오디오 파일 재생 함수
+  const playAudio = () => {
+    if (!audioContext || audioSourceRef.current) return;
+
+    const audioBuffer = audioBuffers!.get(file.url);
+    if (!audioBuffer) return;
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = file.isMuted ? 0 : file.volume;
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    source.playbackRate.value = file.speed;
+
+    const offset = Math.max(0, file.trimStart);
+    const duration = Math.max(0, file.duration - file.trimStart - file.trimEnd);
+
+    source.start(audioContext.currentTime, offset, duration);
+
+    audioSourceRef.current = source;
+
+    source.onended = () => {
+      audioSourceRef.current = null;
+    };
+  };
+
+  // stopAudio(): 개별 오디오 파일 즉시 정지 함수
+  const stopAudio = () => {
+    if (audioSourceRef.current) {
+      audioSourceRef.current.stop();
+      audioSourceRef.current.disconnect();
+      audioSourceRef.current = null;
+    }
+  };
+
+  // splitBlock(): 블록 자르기 함수
   const splitBlock = () => {
     const blockStartX = localStartPoint; // 블록의 실제 시작 위치 (px)
     const blockEndX = blockStartX + file.duration * PX_PER_SECOND; // 블록 끝 위치 (px)
     const markerX = time * PX_PER_SECOND; // 현재 마커 위치 (px)
 
-    // 🎯 마커가 블록 범위를 벗어난 경우 예외 처리
     if (markerX <= blockStartX || markerX >= blockEndX) {
       toast.warning("마커를 오디오 블록 위로 이동해주세요!");
       return;
@@ -280,7 +268,6 @@ const AudioBlock = ({
       blockColor,
     };
 
-    // 🎯 기존 블록을 삭제하고 새로운 두 블록 추가
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
@@ -290,10 +277,10 @@ const AudioBlock = ({
       })),
     );
 
-    console.log("✅ 블록이 분할되었습니다!", newLeftBlock, newRightBlock);
     toast.success("블록 자르기가 성공적으로 이뤄졌습니다!");
   };
 
+  // deleteBlock(): 블록 삭제 함수
   const deleteBlock = () => {
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
@@ -303,7 +290,7 @@ const AudioBlock = ({
     );
   };
 
-  // useEffect : 오디오 블록 키보드 이벤트
+  // useEffect: 오디오 블록 키보드 이벤트
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // c : 자르기 기능
