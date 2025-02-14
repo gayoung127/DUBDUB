@@ -26,6 +26,7 @@
     "file-saver": "^2.0.5",
     "form-data": "^4.0.1",
     "formidable": "^3.5.2",
+    "googleapis": "^144.0.0",
     "gsap": "^3.12.7",
     "next": "15.1.4",
     "openvidu-browser": "^2.31.0",

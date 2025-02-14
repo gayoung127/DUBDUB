@@ -23,6 +23,7 @@ export default function Page() {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transcription, setTranscription] = useState<string | null>(null);
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -151,7 +152,13 @@ export default function Page() {
         <div className="flex h-full w-1/3 items-start justify-end">
           <Script onChange={setScript} />
         </div>
-
+        {/* STT 결과 렌더링 */}
+        {transcription && (
+          <div className="mt-4 w-full rounded-lg bg-gray-100 p-4">
+            <h3 className="text-lg font-semibold">STT 변환 결과:</h3>
+            <p className="text-gray-700">{transcription}</p>
+          </div>
+        )}
         <div className="mt-8 flex justify-center">
           <Button
             outline={false}
