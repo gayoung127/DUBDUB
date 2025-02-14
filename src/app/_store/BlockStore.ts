@@ -9,7 +9,7 @@ interface SelectedBlockInfo {
 }
 interface BlockStore {
   selectedBlock: AudioFile | null;
-  setSelectedBlock: (value: AudioFile) => void;
+  setSelectedBlock: (value: AudioFile | null) => void;
 
   selectedBlockObj: SelectedBlockInfo;
   setSelectedBlockObj: (block: SelectedBlockInfo) => void;
