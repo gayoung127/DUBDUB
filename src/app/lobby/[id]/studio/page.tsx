@@ -46,7 +46,7 @@ export default function StudioPage() {
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();
 
-  const { stompClientRef, isConnected } = useStompClient();
+  const { stompClientRef, isConnected } = useStompClient(sessionId);
   const { studioMembers } = useStudioMembers();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
 

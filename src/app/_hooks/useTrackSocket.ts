@@ -7,14 +7,15 @@ interface UseTrackSocketProps {
 }
 
 export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
-  const { isConnected, stompClientRef } = useStompClient();
+  const { isConnected, stompClientRef } = useStompClient(sessionId); // ✅ sessionId 반영됨!
   const subscriptionRef = useRef<any>(null);
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const prevTracksRef = useRef<Track[]>(initialTracks);
 
+  // 🔹 트랙 데이터 변경 시 서버로 전송
   useEffect(() => {
-    if (!isConnected || !stompClientRef.current) return;
+    if (!isConnected || !stompClientRef.current || !sessionId) return;
 
     const prevTracks = prevTracksRef.current;
 
@@ -55,15 +56,16 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
     prevTracksRef.current = JSON.parse(JSON.stringify(tracks));
   }, [tracks, isConnected, sessionId]);
 
+  // 🔹 STOMP 구독 및 트랙 업데이트 처리
   useEffect(() => {
-    if (!isConnected || !stompClientRef.current) return;
+    if (!isConnected || !stompClientRef.current || !sessionId) return;
 
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
     }
 
     subscriptionRef.current = stompClientRef.current.subscribe(
-      `/topic/studio/${sessionId}/track/files`,
+      `/topic/studio/${sessionId}/track/files`, // ✅ sessionId 반영됨!
       (message) => {
         const receivedFile: {
           trackId: number;

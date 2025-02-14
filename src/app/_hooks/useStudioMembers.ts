@@ -1,32 +1,21 @@
 import { useEffect } from "react";
-
 import useStompClient from "./useStompClient";
-
 import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useUserStore, UserStore } from "@/app/_store/UserStore";
 
-const sessionId = useSessionIdStore.getState().sessionId;
-
 export const useStudioMembers = () => {
+  const { sessionId } = useSessionIdStore();
   const { self, studioMembers, setStudioMembers } = useUserStore();
-  const { isConnected, stompClientRef } = useStompClient();
+  const { isConnected, stompClientRef } = useStompClient(sessionId);
 
   const publishSelf = () => {
-    if (
-      !isConnected ||
-      !stompClientRef.current ||
-      !stompClientRef.current.connected ||
-      !self
-    )
-      return;
+    if (!isConnected || !stompClientRef.current?.connected || !self) return;
 
     const isAlreadyAdded = studioMembers.some(
       (member) => member.memberId === self.memberId,
     );
 
-    if (isAlreadyAdded) {
-      return;
-    }
+    if (isAlreadyAdded) return;
 
     const selfDataForServer = {
       userSessionId: Date.now(),
@@ -50,17 +39,11 @@ export const useStudioMembers = () => {
 
   useEffect(() => {
     const subscribeToMembers = () => {
-      if (
-        !isConnected ||
-        !stompClientRef.current ||
-        !stompClientRef.current.connected
-      ) {
-        return;
-      }
+      if (!isConnected || !stompClientRef.current?.connected) return;
 
       try {
         const subscription = stompClientRef.current.subscribe(
-          `/topic/studio/${sessionId}/users`,
+          `/topic/studio/${sessionId}/users`, // ✅ sessionId 반영됨!
           (message) => {
             try {
               const data = JSON.parse(message.body);
@@ -83,7 +66,9 @@ export const useStudioMembers = () => {
               } else {
                 setStudioMembers(formattedMembers);
               }
-            } catch (error) {}
+            } catch (error) {
+              console.error("❌ JSON Parsing Error:", error);
+            }
           },
         );
 
@@ -103,7 +88,7 @@ export const useStudioMembers = () => {
         if (unsubscribe) unsubscribe();
       };
     }
-  }, [isConnected, stompClientRef.current?.connected, self]);
+  }, [sessionId, isConnected, stompClientRef.current?.connected, self]); // ✅ sessionId 추가됨!
 
   return { studioMembers, publishSelf };
 };
