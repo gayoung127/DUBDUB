@@ -30,6 +30,7 @@ export default function StudioPage() {
   const studioId = Number(id);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [studioTitle, setStudioTitle] = useState<string>("제목 없음");
   const [videoUrl, setVideoUrl] = useState<string>("/examples/zzangu.mp4");
   const [userAudioStreams, setUserAudioStreams] = useState<
     Record<number, MediaStream>
@@ -114,6 +115,10 @@ export default function StudioPage() {
         // 비디오 URL 설정
         if (data.videoUrl && typeof data.videoUrl === "string") {
           setVideoUrl(data.videoUrl); // 서버에서 받은 videoUrl로 상태 업데이트
+        }
+
+        if (data.title && typeof data.title === "string") {
+          setStudioTitle(data.title);
         }
 
         // 스크립트 파싱 및 상태 업데이트
@@ -213,7 +218,7 @@ export default function StudioPage() {
         <div className="relative flex h-full min-h-screen w-full flex-col items-start justify-start">
           <div className="flex h-full w-full flex-row">
             <div className="flex h-full w-full flex-1 flex-col items-start justify-start">
-              <Header />
+              <Header studioTitle={studioTitle} />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
                 <StudioSideTab
                   userAudioStreams={userAudioStreams}
