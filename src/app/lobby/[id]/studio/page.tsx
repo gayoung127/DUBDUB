@@ -15,7 +15,12 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { useUserStore } from "@/app/_store/UserStore";
 import { getMyInfo } from "@/app/_apis/user";
 import { useParams } from "next/navigation";
-import { createConnection, createSession } from "@/app/_apis/openvidu";
+import {
+  createConnection,
+  createSession,
+  createConnectionDirect,
+  createSessionDirect,
+} from "@/app/_apis/openvidu";
 import { initialTracks, Track } from "@/app/_types/studio";
 import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 
@@ -138,14 +143,14 @@ export default function StudioPage() {
 
   // OpenVidu 테스트 (비동기)
   useEffect(() => {
-    const testOv = async () => {
+    const testOv1 = async () => {
       const sessionId = await createSession();
       console.log("✅ 세션 생성 응답:", sessionId);
       if (!sessionId) {
         console.error("❌ 세션 ID를 가져오지 못했습니다.");
         return;
       }
-      const token = await createConnection(sessionId);
+      const token = await createConnectionDirect(sessionId);
       if (!token) {
         console.error("❌ 세션 토큰을 가져오지 못했습니다.");
         return;
@@ -154,12 +159,37 @@ export default function StudioPage() {
       setSessionToken(token);
     };
 
-    // testOv(); // 필요할 때 활성화
+    // testOv1(); // 필요할 때 활성화
+    const testOv2 = async () => {
+      const sessionId = await createSession();
+      console.log("✅ 세션 생성 응답:", sessionId);
+      if (!sessionId) {
+        console.error("❌ 세션 ID를 가져오지 못했습니다.");
+        return;
+      }
+      const token = await createConnectionDirect(sessionId);
+      if (!token) {
+        console.error("❌ 세션 토큰을 가져오지 못했습니다.");
+        return;
+      }
+      setSessionId(sessionId);
+      setSessionToken(token);
+    };
+
+    // testOv2(); // 필요할 때 활성화
   }, []);
 
   // 사용자 오디오 스트림 업데이트
   const handleUserAudioUpdate = (userId: number, stream: MediaStream) => {
-    setUserAudioStreams((prev) => ({ ...prev, [userId]: stream }));
+    setUserAudioStreams((prev) => {
+      if (prev[userId]) {
+        prev[userId].getTracks().forEach((track) => track.stop());
+      }
+      if (prev[userId] === stream) {
+        return prev;
+      }
+      return { ...prev, [userId]: stream };
+    });
   };
 
   return (
