@@ -64,14 +64,14 @@ public class WebSocketEventListener {
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
             Member user = userDetails.getMember();
 
-            logger.info("연결이 끊은 사용자ID: {}", user.getId());
             UserSession userSession = userSessionRepository.findByMemberId(user.getId().toString());
-
-            String sessionId = userSession.getSessionId();
-            logger.info("사용자 연결 해제: {}", sessionId);
-
-            // 세션에서 사용자 제거
-            studioSessionService.removeUserFromSession(sessionId, userSession.getMemberId());
+            if (userSession != null) {
+                String sessionId = userSession.getSessionId();
+                logger.info("사용자 연결 해제: {}", sessionId);
+                studioSessionService.removeUserFromSession(sessionId, userSession.getMemberId());
+            } else {
+                logger.debug("이미 연결이 해제된 사용자입니다. memberId: {}", user.getId().toString());
+            }
         }
     }
 }
