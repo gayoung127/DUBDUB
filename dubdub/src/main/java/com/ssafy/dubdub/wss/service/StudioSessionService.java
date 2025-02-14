@@ -24,7 +24,7 @@ public class StudioSessionService {
 
     // 사용자를 세션에서 제거
     public void removeUserFromSession(String sessionId, String memberId) {
-        userSessionRepository.deleteByMemberId(memberId);
+        userSessionRepository.deleteById(memberId);
         List<UserSession> remainingUsers = getUsersInSession(sessionId);
 
         // 참여자가 없으면 스튜디오 종료
