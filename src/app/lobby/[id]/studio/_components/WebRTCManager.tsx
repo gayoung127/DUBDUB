@@ -114,17 +114,11 @@ const WebRTCManager = ({
 
           if (data.type === "play") play();
           if (data.type === "pause") pause();
-          if (data.type === "seek" && typeof data.time === "number") {
-            //1초 이상 차이나면 동기화
-            if (Math.abs(time - data.time) > 1) {
-              setTimeFromPx(data.time);
-            }
-          }
         });
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
-          toast.warning("카메라 및 마이크 권한이 필요합니다.");
+          toast.warning("마이크 권한이 필요합니다.");
           return;
         }
 
@@ -230,34 +224,13 @@ const WebRTCManager = ({
     });
   }, [isPlaying]);
 
-  useEffect(() => {
-    if (!session) return;
-
-    if (typeof lastSentTime.current !== "number") {
-      lastSentTime.current = 0;
-    }
-
-    // 2초 이상 차이나면 time 동기화 전송
-    if (
-      session &&
-      session.connection &&
-      Math.abs(time - lastSentTime.current) > 2
-    ) {
-      session.signal({
-        type: "control",
-        data: JSON.stringify({ type: "seek", time }),
-      });
-      lastSentTime.current = time;
-    }
-  }, [time]);
-
   const checkAudioPermissions = async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      console.log("🎤 카메라 및 마이크 접근 가능");
+      console.log("🎤 마이크 접근 가능");
       return true;
     } catch (error) {
-      console.error("🚨 카메라/마이크 접근 거부됨:", error);
+      console.error("🚨 마이크 접근 거부됨:", error);
       return false;
     }
   };
