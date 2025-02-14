@@ -171,10 +171,10 @@ const AudioTrackHeader = ({
             }}
           >
             <Image
-              src={recorderProfileUrl || "/images/tmp/dducip.jpg"}
+              src={recorderProfileUrl || "/images/icon/defaultAvatar.png"}
               alt={recorderName || "프로필 이미지"}
               fill
-              style={{ objectFit: "contain" }}
+              style={{ objectFit: "cover" }}
               className="rounded-full"
             />
             <div className="relative">
