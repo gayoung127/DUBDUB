@@ -13,7 +13,7 @@ interface RoleCardProps {
   name: string;
   role: string;
   profileImageUrl: string;
-  stream: MediaStream;
+  stream?: MediaStream;
 }
 
 const RoleCard = ({
@@ -44,6 +44,12 @@ const RoleCard = ({
   const { micStatus, toggleMic } = useMicStore();
   const isMicOn = micStatus[id] || false;
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
+  useEffect(() => {
+    if (!stream) return;
+
+    setLocalStream(stream);
+  }, [stream]);
 
   useEffect(() => {
     const checkMicStatus = async () => {
