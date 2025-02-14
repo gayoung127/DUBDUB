@@ -17,23 +17,8 @@ spring:
 
 logging:
   level:
-    root: INFO  # 기본 로그 레벨 설정
-
-    # 시큐리티 & JWT 관련 로그
-    org.springframework.security: DEBUG
-    com.ssafy.dubdub.security: DEBUG
-    com.ssafy.dubdub.security.jwt: TRACE  # JWT 관련 모든 클래스의 상세 로그
-
-    # 인증 처리 관련 로그
-    com.ssafy.dubdub.service.AuthService: DEBUG
-    com.ssafy.dubdub.controller.AuthController: DEBUG
-
-    # 웹 요청/응답 로그
-    org.springframework.web: DEBUG
-
-    # SQL 쿼리 로그 (문제 해결을 위해 임시 활성화)
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
+    root: INFO  # 다른 로그들은 숨기기
+    com.ssafy.dubdub.wss: DEBUG  # wss 패키지 전체의 로그 보기
 
   # 로그 패턴 설정
   pattern:
