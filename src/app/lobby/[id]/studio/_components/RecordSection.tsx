@@ -22,6 +22,9 @@ interface RecordSectionProps {
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  assets: AudioFile[];
+  setAssets: React.Dispatch<React.SetStateAction<AudioFile[]>>;
+  sendAsset: (asset: AudioFile) => void;
 }
 
 const RecordSection = ({
@@ -29,6 +32,9 @@ const RecordSection = ({
   setDuration,
   tracks,
   setTracks,
+  assets,
+  setAssets,
+  sendAsset,
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
@@ -175,6 +181,9 @@ const RecordSection = ({
                 audioContext={audioContextRef.current}
                 audioBuffers={audioBuffersRef.current}
                 setTracks={setTracks}
+                assets={assets}
+                setAssets={setAssets}
+                sendAsset={sendAsset}
               />
             ))}
           </div>

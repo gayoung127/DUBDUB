@@ -8,7 +8,7 @@ import { useRecordingStore } from "@/app/_store/RecordingStore";
 import LiveAudioBlock from "./LiveAudioBlock";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { useUserStore } from "@/app/_store/UserStore";
-import { useAssetsStore } from "@/app/_store/AssetsStore";
+// import { useAssetsStore } from "@/app/_store/AssetsStore";
 import { findPossibleId } from "@/app/_utils/findPossibleId";
 import { createBlob } from "@/app/_utils/audioUtils";
 import { postAsset } from "@/app/_apis/studio";
@@ -25,6 +25,9 @@ interface AudioTrackTimelineProps {
   audioContext: AudioContext | null;
   audioBuffers: Map<string, AudioBuffer> | null;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  assets: AudioFile[];
+  setAssets: React.Dispatch<React.SetStateAction<AudioFile[]>>;
+  sendAsset: (asset: AudioFile) => void;
 }
 
 const AudioTrackTimeline = ({
@@ -38,6 +41,9 @@ const AudioTrackTimeline = ({
   audioContext,
   audioBuffers,
   setTracks,
+  assets,
+  setAssets,
+  sendAsset,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -50,7 +56,7 @@ const AudioTrackTimeline = ({
   } = useRecordingStore();
   const { time } = useTimeStore();
   const { studioMembers, self } = useUserStore();
-  const { audioFiles: assetAudioFiles, addAudioFile } = useAssetsStore();
+  // const { audioFiles: assetAudioFiles, addAudioFile } = useAssetsStore();
   const isSyncingRef = useRef(false);
   const lastFilesRef = useRef("");
   const [liveWidth, setLiveWidth] = useState(0);
@@ -176,11 +182,7 @@ const AudioTrackTimeline = ({
 
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
-              id: findPossibleId(
-                assetAudioFiles,
-                studioMembers,
-                self?.position ?? "나",
-              ),
+              id: findPossibleId(assets, studioMembers, self?.position ?? "나"),
               url,
               startPoint: starPoint,
               duration,
@@ -190,7 +192,8 @@ const AudioTrackTimeline = ({
               isMuted: isMuted,
               speed: 1,
             };
-            addAudioFile(createdFile);
+            // addAudioFile(createdFile);
+            sendAsset(createdFile);
             // 여기서 publish 하면 되겟넨용
             console.log("새롭게 생성한 파일 = ", createdFile);
             return createdFile;

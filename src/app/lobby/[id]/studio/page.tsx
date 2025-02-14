@@ -20,6 +20,7 @@ import { createConnectionDirect, createSession } from "@/app/_apis/openvidu";
 import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
+import { useAssetsSocket } from "@/app/_hooks/useAssetSocket";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -42,6 +43,7 @@ export default function StudioPage() {
   const { memberId, self } = useUserStore();
   const { studioMembers } = useStudioMembers();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
+  const { assets, setAssets, sendAsset } = useAssetsSocket({ sessionId });
 
   useStompClient(sessionId);
   const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
@@ -162,6 +164,9 @@ export default function StudioPage() {
                   tracks={tracks}
                   setTracks={setTracks}
                   studioMembers={studioMembers}
+                  assets={assets}
+                  setAssets={setAssets}
+                  sendAsset={sendAsset}
                 />
                 <VideoPlayer
                   videoRef={videoRef}
@@ -182,6 +187,9 @@ export default function StudioPage() {
             setDuration={setDuration}
             tracks={tracks}
             setTracks={setTracks}
+            assets={assets}
+            setAssets={setAssets}
+            sendAsset={sendAsset}
           />
         </div>
         {isConnected && (
