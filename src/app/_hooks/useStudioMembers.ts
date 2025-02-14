@@ -38,7 +38,7 @@ export const useStudioMembers = () => {
     console.log("🚀 Publishing self to studioMembers:", selfDataForServer);
 
     stompClientRef.current.publish({
-      destination: "/app/studioMembers",
+      destination: `/app/studio/${selfDataForServer.sessionId}/users/`,
       body: JSON.stringify(selfDataForServer),
     });
   };
@@ -55,7 +55,7 @@ export const useStudioMembers = () => {
       console.log("📡 Subscribing to studio members...");
 
       const subscription = stompClientRef.current.subscribe(
-        "/topic/studioMembers",
+        `/topic/studio/test-session-123/users`,
         (message) => {
           try {
             const data = JSON.parse(message.body);

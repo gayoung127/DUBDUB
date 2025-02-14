@@ -46,7 +46,7 @@ export default function StudioPage() {
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
 
-    const memberId = self?.memberId || "익명의 더비";
+    const memberId = self?.memberId || "anonymous";
     const x = e.clientX;
     const y = e.clientY;
     const name = self?.nickName || "익명의 더비";
