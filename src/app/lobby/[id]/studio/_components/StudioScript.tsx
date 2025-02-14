@@ -36,7 +36,7 @@ const StudioScript = ({ scripts }: StudioScriptProps) => {
             id={index}
             role={script.role}
             text={script.text}
-            timestamp={0} // 타임스탬프 기본값 사용
+            timestamp={0} // 타임스탬프 어떻게 구현하지?
             no={index + 1}
           />
         ))}

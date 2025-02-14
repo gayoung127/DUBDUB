@@ -11,6 +11,7 @@ interface VideoProps {
 const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
   const { generateThumbnail } = useGenerateThumbnail();
   const [thumbnail, setThumbnail] = useState<string | null>(null); // 썸네일 상태 추가
+  const [transcription, setTranscription] = useState<string | null>(null); //stt 결과 추가
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = async (
@@ -42,6 +43,31 @@ const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
       }
     }
     onChange(file); // 부모 컴포넌트로 파일 전달
+  };
+
+  // Google Speech-to-Text API 호출 로직
+  const transcribeVideo = async (file: File): Promise<string | null> => {
+    try {
+      // FormData에 파일 추가
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Next.js API 라우트로 요청 전송
+      const response = await fetch("/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("STT 요청 실패");
+      }
+
+      const data = await response.json();
+      return data.transcription || null; // STT 결과 반환
+    } catch (error) {
+      console.error("STT 호출 중 오류:", error);
+      return null;
+    }
   };
 
   return (
