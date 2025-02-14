@@ -7,10 +7,13 @@ import BreadcrumbNextIcon from "@/public/images/icons/icon-breadcrumb-next.svg";
 
 interface BreadCrumbProps {
   pathSegments: string[];
-  studioTitle: string;
+  studioTitle?: string;
 }
 
-const BreadCrumb = ({ pathSegments, studioTitle }: BreadCrumbProps) => {
+const BreadCrumb = ({
+  pathSegments,
+  studioTitle = "제목 없음",
+}: BreadCrumbProps) => {
   let accumulatedPath = "";
   const modifiedSegments = pathSegments.map((segment, index) =>
     index === 1 && !isNaN(Number(segment)) ? studioTitle : segment,
