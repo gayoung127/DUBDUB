@@ -4,11 +4,12 @@ import com.ssafy.dubdub.service.StudioService;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.repository.UserSessionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudioSessionService {
