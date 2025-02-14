@@ -1,6 +1,7 @@
 package com.ssafy.dubdub.wss;
 
 import com.ssafy.dubdub.domain.entity.Member;
+import com.ssafy.dubdub.security.dto.CustomUserDetails;
 import com.ssafy.dubdub.util.SecurityUtil;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.repository.UserSessionRepository;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -26,9 +28,12 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        Member user = SecurityUtil.getCurrentUser();
-        if (user != null) {
-            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
+
+        if (auth != null) {
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Member user = userDetails.getMember();
             String sessionId = accessor.getFirstNativeHeader("sessionId");
             logger.info("사용자 연결: {}", sessionId);
 
@@ -55,8 +60,12 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        Member user = SecurityUtil.getCurrentUser();
-        if (user != null) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
+        if (auth != null) {
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Member user = userDetails.getMember();
+
             UserSession userSession = userSessionRepository.findByMemberId(user.getId().toString());
             String sessionId = userSession.getSessionId();
             logger.info("사용자 연결 해제: {}", sessionId);
