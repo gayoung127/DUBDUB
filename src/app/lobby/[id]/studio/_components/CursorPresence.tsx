@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
-import Cursor from "./Cursor";
+import React, { useEffect, useState } from "react";
+
 import { useUserStore } from "@/app/_store/UserStore";
+
+import Cursor from "./Cursor";
 
 interface CursorData {
   memberId: string;
@@ -15,7 +17,7 @@ interface CursorData {
 interface CursorPresenceProps {
   stompClientRef: React.MutableRefObject<Client | null>;
   sessionId: string;
-  isConnected: boolean; // STOMP 연결 상태 추가
+  isConnected: boolean;
 }
 
 const CursorPresence = ({
@@ -27,8 +29,7 @@ const CursorPresence = ({
   const { self } = useUserStore();
 
   useEffect(() => {
-    if (!isConnected || !stompClientRef.current) {
-      console.log("❌ STOMP 연결 안 됨. CursorPresence 대기 중...");
+    if (!isConnected || !stompClientRef.current || sessionId === "") {
       return;
     }
 
@@ -48,8 +49,6 @@ const CursorPresence = ({
       });
     };
 
-    console.log(`📡 커서 구독 주소: /topic/studio/${sessionId}/cursor`);
-
     // 커서 위치 업데이트 구독
     const cursorSubscription = stompClient.subscribe(
       `/topic/studio/${sessionId}/cursor`,
@@ -63,7 +62,6 @@ const CursorPresence = ({
     );
 
     return () => {
-      console.log("🛑 커서 구독 해제");
       cursorSubscription.unsubscribe();
       removeSubscription.unsubscribe();
     };
