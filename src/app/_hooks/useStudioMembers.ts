@@ -55,47 +55,64 @@ export const useStudioMembers = () => {
       }
 
       console.log("📡 Subscribing to studio members...");
-
-      const subscription = stompClientRef.current.subscribe(
+      console.log("✅ STOMP Client 상태:", stompClientRef.current);
+      console.log(
+        "✅ STOMP Client 연결 상태:",
+        stompClientRef.current?.connected,
+      );
+      console.log(
+        "🟢 Subscribing to topic:",
         `/topic/studio/test-session-123/users`,
-        (message) => {
-          try {
-            const data = JSON.parse(message.body);
-            console.log("🎭 Received raw Studio Members data:", data);
-
-            // ✅ 서버 데이터 구조에 맞춰 변환 (self는 기존 유지)
-            const formattedMembers: UserStore[] = data.map((member: any) => ({
-              memberId: Number(member.memberId), // memberId를 숫자로 변환
-              email: member.email,
-              nickName: member.nickName,
-              position: member.position,
-              profileUrl: member.profileUrl,
-            }));
-
-            console.log("✅ Processed Studio Members:", formattedMembers);
-
-            if (self) {
-              // ✅ 기존 self 유지하고 studioMembers만 서버 데이터 형태로 변환
-              const updatedMembers = [
-                ...formattedMembers.filter((m) => m.memberId !== self.memberId),
-                self, // self는 기존 형태 유지
-              ];
-
-              setStudioMembers(updatedMembers);
-              console.log("🎭 Updated Studio Members:", updatedMembers);
-            } else {
-              setStudioMembers(formattedMembers);
-            }
-          } catch (error) {
-            console.error("❌ Failed to parse STOMP message:", error);
-          }
-        },
       );
 
-      return () => {
-        console.log("📴 Unsubscribing from studio members");
-        subscription?.unsubscribe();
-      };
+      try {
+        const subscription = stompClientRef.current.subscribe(
+          `/topic/studio/test-session-123/users`,
+          (message) => {
+            try {
+              console.log("📨 Received STOMP message:", message);
+
+              const data = JSON.parse(message.body);
+              console.log("🎭 Received raw Studio Members data:", data);
+
+              // ✅ 서버 데이터 구조에 맞춰 변환 (self는 기존 유지)
+              const formattedMembers: UserStore[] = data.map((member: any) => ({
+                memberId: Number(member.memberId),
+                email: member.email,
+                nickName: member.nickName,
+                position: member.position,
+                profileUrl: member.profileUrl,
+              }));
+
+              console.log("✅ Processed Studio Members:", formattedMembers);
+
+              if (self) {
+                const updatedMembers = [
+                  ...formattedMembers.filter(
+                    (m) => m.memberId !== self.memberId,
+                  ),
+                  self, // self는 기존 형태 유지
+                ];
+                setStudioMembers(updatedMembers);
+                console.log("🎭 Updated Studio Members:", updatedMembers);
+              } else {
+                setStudioMembers(formattedMembers);
+              }
+            } catch (error) {
+              console.error("❌ Failed to parse STOMP message:", error);
+            }
+          },
+        );
+
+        console.log("✅ Subscription 성공!");
+
+        return () => {
+          console.log("📴 Unsubscribing from studio members");
+          subscription?.unsubscribe();
+        };
+      } catch (error) {
+        console.error("❌ STOMP Subscription 실패:", error);
+      }
     };
 
     if (isConnected && stompClientRef.current?.connected) {
@@ -108,7 +125,7 @@ export const useStudioMembers = () => {
         if (unsubscribe) unsubscribe();
       };
     }
-  }, [isConnected, stompClientRef.current?.connected, self]); // ✅ `isConnected` 추가
+  }, [isConnected, stompClientRef.current?.connected, self]);
 
   return { studioMembers, publishSelf };
 };
