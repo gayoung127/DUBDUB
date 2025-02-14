@@ -44,6 +44,7 @@ public class StudioSessionService {
     // 참여자 목록 변경을 모든 클라이언트에게 알림
     private void notifySessionUpdate(String sessionId) {
         List<UserSession> users = getUsersInSession(sessionId);
+        log.info(users.toString());
         messagingTemplate.convertAndSend("/topic/studio/" + sessionId + "/users", users);
     }
 }
