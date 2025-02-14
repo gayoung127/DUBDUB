@@ -26,7 +26,7 @@ const RoomCard = ({
 
   return (
     <div
-      className="flex w-[300px] cursor-pointer flex-col gap-3 rounded-[8px] p-4 hover:bg-white-100 hover:shadow-dub"
+      className="flex w-[300px] cursor-pointer flex-col gap-3 rounded-[8px] bg-white-100 p-4 hover:bg-white-100 hover:shadow-dub"
       onClick={() => {
         handleRoomClick(id);
       }}
