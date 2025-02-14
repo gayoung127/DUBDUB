@@ -162,11 +162,11 @@ const AudioTrackTimeline = ({
           .filter((url) => !existingFilesUrls.has(url))
           .map(async (url) => {
             const duration = await loadAudioDuration(url);
-            const buffer =
-              audioBuffers?.get(url) ??
-              new AudioBuffer({ length: 1, sampleRate: 44100 });
-            const blob = await createBlob(buffer);
-            const newUrl = await postAsset(String(pid), blob);
+            // const buffer =
+            //   audioBuffers?.get(url) ??
+            //   new AudioBuffer({ length: 1, sampleRate: 44100 });
+            // const blob = await createBlob(buffer);
+            // const newUrl = await postAsset(String(pid), blob);
 
             if (duration <= 0) {
               console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
@@ -178,7 +178,8 @@ const AudioTrackTimeline = ({
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
               id: findPossibleId(assetAudioFiles, studioMembers, "나"), // role 추가
-              url, // url : fileUrl;
+              // url: newUrl,
+              url,
               startPoint: starPoint,
               duration,
               trimStart: 0,
@@ -188,6 +189,7 @@ const AudioTrackTimeline = ({
               speed: 1,
             };
             addAudioFile(createdFile);
+            // 여기서 publish 하면 되겟넨용
             return createdFile;
           }),
       );
@@ -237,7 +239,7 @@ const AudioTrackTimeline = ({
     updateTrack();
   }, [
     audioFiles,
-    setAudioFiles,
+    // setAudioFiles,
     trackId,
     setTracks,
     audioContext,
