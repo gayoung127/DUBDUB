@@ -16,7 +16,18 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
 
   // 보냄
   const sendAsset = (asset: AudioFile) => {
-    if (!isConnected || !stompClientRef?.connected || !sessionId) return;
+    if (!isConnected || !stompClientRef?.connected || !sessionId) {
+      if (!isConnected) {
+        console.log("!isConnected");
+      }
+      if (!stompClientRef?.connected) {
+        console.log("!stompClientRef?.connected");
+      }
+      if (!!sessionId) {
+        console.log("!sessionId");
+      }
+      return;
+    }
     const audioAsset = {
       action: "SAVE",
       audioAsset: asset,
