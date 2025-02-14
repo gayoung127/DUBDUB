@@ -111,18 +111,29 @@ const WebRTCManager = ({
 
     return () => {
       console.log("🔌 세션 종료");
-      session?.disconnect();
-      setSession(null);
-      setSubscribers([]);
+
+      if (session) {
+        session.off("streamCreated", handleStreamCreated);
+        session.off("streamDestroyed", handleStreamDestroyed);
+        session.off("signal:syncRequest", handleSyncRequest);
+        session.off("signal:syncResponse", handleSyncResponse);
+        session.off("signal:mic-status", handleMicStatusSignal);
+        session.disconnect();
+      }
+
+      setTimeout(() => {
+        setSubscribers([]);
+      }, 100);
       setPublisher(null);
+      openViduRef.current = null;
     };
   }, [sessionToken]);
 
   // 오디오 스트림 퍼블리싱
   const publishAudioStream = async (session: Session) => {
     try {
-      if (!openViduRef.current) {
-        console.error("🚨 OpenVidu 인스턴스가 존재하지 않음");
+      if (!openViduRef.current || !session.connection) {
+        console.error("🚨 OpenVidu 인스턴스 또는 세션 연결이 없음");
         return;
       }
 
@@ -164,11 +175,12 @@ const WebRTCManager = ({
 
   // 새로운 스트림 생성 시
   const handleStreamCreated = (event: { stream: Stream }) => {
-    console.log("📌 새로운 스트림이 생성됨:", event.stream);
     if (!session) {
-      console.error("🚨 세션이 존재하지 않음");
+      console.error("🚨 handleStreamCreated: 세션이 존재하지 않음");
       return;
     }
+
+    console.log("📌 새로운 스트림이 생성됨:", event.stream);
     const subscriber = session.subscribe(event.stream, undefined);
     if (!subscriber) {
       console.warn("⚠️ 구독자 생성 실패");
@@ -198,7 +210,7 @@ const WebRTCManager = ({
 
   // syncRequest 수신 시 동기화
   const handleSyncRequest = async () => {
-    if (session?.connection) {
+    if (session && session.connection) {
       await session.signal({
         type: "syncRequest",
         data: JSON.stringify({ isPlaying, time }),
@@ -240,14 +252,16 @@ const WebRTCManager = ({
 
   // 마이크 상태 변경 시 전송
   useEffect(() => {
-    if (!session) return;
+    if (!session || micStatus[userId] === undefined) return;
+    handleSendMicstatus(userId, micStatus[userId]);
+  }, [session, micStatus, userId]);
 
-    const latestStatus = useMicStore.getState().micStatus;
-    const myMicStatus = latestStatus[userId];
-    if (myMicStatus !== undefined) {
-      handleSendMicstatus(userId, myMicStatus);
+  // 퍼블리셔의 오디오 상태 관리
+  useEffect(() => {
+    if (publisher && micStatus[userId] !== undefined) {
+      publisher.publishAudio(micStatus[userId]);
     }
-  }, [micStatus[userId]]);
+  }, [micStatus[userId], publisher]);
 
   // mic-status 신호 수신
   const handleMicStatusSignal = (event: SignalEvent) => {
