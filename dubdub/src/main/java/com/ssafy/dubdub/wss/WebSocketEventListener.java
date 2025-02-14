@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Component
 @RequiredArgsConstructor
@@ -40,6 +41,13 @@ public class WebSocketEventListener {
                     .position(user.getPosition().toString())
                     .profileUrl(user.getProfileUrl())
                     .build();
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    studioSessionService.addUserToSession(sessionId, userSession);
+                }
+            }, 1000);
 
             studioSessionService.addUserToSession(sessionId, userSession);
         }
