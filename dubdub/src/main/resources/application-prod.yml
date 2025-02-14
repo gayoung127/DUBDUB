@@ -18,7 +18,7 @@ spring:
 logging:
   level:
     root: INFO  # 다른 로그들은 숨기기
-    com.ssafy.dubdub.wss: DEBUG  # wss 패키지 전체의 로그 보기
+    com.ssafy.dubdub.wss: INFO  # wss 패키지 로그 보기
 
   # 로그 패턴 설정
   pattern:
