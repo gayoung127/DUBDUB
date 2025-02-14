@@ -27,22 +27,16 @@ public class RecruitmentController {
 
     @Operation(summary = "모집글 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addRecruitment(
-            @RequestPart(value = "requestDTO", required = true) RecruitmentCreateRequestDTO requestDTO,
-            @RequestPart(value = "video", required = true) MultipartFile video
+    public ResponseEntity<CreationResponseDto> addRecruitment(
+            @RequestPart(value = "requestDTO") RecruitmentCreateRequestDTO requestDTO,
+            @RequestPart(value = "video") MultipartFile video,
+            @RequestPart(value = "thumbnail") MultipartFile thumbnail
     ) throws Exception {
-        if (requestDTO == null) {
-            log.debug("requestDTO가 필요합니다.");
-            return ResponseEntity.badRequest().body("requestDTO가 필요합니다.");
-        }
-
-        if (video == null || video.isEmpty()) {
-            log.debug("비디오 파일이 필요합니다.");
-            return ResponseEntity.badRequest().body("비디오 파일이 필요합니다.");
-        }
 
         Member member = SecurityUtil.getCurrentUser();
-        Long pid = recruitmentService.addRecruitment(requestDTO, video, member);
+
+        Long pid = recruitmentService.addRecruitment(requestDTO, video, thumbnail, member);
+
         return ResponseEntity.ok().body(new CreationResponseDto(pid, HttpStatusCode.CREATED));
     }
 
@@ -60,7 +54,7 @@ public class RecruitmentController {
 
     @Operation(summary = "모집글 역할 배정")
     @PostMapping("/{recruitmentId}/{castingId}")
-    public ResponseEntity<?> assignCasting(@PathVariable Long recruitmentId, @PathVariable Long castingId){
+    public ResponseEntity<?> assignCasting(@PathVariable Long recruitmentId, @PathVariable Long castingId) {
         Member member = SecurityUtil.getCurrentUser();
 
         recruitmentService.assignCasting(recruitmentId, castingId, member);
