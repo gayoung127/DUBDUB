@@ -8,17 +8,20 @@ import RoleList from "./RoleList";
 import EffectList from "./effects/EffectList";
 import { AudioFile, Track } from "@/app/_types/studio";
 import { useAssetsStore } from "@/app/_store/AssetsStore";
+import { UserStore } from "@/app/_store/UserStore";
 
 interface StudioSideTabProps {
   userAudioStreams: Record<number, MediaStream>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  studioMembers: UserStore[];
 }
 
 const StudioSideTab = ({
   userAudioStreams,
   tracks,
   setTracks,
+  studioMembers,
 }: StudioSideTabProps) => {
   //const audioFilesRef = useRef<AudioFile[] | null>([]);
 
@@ -68,7 +71,12 @@ const StudioSideTab = ({
         </div>
       </div>
 
-      {activeTab === "role" && <RoleList userAudioStreams={userAudioStreams} />}
+      {activeTab === "role" && (
+        <RoleList
+          studioMembers={studioMembers}
+          userAudioStreams={userAudioStreams}
+        />
+      )}
       {activeTab === "asset" && <AssetList audioFiles={audioFiles} />}
       {activeTab === "effect" && (
         <EffectList

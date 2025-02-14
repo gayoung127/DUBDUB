@@ -1,15 +1,15 @@
 import React from "react";
 import RoleCard from "./RoleCard";
-import { useUserStore } from "@/app/_store/UserStore";
+import { UserStore, useUserStore } from "@/app/_store/UserStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
 
 interface RoleListProps {
   userAudioStreams: Record<number, MediaStream>;
+  studioMembers: UserStore[];
 }
 
-const RoleList = ({ userAudioStreams }: RoleListProps) => {
+const RoleList = ({ userAudioStreams, studioMembers }: RoleListProps) => {
   const { self } = useUserStore();
-  const { studioMembers } = useStudioMembers();
 
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
