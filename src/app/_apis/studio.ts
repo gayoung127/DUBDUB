@@ -1,7 +1,7 @@
 export const postAsset = async (pid: string, blob: Blob) => {
   const formData = new FormData();
   console.log("pid = ", pid, ", blob = ", blob);
-  formData.append("file", blob);
+  formData.append("file", blob, "audio.wav");
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/project/${pid}/asset`,

@@ -26,8 +26,8 @@ const TabMenu = ({ tabs }: TabMenuProps) => {
           onClick={initiateFilter}
           className={` ${
             currentTab === tab.href.split("tab=")[1]
-              ? "border-b-2"
-              : "text-gray-500"
+              ? "border-b-2 border-b-white-200 text-gray-50"
+              : "text-white-100"
           }`}
         >
           <H3>{tab.title}</H3>

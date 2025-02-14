@@ -2,9 +2,7 @@
 
 const LobbyLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-full grow flex-col overflow-hidden bg-white-bg">
-      {children}
-    </div>
+    <div className="flex h-full grow flex-col overflow-hidden">{children}</div>
   );
 };
 
