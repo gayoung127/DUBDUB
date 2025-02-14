@@ -10,6 +10,8 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
 
 import AudioBlockModal from "./AudioBlockModal";
+import { useStompStore } from "@/app/_store/StompStore";
+import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 
 export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
@@ -37,6 +39,8 @@ const AudioBlock = ({
   const { time, isPlaying } = useTimeStore();
   const { selectedBlock, setSelectedBlock, setSelectedBlockObj } =
     useBlockStore();
+  const { stompClientRef, isConnected } = useStompStore();
+  const { sessionId } = useSessionIdStore();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -266,6 +270,27 @@ const AudioBlock = ({
       blockColor,
     };
 
+    // 🔥 기존 블록을 STOMP 서버에서 삭제 (DELETE 액션)
+    if (stompClientRef?.connected && sessionId) {
+      const deleteAction = {
+        trackId: trackId,
+        action: "DELETE",
+        file: {
+          id: file.id,
+        },
+      };
+
+      stompClientRef.publish({
+        destination: `/app/studio/${sessionId}/track/files`,
+        body: JSON.stringify(deleteAction),
+      });
+
+      console.log(
+        "🗑️ useTrackSocket: [트랙 삭제] 서버에 DELETE 액션 전송:",
+        deleteAction,
+      );
+    }
+
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
@@ -286,6 +311,27 @@ const AudioBlock = ({
         files: track.files.filter((f) => f.id !== file.id),
       })),
     );
+
+    if (stompClientRef?.connected && sessionId) {
+      const deleteAction = {
+        trackId: trackId,
+        action: "DELETE",
+        file: {
+          id: file.id,
+        },
+      };
+
+      stompClientRef.publish({
+        destination: `/app/studio/${sessionId}/track/files`,
+        body: JSON.stringify(deleteAction),
+      });
+
+      console.log(
+        "🗑️ useTrackSocket: [트랙 삭제] 서버에 DELETE 액션 전송:",
+        deleteAction,
+      );
+      toast.success("성공적으로 오디오 블록을 삭제했습니다!");
+    }
   };
 
   // useEffect: 오디오 블록 키보드 이벤트
