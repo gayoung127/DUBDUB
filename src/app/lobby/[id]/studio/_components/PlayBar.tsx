@@ -178,7 +178,7 @@ const PlayBar = ({
 
           // 서버에 전송해서 url 을 받아옵니당,,,,
           const newUrl = await postAsset(String(pid), audioBlob);
-          createAudioFile(track.trackId, url, currentTime);
+          createAudioFile(track.trackId, newUrl, currentTime);
         };
 
         recorder.start();

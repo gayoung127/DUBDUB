@@ -17,6 +17,8 @@ export const postAsset = async (pid: string, blob: Blob) => {
       console.log("에셋을 서버로 보내던 중 에러");
     }
     const data = await response.json();
+
+    console.log("서버에 새로운 에셋 전송 응답 = ", data);
     return data.url;
   } catch (error) {
     console.error("error");
