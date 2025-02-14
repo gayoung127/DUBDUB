@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/project")
@@ -49,5 +52,16 @@ public class StudioController {
         Member member = SecurityUtil.getCurrentUser();
         FileUploadResponseDTO responseDto = studioService.uploadAudioAsset(member, projectId, file);
         return ResponseEntity.ok(responseDto);
+    }
+
+    @Operation(summary = "[TEMP] 스튜디오 닫기")
+    @PostMapping(path="/studio/{session-id}/close")
+    public ResponseEntity<?> closeStudio(@PathVariable("session-id") String sessionId) {
+        Map<String, Boolean> map = new HashMap<>();
+
+        studioService.closeStudioIfEmpty(sessionId);
+
+        map.put("result", true);
+        return ResponseEntity.ok().body(map);
     }
 }
