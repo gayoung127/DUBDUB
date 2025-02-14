@@ -32,8 +32,8 @@ export const getMyInfo = async () => {
       data = {
         memberId: 1,
         email: null,
-        nickName: "게스트 더비",
-        position: "visitor",
+        nickName: "익명의 더비",
+        position: "관전자",
         profileUrl: "/images/icons/defaultAvatar.png",
       };
     }
@@ -51,7 +51,7 @@ export const getMyInfo = async () => {
     const fallbackData = {
       memberId: 1,
       email: null,
-      nickName: "게스트 더비",
+      nickName: "익명의 더비",
       position: "관전자",
       profileUrl: "/images/icons/defaultAvatar.png",
     };
