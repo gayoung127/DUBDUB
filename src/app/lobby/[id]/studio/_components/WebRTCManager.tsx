@@ -4,17 +4,14 @@
 역할
 1. OpenVidu 세션을 생성하고 관리
 2. 서버에서 세션 ID와 토큰을 가져와 OpenVidu와 연결
-3. 비디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
-4. 비디오 컨트롤 (재생, 정지, 타임라인 이동) 동기화
+3. 오디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
 */
 import { useMicStore } from "@/app/_store/MicStore";
-import { useStreamStore } from "@/app/_store/StreamStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import { OpenVidu, Publisher, Session, Subscriber } from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 /*
-videoStream → 공유할 비디오 스트림 (VideoBlock에서 전달)
 isPlaying → 비디오 재생 상태
 time → 현재 재생 위치
  */
@@ -24,7 +21,6 @@ interface WebRTCManagerProps {
   sessionToken: string;
   userId: number;
   onUserAudioUpdate: (userId: number, stream: MediaStream) => void;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
 }
 
 interface SyncData {
@@ -39,15 +35,12 @@ const WebRTCManager = ({
   sessionToken,
   userId,
   onUserAudioUpdate,
-  videoRef,
 }: WebRTCManagerProps) => {
   const [openVidu, setOpenVidu] = useState<OpenVidu | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
-  const lastSentTime = useRef<number>(0); //마지막으로 time을 전송한 시간
-  const { videoStream } = useStreamStore();
   const { micStatus, setMicStatus } = useMicStore();
 
   useEffect(() => {
@@ -63,7 +56,16 @@ const WebRTCManager = ({
         newSession.on("streamCreated", (event) => {
           console.log("📌 새로운 스트림이 생성됨:", event.stream);
           const subscriber = newSession.subscribe(event.stream, undefined);
+          console.log("🔍 구독한 스트림 정보:", subscriber.stream);
           const mediaStream = subscriber.stream.getMediaStream();
+          console.log("🎵 구독한 미디어 스트림:", mediaStream);
+
+          const audioTracks = mediaStream.getAudioTracks();
+          if (audioTracks.length === 0) {
+            console.warn("⚠️ 구독한 스트림에 오디오 트랙이 없습니다.");
+          } else {
+            console.log("🎤 구독한 오디오 트랙:", audioTracks);
+          }
 
           subscriber.stream
             .getMediaStream()
@@ -87,7 +89,7 @@ const WebRTCManager = ({
               event.streams,
             );
           };
-          onUserAudioUpdate(userId, subscriber.stream.getMediaStream());
+          onUserAudioUpdate(userId, mediaStream);
         });
 
         newSession.on("signal:syncRequest", () => {
@@ -120,6 +122,13 @@ const WebRTCManager = ({
         });
 
         newSession.on("streamDestroyed", (event) => {
+          if (!event.stream || !event.stream.connection) return;
+
+          console.log(
+            "🛑 스트림 제거됨:",
+            event.stream.connection.connectionId,
+          );
+
           setSubscribers((prev) =>
             prev.filter((sub) => sub && sub !== event.stream?.streamManager),
           );
@@ -168,6 +177,7 @@ const WebRTCManager = ({
 
     return () => {
       if (session) {
+        console.log("🔌 세션 종료");
         session.disconnect();
         setSession(null);
       }
@@ -183,7 +193,15 @@ const WebRTCManager = ({
       const audioStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
+      console.log("🎤 마이크 스트림 가져오기 성공:", audioStream);
+
+      if (!audioStream || !audioStream.getAudioTracks().length) {
+        console.error("🚨 오디오 트랙을 찾을 수 없습니다.");
+        return;
+      }
+
       const audioTrack = audioStream.getAudioTracks()[0];
+      console.log("🎵 오디오 트랙 정보:", audioTrack);
 
       const newAudioPublisher = openVidu?.initPublisher(undefined, {
         videoSource: false,
@@ -191,14 +209,18 @@ const WebRTCManager = ({
         publishAudio: true,
       });
 
-      if (newAudioPublisher) {
-        await session.publish(newAudioPublisher);
-
-        setPublisher(newAudioPublisher);
-
-        onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
-        console.log("오디오 스트림 설정 성공: ");
+      if (!newAudioPublisher) {
+        console.error("🚨 오디오 퍼블리셔 생성 실패");
+        return;
       }
+
+      console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
+      await session.publish(newAudioPublisher);
+      console.log("✅ 오디오 퍼블리싱 완료");
+
+      setPublisher(newAudioPublisher);
+      onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
+      console.log("오디오 스트림 설정 성공: ");
     } catch (error) {
       console.error("오디오 스트림 설정 실패: ", error);
     }
@@ -215,8 +237,13 @@ const WebRTCManager = ({
 
   const checkAudioPermissions = async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: true,
+      });
       console.log("🎤 마이크 접근 가능");
+
+      stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
       console.error("🚨 마이크 접근 거부됨:", error);
