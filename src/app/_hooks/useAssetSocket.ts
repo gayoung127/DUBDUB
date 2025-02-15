@@ -72,9 +72,25 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
         const receivedAssets = JSON.parse(message.body);
         console.log("Audio Asset Received:", receivedAssets);
 
+        /*
+        id, tableId, url
+        */
         // 에셋 상태 업데이트
+
+        const newFile: AudioFile = {
+          id: receivedAssets.audioAsset.id,
+          url: receivedAssets.audioAsset.url,
+          startPoint: 0, // 트랙 내에서의 시작 시간
+          duration: 4, // 원본 파일 전체 길이
+          trimStart: 0, // 잘린 시작 부분
+          trimEnd: 0, // 잘린 끝 부분
+          volume: 1, // 볼륨 (0~1)
+          isMuted: false, // 음소거 여부
+          speed: 1, // 재생 속도
+        };
+        console.log("new File = ", newFile);
         setAssets((prevAssets) => {
-          const updatedAssets = [...prevAssets, ...receivedAssets];
+          const updatedAssets = [...prevAssets, newFile];
           return updatedAssets;
         });
       },
