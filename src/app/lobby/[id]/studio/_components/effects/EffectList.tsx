@@ -49,7 +49,12 @@ const EffectList = ({
         return;
       }
 
-      const file = selectedBlock;
+      const file = selectedBlock
+        ? selectedBlock
+        : selectedBlockObj?.selectedAudioFile
+          ? selectedBlockObj.selectedAudioFile
+          : null;
+
       if (!file) {
         console.log("❌ 선택된 오디오 블럭이 없습니다.");
         return;
@@ -134,10 +139,6 @@ const EffectList = ({
       return;
     }
 
-    // 에셋 저장 로직
-    // const blob = await audioBufferToWav(audioBuffer.current);
-    // await postAsset(String(pid), blob);
-    // const url = URL.createObjectURL(blob); //
     const blob = await createBlob(audioBuffer.current);
     const url = await postAsset(String(pid), blob);
 
