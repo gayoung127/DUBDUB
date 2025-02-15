@@ -256,7 +256,7 @@ const AudioTrackTimeline = ({
   // ✅ 드롭 가능하도록 `useDrop` 추가
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "ASSET", // 드래그 가능한 아이템 타입
-    drop: (item: { id: string; url: string }, monitor) => {
+    drop: (item: { id: string; url: string; duration: number }, monitor) => {
       if (!timelineRef.current) return;
 
       // 현재 드롭한 위치를 초 단위로 변환
@@ -278,7 +278,7 @@ const AudioTrackTimeline = ({
                     id: `${item.id}-${Date.now()}`,
                     url: item.url,
                     startPoint,
-                    duration: 5, // 기본 5초 길이
+                    duration: item.duration ?? 5, // 기본 5초 길이
                     trimStart: 0,
                     trimEnd: 0,
                     volume: 1,
