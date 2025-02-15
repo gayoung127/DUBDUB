@@ -81,7 +81,7 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
           id: receivedAssets.audioAsset.id,
           url: receivedAssets.audioAsset.url,
           startPoint: 0, // 트랙 내에서의 시작 시간
-          duration: receivedAssets.audioAsset.url, // 원본 파일 전체 길이
+          duration: receivedAssets.audioAsset.duration, // 원본 파일 전체 길이
           trimStart: 0, // 잘린 시작 부분
           trimEnd: 0, // 잘린 끝 부분
           volume: 1, // 볼륨 (0~1)
