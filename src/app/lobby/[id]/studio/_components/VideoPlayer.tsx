@@ -1,7 +1,7 @@
 import React from "react";
 import PlayBar from "./PlayBar";
 import VideoBlock from "./VideoBlock";
-import { AudioFile, Track } from "@/app/_types/studio";
+import { Asset, AudioFile, Track } from "@/app/_types/studio";
 
 interface VideoPlayerProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -10,7 +10,7 @@ interface VideoPlayerProps {
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
-  assets: AudioFile[];
+  assets: Asset[];
 }
 
 const VideoPlayer = ({

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useStompClient from "@/app/_hooks/useStompClient";
-import { AudioFile } from "@/app/_types/studio";
+import { Asset, AudioFile } from "@/app/_types/studio";
 import { useStompStore } from "../_store/StompStore";
 
 interface UseAssetsSocketProps {
@@ -11,11 +11,12 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
   const { isConnected, stompClientRef } = useStompStore();
   const subscriptionRef = useRef<any>(null);
 
-  const [assets, setAssets] = useState<AudioFile[]>([]);
-  const prevAssetsRef = useRef<AudioFile[]>([]);
+  // const [assets, setAssets] = useState<AudioFile[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const prevAssetsRef = useRef<Asset[]>([]);
 
   // 보냄
-  const sendAsset = (asset: AudioFile) => {
+  const sendAsset = (asset: Asset) => {
     if (!isConnected || !stompClientRef?.connected || !sessionId) {
       if (!isConnected) {
         console.log("send !isConnected");
@@ -77,16 +78,10 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
         */
         // 에셋 상태 업데이트
 
-        const newFile: AudioFile = {
+        const newFile: Asset = {
           id: receivedAssets.audioAsset.id,
           url: receivedAssets.audioAsset.url,
-          startPoint: 0, // 트랙 내에서의 시작 시간
           duration: receivedAssets.audioAsset.duration, // 원본 파일 전체 길이
-          trimStart: 0, // 잘린 시작 부분
-          trimEnd: 0, // 잘린 끝 부분
-          volume: 1, // 볼륨 (0~1)
-          isMuted: false, // 음소거 여부
-          speed: 1, // 재생 속도
         };
         console.log("new File = ", newFile);
         setAssets((prevAssets) => {
