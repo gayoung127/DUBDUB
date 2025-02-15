@@ -11,7 +11,7 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
-import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
+import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import { useUserStore } from "@/app/_store/UserStore";
 import { toast } from "sonner";
 import { postAsset } from "@/app/_apis/studio";
@@ -24,7 +24,7 @@ interface PlayBarProps {
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
-  assets: AudioFile[];
+  assets: Asset[];
 }
 
 const PlayBar = ({

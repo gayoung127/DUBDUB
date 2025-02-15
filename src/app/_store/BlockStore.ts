@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { AudioFile } from "../_types/studio";
+import { Asset, AudioFile } from "../_types/studio";
 
 interface SelectedBlockInfo {
   applyToAll: boolean;
-  selectedAudioFile?: AudioFile | null;
+  selectedAudioFile?: AudioFile | Asset | null;
   trackId?: number | null;
   blockIndex?: number | null;
 }

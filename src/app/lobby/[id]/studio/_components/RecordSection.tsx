@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
+import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
 
 import H4 from "@/app/_components/H4";
 
@@ -22,9 +22,9 @@ interface RecordSectionProps {
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
-  assets: AudioFile[];
-  setAssets: React.Dispatch<React.SetStateAction<AudioFile[]>>;
-  sendAsset: (asset: AudioFile) => void;
+  assets: Asset[];
+  setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
+  sendAsset: (asset: Asset) => void;
 }
 
 const RecordSection = ({

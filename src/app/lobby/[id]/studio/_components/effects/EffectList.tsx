@@ -5,7 +5,7 @@ import H2 from "@/app/_components/H2";
 import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
-import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
+import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
 import { audioBufferToWav } from "@/app/_utils/audioBufferToMp3";
@@ -20,15 +20,15 @@ import { createBlob } from "@/app/_utils/audioUtils";
 interface EffectListProps {
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
-  onUpdateFile: (file: AudioFile | null) => void;
-  audioFiles: AudioFile[] | null;
+  onUpdateFile: (file: Asset | null) => void;
+  assets: Asset[] | null;
 }
 
 const EffectList = ({
   tracks,
   setTracks,
   onUpdateFile,
-  audioFiles,
+  assets,
 }: EffectListProps) => {
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
@@ -99,7 +99,7 @@ const EffectList = ({
       return;
     }
     setVersion(findPossibleVersion(selectedBlock.id));
-  }, [audioFiles]);
+  }, [assets]);
 
   function isSameFile(str1: string, str2: string) {
     return (
@@ -119,7 +119,7 @@ const EffectList = ({
 
   function findPossibleVersion(id: string) {
     let ret = 0;
-    for (const audio of audioFiles!) {
+    for (const audio of assets!) {
       const input = audio.id;
       if (!isSameFile(input, id)) {
         continue;
@@ -196,7 +196,11 @@ const EffectList = ({
       );
     }
     // 파일 추가
-    onUpdateFile(newFile);
+    onUpdateFile({
+      id: newFile.id,
+      url: newFile.url,
+      duration: newFile.duration,
+    });
   }
 
   const effects = [

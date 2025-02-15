@@ -21,6 +21,7 @@ import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
 import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
 import { useAssetsSocket } from "@/app/_hooks/useAssetSocket";
+import { AudioFile, Track } from "@/app/_types/studio";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -52,6 +53,93 @@ export default function StudioPage() {
   if (!studioId) {
     throw new Error("studioId 없음");
   }
+
+  // useEffect(() => {
+  //   const audioFileDummyData: AudioFile[] = [
+  //     {
+  //       id: "audio1",
+  //       url: "https://example.com/audio1.mp3",
+  //       startPoint: 0,
+  //       duration: 120, // 2분
+  //       trimStart: 0,
+  //       trimEnd: 0,
+  //       volume: 1,
+  //       isMuted: false,
+  //       speed: 1,
+  //     },
+  //     {
+  //       id: "audio2",
+  //       url: "https://example.com/audio2.mp3",
+  //       startPoint: 30,
+  //       duration: 90, // 1분 30초
+  //       trimStart: 5,
+  //       trimEnd: 10,
+  //       volume: 0.8,
+  //       isMuted: false,
+  //       speed: 1.5,
+  //     },
+  //     {
+  //       id: "audio3",
+  //       url: "https://example.com/audio3.mp3",
+  //       startPoint: 60,
+  //       duration: 150, // 2분 30초
+  //       trimStart: 10,
+  //       trimEnd: 5,
+  //       volume: 0.5,
+  //       isMuted: true,
+  //       speed: 1,
+  //     },
+  //   ];
+
+  //   // Track 더미 데이터
+  //   const trackDummyData: Track[] = [
+  //     {
+  //       trackId: 1,
+  //       waveColor: "#FF5733", // 빨간색
+  //       blockColor: "#C70039", // 진한 빨간색
+  //       files: [audioFileDummyData[0], audioFileDummyData[1]],
+
+  //       recorderId: 101,
+  //       recorderName: "John Doe",
+  //       recorderRole: "Singer",
+  //       recorderProfileUrl: "https://example.com/profile/john.jpg",
+
+  //       isMuted: false,
+  //       isSolo: true,
+  //     },
+  //     {
+  //       trackId: 2,
+  //       waveColor: "#33FF57", // 초록색
+  //       blockColor: "#39C700", // 진한 초록색
+  //       files: [audioFileDummyData[2]],
+
+  //       recorderId: 102,
+  //       recorderName: "Jane Doe",
+  //       recorderRole: "Guitarist",
+  //       recorderProfileUrl: "https://example.com/profile/jane.jpg",
+
+  //       isMuted: true,
+  //       isSolo: false,
+  //     },
+  //     {
+  //       trackId: 3,
+  //       waveColor: "#3357FF", // 파란색
+  //       blockColor: "#0039C7", // 진한 파란색
+  //       files: [], // 파일 없음 (빈 트랙)
+
+  //       recorderId: 103,
+  //       recorderName: "Chris Smith",
+  //       recorderRole: "Drummer",
+  //       recorderProfileUrl: "https://example.com/profile/chris.jpg",
+
+  //       isMuted: false,
+  //       isSolo: false,
+  //     },
+  //   ];
+
+  //   setTracks(trackDummyData);
+  //   setAssets(audioFileDummyData);
+  // }, []);
 
   // handlePointerMove(): 커서 움직이는 함수
   const handlePointerMove = (e: React.PointerEvent) => {

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd"; // ✅ useDrop 추가
-import { AudioFile, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import { Asset, AudioFile, PX_PER_SECOND, Track } from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import LiveAudioBlock from "./LiveAudioBlock";
@@ -25,9 +25,9 @@ interface AudioTrackTimelineProps {
   audioContext: AudioContext | null;
   audioBuffers: Map<string, AudioBuffer> | null;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
-  assets: AudioFile[];
-  setAssets: React.Dispatch<React.SetStateAction<AudioFile[]>>;
-  sendAsset: (asset: AudioFile) => void;
+  assets: Asset[];
+  setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
+  sendAsset: (asset: Asset) => void;
 }
 
 const AudioTrackTimeline = ({
@@ -192,9 +192,12 @@ const AudioTrackTimeline = ({
               isMuted: isMuted,
               speed: 1,
             };
-            // addAudioFile(createdFile);
-            sendAsset(createdFile);
-            // 여기서 publish 하면 되겟넨용
+
+            sendAsset({
+              id: createdFile.id,
+              url: createdFile.url,
+              duration: createdFile.duration,
+            });
             console.log("새롭게 생성한 파일 = ", createdFile);
             return createdFile;
           }),
