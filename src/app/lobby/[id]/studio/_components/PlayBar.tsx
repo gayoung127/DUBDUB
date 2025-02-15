@@ -11,11 +11,12 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { formatTime } from "@/app/_utils/formatTime";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { useMicStore } from "@/app/_store/MicStore";
-import { initialTracks, Track } from "@/app/_types/studio";
+import { AudioFile, initialTracks, Track } from "@/app/_types/studio";
 import { useUserStore } from "@/app/_store/UserStore";
 import { toast } from "sonner";
 import { postAsset } from "@/app/_apis/studio";
 import { useParams } from "next/navigation";
+import StoreButton from "./StoreButton";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -23,6 +24,7 @@ interface PlayBarProps {
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  assets: AudioFile[];
 }
 
 const PlayBar = ({
@@ -31,6 +33,7 @@ const PlayBar = ({
   setDuration,
   tracks,
   setTracks,
+  assets,
 }: PlayBarProps) => {
   const { time, isPlaying, play, pause, reset } = useTimeStore();
   const {
@@ -226,8 +229,9 @@ const PlayBar = ({
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
       <div className="flex h-full items-center justify-center gap-x-4">
-        <RenderingButton />
         <ShareButton />
+        <RenderingButton />
+        <StoreButton tracks={tracks} assets={assets} />
       </div>
     </section>
   );

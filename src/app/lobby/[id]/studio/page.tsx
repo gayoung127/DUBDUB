@@ -187,6 +187,7 @@ export default function StudioPage() {
                   setDuration={setDuration}
                   tracks={tracks}
                   setTracks={setTracks}
+                  assets={assets}
                 />
               </div>
             </div>
