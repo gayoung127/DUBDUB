@@ -8,5 +8,6 @@ import lombok.Getter;
 public class AudioAsset {
     private String id;
     private long tableId;
+    private float duration;
     private String url;
 }
