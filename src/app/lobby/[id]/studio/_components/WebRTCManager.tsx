@@ -253,6 +253,7 @@ const WebRTCManager = ({
   // 마이크 상태 변경 시 전송
   useEffect(() => {
     if (!session || micStatus[userId] === undefined) return;
+    if (micStatus[userId] === publisher?.stream.audioActive) return;
     handleSendMicstatus(userId, micStatus[userId]);
   }, [session, micStatus, userId]);
 
@@ -278,6 +279,18 @@ const WebRTCManager = ({
         typeof parseData.isMicOn !== "boolean"
       ) {
         console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
+        return;
+      }
+      if (!session?.connection?.connectionId) {
+        console.warn("⚠️ 세션 또는 connection 정보가 없음");
+        return;
+      }
+
+      const myConnectionId: string = session.connection.connectionId;
+      const from = event.from?.connectionId;
+
+      if (from === myConnectionId) {
+        console.log("자신이 보낸 마이크 상태 업데이트는 무시합니다.");
         return;
       }
 
