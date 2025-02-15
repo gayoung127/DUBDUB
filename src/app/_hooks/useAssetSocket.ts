@@ -18,16 +18,18 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
   const sendAsset = (asset: AudioFile) => {
     if (!isConnected || !stompClientRef?.connected || !sessionId) {
       if (!isConnected) {
-        console.log("!isConnected");
+        console.log("send !isConnected");
       }
       if (!stompClientRef?.connected) {
-        console.log("!stompClientRef?.connected");
+        console.log("send !stompClientRef?.connected");
       }
       if (!sessionId) {
-        console.log("!sessionId");
+        console.log("send !sessionId");
       }
       return;
     }
+    console.log("에셋을 보낼 때 연결 설정 완료");
+
     const audioAsset = {
       action: "SAVE",
       audioAsset: asset,
@@ -35,15 +37,24 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
 
     console.log("에셋 publish 데이터 ", audioAsset);
     stompClientRef.publish({
-      destination: `app/studio/${sessionId}/asset`,
+      destination: `/app/studio/${sessionId}/asset`,
       body: JSON.stringify(audioAsset),
     });
+    console.log("에셋 publish 완료");
   };
 
   // ✅ 구독 및 해제 로직
   useEffect(() => {
     if (!isConnected || !stompClientRef?.connected || !sessionId) {
-      console.log("구독에 문제가 생김");
+      if (!isConnected) {
+        console.log("connect !isConnected");
+      }
+      if (!stompClientRef?.connected) {
+        console.log("connect !stompClientRef?.connected");
+      }
+      if (!sessionId) {
+        console.log("connect !sessionId");
+      }
       return;
     }
 
@@ -68,6 +79,8 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
         });
       },
     );
+
+    console.log("구독 후 에셋 상태 ", assets);
 
     // 컴포넌트 언마운트 또는 의존성 변경 시 구독 해제
     return () => {
