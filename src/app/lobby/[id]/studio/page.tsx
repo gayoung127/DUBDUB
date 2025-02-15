@@ -143,6 +143,11 @@ export default function StudioPage() {
 
   // handleUserAudioUpdate(): 사용자 오디오 스트림 업데이트
   const handleUserAudioUpdate = (userId: number, stream: MediaStream) => {
+    console.log(
+      `🎤 [handleUserAudioUpdate] userId: ${userId}, stream:`,
+      stream,
+    );
+
     setUserAudioStreams((prev) => {
       if (prev[userId]) {
         prev[userId].getTracks().forEach((track) => track.stop());
@@ -152,7 +157,7 @@ export default function StudioPage() {
   };
 
   useEffect(() => {
-    console.log("🎵 최신 userAudioStreams 상태:", userAudioStreams);
+    console.log("🎵 [StudioPage] 현재 상태:", userAudioStreams);
   }, [userAudioStreams]); // ✅ 상태 변경 시 로그 출력
 
   return (
