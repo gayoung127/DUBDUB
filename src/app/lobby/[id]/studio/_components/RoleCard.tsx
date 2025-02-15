@@ -90,6 +90,7 @@ const RoleCard = ({
   // 오디오 출력 관리
   useEffect(() => {
     if (audioRef.current && stream) {
+      console.log(`🎵 [RoleCard] userId: ${id}, stream:`, stream);
       if (audioRef.current.srcObject !== stream) {
         if (
           audioRef.current.srcObject &&

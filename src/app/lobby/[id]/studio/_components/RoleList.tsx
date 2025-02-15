@@ -10,6 +10,10 @@ interface RoleListProps {
 
 const RoleList = ({ userAudioStreams, studioMembers }: RoleListProps) => {
   const { self } = useUserStore();
+  console.log(
+    "🎵 [RoleList] 전달되는 userAudioStreams 상태:",
+    userAudioStreams,
+  );
 
   return (
     <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
