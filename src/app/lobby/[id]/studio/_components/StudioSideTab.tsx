@@ -49,6 +49,11 @@ const StudioSideTab = ({
     setActiveTab(tab);
   };
 
+  console.log(
+    "🎵 [StudioSideTab] 전달되는 userAudioStreams 상태:",
+    userAudioStreams,
+  );
+
   return (
     <section className="flex h-full min-h-[471px] w-[280px] flex-col items-start justify-start bg-gray-400">
       <div className="flex h-10 w-full flex-row items-start justify-start">
@@ -78,12 +83,18 @@ const StudioSideTab = ({
         </div>
       </div>
 
-      {activeTab === "role" && (
+      <div
+        className={`h-full w-full ${
+          activeTab === "role"
+            ? "pointer-events-auto h-auto scale-y-100 opacity-100"
+            : "pointer-events-none absolute overflow-hidden opacity-0"
+        }`}
+      >
         <RoleList
           studioMembers={studioMembers}
           userAudioStreams={userAudioStreams}
         />
-      )}
+      </div>
       {activeTab === "asset" && <AssetList audioFiles={assets} />}
       {activeTab === "effect" && (
         <EffectList
