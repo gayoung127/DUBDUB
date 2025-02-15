@@ -1,4 +1,4 @@
-import { AudioFile } from "../_types/studio";
+import { Asset, AudioFile } from "../_types/studio";
 
 interface Users {
   memberId: number | null;
@@ -22,7 +22,7 @@ function getAssetsNum(input: string): number {
 }
 
 export function findPossibleId(
-  audioFiles: AudioFile[] | null,
+  audioFiles: Asset[] | null,
   users: Users[],
   role: string,
 ) {
