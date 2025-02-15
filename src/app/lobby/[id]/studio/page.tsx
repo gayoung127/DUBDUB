@@ -221,6 +221,17 @@ export default function StudioPage() {
           setSessionId(data.session.trim());
           setSessionToken(data.token.trim());
         }
+
+        if (data.workSpaceData) {
+          console.log(
+            "워크스페이스 트랙 및 에셋 정보 : ",
+            data.workSpaceData.tracks,
+            ", ",
+            data.workSpaceData.assets,
+          );
+          setTracks(data.workSpaceData.tracks);
+          setAssets(data.workSpaceData.assets);
+        }
       } catch (error) {
         console.error("❌ 스튜디오 정보 가져오기 실패:", error);
       }
