@@ -80,7 +80,7 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
       },
     );
 
-    console.log("구독 후 에셋 상태 ", assets);
+    console.log("구독 후 에셋 상태 =", assets);
 
     // 컴포넌트 언마운트 또는 의존성 변경 시 구독 해제
     return () => {
