@@ -75,7 +75,9 @@ const WebRTCManager = ({
         openViduRef.current = new OpenVidu();
 
         const newSession = openViduRef.current.initSession();
-        setSession(newSession);
+
+        await newSession.connect(sessionToken);
+        console.log("✅ OpenVidu 세션에 연결됨");
 
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
@@ -83,16 +85,13 @@ const WebRTCManager = ({
           return;
         }
 
-        await newSession.connect(sessionToken);
-        console.log("✅ OpenVidu 세션에 연결됨");
-
-        setSession(newSession);
-
         newSession.on("streamCreated", handleStreamCreated);
         newSession.on("streamDestroyed", handleStreamDestroyed);
         newSession.on("signal:syncRequest", handleSyncRequest);
         newSession.on("signal:syncResponse", handleSyncResponse);
         newSession.on("signal:mic-status", handleMicStatusSignal);
+
+        setSession(newSession);
 
         if (newSession.connection) {
           await publishAudioStream(newSession);
