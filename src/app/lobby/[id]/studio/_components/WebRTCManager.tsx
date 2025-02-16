@@ -56,6 +56,7 @@ const WebRTCManager = ({ sessionId, token }: WebRTCManagerProps) => {
       // ✅ 새로운 오디오 스트림이 생성될 때 감지
       newSession.on("streamCreated", (event: any) => {
         const subscriber = newSession.subscribe(event.stream, undefined);
+        subscriber.subscribeToAudio(true); // 🔊 오디오 수신 활성화
         setSubscribers((prev) => [...prev, subscriber]);
       });
 
@@ -92,11 +93,27 @@ const WebRTCManager = ({ sessionId, token }: WebRTCManagerProps) => {
     };
   }, [sessionId, token]);
 
+  const playAudio = () => {
+    subscribers.forEach((sub) => {
+      const audioTrack = sub.stream.getMediaStream().getAudioTracks()[0];
+      if (audioTrack) {
+        const audio = new Audio();
+        audio.srcObject = new MediaStream([audioTrack]);
+        audio.play().catch((error) => console.error("오디오 재생 실패", error));
+      }
+    });
+  };
+
   return (
     <div className="rounded-lg border bg-gray-100 p-4">
       <h2 className="mb-2 text-lg font-bold">음성 채팅</h2>
       {publisher ? <p>음성 송출 중...</p> : <p>연결 중...</p>}
-
+      <button
+        onClick={playAudio}
+        className="text-white mt-4 rounded bg-blue-500 p-2"
+      >
+        🔊 소리 재생
+      </button>
       {/* ✅ 현재 접속한 참가자 목록 */}
       <h3 className="mt-4 font-semibold">참가자 목록</h3>
       <ul>
