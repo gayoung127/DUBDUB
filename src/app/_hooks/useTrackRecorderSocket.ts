@@ -1,71 +1,67 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useStompStore } from "../_store/StompStore";
 import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useUserStore } from "../_store/UserStore";
 import { Track } from "../_types/studio";
 
 export const useTrackRecorders = (
+  trackId: number,
+  recorderId: number | undefined, // recorderId는 undefined일 수 있으므로 타입에 반영
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>,
 ) => {
   const { sessionId } = useSessionIdStore();
   const { stompClientRef, isConnected } = useStompStore();
   const { studioMembers } = useUserStore();
 
-  // `stompClientRef` 상태를 추적할 useState 추가
-  const [clientConnected, setClientConnected] = useState<boolean>(isConnected);
+  const subscriptionRef = useRef<any>(null); // 구독을 추적하는 ref
 
   // sendTrackRecorder(): 트랙 점유자 전송
   const sendTrackRecorder = (trackId: string, recorderId: string) => {
-    if (!isConnected || !stompClientRef?.connected) return;
+    if (!isConnected || !stompClientRef?.connected) {
+      console.log("❌ STOMP 연결이 안 되어 있음. 메시지 전송 불가.");
+      return;
+    }
 
-    const trackRecorder = {
-      trackId: trackId,
-      recorderId: recorderId,
-    };
+    const trackRecorder = { trackId, recorderId };
 
-    // 트랙 점유자 객체 확인
-    console.log("트랙 점유자 전송 준비:", trackRecorder);
+    console.log("📤 트랙 점유자 전송 준비:", trackRecorder);
 
     stompClientRef.publish({
       destination: `/app/studio/${sessionId}/track/recorder`,
       body: JSON.stringify(trackRecorder),
     });
 
-    // 메시지 전송 후 확인
-    console.log("트랙 점유자 전송 완료:", trackRecorder);
+    console.log("✅ 트랙 점유자 전송 완료:", trackRecorder);
   };
 
-  // useEffect(): 트랙 점유자 목록 구독
+  // useEffect(): 트랙 점유자 목록 구독 및 트랙 상태에 따른 전송
   useEffect(() => {
-    // STOMP 연결 상태가 변경될 때마다 상태를 업데이트
-    if (isConnected !== clientConnected) {
-      setClientConnected(isConnected);
-    }
-
-    // stompClient 연결이 되어 있는지 확인
-    if (!stompClientRef || !stompClientRef?.connected || !isConnected) {
-      console.log("트랙 점유 구독 소켓: STOMP 연결되지 않음");
+    if (
+      !stompClientRef ||
+      !stompClientRef.connected ||
+      !isConnected ||
+      !sessionId
+    ) {
+      console.log("⚠️ 트랙 점유 구독 소켓: STOMP 연결되지 않음");
       return;
     }
 
-    // sessionId가 유효한지 확인
-    if (!sessionId) {
-      console.error("트랙 점유 구독 소켓: Session ID가 없습니다.");
-      return;
+    console.log("✅ 트랙 점유 구독 시작");
+
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      console.log("📴 기존 구독 해제");
     }
 
-    console.log("혹시 트랙 점유 구독이 안 되는거냐?");
-
-    // 구독 시작
-    const subscription = stompClientRef.subscribe(
+    subscriptionRef.current = stompClientRef.subscribe(
       `/topic/studio/${sessionId}/track/recorder`,
       (message) => {
         try {
           const data = JSON.parse(message.body);
-          console.log("트랙 점유 구독 소켓: 받은 데이터:", data);
+          console.log("📥 트랙 점유 구독 소켓: 받은 데이터:", data);
 
           const member = studioMembers.find(
-            (member) => member.memberId === data.recorderId,
+            (m) => m.memberId === data.recorderId,
           );
 
           if (member) {
@@ -76,38 +72,65 @@ export const useTrackRecorders = (
               recorderProfileUrl: member.profileUrl ?? undefined,
             };
 
-            setTracks((prevTracks) =>
-              prevTracks.map((track) =>
+            setTracks((prevTracks) => {
+              // 🚨 중복 체크: 동일한 트랙 점유자가 이미 존재하면 업데이트 안 함
+              const existingTrack = prevTracks.find(
+                (t) => t.trackId === data.trackId,
+              );
+              if (
+                existingTrack &&
+                existingTrack.recorderId === updatedTrack.recorderId &&
+                existingTrack.recorderName === updatedTrack.recorderName &&
+                existingTrack.recorderRole === updatedTrack.recorderRole &&
+                existingTrack.recorderProfileUrl ===
+                  updatedTrack.recorderProfileUrl
+              ) {
+                console.log(
+                  "⚠️ 트랙 점유 구독 소켓: 동일한 데이터라 업데이트 건너뜀",
+                );
+                return prevTracks; // 변경 없이 그대로 반환
+              }
+
+              // 변경이 있을 경우만 업데이트 진행
+              return prevTracks.map((track) =>
                 track.trackId === data.trackId
                   ? { ...track, ...updatedTrack }
                   : track,
-              ),
-            );
+              );
+            });
 
             console.log(
-              "트랙 점유 구독 소켓: 업데이트된 트랙 정보:",
+              "🔄 트랙 점유 구독 소켓: 업데이트된 트랙 정보:",
               updatedTrack,
             );
           } else {
             console.log(
-              "트랙 점유 구독 소켓: 멤버를 찾을 수 없음:",
+              "⚠️ 트랙 점유 구독 소켓: 멤버를 찾을 수 없음",
               data.recorderId,
             );
           }
         } catch (error) {
-          console.error(
-            "트랙 점유 구독 소켓: 트랙 점유자 데이터 처리 오류:",
-            error,
-          );
+          console.error("❌ 트랙 점유 구독 소켓: 데이터 처리 오류:", error);
         }
       },
     );
 
-    // 구독 종료 시 처리
     return () => {
-      subscription.unsubscribe();
+      subscriptionRef.current.unsubscribe();
+      console.log("📴 트랙 점유 구독 소켓: 구독 해제");
     };
-  }, [clientConnected, stompClientRef, sessionId, studioMembers, setTracks]);
+  }, [isConnected, sessionId, stompClientRef, studioMembers, setTracks]);
+
+  // 트랙 상태 변경 시 자동으로 서버로 전송
+  useEffect(() => {
+    if (recorderId !== undefined) {
+      const currentTrack = studioMembers.find((m) => m.memberId === recorderId);
+
+      if (currentTrack && currentTrack.memberId) {
+        sendTrackRecorder(trackId.toString(), currentTrack.memberId.toString());
+      }
+    }
+  }, [trackId, recorderId, studioMembers]);
 
   return { sendTrackRecorder };
 };
