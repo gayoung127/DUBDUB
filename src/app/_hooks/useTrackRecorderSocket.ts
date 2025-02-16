@@ -61,7 +61,7 @@ export const useTrackRecorders = (
           console.log("📥 트랙 점유 구독 소켓: 받은 데이터:", data);
 
           const member = studioMembers.find(
-            (m) => m.memberId === data.recorderId,
+            (m) => m.memberId === Number(data.recorderId),
           );
 
           if (member) {
@@ -75,11 +75,11 @@ export const useTrackRecorders = (
             setTracks((prevTracks) => {
               // 🚨 중복 체크: 동일한 트랙 점유자가 이미 존재하면 업데이트 안 함
               const existingTrack = prevTracks.find(
-                (t) => t.trackId === data.trackId,
+                (t) => t.trackId === Number(data.trackId),
               );
               if (
                 existingTrack &&
-                existingTrack.recorderId === updatedTrack.recorderId &&
+                existingTrack.recorderId == updatedTrack.recorderId &&
                 existingTrack.recorderName === updatedTrack.recorderName &&
                 existingTrack.recorderRole === updatedTrack.recorderRole &&
                 existingTrack.recorderProfileUrl ===
@@ -93,7 +93,7 @@ export const useTrackRecorders = (
 
               // 변경이 있을 경우만 업데이트 진행
               return prevTracks.map((track) =>
-                track.trackId === data.trackId
+                track.trackId === Number(data.trackId)
                   ? { ...track, ...updatedTrack }
                   : track,
               );

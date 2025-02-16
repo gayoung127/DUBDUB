@@ -45,12 +45,10 @@ export const usePlaySocket = () => {
         const playbackStatus: PlaybackStatus = JSON.parse(message.body);
         console.log("📥 재생 상태 수신:", playbackStatus);
 
-        // 🎤 녹음 관련 (소켓에서 받은 `isRecording` 값만 업데이트)
         if (playbackStatus.isRecording !== undefined) {
           setIsRecording(playbackStatus.isRecording);
         }
 
-        // 🎵 재생 관련
         switch (playbackStatus.playState) {
           case "PLAY":
             play();
