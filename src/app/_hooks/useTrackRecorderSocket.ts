@@ -46,6 +46,8 @@ export const useTrackRecorders = (
       return;
     }
 
+    console.log("혹시 트랙 점유 구독이 안 되는거냐?");
+
     // 구독 시작
     const subscription = stompClientRef.subscribe(
       `/topic/studio/${sessionId}/track/recorder`,
