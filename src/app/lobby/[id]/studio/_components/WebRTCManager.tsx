@@ -157,6 +157,13 @@ const WebRTCManager = ({
         return;
       }
 
+      newAudioPublisher.stream
+        .getMediaStream()
+        .getAudioTracks()
+        .forEach((track) => {
+          track.enabled = true;
+        });
+
       console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
       console.log("✅ 오디오 퍼블리싱 완료");
