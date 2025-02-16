@@ -146,7 +146,7 @@ const RoleCard = ({
         <div className="flex items-center gap-x-3">
           <H4 className="text-white-100">{name}</H4>
           <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
-          <audio ref={audioRef} />
+          <audio ref={audioRef} autoPlay muted />
         </div>
         <button
           onClick={handleToggleMic}

@@ -77,12 +77,6 @@ const WebRTCManager = ({
         const newSession = openViduRef.current.initSession();
         setSession(newSession);
 
-        newSession.on("streamCreated", handleStreamCreated);
-        newSession.on("streamDestroyed", handleStreamDestroyed);
-        newSession.on("signal:syncRequest", handleSyncRequest);
-        newSession.on("signal:syncResponse", handleSyncResponse);
-        newSession.on("signal:mic-status", handleMicStatusSignal);
-
         const hasPermissions = await checkAudioPermissions();
         if (!hasPermissions) {
           toast.warning("마이크 권한이 필요합니다.");
@@ -93,6 +87,12 @@ const WebRTCManager = ({
         console.log("✅ OpenVidu 세션에 연결됨");
 
         setSession(newSession);
+
+        newSession.on("streamCreated", handleStreamCreated);
+        newSession.on("streamDestroyed", handleStreamDestroyed);
+        newSession.on("signal:syncRequest", handleSyncRequest);
+        newSession.on("signal:syncResponse", handleSyncResponse);
+        newSession.on("signal:mic-status", handleMicStatusSignal);
 
         if (newSession.connection) {
           await publishAudioStream(newSession);
