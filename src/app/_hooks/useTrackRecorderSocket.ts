@@ -5,10 +5,10 @@ import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useUserStore } from "../_store/UserStore";
 import { Track } from "../_types/studio";
 
-interface TrackRecorderData {
-  trackId: number;
-  recorderId: number;
-}
+// interface TrackRecorderData {
+//   trackId: number;
+//   recorderId: number;
+// }
 
 export const useTrackRecorders = (
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>,
@@ -38,7 +38,7 @@ export const useTrackRecorders = (
       `/topic/studio/${sessionId}/track/recorder`,
       (message) => {
         try {
-          const data: TrackRecorderData = JSON.parse(message.body);
+          const data = JSON.parse(message.body);
           const member = studioMembers.find(
             (member) => member.memberId === data.recorderId,
           );
@@ -59,9 +59,9 @@ export const useTrackRecorders = (
               ),
             );
 
-            console.log("소켓에서 불러온 데이터: ", data);
             console.log("잘 되냐: ", updatedTrack);
           }
+          console.log("소켓에서 불러온 데이터: ", data);
         } catch (error) {
           console.log("트랙 점유자 데이터 처리 오류: ", error);
         }
