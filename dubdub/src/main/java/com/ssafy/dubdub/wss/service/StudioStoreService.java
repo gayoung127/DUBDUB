@@ -18,7 +18,7 @@ public interface StudioStoreService {
 
     Optional<List<TrackRecorder>> getTrackRecorderList(String sessionId);
     TrackRecorder saveTrackRecorder(String sessionId, TrackRecorder trackRecorder);
-    void deleteTrackRecorder(String sessionId, String trackRecorderId);
+    void deleteTrackRecorder(String sessionId, String trackId);
 
     Optional<List<TrackFile>> getTrackFileList(String sessionId);
     TrackFile saveTrackFile(String sessionId, TrackFile trackFile);

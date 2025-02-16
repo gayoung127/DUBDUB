@@ -3,7 +3,6 @@ package com.ssafy.dubdub.wss.service;
 import com.ssafy.dubdub.wss.dto.AudioAsset;
 import com.ssafy.dubdub.wss.dto.TrackFile;
 import com.ssafy.dubdub.wss.dto.TrackRecorder;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,9 +49,9 @@ public class StudioMemoryStoreServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public void deleteTrackRecorder(String sessionId, String trackRecorderId) {
+    public void deleteTrackRecorder(String sessionId, String trackId) {
         Optional.ofNullable(trackRecorderMap.get(sessionId))
-                .ifPresent(recorders -> recorders.remove(trackRecorderId));
+                .ifPresent(recorders -> recorders.remove(trackId));
     }
 
     @Override
