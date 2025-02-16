@@ -81,7 +81,7 @@ const WebRTCManager = ({
         newSession.on("streamDestroyed", handleStreamDestroyed);
         newSession.on("signal:mic-status", handleMicStatusSignal);
 
-        await newSession.connect(sessionToken);
+        await newSession.connect(sessionToken, JSON.stringify({ userId }));
         console.log("✅ OpenVidu 세션에 연결됨");
 
         const hasPermissions = await checkAudioPermissions();
@@ -204,7 +204,8 @@ const WebRTCManager = ({
 
       setSubscribers((prev) => [...prev, subscriber]);
 
-      const remoteUserId = parseInt(event.stream.connection.data.split('"')[3]);
+      const connectionData = JSON.parse(event.stream.connection.data);
+      const remoteUserId = connectionData.userId;
       onUserAudioUpdate(remoteUserId, mediaStream);
     } catch (error) {}
   };
