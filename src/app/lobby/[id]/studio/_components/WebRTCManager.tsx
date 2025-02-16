@@ -157,12 +157,20 @@ const WebRTCManager = ({
         return;
       }
 
-      newAudioPublisher.stream
-        .getMediaStream()
-        .getAudioTracks()
-        .forEach((track) => {
-          track.enabled = true;
+      newAudioPublisher.on("streamCreated", (event) => {
+        const mediaStream = event.stream.getMediaStream();
+        console.log(
+          "🎤 [streamCreated] 이벤트 발생, 오디오 트랙 확인:",
+          mediaStream,
+        );
+
+        mediaStream.getAudioTracks().forEach((track) => {
+          track.enabled = true; // 트랙 활성화
+          console.log(`🎤 트랙 활성화: ${track.enabled}`);
         });
+
+        onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
+      });
 
       console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
@@ -173,8 +181,6 @@ const WebRTCManager = ({
       );
 
       setPublisher(newAudioPublisher);
-
-      onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
       console.log("오디오 스트림 설정 성공: ");
     } catch (error) {
       console.error("오디오 스트림 설정 실패: ", error);
