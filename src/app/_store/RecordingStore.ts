@@ -14,6 +14,7 @@ interface RecordingStore {
   createAudioFile: (trackId: number, url: string, startPoint: number) => void;
   startRecording: (trackId: number) => void;
   stopRecording: () => void;
+  setIsRecording: (isRecording: boolean) => void; // 🔥 `isRecording`을 직접 설정할 수 있는 함수 추가
   setMediaRecorder: (recorder: MediaRecorder | null) => void;
   setAudioContext: (audioContext: AudioContext | null) => void;
   setAnalyser: (analyser: AnalyserNode | null) => void;
@@ -47,7 +48,9 @@ export const useRecordingStore = create<RecordingStore>((set) => ({
     }),
   startRecording: (trackId: number) =>
     set({ isRecording: true, currentRecordingTrackId: trackId }),
-  stopRecording: () => set({ isRecording: false }),
+  stopRecording: () =>
+    set({ isRecording: false, currentRecordingTrackId: null }),
+  setIsRecording: (isRecording: boolean) => set({ isRecording }), // 🔥 소켓에서 받은 `isRecording`을 설정하는 함수 추가
   setMediaRecorder: (recorder) => set({ mediaRecorder: recorder }),
   setAudioContext: (ctx) => set({ audioContext: ctx }),
   setAnalyser: (analyser) => set({ analyser }),
