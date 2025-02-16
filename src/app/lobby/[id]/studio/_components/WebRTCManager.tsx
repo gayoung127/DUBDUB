@@ -30,12 +30,6 @@ interface WebRTCManagerProps {
   onUserAudioUpdate: (userId: number, stream: MediaStream) => void;
 }
 
-interface SyncData {
-  type?: "play" | "pause" | "seek";
-  isPlaying?: boolean;
-  time?: number;
-}
-
 const WebRTCManager = ({
   studioId,
   sessionId,
@@ -48,8 +42,12 @@ const WebRTCManager = ({
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const { isPlaying, play, pause, time, setTimeFromPx } = useTimeStore();
   const { micStatus, setMicStatus } = useMicStore();
+
+  useEffect(() => {
+    if (session) sessionRef.current = session;
+    console.log("🎧 현재 구독 중인 스트림:", subscribers);
+  }, [session, subscribers]);
 
   // 마이크 접근 권한 확인
   const checkAudioPermissions = async () => {
@@ -81,8 +79,6 @@ const WebRTCManager = ({
 
         newSession.on("streamCreated", handleStreamCreated);
         newSession.on("streamDestroyed", handleStreamDestroyed);
-        newSession.on("signal:syncRequest", handleSyncRequest);
-        newSession.on("signal:syncResponse", handleSyncResponse);
         newSession.on("signal:mic-status", handleMicStatusSignal);
 
         await newSession.connect(sessionToken);
@@ -96,7 +92,6 @@ const WebRTCManager = ({
 
         if (newSession.connection) {
           await publishAudioStream(newSession);
-          await newSession.signal({ type: "syncRequest" });
 
           newSession.remoteConnections.forEach((connection) => {
             if (connection.stream) {
@@ -118,13 +113,11 @@ const WebRTCManager = ({
     return () => {
       console.log("🔌 세션 종료");
 
-      if (session) {
-        session.off("streamCreated", handleStreamCreated);
-        session.off("streamDestroyed", handleStreamDestroyed);
-        session.off("signal:syncRequest", handleSyncRequest);
-        session.off("signal:syncResponse", handleSyncResponse);
-        session.off("signal:mic-status", handleMicStatusSignal);
-        session.disconnect();
+      if (sessionRef.current) {
+        sessionRef.current.off("streamCreated", handleStreamCreated);
+        sessionRef.current.off("streamDestroyed", handleStreamDestroyed);
+        sessionRef.current.off("signal:mic-status", handleMicStatusSignal);
+        sessionRef.current.disconnect();
       }
 
       setTimeout(() => {
@@ -132,7 +125,6 @@ const WebRTCManager = ({
       }, 100);
       setPublisher(null);
       openViduRef.current = null;
-      sessionRef.current = null;
     };
   }, [sessionToken]);
 
@@ -154,12 +146,9 @@ const WebRTCManager = ({
         return;
       }
 
-      const audioTrack = audioStream.getAudioTracks()[0];
-      console.log("🎵 오디오 트랙 정보:", audioTrack);
-
       const newAudioPublisher = session.openvidu.initPublisher(undefined, {
         videoSource: false,
-        audioSource: audioTrack,
+        audioSource: undefined,
         publishAudio: true,
       });
 
@@ -167,11 +156,6 @@ const WebRTCManager = ({
         console.error("🚨 오디오 퍼블리셔 생성 실패");
         return;
       }
-
-      const testTracks = newAudioPublisher.stream
-        .getMediaStream()
-        .getAudioTracks();
-      console.log("🎧 퍼블리셔 오디오 트랙 개수:", testTracks.length);
 
       console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
@@ -234,41 +218,16 @@ const WebRTCManager = ({
     setSubscribers((prev) => prev.filter((sub) => sub.stream !== event.stream));
   };
 
-  // syncRequest 수신 시 동기화
-  const handleSyncRequest = async () => {
-    if (session && session.connection) {
-      await session.signal({
-        type: "syncRequest",
-        data: JSON.stringify({ isPlaying, time }),
-      });
-    }
-  };
-
-  // syncResponse 수신 시 상태 동기화
-  const handleSyncResponse = (event: SignalEvent) => {
-    if (!event.data) {
-      console.warn("⚠️ syncResponse 이벤트에 데이터가 없음");
+  // 마이크 상태 전송
+  const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
+    if (!sessionRef.current) {
+      console.warn(
+        "⚠️ [handleSendMicstatus] 세션이 존재하지 않아 신호를 보낼 수 없습니다.",
+      );
       return;
     }
 
-    try {
-      const data: SyncData = JSON.parse(event.data);
-
-      if (typeof data.isPlaying === "boolean") {
-        data.isPlaying ? play() : pause();
-      }
-      if (typeof data.time === "number") {
-        setTimeFromPx(data.time);
-      }
-    } catch (error) {
-      console.error("🚨 syncResponse 데이터 파싱 오류:", error);
-    }
-  };
-
-  // 마이크 상태 전송
-  const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
-    if (!session) return;
-    session
+    sessionRef.current
       .signal({
         type: "mic-status",
         data: JSON.stringify({ userId, isMicOn }),
@@ -278,10 +237,13 @@ const WebRTCManager = ({
 
   // 마이크 상태 변경 시 전송
   useEffect(() => {
-    if (!session || micStatus[userId] === undefined) return;
+    if (!sessionRef.current || micStatus[userId] === undefined) return;
     if (micStatus[userId] === publisher?.stream.audioActive) return;
+    console.log(
+      `📡 [handleSendMicstatus] 내 마이크 상태 변경 전송: ${micStatus[userId]}`,
+    );
     handleSendMicstatus(userId, micStatus[userId]);
-  }, [session, micStatus, userId]);
+  }, [micStatus[userId]]);
 
   // 퍼블리셔의 오디오 상태 관리
   useEffect(() => {
@@ -311,8 +273,19 @@ const WebRTCManager = ({
 
   // mic-status 신호 수신
   const handleMicStatusSignal = (event: SignalEvent) => {
-    if (!session || !session.connection) {
-      console.warn("⚠️ [handleMicStatusSignal] 세션 또는 커넥션 정보 없음");
+    if (!sessionRef.current) {
+      console.warn(
+        "⚠️ [handleMicStatusSignal] 세션 정보가 없음. 세션을 다시 초기화해야 합니다.",
+      );
+      return;
+    }
+
+    const currentSession = sessionRef.current;
+
+    if (!currentSession.connection) {
+      console.warn(
+        "⚠️ [handleMicStatusSignal] 세션은 존재하지만, 연결 정보가 없습니다.",
+      );
       return;
     }
 
@@ -323,6 +296,9 @@ const WebRTCManager = ({
 
     try {
       const parseData = JSON.parse(event.data);
+      console.log(
+        `🎤 [handleMicStatusSignal] userId: ${parseData.userId}, isMicOn: ${parseData.isMicOn}`,
+      );
 
       if (
         typeof parseData.userId !== "number" ||
@@ -332,20 +308,7 @@ const WebRTCManager = ({
         return;
       }
 
-      const myConnectionId: string = session.connection.connectionId;
-      const from = event.from?.connectionId;
-
-      if (from === myConnectionId) {
-        console.log("자신이 보낸 마이크 상태 업데이트는 무시합니다.");
-        return;
-      }
-
-      if (
-        parseData.userId !== userId &&
-        micStatus[parseData.userId] !== parseData.isMicOn
-      ) {
-        setMicStatus(parseData.userId, parseData.isMicOn);
-      }
+      setMicStatus(parseData.userId, parseData.isMicOn);
     } catch (error) {
       console.error("🚨 mic-status 데이터 파싱 오류:", error);
     }
