@@ -19,7 +19,7 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
 
     @Override
     public Optional<List<AudioAsset>> getAssetList(String sessionId) {
-        String pattern = "studio:" + sessionId + ":audio:*";
+        String pattern = generatePattern(sessionId, "audio");
         Set<String> keys = redisTemplate.keys(pattern);
         if (keys == null || keys.isEmpty()) return Optional.empty();
 
@@ -44,7 +44,7 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
 
     @Override
     public Optional<List<TrackRecorder>> getTrackRecorderList(String sessionId) {
-        String pattern = "studio:" + sessionId + ":audio:*";
+        String pattern = generatePattern(sessionId, "recorder");
         Set<String> keys = redisTemplate.keys(pattern);
         if (keys == null || keys.isEmpty()) return Optional.empty();
 
@@ -82,7 +82,7 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
 
     @Override
     public Optional<List<TrackFile>> getTrackFileList(String sessionId) {
-        String pattern = "studio:" + sessionId + ":track:*";
+        String pattern = generatePattern(sessionId, "track");
         Set<String> keys = redisTemplate.keys(pattern);
         if (keys == null || keys.isEmpty()) return Optional.empty();
 
@@ -99,5 +99,9 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
 
     private String generateRedisKey(String sessionId, String type, String id) {
         return "studio:" + sessionId + ":" + type + ":" + id;
+    }
+
+    private String generatePattern(String sessionId, String type) {
+        return "studio:" + sessionId + ":" + type + ":*";
     }
 }
