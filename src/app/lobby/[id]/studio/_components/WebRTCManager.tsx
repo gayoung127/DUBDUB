@@ -190,23 +190,28 @@ const WebRTCManager = ({
         return;
       }
 
-      const mediaStream = subscriber.stream.getMediaStream();
-      console.log("🎵 구독한 미디어 스트림:", mediaStream);
+      subscriber.on("streamPlaying", () => {
+        console.log(
+          "스트림이 재생됨. ICE Candidate가 아마 connected 또는 complete 상태일 것",
+        );
+        const mediaStream = subscriber.stream.getMediaStream();
+        console.log("🎵 구독한 미디어 스트림:", mediaStream);
 
-      if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
-        console.warn("⚠️ 유효한 오디오 트랙이 없음");
-        return;
-      }
+        if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+          console.warn("⚠️ 유효한 오디오 트랙이 없음");
+          return;
+        }
 
-      mediaStream.getAudioTracks().forEach((track) => {
-        track.enabled = true;
+        mediaStream.getAudioTracks().forEach((track) => {
+          track.enabled = true;
+        });
+
+        setSubscribers((prev) => [...prev, subscriber]);
+
+        const connectionData = JSON.parse(event.stream.connection.data);
+        const remoteUserId = connectionData.userId;
+        onUserAudioUpdate(remoteUserId, mediaStream);
       });
-
-      setSubscribers((prev) => [...prev, subscriber]);
-
-      const connectionData = JSON.parse(event.stream.connection.data);
-      const remoteUserId = connectionData.userId;
-      onUserAudioUpdate(remoteUserId, mediaStream);
     } catch (error) {}
   };
 
@@ -302,9 +307,6 @@ const WebRTCManager = ({
 
     try {
       const parseData = JSON.parse(event.data);
-      console.log(
-        `🎤 [handleMicStatusSignal] userId: ${parseData.userId}, isMicOn: ${parseData.isMicOn}`,
-      );
 
       if (
         typeof parseData.userId !== "number" ||
@@ -313,7 +315,10 @@ const WebRTCManager = ({
         console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
         return;
       }
-
+      if (micStatus[parseData.userId] === parseData.isMicOn) {
+        console.log(`⚠️ [handleMicStatusSignal] 동일 상태 - 변경 없음`);
+        return;
+      }
       setMicStatus(parseData.userId, parseData.isMicOn);
     } catch (error) {
       console.error("🚨 mic-status 데이터 파싱 오류:", error);
