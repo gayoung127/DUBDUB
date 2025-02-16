@@ -157,6 +157,21 @@ const WebRTCManager = ({
         return;
       }
 
+      newAudioPublisher.on("streamCreated", (event) => {
+        const mediaStream = event.stream.getMediaStream();
+        console.log(
+          "🎤 [streamCreated] 이벤트 발생, 오디오 트랙 확인:",
+          mediaStream,
+        );
+
+        mediaStream.getAudioTracks().forEach((track) => {
+          track.enabled = true; // 트랙 활성화
+          console.log(`🎤 트랙 활성화: ${track.enabled}`);
+        });
+
+        onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
+      });
+
       console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
       console.log("✅ 오디오 퍼블리싱 완료");
@@ -166,8 +181,6 @@ const WebRTCManager = ({
       );
 
       setPublisher(newAudioPublisher);
-
-      onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
       console.log("오디오 스트림 설정 성공: ");
     } catch (error) {
       console.error("오디오 스트림 설정 실패: ", error);
@@ -190,23 +203,55 @@ const WebRTCManager = ({
         return;
       }
 
-      const mediaStream = subscriber.stream.getMediaStream();
-      console.log("🎵 구독한 미디어 스트림:", mediaStream);
-
-      if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
-        console.warn("⚠️ 유효한 오디오 트랙이 없음");
-        return;
-      }
-
-      mediaStream.getAudioTracks().forEach((track) => {
-        track.enabled = true;
+      subscriber.on("streamPlaying", () => {
+        console.log(
+          "스트림이 재생됨. ICE Candidate가 아마 connected 또는 complete 상태일 것",
+        );
+        handleStreamPlaying();
       });
 
-      setSubscribers((prev) => [...prev, subscriber]);
+      const peerConnection = subscriber.stream.getRTCPeerConnection();
 
-      const connectionData = JSON.parse(event.stream.connection.data);
-      const remoteUserId = connectionData.userId;
-      onUserAudioUpdate(remoteUserId, mediaStream);
+      if (peerConnection) {
+        console.log("🧊 ICE 상태 확인 시작...");
+        peerConnection.addEventListener("iceconnectionstatechange", () => {
+          console.log(
+            `🔍 ICE 상태 변경됨: ${peerConnection.iceConnectionState}`,
+          );
+        });
+      }
+
+      // 1초 후에도 `streamPlaying`이 실행되지 않으면 강제로 실행
+      setTimeout(() => {
+        if (peerConnection) {
+          console.log(
+            `⏳ 1초 후 ICE 상태: ${peerConnection.iceConnectionState}`,
+          );
+        }
+
+        console.log("⏳ 1초 동안 `streamPlaying`이 실행되지 않아 강제 실행");
+        handleStreamPlaying();
+      }, 1000);
+
+      const handleStreamPlaying = () => {
+        const mediaStream = subscriber.stream.getMediaStream();
+        console.log("🎵 구독한 미디어 스트림:", mediaStream);
+
+        if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+          console.warn("⚠️ 유효한 오디오 트랙이 없음");
+          return;
+        }
+
+        mediaStream.getAudioTracks().forEach((track) => {
+          track.enabled = true;
+        });
+
+        setSubscribers((prev) => [...prev, subscriber]);
+
+        const connectionData = JSON.parse(event.stream.connection.data);
+        const remoteUserId = connectionData.userId;
+        onUserAudioUpdate(remoteUserId, mediaStream);
+      };
     } catch (error) {}
   };
 
@@ -302,9 +347,6 @@ const WebRTCManager = ({
 
     try {
       const parseData = JSON.parse(event.data);
-      console.log(
-        `🎤 [handleMicStatusSignal] userId: ${parseData.userId}, isMicOn: ${parseData.isMicOn}`,
-      );
 
       if (
         typeof parseData.userId !== "number" ||
@@ -313,7 +355,10 @@ const WebRTCManager = ({
         console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
         return;
       }
-
+      if (micStatus[parseData.userId] === parseData.isMicOn) {
+        console.log(`⚠️ [handleMicStatusSignal] 동일 상태 - 변경 없음`);
+        return;
+      }
       setMicStatus(parseData.userId, parseData.isMicOn);
     } catch (error) {
       console.error("🚨 mic-status 데이터 파싱 오류:", error);
