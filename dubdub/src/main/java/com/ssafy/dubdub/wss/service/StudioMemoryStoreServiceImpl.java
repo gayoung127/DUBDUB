@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Transactional
 @Service
-public class StudioMemoryServiceImpl implements StudioStoreService {
+public class StudioMemoryStoreServiceImpl implements StudioStoreService {
     private final Map<String, Map<String, AudioAsset>> assetMap = new ConcurrentHashMap<>();
     private final Map<String, Map<String, TrackRecorder>> trackRecorderMap = new ConcurrentHashMap<>();
     private final Map<String, Map<String, TrackFile>> trackFileMap = new ConcurrentHashMap<>();
