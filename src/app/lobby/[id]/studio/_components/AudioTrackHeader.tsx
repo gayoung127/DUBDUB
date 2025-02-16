@@ -78,7 +78,7 @@ const AudioTrackHeader = ({
     });
   }
 
-  //
+  // useDrop(): 참여자 드래그 시, 트랙에 점유 할당
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "MEMBER",
     drop: (item: {

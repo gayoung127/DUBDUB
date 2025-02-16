@@ -17,7 +17,7 @@ export const useTrackRecorders = (
   const { stompClientRef, isConnected } = useStompStore();
   const { studioMembers } = useUserStore();
 
-  // 트랙 점유자 전송
+  // sendTrackRecorder(): 트랙 점유자 전송
   const sendTrackRecorder = (trackId: string, recorderId: string) => {
     const trackRecorder = {
       trackId: trackId,
@@ -30,6 +30,7 @@ export const useTrackRecorders = (
     });
   };
 
+  // useEffect(): 트랙 점유자 목록 구독
   useEffect(() => {
     if (!isConnected || !stompClientRef?.connected) return;
 
@@ -50,7 +51,6 @@ export const useTrackRecorders = (
               recorderProfileUrl: member.profileUrl ?? undefined,
             };
 
-            // 🎤 setTracks에 트랙 정보 업데이트
             setTracks((prevTracks) =>
               prevTracks.map((track) =>
                 track.trackId === data.trackId
@@ -58,6 +58,9 @@ export const useTrackRecorders = (
                   : { ...track },
               ),
             );
+
+            console.log("소켓에서 불러온 데이터: ", data);
+            console.log("잘 되냐: ", updatedTrack);
           }
         } catch (error) {
           console.log("트랙 점유자 데이터 처리 오류: ", error);
