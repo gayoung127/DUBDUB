@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useDrop } from "react-dnd";
-import { Track } from "@/app/_types/studio";
 import Image from "next/image";
+import { useDrop } from "react-dnd";
+import React, { useEffect, useRef, useState } from "react";
+
+import { Track } from "@/app/_types/studio";
 import { ContextMenuItem, useContextMenu } from "@/app/_hooks/useContextMenu";
+
 import ContextMenu from "./ContextMenu";
+
 import MinusIcon from "@/public/images/icons/icon-minus.svg";
+import { useTrackRecorders } from "@/app/_hooks/useTrackRecorderSocket";
 
 interface AudioTrackHeaderProps {
   trackId: number;
@@ -39,6 +43,9 @@ const AudioTrackHeader = ({
   const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
     useContextMenu();
 
+  useTrackRecorders(trackId, recorderId, setTracks);
+
+  // handleMute(): 트랙 음소거
   function handleMute() {
     setTracks((prevTracks) => {
       return prevTracks.map((track, index) => {
@@ -55,6 +62,7 @@ const AudioTrackHeader = ({
     });
   }
 
+  // handleSolo(): 트랙 솔로
   function handleSolo() {
     setTracks((prevTracks) => {
       return prevTracks.map((track, index) => {
@@ -71,8 +79,7 @@ const AudioTrackHeader = ({
     });
   }
 
-  // ---------------------
-
+  // useDrop(): 참여자 드래그 시, 트랙에 점유 할당
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "MEMBER",
     drop: (item: {
@@ -83,10 +90,9 @@ const AudioTrackHeader = ({
     }) => {
       if (!trackRef.current) return;
 
-      console.log(
-        `Dropped: ${item.name} (${item.role}) ${item.profileImageUrl} onto track ${trackId}`,
-      );
+      console.log(`Dropped: ${item.name} (${item.role}) onto track ${trackId}`);
 
+      // 드롭된 멤버의 정보로 트랙 업데이트
       setTracks((prevTracks) =>
         prevTracks.map((track) =>
           track.trackId === trackId
@@ -97,7 +103,7 @@ const AudioTrackHeader = ({
                 recorderRole: item.role,
                 recorderProfileUrl: item.profileImageUrl,
               }
-            : { ...track },
+            : track,
         ),
       );
     },
@@ -108,6 +114,7 @@ const AudioTrackHeader = ({
 
   drop(trackRef);
 
+  // useEffect: delete 버튼으로 트랙 할당자 삭제
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === "delete" && selectedTrackId === trackId) {
@@ -119,6 +126,7 @@ const AudioTrackHeader = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedTrackId]);
 
+  // handleDelete(): 트랙 할당자 삭제
   const handleDelete = () => {
     setTracks((prev) =>
       prev.map((track) =>
@@ -135,6 +143,7 @@ const AudioTrackHeader = ({
     );
   };
 
+  // menuItems: 트랙 메뉴 모달
   const menuItems: ContextMenuItem[] = [
     {
       icon: <MinusIcon width={16} height={16} />,
@@ -142,6 +151,7 @@ const AudioTrackHeader = ({
     },
   ];
 
+  // handleRightClick(): 마우스 우클릭시, 트랙 메뉴 모달 생성
   const handleRightClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (setSelectedTrackId) {
@@ -149,6 +159,7 @@ const AudioTrackHeader = ({
     }
     handleContextMenu(event.nativeEvent, menuItems);
   };
+
   return (
     <div
       ref={trackRef}

@@ -41,8 +41,8 @@ const RoleCard = ({
   drag(ref);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { micStatus, toggleMic } = useMicStore();
-  const isMicOn = micStatus[id] || false;
+  const { micStatus, setMicStatus } = useMicStore();
+  const isMicOn = micStatus[id] ?? false;
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   // 스트림 업데이트
@@ -67,7 +67,7 @@ const RoleCard = ({
           });
           if (userStream.getAudioTracks().some((track) => track.enabled)) {
             setLocalStream(userStream);
-            toggleMic(id);
+            setMicStatus(id, isMicOn);
           } else {
             userStream.getTracks().forEach((track) => track.stop());
           }
@@ -103,31 +103,20 @@ const RoleCard = ({
         audioRef.current.srcObject = stream;
       }
       audioRef.current.volume = isMicOn ? 1 : 0;
-      audioRef.current.muted = !isMicOn;
+      audioRef.current.muted = false;
       audioRef.current
         .play()
+        .then(() => console.log(`🎧 [RoleCard] userId: ${id} 오디오 재생 성공`))
         .catch((error) => console.error("오디오 스트림 재생 실패: ", error));
     }
   }, [stream, isMicOn]);
 
   //마이크 토글
   const handleToggleMic = async () => {
-    toggleMic(id);
-    if (isMicOn) {
-      localStream?.getTracks().forEach((track) => track.stop());
-      setLocalStream(null);
-    } else {
-      try {
-        const userStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        localStream?.getTracks().forEach((track) => track.stop());
-        setLocalStream(userStream);
-      } catch (error) {
-        console.error("마이크 접근 오류: ", error);
-      }
-    }
+    setMicStatus(id, !isMicOn);
+    console.log(`🎤 [handleToggleMic] userId: ${id}, isMicOn: ${!isMicOn}`);
   };
+
   return (
     <div
       ref={ref}
@@ -146,7 +135,7 @@ const RoleCard = ({
         <div className="flex items-center gap-x-3">
           <H4 className="text-white-100">{name}</H4>
           <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
-          <audio ref={audioRef} />
+          <audio ref={audioRef} autoPlay />
         </div>
         <button
           onClick={handleToggleMic}
