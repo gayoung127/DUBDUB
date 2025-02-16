@@ -69,6 +69,7 @@ const PlayBar = ({
       reset();
     }
   }, [time, duration]);
+
   // useEffect: SpaceBar -> 재생 / 일시 정지
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -82,10 +83,17 @@ const PlayBar = ({
       if (event.code === "Space") {
         event.preventDefault();
 
-        sendPlaybackStatus({
-          isRecording, // ✅ 최신 녹음 상태를 반영
-          playState: isPlaying ? "PAUSE" : "PLAY", // ✅ 현재 재생 상태에 따라 토글
-        });
+        if (isPlaying) {
+          sendPlaybackStatus({
+            isRecording: isRecording,
+            playState: "PAUSE", // PAUSE 상태로 보내기
+          });
+        } else {
+          sendPlaybackStatus({
+            isRecording: isRecording,
+            playState: "PLAY", // PAUSE 상태로 보내기
+          });
+        }
       }
     };
 
@@ -93,7 +101,7 @@ const PlayBar = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isPlaying, isRecording, sendPlaybackStatus]); // ✅ `isRecording`을 의존성 배열에 추가
+  }, [isPlaying, play, pause]);
 
   // useEffect: 동영상 길이에 맞게 전체 duration 설정
   useEffect(() => {
@@ -132,6 +140,7 @@ const PlayBar = ({
       });
 
       mediaRecorderRef.current?.stop();
+      stopRecording();
 
       if (audioContext) {
         audioContext.close();
@@ -198,7 +207,6 @@ const PlayBar = ({
         sendPlaybackStatus({
           isRecording: true,
           playState: "PLAY",
-          trackId: track.trackId,
         });
 
         const AudioCtx = window.AudioContext;
