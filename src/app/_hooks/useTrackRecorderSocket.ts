@@ -21,10 +21,16 @@ export const useTrackRecorders = (
       recorderId: recorderId,
     };
 
+    // 트랙 점유자 객체 확인
+    console.log("트랙 점유자 전송 준비:", trackRecorder);
+
     stompClientRef?.publish({
       destination: `/app/studio/${sessionId}/track/recorder`,
       body: JSON.stringify(trackRecorder),
     });
+
+    // 메시지 전송 후 확인
+    console.log("트랙 점유자 전송 완료:", trackRecorder);
   };
 
   // useEffect(): 트랙 점유자 목록 구독
