@@ -42,7 +42,7 @@ const RoleCard = ({
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const { micStatus, setMicStatus } = useMicStore();
-  const isMicOn = micStatus[id] ?? false;
+  const isMicOn = micStatus[id] ?? true;
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   // 스트림 업데이트
