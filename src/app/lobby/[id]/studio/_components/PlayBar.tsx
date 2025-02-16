@@ -20,6 +20,7 @@ import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
+import { usePlaySocket } from "@/app/_hooks/usePlaySocket";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -52,20 +53,22 @@ const PlayBar = ({
     setAnalyser,
   } = useRecordingStore();
 
+  const { sendPlaybackStatus } = usePlaySocket();
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const userId = self?.memberId ?? null;
 
   const params = useParams();
   const pid = params.id;
 
-  // useEffect: 동영상 길이 초과시, 자동 정지
+  // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
     if (time >= duration) {
+      if (isRecording) stopRecording();
       pause();
       reset();
     }
   }, [time, duration]);
-
   // useEffect: SpaceBar -> 재생 / 일시 정지
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -79,11 +82,10 @@ const PlayBar = ({
       if (event.code === "Space") {
         event.preventDefault();
 
-        if (isPlaying) {
-          pause();
-        } else {
-          play();
-        }
+        sendPlaybackStatus({
+          isRecording, // ✅ 최신 녹음 상태를 반영
+          playState: isPlaying ? "PAUSE" : "PLAY", // ✅ 현재 재생 상태에 따라 토글
+        });
       }
     };
 
@@ -91,7 +93,7 @@ const PlayBar = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isPlaying, play, pause]);
+  }, [isPlaying, isRecording, sendPlaybackStatus]); // ✅ `isRecording`을 의존성 배열에 추가
 
   // useEffect: 동영상 길이에 맞게 전체 duration 설정
   useEffect(() => {
@@ -124,9 +126,13 @@ const PlayBar = ({
     }
 
     if (isRecording) {
+      sendPlaybackStatus({
+        isRecording: false,
+        playState: "STOP",
+      });
+
       mediaRecorderRef.current?.stop();
       stopRecording();
-      pause();
 
       if (audioContext) {
         audioContext.close();
@@ -190,6 +196,13 @@ const PlayBar = ({
         play();
         setMediaRecorder(recorder);
 
+        // 🔥 소켓에 녹음 시작 상태 전송
+        sendPlaybackStatus({
+          isRecording: true,
+          playState: "PLAY",
+          trackId: track.trackId,
+        });
+
         const AudioCtx = window.AudioContext;
         const audioCtx = new AudioCtx();
         const source = audioCtx.createMediaStreamSource(stream);
@@ -205,20 +218,43 @@ const PlayBar = ({
     }
   };
 
+  // handlePlayButton(): 재생/일시정지 버튼 클릭 함수
+  const handlePlayButton = () => {
+    if (isPlaying) {
+      sendPlaybackStatus({
+        isRecording: false,
+        playState: "PAUSE",
+      });
+    } else {
+      sendPlaybackStatus({
+        isRecording: false,
+        playState: "PLAY",
+      });
+    }
+  };
+
+  // handleStopButton(): 정지 버튼 클릭 함수
+  const handleStopButton = () => {
+    sendPlaybackStatus({
+      isRecording: isRecording,
+      playState: "STOP",
+    });
+  };
+
   return (
     <section className="flex h-full max-h-16 w-full flex-grow-0 flex-row items-center justify-between border border-gray-300 px-16 py-[22px]">
       <div className="flex h-full flex-row items-center justify-center gap-x-4">
         <div onClick={handleRecording} className="cursor-pointer">
           <RecordButton width={20} height={20} />
         </div>
-        <div onClick={isPlaying ? pause : play} className="cursor-pointer">
+        <div onClick={handlePlayButton} className="cursor-pointer">
           {isPlaying ? (
             <PauseButton width={20} height={20} />
           ) : (
             <PlayButton width={20} height={20} />
           )}
         </div>
-        <div onClick={reset} className="cursor-pointer">
+        <div onClick={handleStopButton} className="cursor-pointer">
           <StopButton width={20} height={20} />
         </div>
       </div>
