@@ -42,7 +42,8 @@ const AudioTrackHeader = ({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
     useContextMenu();
-  const { sendTrackRecorder } = useTrackRecorders(setTracks);
+
+  useTrackRecorders(trackId, recorderId, setTracks);
 
   // handleMute(): 트랙 음소거
   function handleMute() {
@@ -89,11 +90,22 @@ const AudioTrackHeader = ({
     }) => {
       if (!trackRef.current) return;
 
-      console.log(
-        `Dropped: ${item.name} (${item.role}) ${item.profileImageUrl} onto track ${trackId}`,
-      );
+      console.log(`Dropped: ${item.name} (${item.role}) onto track ${trackId}`);
 
-      sendTrackRecorder(trackId.toString(), item.id.toString());
+      // 드롭된 멤버의 정보로 트랙 업데이트
+      setTracks((prevTracks) =>
+        prevTracks.map((track) =>
+          track.trackId === trackId
+            ? {
+                ...track,
+                recorderId: item.id,
+                recorderName: item.name,
+                recorderRole: item.role,
+                recorderProfileUrl: item.profileImageUrl,
+              }
+            : track,
+        ),
+      );
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
