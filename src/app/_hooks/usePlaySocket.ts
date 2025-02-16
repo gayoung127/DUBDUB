@@ -72,11 +72,6 @@ export const usePlaySocket = () => {
         } else {
           stopRecording();
         }
-
-        // 타임라인 동기화
-        if (playbackStatus.timelineMarker !== undefined) {
-          setTimeFromPx(playbackStatus.timelineMarker);
-        }
       },
     );
 
