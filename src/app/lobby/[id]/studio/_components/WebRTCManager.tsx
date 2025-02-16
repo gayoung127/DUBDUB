@@ -76,6 +76,14 @@ const WebRTCManager = ({
 
         const newSession = openViduRef.current.initSession();
 
+        newSession.on("streamCreated", handleStreamCreated);
+        newSession.on("streamDestroyed", handleStreamDestroyed);
+        newSession.on("signal:syncRequest", handleSyncRequest);
+        newSession.on("signal:syncResponse", handleSyncResponse);
+        newSession.on("signal:mic-status", handleMicStatusSignal);
+
+        setSession(newSession);
+
         await newSession.connect(sessionToken);
         console.log("✅ OpenVidu 세션에 연결됨");
 
@@ -84,14 +92,6 @@ const WebRTCManager = ({
           toast.warning("마이크 권한이 필요합니다.");
           return;
         }
-
-        newSession.on("streamCreated", handleStreamCreated);
-        newSession.on("streamDestroyed", handleStreamDestroyed);
-        newSession.on("signal:syncRequest", handleSyncRequest);
-        newSession.on("signal:syncResponse", handleSyncResponse);
-        newSession.on("signal:mic-status", handleMicStatusSignal);
-
-        setSession(newSession);
 
         if (newSession.connection) {
           await publishAudioStream(newSession);
@@ -152,7 +152,7 @@ const WebRTCManager = ({
       const newAudioPublisher = session.openvidu.initPublisher(undefined, {
         videoSource: false,
         audioSource: audioTrack,
-        publishAudio: true,
+        publishAudio: false,
       });
 
       if (!newAudioPublisher) {
@@ -265,6 +265,11 @@ const WebRTCManager = ({
 
   // mic-status 신호 수신
   const handleMicStatusSignal = (event: SignalEvent) => {
+    if (!session || !session.connection) {
+      console.warn("⚠️ [handleMicStatusSignal] 세션 또는 커넥션 정보 없음");
+      return;
+    }
+
     if (!event.data) {
       console.warn("⚠️ mic-status 이벤트에 데이터가 없음");
       return;
@@ -278,10 +283,6 @@ const WebRTCManager = ({
         typeof parseData.isMicOn !== "boolean"
       ) {
         console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
-        return;
-      }
-      if (!session?.connection?.connectionId) {
-        console.warn("⚠️ 세션 또는 connection 정보가 없음");
         return;
       }
 
