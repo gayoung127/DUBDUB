@@ -1,22 +1,25 @@
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+
+import { useMicStore } from "@/app/_store/MicStore";
+import { useUserStore } from "@/app/_store/UserStore";
+import { useTimeStore } from "@/app/_store/TimeStore";
+import { useRecordingStore } from "@/app/_store/RecordingStore";
+
+import { postAsset } from "@/app/_apis/studio";
+import { Asset, Track } from "@/app/_types/studio";
+import { formatTime } from "@/app/_utils/formatTime";
+
+import H4 from "@/app/_components/H4";
+import ShareButton from "./ShareButton";
+import StoreButton from "./StoreButton";
+import RenderingButton from "./RenderingButton";
+
 import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
-import H4 from "@/app/_components/H4";
-import RenderingButton from "./RenderingButton";
-import ShareButton from "./ShareButton";
-
-import { useTimeStore } from "@/app/_store/TimeStore";
-import { formatTime } from "@/app/_utils/formatTime";
-import { useRecordingStore } from "@/app/_store/RecordingStore";
-import { useMicStore } from "@/app/_store/MicStore";
-import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
-import { useUserStore } from "@/app/_store/UserStore";
-import { toast } from "sonner";
-import { postAsset } from "@/app/_apis/studio";
-import { useParams } from "next/navigation";
-import StoreButton from "./StoreButton";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -35,6 +38,8 @@ const PlayBar = ({
   setTracks,
   assets,
 }: PlayBarProps) => {
+  const { self } = useUserStore();
+  const { micStatus } = useMicStore();
   const { time, isPlaying, play, pause, reset } = useTimeStore();
   const {
     isRecording,
@@ -46,21 +51,22 @@ const PlayBar = ({
     setAudioContext,
     setAnalyser,
   } = useRecordingStore();
-  const { micStatus } = useMicStore();
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const { self } = useUserStore();
   const userId = self?.memberId ?? null;
+
   const params = useParams();
   const pid = params.id;
 
-  // useEffect(() => {
-  //   if (time >= duration) {
-  //     console.log("⏹️ 자동 정지: time이 duration을 초과했습니다.");
-  //     pause();
-  //     reset();
-  //   }
-  // }, [time, duration]);
+  // useEffect: 동영상 길이 초과시, 자동 정지
+  useEffect(() => {
+    if (time >= duration) {
+      pause();
+      reset();
+    }
+  }, [time, duration]);
 
+  // useEffect: SpaceBar -> 재생 / 일시 정지
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
@@ -74,9 +80,9 @@ const PlayBar = ({
         event.preventDefault();
 
         if (isPlaying) {
-          pause(); // ✅ 재생 중이면 일시정지
+          pause();
         } else {
-          play(); // ✅ 재생 중이 아니면 재생
+          play();
         }
       }
     };
@@ -87,6 +93,7 @@ const PlayBar = ({
     };
   }, [isPlaying, play, pause]);
 
+  // useEffect: 동영상 길이에 맞게 전체 duration 설정
   useEffect(() => {
     const videoElement = videoRef.current;
 
@@ -109,7 +116,7 @@ const PlayBar = ({
     };
   }, [videoRef]);
 
-  // 녹음하는 함수
+  // handleRecording(): 녹음하는 함수
   const handleRecording = async () => {
     if (!userId) {
       toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
@@ -117,12 +124,10 @@ const PlayBar = ({
     }
 
     if (isRecording) {
-      console.log("🎙️ 녹음 중지 요청됨");
       mediaRecorderRef.current?.stop();
       stopRecording();
       pause();
 
-      // 오디오 컨텍스트 정리
       if (audioContext) {
         audioContext.close();
         setAudioContext(null);
@@ -131,8 +136,6 @@ const PlayBar = ({
       setMediaRecorder(null);
     } else {
       const currentTime = time;
-
-      console.log("🎙️ 녹음 시작 요청됨");
       const activeMics = Object.entries(micStatus)
         .filter(([_, isOn]) => isOn)
         .map(([userId]) => userId);
@@ -151,7 +154,7 @@ const PlayBar = ({
 
         const chunks: Blob[] = [];
         recorder.ondataavailable = (event) => {
-          console.log("📌 데이터 저장됨:", event.data);
+          console.log("데이터 저장됨:", event.data);
           if (event.data.size > 0) {
             chunks.push(event.data);
           }
@@ -160,12 +163,11 @@ const PlayBar = ({
         const track = tracks.find((t) => t.recorderId === userId);
         if (!track) {
           toast.warning("오디오 트랙에 참여자를 할당해주세요!");
-          console.error("할당된 트랙이 없음");
           return;
         }
 
         recorder.onstop = async () => {
-          console.log("✅ 녹음 중지됨, 파일 생성 시작...");
+          toast.success("녹음된 파일을 저장 중입니다...");
           const audioBlob = new Blob(chunks, {
             type: "audio/webm",
           });
@@ -173,20 +175,17 @@ const PlayBar = ({
           console.log("🎵 생성된 오디오 파일 URL:", url);
 
           if (!track.recorderId) {
-            console.error(
-              "❌ recorderId가 없습니다. 녹음 파일을 추가할 수 없습니다.",
+            toast.error(
+              "트랙에 할당된 참여자가 없습니다. 녹음 파일 추가에 실패했습니다.",
             );
             return;
           }
 
-          // 서버에 전송해서 url 을 받아옵니당,,,,
-          console.log("새로운 음성 녹음 완료.");
           const newUrl = await postAsset(String(pid), audioBlob);
           createAudioFile(track.trackId, newUrl, currentTime);
         };
 
         recorder.start();
-        console.log("🎬 녹음 시작됨");
         startRecording(track.trackId);
         play();
         setMediaRecorder(recorder);
@@ -201,7 +200,7 @@ const PlayBar = ({
         setAudioContext(audioCtx);
         setAnalyser(analyser);
       } catch (error) {
-        console.error("녹음 시작 오류: ", error);
+        toast.error(`오류가 발생했습니다. ${error}`);
       }
     }
   };
