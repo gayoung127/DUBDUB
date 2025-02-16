@@ -16,6 +16,8 @@ export const useTrackRecorders = (
 
   // sendTrackRecorder(): 트랙 점유자 전송
   const sendTrackRecorder = (trackId: string, recorderId: string) => {
+    if (!isConnected || !stompClientRef?.connected) return;
+
     const trackRecorder = {
       trackId: trackId,
       recorderId: recorderId,
@@ -24,7 +26,7 @@ export const useTrackRecorders = (
     // 트랙 점유자 객체 확인
     console.log("트랙 점유자 전송 준비:", trackRecorder);
 
-    stompClientRef?.publish({
+    stompClientRef.publish({
       destination: `/app/studio/${sessionId}/track/recorder`,
       body: JSON.stringify(trackRecorder),
     });
