@@ -32,13 +32,26 @@ export const useTrackRecorders = (
 
   // useEffect(): 트랙 점유자 목록 구독
   useEffect(() => {
-    if (!isConnected || !stompClientRef?.connected) return;
+    // stompClient 연결이 되어 있는지 확인
+    if (!isConnected || !stompClientRef?.connected) {
+      console.log("트랙 점유 구독 소켓: STOMP 연결되지 않음");
+      return;
+    }
 
+    // sessionId가 유효한지 확인
+    if (!sessionId) {
+      console.error("트랙 점유 구독 소켓: Session ID가 없습니다.");
+      return;
+    }
+
+    // 구독 시작
     const subscription = stompClientRef.subscribe(
       `/topic/studio/${sessionId}/track/recorder`,
       (message) => {
         try {
           const data = JSON.parse(message.body);
+          console.log("트랙 점유 구독 소켓: 받은 데이터:", data); // 데이터가 올바르게 도착하는지 확인
+
           const member = studioMembers.find(
             (member) => member.memberId === data.recorderId,
           );
@@ -55,23 +68,34 @@ export const useTrackRecorders = (
               prevTracks.map((track) =>
                 track.trackId === data.trackId
                   ? { ...track, ...updatedTrack }
-                  : { ...track },
+                  : track,
               ),
             );
 
-            console.log("잘 되냐: ", updatedTrack);
+            console.log(
+              "트랙 점유 구독 소켓: 업데이트된 트랙 정보:",
+              updatedTrack,
+            ); // 업데이트된 트랙 정보를 확인
+          } else {
+            console.log(
+              "트랙 점유 구독 소켓: 멤버를 찾을 수 없음:",
+              data.recorderId,
+            );
           }
-          console.log("소켓에서 불러온 데이터: ", data);
         } catch (error) {
-          console.log("트랙 점유자 데이터 처리 오류: ", error);
+          console.error(
+            "트랙 점유 구독 소켓: 트랙 점유자 데이터 처리 오류:",
+            error,
+          );
         }
       },
     );
 
+    // 구독 종료 시 처리
     return () => {
       subscription.unsubscribe();
     };
-  }, [isConnected, sessionId, stompClientRef]);
+  }, [isConnected, sessionId, stompClientRef, studioMembers, setTracks]);
 
   return { sendTrackRecorder };
 };
