@@ -17,8 +17,16 @@ import java.util.stream.Collectors;
 public class StudioRedisStoreServiceImpl implements StudioStoreService {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private String generateRedisKey(String sessionId, String type, String id) {
-        return "studio:" + sessionId + ":" + type + ":" + id;
+    @Override
+    public Optional<List<AudioAsset>> getAssetList(String sessionId) {
+        String pattern = "studio:" + sessionId + ":audio:*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys == null || keys.isEmpty()) return Optional.empty();
+
+        List<Object> assets = redisTemplate.opsForValue().multiGet(keys);
+        return Optional.of(assets.stream()
+                .map(obj -> (AudioAsset) obj)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -36,30 +44,27 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
 
     @Override
     public Optional<List<TrackRecorder>> getTrackRecorderList(String sessionId) {
-        return Optional.empty();
-    }
-
-    @Override
-    public TrackRecorder saveTrackRecorder(String sessionId, TrackRecorder trackRecorder) {
-        Optional<List<AudioAsset>> list = getAssetList(sessionId);
-        System.out.println(list.get());
-        return null;
-    }
-
-    @Override
-    public void deleteTrackRecorder(String sessionId, String trackRecorderId) {
-    }
-
-    @Override
-    public Optional<List<AudioAsset>> getAssetList(String sessionId) {
         String pattern = "studio:" + sessionId + ":audio:*";
         Set<String> keys = redisTemplate.keys(pattern);
         if (keys == null || keys.isEmpty()) return Optional.empty();
 
-        List<Object> assets = redisTemplate.opsForValue().multiGet(keys);
-        return Optional.of(assets.stream()
-                .map(obj -> (AudioAsset) obj)
+        List<Object> trackRecorders = redisTemplate.opsForValue().multiGet(keys);
+        return Optional.of(trackRecorders.stream()
+                .map(obj -> (TrackRecorder) obj)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public TrackRecorder saveTrackRecorder(String sessionId, TrackRecorder trackRecorder) {
+        String redisKey = generateRedisKey(sessionId, "recorder", trackRecorder.getTrackId());
+        redisTemplate.opsForValue().set(redisKey, trackRecorder);
+        return trackRecorder;
+    }
+
+    @Override
+    public void deleteTrackRecorder(String sessionId, String trackId) {
+        String redisKey = generateRedisKey(sessionId, "track", trackId);
+        redisTemplate.delete(redisKey);
     }
 
     @Override
@@ -90,5 +95,9 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
     public void updateTrackFileField(String sessionId, String trackId, String field, Object value) {
         String redisKey = generateRedisKey(sessionId, "track", trackId);
         redisTemplate.opsForHash().put(redisKey, field, value);
+    }
+
+    private String generateRedisKey(String sessionId, String type, String id) {
+        return "studio:" + sessionId + ":" + type + ":" + id;
     }
 }
