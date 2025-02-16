@@ -70,6 +70,7 @@ export const usePlaySocket = () => {
             startRecording(playbackStatus.trackId);
           }
         } else {
+          reset();
           stopRecording();
         }
       },
