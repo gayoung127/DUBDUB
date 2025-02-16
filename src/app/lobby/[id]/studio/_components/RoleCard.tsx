@@ -106,7 +106,6 @@ const RoleCard = ({
       audioRef.current.muted = false;
       audioRef.current
         .play()
-        .then(() => console.log(`🎧 [RoleCard] userId: ${id} 오디오 재생 성공`))
         .catch((error) => console.error("오디오 스트림 재생 실패: ", error));
     }
   }, [stream, isMicOn]);
@@ -114,7 +113,6 @@ const RoleCard = ({
   //마이크 토글
   const handleToggleMic = async () => {
     setMicStatus(id, !isMicOn);
-    console.log(`🎤 [handleToggleMic] userId: ${id}, isMicOn: ${!isMicOn}`);
   };
 
   return (
