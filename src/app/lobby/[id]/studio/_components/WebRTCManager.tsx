@@ -194,6 +194,33 @@ const WebRTCManager = ({
         console.log(
           "스트림이 재생됨. ICE Candidate가 아마 connected 또는 complete 상태일 것",
         );
+        handleStreamPlaying();
+      });
+
+      const peerConnection = subscriber.stream.getRTCPeerConnection();
+
+      if (peerConnection) {
+        console.log("🧊 ICE 상태 확인 시작...");
+        peerConnection.addEventListener("iceconnectionstatechange", () => {
+          console.log(
+            `🔍 ICE 상태 변경됨: ${peerConnection.iceConnectionState}`,
+          );
+        });
+      }
+
+      // 1초 후에도 `streamPlaying`이 실행되지 않으면 강제로 실행
+      setTimeout(() => {
+        if (peerConnection) {
+          console.log(
+            `⏳ 1초 후 ICE 상태: ${peerConnection.iceConnectionState}`,
+          );
+        }
+
+        console.log("⏳ 1초 동안 `streamPlaying`이 실행되지 않아 강제 실행");
+        handleStreamPlaying();
+      }, 1000);
+
+      const handleStreamPlaying = () => {
         const mediaStream = subscriber.stream.getMediaStream();
         console.log("🎵 구독한 미디어 스트림:", mediaStream);
 
@@ -211,7 +238,7 @@ const WebRTCManager = ({
         const connectionData = JSON.parse(event.stream.connection.data);
         const remoteUserId = connectionData.userId;
         onUserAudioUpdate(remoteUserId, mediaStream);
-      });
+      };
     } catch (error) {}
   };
 
