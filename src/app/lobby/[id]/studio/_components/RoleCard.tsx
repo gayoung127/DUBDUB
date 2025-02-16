@@ -41,7 +41,7 @@ const RoleCard = ({
   drag(ref);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { micStatus, toggleMic } = useMicStore();
+  const { micStatus, setMicStatus } = useMicStore();
   const isMicOn = micStatus[id] || false;
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
@@ -67,7 +67,7 @@ const RoleCard = ({
           });
           if (userStream.getAudioTracks().some((track) => track.enabled)) {
             setLocalStream(userStream);
-            toggleMic(id);
+            setMicStatus(id, isMicOn);
           } else {
             userStream.getTracks().forEach((track) => track.stop());
           }
@@ -112,22 +112,9 @@ const RoleCard = ({
 
   //마이크 토글
   const handleToggleMic = async () => {
-    toggleMic(id);
-    if (isMicOn) {
-      localStream?.getTracks().forEach((track) => track.stop());
-      setLocalStream(null);
-    } else {
-      try {
-        const userStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        localStream?.getTracks().forEach((track) => track.stop());
-        setLocalStream(userStream);
-      } catch (error) {
-        console.error("마이크 접근 오류: ", error);
-      }
-    }
+    setMicStatus(id, !isMicOn);
   };
+
   return (
     <div
       ref={ref}
