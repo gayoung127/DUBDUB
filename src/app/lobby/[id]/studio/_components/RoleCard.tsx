@@ -103,7 +103,7 @@ const RoleCard = ({
         audioRef.current.srcObject = stream;
       }
       audioRef.current.volume = isMicOn ? 1 : 0;
-      audioRef.current.muted = !isMicOn;
+      audioRef.current.muted = false;
       audioRef.current
         .play()
         .catch((error) => console.error("오디오 스트림 재생 실패: ", error));
@@ -133,7 +133,7 @@ const RoleCard = ({
         <div className="flex items-center gap-x-3">
           <H4 className="text-white-100">{name}</H4>
           <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
-          <audio ref={audioRef} autoPlay muted />
+          <audio ref={audioRef} autoPlay />
         </div>
         <button
           onClick={handleToggleMic}
