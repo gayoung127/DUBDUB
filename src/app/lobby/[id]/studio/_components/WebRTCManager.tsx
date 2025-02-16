@@ -160,7 +160,7 @@ const WebRTCManager = ({
       const newAudioPublisher = session.openvidu.initPublisher(undefined, {
         videoSource: false,
         audioSource: audioTrack,
-        publishAudio: false,
+        publishAudio: true,
       });
 
       if (!newAudioPublisher) {
@@ -168,11 +168,21 @@ const WebRTCManager = ({
         return;
       }
 
+      const testTracks = newAudioPublisher.stream
+        .getMediaStream()
+        .getAudioTracks();
+      console.log("🎧 퍼블리셔 오디오 트랙 개수:", testTracks.length);
+
       console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
       console.log("✅ 오디오 퍼블리싱 완료");
+      console.log(
+        "📡 오디오 퍼블리셔 상태:",
+        newAudioPublisher.stream.audioActive,
+      );
 
       setPublisher(newAudioPublisher);
+
       onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
       console.log("오디오 스트림 설정 성공: ");
     } catch (error) {
@@ -275,8 +285,27 @@ const WebRTCManager = ({
 
   // 퍼블리셔의 오디오 상태 관리
   useEffect(() => {
-    if (publisher && micStatus[userId] !== undefined) {
-      publisher.publishAudio(micStatus[userId]);
+    if (publisher && micStatus[userId] !== publisher.stream.audioActive) {
+      if (micStatus[userId]) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            const newTrack = stream.getAudioTracks()[0];
+            if (newTrack) {
+              const mediaStream = publisher.stream.getMediaStream();
+              const oldTrack = mediaStream.getAudioTracks()[0];
+              publisher.replaceTrack(newTrack); // 🔄 OpenVidu 퍼블리셔 트랙 교체
+              oldTrack?.stop(); // 기존 트랙 정리
+            }
+          })
+          .catch((error) => console.error("🚨 마이크 접근 실패: ", error));
+      } else {
+        publisher.publishAudio(false);
+        publisher.stream
+          .getMediaStream()
+          .getAudioTracks()
+          .forEach((track) => track.stop());
+      }
     }
   }, [micStatus[userId], publisher]);
 
