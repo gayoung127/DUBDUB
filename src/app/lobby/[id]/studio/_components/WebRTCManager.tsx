@@ -239,6 +239,10 @@ const WebRTCManager = ({
   // 마이크 상태 변경 시 전송
   useEffect(() => {
     if (!sessionRef.current || micStatus[userId] === undefined) return;
+    console.log(
+      `📡 [handleSendMicstatus] 내 마이크 상태 변경 전송 준비 - 현재 상태: ${micStatus[userId]}`,
+    );
+
     if (micStatus[userId] === publisher?.stream.audioActive) return;
     console.log(
       `📡 [handleSendMicstatus] 내 마이크 상태 변경 전송: ${micStatus[userId]}`,
@@ -260,6 +264,7 @@ const WebRTCManager = ({
               publisher.replaceTrack(newTrack); // 🔄 OpenVidu 퍼블리셔 트랙 교체
               oldTrack?.stop(); // 기존 트랙 정리
             }
+            publisher.publishAudio(true);
           })
           .catch((error) => console.error("🚨 마이크 접근 실패: ", error));
       } else {
