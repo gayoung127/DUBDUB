@@ -1,14 +1,8 @@
-import React, { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { useStompStore } from "../_store/StompStore";
 import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useUserStore } from "../_store/UserStore";
 import { Track } from "../_types/studio";
-
-// interface TrackRecorderData {
-//   trackId: number;
-//   recorderId: number;
-// }
 
 export const useTrackRecorders = (
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>,
@@ -16,6 +10,9 @@ export const useTrackRecorders = (
   const { sessionId } = useSessionIdStore();
   const { stompClientRef, isConnected } = useStompStore();
   const { studioMembers } = useUserStore();
+
+  // `stompClientRef` 상태를 추적할 useState 추가
+  const [clientConnected, setClientConnected] = useState<boolean>(isConnected);
 
   // sendTrackRecorder(): 트랙 점유자 전송
   const sendTrackRecorder = (trackId: string, recorderId: string) => {
@@ -32,8 +29,13 @@ export const useTrackRecorders = (
 
   // useEffect(): 트랙 점유자 목록 구독
   useEffect(() => {
+    // STOMP 연결 상태가 변경될 때마다 상태를 업데이트
+    if (isConnected !== clientConnected) {
+      setClientConnected(isConnected);
+    }
+
     // stompClient 연결이 되어 있는지 확인
-    if (!isConnected || !stompClientRef?.connected) {
+    if (!stompClientRef || !stompClientRef?.connected || !isConnected) {
       console.log("트랙 점유 구독 소켓: STOMP 연결되지 않음");
       return;
     }
@@ -50,7 +52,7 @@ export const useTrackRecorders = (
       (message) => {
         try {
           const data = JSON.parse(message.body);
-          console.log("트랙 점유 구독 소켓: 받은 데이터:", data); // 데이터가 올바르게 도착하는지 확인
+          console.log("트랙 점유 구독 소켓: 받은 데이터:", data);
 
           const member = studioMembers.find(
             (member) => member.memberId === data.recorderId,
@@ -75,7 +77,7 @@ export const useTrackRecorders = (
             console.log(
               "트랙 점유 구독 소켓: 업데이트된 트랙 정보:",
               updatedTrack,
-            ); // 업데이트된 트랙 정보를 확인
+            );
           } else {
             console.log(
               "트랙 점유 구독 소켓: 멤버를 찾을 수 없음:",
@@ -95,7 +97,7 @@ export const useTrackRecorders = (
     return () => {
       subscription.unsubscribe();
     };
-  }, [isConnected, sessionId, stompClientRef, studioMembers, setTracks]);
+  }, [clientConnected, stompClientRef, sessionId, studioMembers, setTracks]);
 
   return { sendTrackRecorder };
 };
