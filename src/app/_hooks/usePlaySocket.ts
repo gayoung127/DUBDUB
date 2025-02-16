@@ -50,6 +50,15 @@ export const usePlaySocket = () => {
         const playbackStatus: PlaybackStatus = JSON.parse(message.body);
         console.log("📥 재생 상태 수신:", playbackStatus);
 
+        // 🎤 녹음 관련 로직
+        if (playbackStatus.isRecording) {
+          if (playbackStatus.trackId !== undefined) {
+            startRecording(playbackStatus.trackId);
+          }
+        } else {
+          stopRecording();
+        }
+
         // 🎵 재생 관련 로직
         switch (playbackStatus.playState) {
           case "PLAY":
@@ -62,16 +71,6 @@ export const usePlaySocket = () => {
             reset();
             stopRecording(); // 녹음도 중지
             break;
-        }
-
-        // 🎤 녹음 관련 로직
-        if (playbackStatus.isRecording) {
-          if (playbackStatus.trackId !== undefined) {
-            startRecording(playbackStatus.trackId);
-          }
-        } else {
-          reset();
-          stopRecording();
         }
       },
     );
