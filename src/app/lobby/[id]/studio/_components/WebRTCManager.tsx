@@ -44,6 +44,7 @@ const WebRTCManager = ({
   onUserAudioUpdate,
 }: WebRTCManagerProps) => {
   const openViduRef = useRef<OpenVidu | null>(null);
+  const sessionRef = useRef<Session | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -57,12 +58,12 @@ const WebRTCManager = ({
         video: false,
         audio: true,
       });
-      console.log("🎤 마이크 접근 가능");
 
       stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
       console.error("🚨 마이크 접근 거부됨:", error);
+      toast.warning("마이크 권한이 필요합니다.");
       return false;
     }
   };
@@ -75,14 +76,14 @@ const WebRTCManager = ({
         openViduRef.current = new OpenVidu();
 
         const newSession = openViduRef.current.initSession();
+        sessionRef.current = newSession;
+        setSession(newSession);
 
         newSession.on("streamCreated", handleStreamCreated);
         newSession.on("streamDestroyed", handleStreamDestroyed);
         newSession.on("signal:syncRequest", handleSyncRequest);
         newSession.on("signal:syncResponse", handleSyncResponse);
         newSession.on("signal:mic-status", handleMicStatusSignal);
-
-        setSession(newSession);
 
         await newSession.connect(sessionToken);
         console.log("✅ OpenVidu 세션에 연결됨");
@@ -96,6 +97,12 @@ const WebRTCManager = ({
         if (newSession.connection) {
           await publishAudioStream(newSession);
           await newSession.signal({ type: "syncRequest" });
+
+          newSession.remoteConnections.forEach((connection) => {
+            if (connection.stream) {
+              handleStreamCreated({ stream: connection.stream });
+            }
+          });
         } else {
           console.warn(
             "🚨 세션 연결이 완료되지 않아 syncRequest 신호를 보낼 수 없습니다.",
@@ -125,6 +132,7 @@ const WebRTCManager = ({
       }, 100);
       setPublisher(null);
       openViduRef.current = null;
+      sessionRef.current = null;
     };
   }, [sessionToken]);
 
@@ -174,28 +182,37 @@ const WebRTCManager = ({
 
   // 새로운 스트림 생성 시
   const handleStreamCreated = (event: { stream: Stream }) => {
-    if (!session) {
+    const currentSession = sessionRef.current;
+    if (!currentSession) {
       console.error("🚨 handleStreamCreated: 세션이 존재하지 않음");
       return;
     }
 
-    console.log("📌 새로운 스트림이 생성됨:", event.stream);
-    const subscriber = session.subscribe(event.stream, undefined);
-    if (!subscriber) {
-      console.warn("⚠️ 구독자 생성 실패");
-      return;
-    }
+    try {
+      console.log("📌 새로운 스트림이 생성됨:", event.stream);
+      const subscriber = currentSession.subscribe(event.stream, undefined);
+      if (!subscriber) {
+        console.warn("⚠️ 구독자 생성 실패");
+        return;
+      }
 
-    const mediaStream = subscriber.stream.getMediaStream();
-    console.log("🎵 구독한 미디어 스트림:", mediaStream);
+      const mediaStream = subscriber.stream.getMediaStream();
+      console.log("🎵 구독한 미디어 스트림:", mediaStream);
 
-    if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
-      console.warn("⚠️ 유효한 오디오 트랙이 없음");
-      return;
-    }
+      if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+        console.warn("⚠️ 유효한 오디오 트랙이 없음");
+        return;
+      }
 
-    setSubscribers((prev) => [...prev, subscriber]);
-    onUserAudioUpdate(userId, mediaStream);
+      mediaStream.getAudioTracks().forEach((track) => {
+        track.enabled = true;
+      });
+
+      setSubscribers((prev) => [...prev, subscriber]);
+
+      const remoteUserId = parseInt(event.stream.connection.data.split('"')[3]);
+      onUserAudioUpdate(remoteUserId, mediaStream);
+    } catch (error) {}
   };
 
   // 스트림 제거
@@ -294,7 +311,10 @@ const WebRTCManager = ({
         return;
       }
 
-      if (parseData.userId !== userId) {
+      if (
+        parseData.userId !== userId &&
+        micStatus[parseData.userId] !== parseData.isMicOn
+      ) {
         setMicStatus(parseData.userId, parseData.isMicOn);
       }
     } catch (error) {
