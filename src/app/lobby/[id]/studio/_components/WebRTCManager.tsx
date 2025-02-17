@@ -20,10 +20,10 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
     openViduRef.current = new OpenVidu();
     const newSession = openViduRef.current.initSession();
 
-    // 새로운 사람이 들어올 때
+    // 새로운 참가자가 들어올 때
     newSession.on("streamCreated", (event) => {
       const connectionData = JSON.parse(event.stream.connection.data);
-      const memberId = connectionData.clientData; // 사용자 ID 가져오기
+      const memberId = connectionData.clientData;
 
       console.log(
         `📢 새로운 참가자 (${memberId}) 입장:`,
@@ -32,9 +32,26 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
 
       const subscriber = newSession.subscribe(event.stream, undefined);
 
-      // 오디오 자동 재생
+      // 🔥 오디오 자동 재생 문제 해결
       subscriber.on("streamPlaying", () => {
         console.log(`🎤 음성 채팅 활성화됨: ${memberId}`);
+
+        // ✅ 오디오 태그 생성
+        const audioElement = document.createElement("audio");
+        audioElement.srcObject = event.stream.getMediaStream();
+        audioElement.autoplay = true;
+        audioElement.controls = false;
+        audioElement.muted = false;
+
+        // ✅ DOM에 추가하여 브라우저 정책 우회
+        document.body.appendChild(audioElement);
+
+        // ✅ 오디오 트랙이 비활성화된 경우 강제 활성화
+        const audioTracks = event.stream.getMediaStream().getAudioTracks();
+        if (audioTracks.length > 0) {
+          audioTracks[0].enabled = true;
+          console.log("🎵 오디오 트랙 활성화 완료");
+        }
       });
 
       setSubscribers((prev) => [...prev, subscriber]);
@@ -56,6 +73,7 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
     });
 
     sessionRef.current = newSession;
+
     const connectSession = async () => {
       if (!self) {
         console.error("❌ self가 존재하지 않음. 세션 연결을 중단합니다.");
@@ -91,7 +109,7 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
       setSubscribers([]);
       setPublisher(null);
     };
-  }, [sessionToken, self, self?.memberId]); // self.memberId가 변경되면 다시 실행
+  }, [sessionToken, self, self?.memberId]);
 
   return null;
 };
