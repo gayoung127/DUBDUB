@@ -27,36 +27,31 @@ public class WebSocketController {
     // 마우스 데이터 공유
     @MessageMapping("/studio/{sessionId}/cursor")
     public void sendCursorData(@DestinationVariable String sessionId, CursorData cursorData, Principal principal) {
-        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
-        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, userDetails);
+        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, principal.getName());
     }
 
     // 재생/녹음 상태 공유
     @MessageMapping("/studio/{sessionId}/playback")
     public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, Principal principal) {
-        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
-        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, userDetails);
+        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, principal.getName());
     }
 
     //트랙 점유자(레코더) 공유
     @MessageMapping("/studio/{sessionId}/track/recorder")
     public void broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder, Principal principal) {
-        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
-        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, userDetails);
+        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, principal.getName());
     }
 
     //오디오 파일(에셋) 공유
     @MessageMapping("/studio/{sessionId}/asset")
     public void broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto, Principal principal) {
-        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
-        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, userDetails);
+        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, principal.getName());
     }
 
     //트랙에 올라간 에셋(블록) 저장/공유
     @MessageMapping("/studio/{sessionId}/track/files")
     public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, Principal principal) {
-        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
-        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, userDetails);
+        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, principal.getName());
     }
 
     // 참여자 목록 조회
@@ -67,12 +62,11 @@ public class WebSocketController {
     }
 
     private <T> void sendStudioMessage(String sessionId, T payload,
-                                       MessageType messageType, CustomUserDetails userDetails) {
-        String currentUserId = userDetails.getMember().getId().toString();
+                                       MessageType messageType, String memberId) {
 
         StudioMessage<T> message = StudioMessage.create(
                 sessionId,
-                currentUserId,
+                memberId,
                 messageType,
                 payload
         );
