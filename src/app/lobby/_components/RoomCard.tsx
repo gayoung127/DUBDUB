@@ -36,7 +36,7 @@ const RoomCard = ({
     >
       <div className="relative">
         <img
-          src={"thumbnail || https://picsum.photos/300/200"}
+          src={thumbnail || "https://picsum.photos/300/200"}
           alt="Room Thumbnail"
           className="rounded-[4px]"
         />
