@@ -23,12 +23,14 @@ const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
       const containerHeight = sectionRef.current.offsetHeight;
 
       try {
+        //썸네일 생성
         const generatedThumbnail = await generateThumbnail(
           file,
           containerWidth,
           containerHeight,
         );
         if (generatedThumbnail) {
+          const thumbnailUrl = URL.createObjectURL(generatedThumbnail); // Blob URL 생성
           setThumbnail(URL.createObjectURL(generatedThumbnail)); // Blob URL로 변환하여 상태 업데이트
           onThumbnailChange(generatedThumbnail); // 부모 컴포넌트에 전달
         } else {

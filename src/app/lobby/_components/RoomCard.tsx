@@ -6,6 +6,8 @@ import H3 from "@/app/_components/H3";
 import ClockIcon from "@/public/images/icons/icon-clock.svg";
 import PersonIcon from "@/public/images/icons/icon-person.svg";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+const [thumbnail, setThumbnail] = useState<string | null>(null);
 
 const RoomCard = ({
   roomInfo: {
@@ -15,9 +17,10 @@ const RoomCard = ({
     totalParticipants,
     genres,
     categories,
+    thumbnail,
   },
 }: {
-  roomInfo: DubbingRoom;
+  roomInfo: DubbingRoom & { thumbnail?: string };
 }) => {
   const router = useRouter();
   function handleRoomClick(id: number) {
@@ -32,7 +35,11 @@ const RoomCard = ({
       }}
     >
       <div className="relative">
-        <img src={"https://picsum.photos/300/200"} className="rounded-[4px]" />
+        <img
+          src={thumbnail || "https://picsum.photos/300/200"}
+          alt="Room Thumbnail"
+          className="rounded-[4px]"
+        />
       </div>
       <H3>{title}</H3>
       <div className="flex h-[4rem] flex-wrap items-center gap-2 overflow-hidden">
