@@ -14,7 +14,7 @@ const useStompClient = (sessionId: string) => {
     if (!sessionId) return;
     if (!self || !self.memberId) return; // ✅ self가 null인지 확인 후 접근
     if (stompClientRef) return;
-  
+
     const client = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: { sessionId, memberId: self.memberId.toString() }, // ✅ 안전하게 memberId 접근
@@ -30,10 +30,10 @@ const useStompClient = (sessionId: string) => {
         setIsConnected(false);
       },
     });
-  
+
     client.activate();
     setStompClient(client);
-  
+
     return () => {
       if (client.connected) {
         client.deactivate();
@@ -42,6 +42,6 @@ const useStompClient = (sessionId: string) => {
       }
     };
   }, [sessionId, self]); // ✅ 의존성 배열에 self 추가
-  
+};
 
 export default useStompClient;
