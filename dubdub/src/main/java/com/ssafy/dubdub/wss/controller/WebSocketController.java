@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,37 +26,37 @@ public class WebSocketController {
 
     // 마우스 데이터 공유
     @MessageMapping("/studio/{sessionId}/cursor")
-    public void sendCursorData(@DestinationVariable String sessionId, CursorData cursorData, SimpMessageHeaderAccessor headerAccessor) {
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
-        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, (CustomUserDetails) auth.getPrincipal());
+    public void sendCursorData(@DestinationVariable String sessionId, CursorData cursorData, Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
+        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, userDetails);
     }
 
     // 재생/녹음 상태 공유
     @MessageMapping("/studio/{sessionId}/playback")
-    public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, SimpMessageHeaderAccessor headerAccessor) {
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
-        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, (CustomUserDetails) auth.getPrincipal());
+    public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
+        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, userDetails);
     }
 
     //트랙 점유자(레코더) 공유
     @MessageMapping("/studio/{sessionId}/track/recorder")
-    public void broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder, SimpMessageHeaderAccessor headerAccessor) {
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
-        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, (CustomUserDetails) auth.getPrincipal());
+    public void broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder, Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
+        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, userDetails);
     }
 
     //오디오 파일(에셋) 공유
     @MessageMapping("/studio/{sessionId}/asset")
-    public void broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto, SimpMessageHeaderAccessor headerAccessor) {
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
-        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, (CustomUserDetails) auth.getPrincipal());
+    public void broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto, Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
+        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, userDetails);
     }
 
     //트랙에 올라간 에셋(블록) 저장/공유
     @MessageMapping("/studio/{sessionId}/track/files")
-    public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, SimpMessageHeaderAccessor headerAccessor) {
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
-        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, (CustomUserDetails) auth.getPrincipal());
+    public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((Authentication) principal).getPrincipal();
+        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, userDetails);
     }
 
     // 참여자 목록 조회
