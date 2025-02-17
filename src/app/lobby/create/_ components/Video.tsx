@@ -2,13 +2,22 @@ import React, { useState, useRef } from "react";
 import UploadIcon from "@/public/images/icons/icon-upload.svg";
 import H2 from "@/app/_components/H2";
 import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumbnail";
+import { Speaker } from "@/app/_types/script";
+import { Segment } from "next/dist/server/app-render/types";
 
 interface VideoProps {
   onChange: (file: File | null) => void;
   onThumbnailChange: (thumbnail: File | null) => void;
+  setSpeakers: React.Dispatch<React.SetStateAction<Speaker[]>>;
+  setSegments: React.Dispatch<React.SetStateAction<Segment[]>>;
 }
 
-const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
+const Video = ({
+  onChange,
+  onThumbnailChange,
+  setSegments,
+  setSpeakers,
+}: VideoProps) => {
   const { generateThumbnail } = useGenerateThumbnail();
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [transcription, setTranscription] = useState<string | null>(null); //stt 결과 추가
@@ -21,6 +30,8 @@ const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
     if (file && sectionRef.current) {
       const containerWidth = sectionRef.current.offsetWidth;
       const containerHeight = sectionRef.current.offsetHeight;
+
+      transcribeVideo(file);
 
       try {
         //썸네일 생성
@@ -45,28 +56,26 @@ const Video = ({ onChange, onThumbnailChange }: VideoProps) => {
     onChange(file); // 부모 컴포넌트로 파일 전달
   };
 
-  // Google Speech-to-Text API 호출 로직
-  const transcribeVideo = async (file: File): Promise<string | null> => {
+  // Clova Speech-to-Text API 호출 로직
+  const transcribeVideo = async (file: File) => {
+    const videoData = new FormData();
+    videoData.append("file", file);
     try {
-      // FormData에 파일 추가
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Next.js API 라우트로 요청 전송
-      const response = await fetch("/api/transcribe", {
+      const response = await fetch("/api/clova-speech", {
         method: "POST",
-        body: formData,
+        body: videoData,
       });
 
-      if (!response.ok) {
-        throw new Error("STT 요청 실패");
-      }
-
       const data = await response.json();
-      return data.transcription || null; // STT 결과 반환
+
+      if (response.ok) {
+        setSpeakers(data.result.speakers);
+        setSegments(data.result.segments);
+      } else {
+        alert("오류 발생: " + data.error);
+      }
     } catch (error) {
-      console.error("STT 호출 중 오류:", error);
-      return null;
+      alert("서버 요청 실패");
     }
   };
 
