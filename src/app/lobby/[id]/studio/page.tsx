@@ -316,13 +316,7 @@ export default function StudioPage() {
             stompClientRef={stompClientRef}
           />
         )}
-        <WebRTCManager
-          studioId={studioId}
-          sessionId={sessionId}
-          sessionToken={sessionToken}
-          onUserAudioUpdate={handleUserAudioUpdate}
-          userId={self?.memberId ?? -1}
-        />
+        <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
       </div>
     </DndProvider>
   );
