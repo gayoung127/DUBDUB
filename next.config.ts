@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
       process.env.NEXT_PUBLIC_OPENVIDU_SERVER_URL,
     NEXT_PUBLIC_OPENVIDU_SECRET: process.env.NEXT_PUBLIC_OPENVIDU_SECRET,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
+  },
 };
 
 export default nextConfig;

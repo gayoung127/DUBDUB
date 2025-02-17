@@ -10,6 +10,8 @@ import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
+import { Speaker } from "@/app/_types/script";
+import { Segment } from "next/dist/server/app-render/types";
 
 export default function Page() {
   const router = useRouter();
@@ -24,6 +26,8 @@ export default function Page() {
   const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transcription, setTranscription] = useState<string | null>(null);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [segments, setSegments] = useState<Segment[]>([]);
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -142,6 +146,8 @@ export default function Page() {
               onThumbnailChange={(generatedThumbnail) => {
                 setThumbnail(generatedThumbnail);
               }}
+              setSpeakers={setSpeakers}
+              setSegments={setSegments}
             />
           </div>
           <div className="flex h-auto w-full items-center justify-center">
@@ -150,7 +156,11 @@ export default function Page() {
         </div>
 
         <div className="flex h-full w-1/3 items-start justify-end">
-          <Script onChange={setScript} />
+          <Script
+            onChange={setScript}
+            speakers={speakers}
+            segments={segments}
+          />
         </div>
         {/* STT 결과 렌더링 */}
         {transcription && (
