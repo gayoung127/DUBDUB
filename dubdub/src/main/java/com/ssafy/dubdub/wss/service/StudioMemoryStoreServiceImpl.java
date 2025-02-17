@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Transactional
 @Service
-public class StudioMemoryServiceImpl implements StudioStoreService {
+public class StudioMemoryStoreServiceImpl implements StudioStoreService {
     private final Map<String, Map<String, AudioAsset>> assetMap = new ConcurrentHashMap<>();
     private final Map<String, Map<String, TrackRecorder>> trackRecorderMap = new ConcurrentHashMap<>();
     private final Map<String, Map<String, TrackFile>> trackFileMap = new ConcurrentHashMap<>();
@@ -49,9 +49,9 @@ public class StudioMemoryServiceImpl implements StudioStoreService {
     }
 
     @Override
-    public void deleteTrackRecorder(String sessionId, String trackRecorderId) {
+    public void deleteTrackRecorder(String sessionId, String trackId) {
         Optional.ofNullable(trackRecorderMap.get(sessionId))
-                .ifPresent(recorders -> recorders.remove(trackRecorderId));
+                .ifPresent(recorders -> recorders.remove(trackId));
     }
 
     @Override
