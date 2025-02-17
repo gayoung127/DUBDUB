@@ -1,33 +1,44 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Description from "./_ components/Description";
-import Genre from "./_ components/Genre";
 import Title from "./_ components/Title";
-import Castings from "./_ components/Castings";
-import Type from "./_ components/Type";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
+import Pencil from "@/public/images/icons/icon-pencil.svg";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
+
+interface ParsedScriptEntry {
+  label: string;
+  start: number;
+  text: string;
+}
 
 export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
   const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
-  const [genreTypes, setGenreTypes] = useState<string[]>([]);
-  const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
   const [script, setScript] = useState<string>("");
+  const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transcription, setTranscription] = useState<string | null>(null);
-  const [speakers, setSpeakers] = useState<Speaker[]>([]);
-  const [segments, setSegments] = useState<Segment[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [speakers, setSpeakers] = useState<Speaker[]>([]); // Speaker 배열 상태
+  const [segments, setSegments] = useState<Segment[]>([]); // Segment 배열 상태
+
+  // Script 데이터를 파싱하는 함수 (label, start, text만 추출)
+  const parseSegments = (segments: Segment[]): ParsedScriptEntry[] => {
+    return segments.map((segment) => ({
+      label: segment.diarization.label,
+      start: segment.start,
+      text: segment.text,
+    }));
+  };
 
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
@@ -38,10 +49,6 @@ export default function Page() {
 
     // 모든 상태 출력
     console.log("title:", title);
-    console.log("content:", content);
-    console.log("castings:", castings);
-    console.log("genreTypes:", genreTypes);
-    console.log("categoryTypes:", categoryTypes);
     console.log("script:", script);
     console.log("thumbnail:", thumbnail);
 
@@ -58,10 +65,6 @@ export default function Page() {
         [
           JSON.stringify({
             title,
-            content,
-            castings,
-            genreTypes,
-            categoryTypes,
             script,
           }),
         ],
@@ -106,85 +109,82 @@ export default function Page() {
       console.error("Error creating recruitment post:", error);
       alert("모집글 작성 중 오류가 발생했습니다.");
     }
-
-    //   try {
-    //     const result = await getRecruitment(formData); // FormData 전송
-    //     alert("모집글이 성공적으로 작성되었습니다!");
-    //     router.replace("/studio");
-    //   } catch (error) {
-    //     console.error("Error creating recruitment post:", error);
-    //     alert("모집글 작성 중 오류가 발생했습니다");
-    //   }
   };
 
   return (
-    <div className="flex h-full min-h-screen w-full flex-col items-center justify-start">
-      <div className="flex h-auto w-full items-start justify-start">
-        <Header />
-      </div>
+    <div className="flex h-full min-h-screen w-full flex-col">
+      <Header />
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex h-full w-full flex-row items-start justify-start"
-      >
-        <div className="flex h-full w-1/3 flex-col items-start justify-start">
-          <Title onChange={setTitle} />
-          <Castings
-            onChange={(namesOnly) => {
-              console.log("Updated castings (names only):", namesOnly); // 디버깅 추가
-              setCastings(namesOnly); // 이름만 업데이트
-            }}
-          />
-          <Type onChange={setCategoryTypes} />
-          <Genre onChange={setGenreTypes} />
-        </div>
-
-        <div className="flex h-full w-1/3 flex-col items-center justify-start">
-          <div className="mb-10 flex h-auto w-full items-center justify-center">
+      {/* Video and Title */}
+      <form onSubmit={handleSubmit} className="space-y-4 p-4">
+        <div className="flex">
+          {/* Left Section */}
+          <div className="w-1/3 space-y-4">
             <Video
               onChange={setVideoFile}
-              onThumbnailChange={(file) => {
-                setThumbnail(file);
-              }}
+              onThumbnailChange={(file) => setThumbnail(file)}
               setSpeakers={setSpeakers}
-              setSegments={setSegments}
+              setSegments={(newSegments) => {
+                setSegments((prevSegments) => {
+                  const updatedSegments = [...prevSegments, ...newSegments];
+                  setParsedScript(parseSegments(updatedSegments));
+                  return updatedSegments;
+                });
+              }}
             />
+            <Title onChange={setTitle} />
           </div>
-          <div className="flex h-auto w-full items-center justify-center">
-            <Description onChange={setContent} />
+
+          {/* Right Section */}
+          <div className="w-2/3 space-y-4">
+            <Script
+              onChange={(value) => setScript(value)} // Script 문자열 업데이트
+              speakers={speakers}
+              segments={segments}
+              parsedScript={parsedScript} // 파싱된 데이터 전달
+            />
           </div>
         </div>
 
-        <div className="flex h-full w-1/3 items-start justify-end">
-          <Script
-            onChange={setScript}
-            speakers={speakers}
-            segments={segments}
-          />
-        </div>
-        {/* STT 결과 렌더링 */}
-        {transcription && (
-          <div className="mt-4 w-full rounded-lg bg-gray-100 p-4">
-            <h3 className="text-lg font-semibold">STT 변환 결과:</h3>
-            <p className="text-gray-700">{transcription}</p>
-          </div>
-        )}
-        <div className="mt-8 flex justify-center">
-          <Button
-            outline={false}
-            large={true}
-            disabled={isSubmitting}
-            onClick={() => {
-              const form = document.querySelector("form");
-              if (form) {
-                form.requestSubmit();
-              }
-            }}
-          >
-            {isSubmitting ? "제출중" : "생성하기"}
-          </Button>
-        </div>
+        {/* Hidden Script Field for Submission */}
+        <textarea name="script" value={script} hidden />
+
+        {/* Submit Button */}
+        <Button
+          onClick={() => {
+            const form = document.querySelector("form");
+            if (form) {
+              form.requestSubmit();
+            }
+          }}
+          outline={false}
+          large={true}
+        >
+          제출하기
+        </Button>
       </form>
     </div>
   );
 }
+
+// {/* STT 결과 렌더링 */}
+// {transcription && (
+//   <div className="mt-4 w-full rounded-lg bg-gray-100 p-4">
+//     <h3 className="text-lg font-semibold">STT 변환 결과:</h3>
+//     <p className="text-gray-700">{transcription}</p>
+//   </div>
+// ))}
+
+// <Button
+//   outline={false}
+//   large={true}
+//   disabled={isSubmitting}
+//   onClick={() => {
+//     const form = document.querySelector("form");
+//     if (form) {
+//       form.requestSubmit();
+//     }
+//   }}
+// >
+//   {isSubmitting ? "제출중" : "생성하기"}
+// </Button>
