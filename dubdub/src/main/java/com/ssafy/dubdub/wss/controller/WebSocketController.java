@@ -10,6 +10,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -22,32 +25,37 @@ public class WebSocketController {
 
     // 마우스 데이터 공유
     @MessageMapping("/studio/{sessionId}/cursor")
-    public void sendCursorData(@DestinationVariable String sessionId, CursorData cursorData, @Header("simpUser") CustomUserDetails userDetails) {
-        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, userDetails);
+    public void sendCursorData(@DestinationVariable String sessionId, CursorData cursorData, SimpMessageHeaderAccessor headerAccessor) {
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        sendStudioMessage(sessionId, cursorData, MessageType.CURSOR, (CustomUserDetails) auth.getPrincipal());
     }
 
     // 재생/녹음 상태 공유
     @MessageMapping("/studio/{sessionId}/playback")
-    public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, @Header("simpUser") CustomUserDetails userDetails) {
-        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, userDetails);
+    public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, SimpMessageHeaderAccessor headerAccessor) {
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, (CustomUserDetails) auth.getPrincipal());
     }
 
     //트랙 점유자(레코더) 공유
     @MessageMapping("/studio/{sessionId}/track/recorder")
-    public void broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder, @Header("simpUser") CustomUserDetails userDetails) {
-        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, userDetails);
+    public void broadcastTracks(@DestinationVariable String sessionId, TrackRecorder trackRecorder, SimpMessageHeaderAccessor headerAccessor) {
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        sendStudioMessage(sessionId, trackRecorder, MessageType.TRACK_RECORDER, (CustomUserDetails) auth.getPrincipal());
     }
 
     //오디오 파일(에셋) 공유
     @MessageMapping("/studio/{sessionId}/asset")
-    public void broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto, @Header("simpUser") CustomUserDetails userDetails) {
-        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, userDetails);
+    public void broadcastAssets(@DestinationVariable String sessionId, AudioAssetRequestDto requestDto, SimpMessageHeaderAccessor headerAccessor) {
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        sendStudioMessage(sessionId, requestDto, MessageType.ASSET, (CustomUserDetails) auth.getPrincipal());
     }
 
     //트랙에 올라간 에셋(블록) 저장/공유
     @MessageMapping("/studio/{sessionId}/track/files")
-    public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, @Header("simpUser") CustomUserDetails userDetails) {
-        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, userDetails);
+    public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, SimpMessageHeaderAccessor headerAccessor) {
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, (CustomUserDetails) auth.getPrincipal());
     }
 
     // 참여자 목록 조회
