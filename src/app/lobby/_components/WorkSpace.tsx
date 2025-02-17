@@ -8,7 +8,7 @@ import H3 from "@/app/_components/H3";
 import Button from "@/app/_components/Button";
 
 interface WorkSpaceProps {
-  dubbingRooms: DubbingRoom[];
+  dubbingRooms: DubbingRoom[]; //서버에서 받아온 방 정보 리스트
   setPage: (prev: (prev: number) => number) => void;
   isFetching: boolean;
   isLastPage: boolean;
