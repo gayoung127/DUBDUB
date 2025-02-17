@@ -143,6 +143,10 @@ const WebRTCManager = ({
     console.log("🔄 [useEffect] subscribers가 변경됨, 오디오 상태 다시 확인");
 
     subscribers.forEach((subscriber) => {
+      if (!subscriber.stream) {
+        console.warn("🚨 [useEffect] `subscriber.stream`이 없음. 재시도 필요");
+        return;
+      }
       const mediaStream = subscriber.stream.getMediaStream();
       console.log("🎵 [useEffect] 구독한 미디어 스트림:", mediaStream);
 
