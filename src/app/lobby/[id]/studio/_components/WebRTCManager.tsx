@@ -27,23 +27,31 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
     newSession.on("streamCreated", (event) => {
       const connectionData = JSON.parse(event.stream.connection.data);
       const memberId = connectionData.clientData;
+      const connectionId = event.stream.connection.connectionId;
 
-      console.log(
-        `📢 새로운 참가자 (${memberId}) 입장:`,
-        event.stream.connection.connectionId,
-      );
+      console.log(`📢 새로운 참가자 (${memberId}) 입장: ${connectionId}`);
 
       const subscriber = newSession.subscribe(event.stream, undefined);
 
-      setSubscribers((prev) => [...prev, subscriber]);
+      subscriber.on("streamPlaying", () => {
+        console.log(`🎤 음성 채팅 활성화됨: ${memberId}`);
+
+        setSubscribers((prev) => [...prev, subscriber]);
+      });
     });
 
     // 사람이 나갈 때
     newSession.on("streamDestroyed", (event) => {
-      console.log(`🚪 참가자 퇴장:`, event.stream.connection.connectionId);
+      const connectionId = event.stream.connection.connectionId;
+      console.log(`🚪 참가자 퇴장: ${connectionId}`);
 
       setSubscribers((prev) =>
-        prev.filter((sub) => sub.stream !== event.stream),
+        prev.filter(
+          (sub) => sub.stream.connection.connectionId !== connectionId,
+        ),
+      );
+      setAudioElements((prev) =>
+        prev.filter((audio) => audio.id !== connectionId),
       );
     });
 
@@ -91,8 +99,11 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
   useEffect(() => {
     const newAudioElements = subscribers
       .map((subscriber) => {
+        if (!subscriber || !subscriber.stream) return null;
+
         const stream = subscriber.stream.getMediaStream();
         if (!stream) return null;
+
         return { id: subscriber.stream.connection.connectionId, stream };
       })
       .filter((audio) => audio !== null) as {
