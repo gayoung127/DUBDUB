@@ -13,6 +13,9 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
   const [publisher, setPublisher] = useState<Publisher | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const { self } = useUserStore();
+  const [audioElements, setAudioElements] = useState<
+    { id: string; stream: MediaStream }[]
+  >([]);
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -36,22 +39,13 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
       subscriber.on("streamPlaying", () => {
         console.log(`🎤 음성 채팅 활성화됨: ${memberId}`);
 
-        // ✅ 오디오 태그 생성
-        const audioElement = document.createElement("audio");
-        audioElement.srcObject = event.stream.getMediaStream();
-        audioElement.autoplay = true;
-        audioElement.controls = false;
-        audioElement.muted = false;
-
-        // ✅ DOM에 추가하여 브라우저 정책 우회
-        document.body.appendChild(audioElement);
-
-        // ✅ 오디오 트랙이 비활성화된 경우 강제 활성화
-        const audioTracks = event.stream.getMediaStream().getAudioTracks();
-        if (audioTracks.length > 0) {
-          audioTracks[0].enabled = true;
-          console.log("🎵 오디오 트랙 활성화 완료");
-        }
+        setAudioElements((prev) => [
+          ...prev,
+          {
+            id: event.stream.connection.connectionId,
+            stream: event.stream.getMediaStream(),
+          },
+        ]);
       });
 
       setSubscribers((prev) => [...prev, subscriber]);
@@ -69,6 +63,11 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
 
       setSubscribers((prev) =>
         prev.filter((sub) => sub.stream !== event.stream),
+      );
+      setAudioElements((prev) =>
+        prev.filter(
+          (audio) => audio.id !== event.stream.connection.connectionId,
+        ),
       );
     });
 
@@ -108,10 +107,34 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
       newSession.disconnect();
       setSubscribers([]);
       setPublisher(null);
+      setAudioElements([]);
     };
   }, [sessionToken, self, self?.memberId]);
 
-  return null;
+  return (
+    <div>
+      {audioElements.map((audio) => (
+        <audio
+          key={audio.id}
+          ref={(el) => {
+            if (el) el.srcObject = audio.stream;
+          }}
+          autoPlay
+          controls
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "#000",
+            borderRadius: "8px",
+            padding: "10px",
+            zIndex: 1000,
+          }}
+        />
+      ))}
+    </div>
+  );
 };
 
 export default WebRTCManager;
