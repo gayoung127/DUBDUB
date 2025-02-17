@@ -6,8 +6,6 @@ import H3 from "@/app/_components/H3";
 import ClockIcon from "@/public/images/icons/icon-clock.svg";
 import PersonIcon from "@/public/images/icons/icon-person.svg";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-const [thumbnail, setThumbnail] = useState<string | null>(null);
 
 const RoomCard = ({
   roomInfo: {
