@@ -39,7 +39,10 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
   };
 
   const handleDownloadMp3 = async () => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current) {
+      console.error("audio context 존재하지 않음");
+      return;
+    }
 
     // ✅ Track[] → AudioBlockProps[] 변환
     const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
