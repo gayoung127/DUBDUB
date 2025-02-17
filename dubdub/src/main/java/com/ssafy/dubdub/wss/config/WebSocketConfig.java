@@ -9,9 +9,12 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -28,7 +31,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     String memberId = accessor.getFirstNativeHeader("memberId");
 
                     if (memberId != null) {
-                        accessor.setUser(() -> memberId);
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(memberId, null, Collections.emptyList());
+                        accessor.setUser(auth);
                     }
                 }
                 return message;
