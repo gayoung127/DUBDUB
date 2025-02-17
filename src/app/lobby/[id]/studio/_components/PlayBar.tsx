@@ -24,6 +24,7 @@ import { usePlaySocket } from "@/app/_hooks/usePlaySocket";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
+  videoUrl: string | undefined;
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
@@ -33,6 +34,7 @@ interface PlayBarProps {
 
 const PlayBar = ({
   videoRef,
+  videoUrl,
   duration,
   setDuration,
   tracks,
@@ -271,7 +273,11 @@ const PlayBar = ({
       </div>
       <div className="flex h-full items-center justify-center gap-x-4">
         <ShareButton />
-        <RenderingButton />
+        <RenderingButton
+          videoUrl={videoUrl}
+          tracks={tracks}
+          setTracks={setTracks}
+        />
         <StoreButton tracks={tracks} assets={assets} />
       </div>
     </section>
