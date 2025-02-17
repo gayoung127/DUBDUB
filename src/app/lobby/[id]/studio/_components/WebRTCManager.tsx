@@ -137,6 +137,30 @@ const WebRTCManager = ({
     initAudioStream();
   }, [session?.connection]);
 
+  useEffect(() => {
+    if (subscribers.length === 0) return; // 구독자가 없으면 실행하지 않음
+
+    console.log("🔄 [useEffect] subscribers가 변경됨, 오디오 상태 다시 확인");
+
+    subscribers.forEach((subscriber) => {
+      const mediaStream = subscriber.stream.getMediaStream();
+      console.log("🎵 [useEffect] 구독한 미디어 스트림:", mediaStream);
+
+      const audioTracks = mediaStream.getAudioTracks();
+      console.log("🔍 [useEffect] 오디오 트랙 개수:", audioTracks.length);
+
+      if (audioTracks.length > 0) {
+        console.log(
+          "✅ [useEffect] 오디오 트랙 정상 확보, onUserAudioUpdate 실행",
+        );
+        const connectionData = JSON.parse(subscriber.stream.connection.data);
+        onUserAudioUpdate(connectionData.userId, mediaStream);
+      } else {
+        console.warn("🚨 [useEffect] 오디오 트랙이 없음.");
+      }
+    });
+  }, [subscribers]);
+
   // 오디오 스트림 퍼블리싱 함수
   const publishAudioStream = async (session: Session) => {
     try {
@@ -180,14 +204,39 @@ const WebRTCManager = ({
     try {
       console.log("📌 새로운 스트림이 생성됨:", event.stream);
       const subscriber = sessionRef.current.subscribe(event.stream, undefined);
-      setSubscribers((prev) => [...prev, subscriber]);
+      console.log("📌 스트림 구독 성공:", subscriber);
+
+      // 🔥 `subscribe()`가 완료되었는지 체크
+      if (!subscriber.stream) {
+        console.warn(
+          "⚠️ `subscribe()` 실행 후에도 `subscriber.stream`이 없음.",
+        );
+      } else {
+        console.log("✅ `subscribe()` 완료 후 `subscriber.stream`이 존재함.");
+      }
 
       subscriber.on("streamPlaying", () => {
+        console.log("🎵 [streamPlaying] 이벤트 발생");
         const mediaStream = subscriber.stream.getMediaStream();
         console.log("🎵 구독한 미디어 스트림:", mediaStream);
         const connectionData = JSON.parse(event.stream.connection.data);
         onUserAudioUpdate(connectionData.userId, mediaStream);
       });
+
+      // 🔥 `streamPlaying`이 실행되지 않는지 확인하는 로그
+      if (!subscriber.stream.isLocalStreamPublished) {
+        console.warn("⚠️ [직후지만] 스트림이 아직 퍼블리시되지 않음");
+      }
+      setSubscribers((prev) => [...prev, subscriber]);
+
+      const mediaStream = subscriber.stream.getMediaStream();
+      if (mediaStream && mediaStream.getAudioTracks().length > 0) {
+        console.log("✅ [직후지만] 오디오 트랙 확보됨, onUserAudioUpdate 실행");
+        const connectionData = JSON.parse(event.stream.connection.data);
+        onUserAudioUpdate(connectionData.userId, mediaStream);
+      } else {
+        console.warn("🚨 [직후지만] 오디오 트랙이 없음.");
+      }
     } catch (error) {
       console.error("🚨 handleStreamCreated 오류:", error);
     }
