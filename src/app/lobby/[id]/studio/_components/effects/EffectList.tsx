@@ -161,11 +161,8 @@ const EffectList = ({
                 selectedBlockObj.selectedAudioFile!.id.split("-")[0]
               ) {
                 newFile = {
-                  ...selectedBlock,
-                  startPoint: file.startPoint,
-                  trimStart: file.trimStart,
-                  trimEnd: file.trimEnd,
-                  id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${version}-${Date.now() + Math.floor(Math.random() * 1000)}`,
+                  ...file,
+                  id: `${selectedBlockObj.selectedAudioFile!.id.split("-")[0].split("_")[0]}_${version}-${Date.now() + Math.floor(Math.random() * 1000)}`,
                   url,
                 };
                 return newFile;
