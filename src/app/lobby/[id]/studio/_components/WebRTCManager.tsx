@@ -1,11 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-
-/*
-역할
-1. OpenVidu 세션을 생성하고 관리
-2. 서버에서 세션 ID와 토큰을 가져와 OpenVidu와 연결
-3. 오디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
-*/
 import { useMicStore } from "@/app/_store/MicStore";
 import {
   OpenVidu,
@@ -17,6 +9,7 @@ import {
 } from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
 interface WebRTCManagerProps {
   studioId: number;
   sessionId: string;
@@ -39,19 +32,10 @@ const WebRTCManager = ({
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const { micStatus, setMicStatus } = useMicStore();
 
-  useEffect(() => {
-    if (session) sessionRef.current = session;
-    console.log("🎧 현재 구독 중인 스트림:", subscribers);
-  }, [session, subscribers]);
-
   // 마이크 접근 권한 확인
   const checkAudioPermissions = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: false,
-        audio: true,
-      });
-
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
@@ -61,74 +45,104 @@ const WebRTCManager = ({
     }
   };
 
-  // OpenVidu 세션 초기화
+  // OpenVidu 세션 생성
   useEffect(() => {
-    const initSession = async () => {
-      try {
-        if (!sessionToken) return;
-        openViduRef.current = new OpenVidu();
+    if (!sessionToken) {
+      console.warn(
+        "⚠️ [useEffect: 세션 생성] sessionToken이 없음, 초기화 중단",
+      );
+      return;
+    }
 
-        const newSession = openViduRef.current.initSession();
-        sessionRef.current = newSession;
-        setSession(newSession);
+    console.log("🎬 [useEffect: 세션 생성] OpenVidu 세션 초기화 시작");
+    openViduRef.current = new OpenVidu();
+    const newSession = openViduRef.current.initSession();
 
-        newSession.on("streamCreated", handleStreamCreated);
-        newSession.on("streamDestroyed", handleStreamDestroyed);
-        newSession.on("signal:mic-status", handleMicStatusSignal);
+    console.log(
+      "🆕 [useEffect: 세션 생성] 새로운 OpenVidu 세션 객체 생성 완료",
+    );
 
-        await newSession.connect(sessionToken, JSON.stringify({ userId }));
-        console.log("✅ OpenVidu 세션에 연결됨");
+    newSession.on("streamCreated", handleStreamCreated);
+    newSession.on("streamDestroyed", handleStreamDestroyed);
+    newSession.on("signal:mic-status", handleMicStatusSignal);
+    console.log("✅ [useEffect: 세션 생성] 이벤트 핸들러 등록 완료");
 
-        const hasPermissions = await checkAudioPermissions();
-        if (!hasPermissions) {
-          toast.warning("마이크 권한이 필요합니다.");
-          return;
-        }
-
-        if (newSession.connection) {
-          await publishAudioStream(newSession);
-
-          newSession.remoteConnections.forEach((connection) => {
-            if (connection.stream) {
-              handleStreamCreated({ stream: connection.stream });
-            }
-          });
-        }
-      } catch (error) {
-        console.error("OpenVidu 세션 초기화 실패: ", error);
-      }
-    };
-
-    initSession();
-
-    return () => {
-      console.log("🔌 세션 종료");
-
-      if (sessionRef.current) {
-        sessionRef.current.off("streamCreated", handleStreamCreated);
-        sessionRef.current.off("streamDestroyed", handleStreamDestroyed);
-        sessionRef.current.off("signal:mic-status", handleMicStatusSignal);
-        sessionRef.current.disconnect();
-      }
-
-      setSubscribers([]);
-      setPublisher(null);
-      openViduRef.current = null;
-    };
+    sessionRef.current = newSession;
+    setSession(newSession);
   }, [sessionToken]);
 
-  // 오디오 스트림 퍼블리싱
-  const publishAudioStream = async (session: Session) => {
-    try {
-      if (!openViduRef.current || !session.connection) {
-        console.error("🚨 OpenVidu 인스턴스 또는 세션 연결이 없음");
+  // 세션 연결 (session이 설정된 후 실행)
+  useEffect(() => {
+    if (!session) {
+      console.warn("⚠️ [useEffect: 세션 연결] session 객체가 없음, 연결 중단");
+      return;
+    }
+    if (!sessionToken) {
+      console.warn("⚠️ [useEffect: 세션 연결] sessionToken이 없음, 연결 중단");
+      return;
+    }
+
+    console.log("🔗 [useEffect: 세션 연결] 세션 연결 시도 시작");
+
+    const connectSession = async () => {
+      try {
+        console.log("⏳ [useEffect: 세션 연결] OpenVidu 세션에 연결 중...");
+        await session.connect(sessionToken, JSON.stringify({ userId }));
+        console.log("✅ [useEffect: 세션 연결] OpenVidu 세션에 연결 완료");
+      } catch (error) {
+        console.error(
+          "🚨 [useEffect: 세션 연결] OpenVidu 세션 연결 실패: ",
+          error,
+        );
+      }
+    };
+
+    connectSession();
+  }, [session]);
+
+  // 오디오 스트림 퍼블리싱 (세션 연결 완료 후 실행)
+  useEffect(() => {
+    if (!session) {
+      console.warn(
+        "⚠️ [useEffect: 오디오 퍼블리싱] session 객체가 없음, 퍼블리싱 중단",
+      );
+      return;
+    }
+    if (!session.connection) {
+      console.warn(
+        "⚠️ [useEffect: 오디오 퍼블리싱] session이 아직 연결되지 않음, 퍼블리싱 중단",
+      );
+      return;
+    }
+
+    console.log("🎤 [useEffect: 오디오 퍼블리싱] 오디오 스트림 퍼블리싱 시작");
+
+    const initAudioStream = async () => {
+      console.log("⏳ [useEffect: 오디오 퍼블리싱] 마이크 권한 확인 중...");
+      const hasPermissions = await checkAudioPermissions();
+      if (!hasPermissions) {
+        console.warn(
+          "🚫 [useEffect: 오디오 퍼블리싱] 마이크 권한 없음, 퍼블리싱 중단",
+        );
         return;
       }
 
+      console.log(
+        "📡 [useEffect: 오디오 퍼블리싱] 마이크 권한 확인 완료, 퍼블리싱 시작",
+      );
+      await publishAudioStream(session);
+      console.log("✅ [useEffect: 오디오 퍼블리싱] 오디오 퍼블리싱 완료");
+    };
+
+    initAudioStream();
+  }, [session?.connection]);
+
+  // 오디오 스트림 퍼블리싱 함수
+  const publishAudioStream = async (session: Session) => {
+    try {
       const audioStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
-      console.log("🎤 마이크 스트림 가져오기 성공:", audioStream);
 
       if (!audioStream || !audioStream.getAudioTracks().length) {
         console.error("🚨 오디오 트랙을 찾을 수 없습니다.");
@@ -141,126 +155,53 @@ const WebRTCManager = ({
         publishAudio: true,
       });
 
-      if (!newAudioPublisher) {
-        console.error("🚨 오디오 퍼블리셔 생성 실패");
-        return;
-      }
-
       newAudioPublisher.on("streamCreated", (event) => {
         const mediaStream = event.stream.getMediaStream();
         console.log(
           "🎤 [streamCreated] 이벤트 발생, 오디오 트랙 확인:",
           mediaStream,
         );
-
-        mediaStream.getAudioTracks().forEach((track) => {
-          track.enabled = true; // 트랙 활성화
-          console.log(`🎤 트랙 활성화: ${track.enabled}`);
-        });
-
-        onUserAudioUpdate(userId, newAudioPublisher.stream.getMediaStream());
+        onUserAudioUpdate(userId, mediaStream);
       });
 
-      console.log("📡 오디오 퍼블리셔 생성 성공, 세션에 발행 중...");
       await session.publish(newAudioPublisher);
       console.log("✅ 오디오 퍼블리싱 완료");
-      console.log(
-        "📡 오디오 퍼블리셔 상태:",
-        newAudioPublisher.stream.audioActive,
-      );
 
       setPublisher(newAudioPublisher);
-      console.log("오디오 스트림 설정 성공: ");
     } catch (error) {
       console.error("오디오 스트림 설정 실패: ", error);
     }
   };
 
-  // 새로운 스트림 생성 시
+  // 새로운 스트림 생성 시 처리
   const handleStreamCreated = (event: { stream: Stream }) => {
-    const currentSession = sessionRef.current;
-    if (!currentSession) {
-      console.error("🚨 handleStreamCreated: 세션이 존재하지 않음");
-      return;
-    }
+    if (!sessionRef.current) return;
 
     try {
       console.log("📌 새로운 스트림이 생성됨:", event.stream);
-      const subscriber = currentSession.subscribe(event.stream, undefined);
-      if (!subscriber) {
-        console.warn("⚠️ 구독자 생성 실패");
-        return;
-      }
+      const subscriber = sessionRef.current.subscribe(event.stream, undefined);
+      setSubscribers((prev) => [...prev, subscriber]);
 
       subscriber.on("streamPlaying", () => {
-        console.log(
-          "스트림이 재생됨. ICE Candidate가 아마 connected 또는 complete 상태일 것",
-        );
-        handleStreamPlaying(subscriber);
-      });
-
-      const peerConnection = subscriber.stream.getRTCPeerConnection();
-
-      if (peerConnection) {
-        console.log("🧊 ICE 상태 확인 시작...");
-        peerConnection.addEventListener("iceconnectionstatechange", () => {
-          console.log(
-            `🔍 ICE 상태 변경됨: ${peerConnection.iceConnectionState}`,
-          );
-        });
-      }
-
-      // 1초 후에도 `streamPlaying`이 실행되지 않으면 강제로 실행
-      setTimeout(() => {
-        if (peerConnection) {
-          console.log(
-            `⏳ 1초 후 ICE 상태: ${peerConnection.iceConnectionState}`,
-          );
-        }
-
-        console.log("⏳ 1초 동안 `streamPlaying`이 실행되지 않아 강제 실행");
-        handleStreamPlaying(subscriber);
-      });
-
-      const handleStreamPlaying = (sub: Subscriber) => {
         const mediaStream = subscriber.stream.getMediaStream();
         console.log("🎵 구독한 미디어 스트림:", mediaStream);
-
-        if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
-          console.warn("⚠️ 유효한 오디오 트랙이 없음");
-          return;
-        }
-
-        mediaStream.getAudioTracks().forEach((track) => {
-          track.enabled = true;
-        });
-
-        setSubscribers((prev) => [...prev, sub]);
-
         const connectionData = JSON.parse(event.stream.connection.data);
-        const remoteUserId = connectionData.userId;
-        onUserAudioUpdate(remoteUserId, mediaStream);
-      };
-    } catch (error) {}
+        onUserAudioUpdate(connectionData.userId, mediaStream);
+      });
+    } catch (error) {
+      console.error("🚨 handleStreamCreated 오류:", error);
+    }
   };
 
-  // 스트림 제거
+  // 스트림 제거 처리
   const handleStreamDestroyed = (event: { stream: Stream }) => {
-    if (!event.stream || !event.stream.connection) return;
-
     console.log("🛑 스트림 제거됨:", event.stream.connection.connectionId);
-
     setSubscribers((prev) => prev.filter((sub) => sub.stream !== event.stream));
   };
 
-  // 마이크 상태 전송
+  // 마이크 상태 변경 전송
   const handleSendMicstatus = (userId: number, isMicOn: boolean) => {
-    if (!sessionRef.current) {
-      console.warn(
-        "⚠️ [handleSendMicstatus] 세션이 존재하지 않아 신호를 보낼 수 없습니다.",
-      );
-      return;
-    }
+    if (!sessionRef.current) return;
 
     sessionRef.current
       .signal({
@@ -270,85 +211,22 @@ const WebRTCManager = ({
       .catch((error) => console.error("Signal Error:", error));
   };
 
-  // 마이크 상태 변경 시 전송
+  // 마이크 상태 감지 및 업데이트
   useEffect(() => {
     if (!sessionRef.current || micStatus[userId] === undefined) return;
-    console.log(
-      `📡 [handleSendMicstatus] 내 마이크 상태 변경 전송 준비 - 현재 상태: ${micStatus[userId]}`,
-    );
 
-    if (micStatus[userId] === publisher?.stream.audioActive) return;
-    console.log(
-      `📡 [handleSendMicstatus] 내 마이크 상태 변경 전송: ${micStatus[userId]}`,
-    );
-    handleSendMicstatus(userId, micStatus[userId]);
+    if (micStatus[userId] !== publisher?.stream.audioActive) {
+      handleSendMicstatus(userId, micStatus[userId]);
+    }
   }, [micStatus[userId]]);
 
-  // 퍼블리셔의 오디오 상태 관리
-  useEffect(() => {
-    if (publisher && micStatus[userId] !== publisher.stream.audioActive) {
-      if (micStatus[userId]) {
-        navigator.mediaDevices
-          .getUserMedia({ audio: true })
-          .then((stream) => {
-            const newTrack = stream.getAudioTracks()[0];
-            if (newTrack) {
-              const mediaStream = publisher.stream.getMediaStream();
-              const oldTrack = mediaStream.getAudioTracks()[0];
-              publisher.replaceTrack(newTrack); // 🔄 OpenVidu 퍼블리셔 트랙 교체
-              oldTrack?.stop(); // 기존 트랙 정리
-            }
-            publisher.publishAudio(true);
-          })
-          .catch((error) => console.error("🚨 마이크 접근 실패: ", error));
-      } else {
-        publisher.publishAudio(false);
-        publisher.stream
-          .getMediaStream()
-          .getAudioTracks()
-          .forEach((track) => track.stop());
-      }
-    }
-  }, [micStatus[userId], publisher]);
-
-  // mic-status 신호 수신
+  // mic-status 신호 수신 처리
   const handleMicStatusSignal = (event: SignalEvent) => {
-    if (!sessionRef.current) {
-      console.warn(
-        "⚠️ [handleMicStatusSignal] 세션 정보가 없음. 세션을 다시 초기화해야 합니다.",
-      );
-      return;
-    }
-
-    const currentSession = sessionRef.current;
-
-    if (!currentSession.connection) {
-      console.warn(
-        "⚠️ [handleMicStatusSignal] 세션은 존재하지만, 연결 정보가 없습니다.",
-      );
-      return;
-    }
-
-    if (!event.data) {
-      console.warn("⚠️ mic-status 이벤트에 데이터가 없음");
-      return;
-    }
+    if (!event.data) return;
 
     try {
-      const parseData = JSON.parse(event.data);
-
-      if (
-        typeof parseData.userId !== "number" ||
-        typeof parseData.isMicOn !== "boolean"
-      ) {
-        console.warn("⚠️ 잘못된 mic-status 데이터 형식:", parseData);
-        return;
-      }
-      if (micStatus[parseData.userId] === parseData.isMicOn) {
-        console.log(`⚠️ [handleMicStatusSignal] 동일 상태 - 변경 없음`);
-        return;
-      }
-      setMicStatus(parseData.userId, parseData.isMicOn);
+      const { userId, isMicOn } = JSON.parse(event.data);
+      setMicStatus(userId, isMicOn);
     } catch (error) {
       console.error("🚨 mic-status 데이터 파싱 오류:", error);
     }
@@ -356,4 +234,5 @@ const WebRTCManager = ({
 
   return null;
 };
+
 export default WebRTCManager;
