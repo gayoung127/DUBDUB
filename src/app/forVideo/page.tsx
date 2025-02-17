@@ -3,22 +3,23 @@
 import React, { useEffect, useRef, useState } from "react";
 
 export default function ForVideoPage() {
-  const canvasLRef = useRef<HTMLCanvasElement | null>(null);
-  const canvasRRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
+  const [originalBuffer, setOriginalBuffer] = useState<AudioBuffer | null>(
+    null,
+  );
+  const [processedBuffer, setProcessedBuffer] = useState<AudioBuffer | null>(
+    null,
+  );
   const [currentTime, setCurrentTime] = useState(0);
+  const [isVocalRemoved, setIsVocalRemoved] = useState(false);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const playStartTimeRef = useRef<number>(0);
 
   const file = {
-    url: "/examples/sample-drum.wav",
-    trimStart: 0,
-    trimEnd: 0,
-    waveColorL: "#ff8c66",
-    waveColorR: "#66aaff",
-    blockColor: "#ffffff",
+    url: "/examples/sample-song-cut-more.mp3",
+    waveColor: "#ff8c66",
     playbackColor: "#CC7052",
   };
 
@@ -33,45 +34,59 @@ export default function ForVideoPage() {
           const arrayBuffer = await response.arrayBuffer();
           const decodedBuffer =
             await newAudioContext.decodeAudioData(arrayBuffer);
-          setAudioBuffer(decodedBuffer);
+          setOriginalBuffer(decodedBuffer);
+          visualizeWaveform(decodedBuffer, 0);
         } catch (error) {
           console.error("오디오 로드 실패:", error);
         }
       }
     };
-
     initAudioContext();
   }, []);
 
-  useEffect(() => {
-    if (audioBuffer) {
-      visualizeWaveform(audioBuffer, 0);
+  const removeVocals = () => {
+    if (
+      !audioContext ||
+      !originalBuffer ||
+      originalBuffer.numberOfChannels < 2
+    ) {
+      console.error("보컬 제거 불가능 (스테레오 오디오 필요)");
+      return;
     }
-  }, [audioBuffer]);
+
+    const leftChannel = originalBuffer.getChannelData(0);
+    const rightChannel = originalBuffer.getChannelData(1);
+    const length = leftChannel.length;
+
+    const newBuffer = audioContext.createBuffer(
+      1,
+      length,
+      originalBuffer.sampleRate,
+    );
+    const newChannel = newBuffer.getChannelData(0);
+
+    for (let i = 0; i < length; i++) {
+      newChannel[i] = (leftChannel[i] - rightChannel[i]) / 2; // 중앙 성분 제거
+    }
+
+    setProcessedBuffer(newBuffer);
+    setIsVocalRemoved(true);
+    visualizeWaveform(newBuffer, 0);
+  };
 
   const visualizeWaveform = (buffer: AudioBuffer, playbackPosition: number) => {
-    if (!buffer || buffer.numberOfChannels < 2) return;
-
-    visualizeWaveformL(buffer.getChannelData(0), playbackPosition);
-    visualizeWaveformR(buffer.getChannelData(1), playbackPosition);
-  };
-
-  const visualizeWaveformL = (
-    waveform: Float32Array,
-    playbackPosition: number,
-  ) => {
-    const canvas = canvasLRef.current;
+    const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
 
     canvas.width = 1000;
-    canvas.height = 100;
-
-    const step = Math.ceil(waveform.length / (canvas.width * 2));
-    const amp = canvas.height / 2;
-
+    canvas.height = 200;
     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const waveform = buffer.getChannelData(0);
+    const step = Math.ceil(waveform.length / canvas.width);
+    const amp = canvas.height / 2;
 
     for (let i = 0; i < canvas.width; i += 3) {
       const min = Math.min(...waveform.slice(i * step, (i + 1) * step));
@@ -80,41 +95,7 @@ export default function ForVideoPage() {
       context.fillStyle =
         i < playbackPosition * canvas.width
           ? file.playbackColor
-          : file.waveColorL;
-      context.fillRect(
-        i,
-        (1 + min) * amp,
-        2,
-        Math.max(8, (max - min) * amp * 1.5, 5),
-      );
-    }
-  };
-
-  const visualizeWaveformR = (
-    waveform: Float32Array,
-    playbackPosition: number,
-  ) => {
-    const canvas = canvasRRef.current;
-    if (!canvas) return;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
-    canvas.width = 1000;
-    canvas.height = 100;
-
-    const step = Math.ceil(waveform.length / (canvas.width * 2));
-    const amp = canvas.height / 2;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = 0; i < canvas.width; i += 3) {
-      const min = Math.min(...waveform.slice(i * step, (i + 1) * step));
-      const max = Math.max(...waveform.slice(i * step, (i + 1) * step));
-
-      context.fillStyle =
-        i < playbackPosition * canvas.width
-          ? file.playbackColor
-          : file.waveColorR;
+          : file.waveColor;
       context.fillRect(
         i,
         (1 + min) * amp,
@@ -125,13 +106,16 @@ export default function ForVideoPage() {
   };
 
   const updatePlayback = () => {
-    if (!audioContext || !audioBuffer || !audioSourceRef.current) return;
+    if (!audioContext || !originalBuffer || !audioSourceRef.current) return;
 
     const elapsedTime = audioContext.currentTime - playStartTimeRef.current;
-    const progress = Math.min(elapsedTime / audioBuffer.duration, 1);
+    const progress = Math.min(elapsedTime / originalBuffer.duration, 1);
 
-    setCurrentTime(progress * audioBuffer.duration);
-    visualizeWaveform(audioBuffer, progress);
+    setCurrentTime(progress * originalBuffer.duration);
+    visualizeWaveform(
+      isVocalRemoved ? processedBuffer! : originalBuffer,
+      progress,
+    );
 
     if (progress < 1) {
       animationFrameRef.current = requestAnimationFrame(updatePlayback);
@@ -139,14 +123,14 @@ export default function ForVideoPage() {
   };
 
   const playAudio = () => {
-    if (!audioContext || !audioBuffer) return;
+    if (!audioContext) return;
+    if (audioSourceRef.current) stopAudio();
 
-    if (audioSourceRef.current) {
-      stopAudio();
-    }
+    const bufferToPlay = isVocalRemoved ? processedBuffer : originalBuffer;
+    if (!bufferToPlay) return;
 
     const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
+    source.buffer = bufferToPlay;
     source.connect(audioContext.destination);
 
     playStartTimeRef.current = audioContext.currentTime;
@@ -155,10 +139,7 @@ export default function ForVideoPage() {
 
     setCurrentTime(0);
     updatePlayback();
-
-    source.onended = () => {
-      stopAudio();
-    };
+    source.onended = stopAudio;
   };
 
   const stopAudio = () => {
@@ -167,37 +148,37 @@ export default function ForVideoPage() {
       audioSourceRef.current.disconnect();
       audioSourceRef.current = null;
     }
-
-    if (animationFrameRef.current) {
+    if (animationFrameRef.current)
       cancelAnimationFrame(animationFrameRef.current);
-    }
-
     setCurrentTime(0);
-    if (audioBuffer) visualizeWaveform(audioBuffer, 0);
+    visualizeWaveform(isVocalRemoved ? processedBuffer! : originalBuffer!, 0);
   };
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-4">
-      {audioBuffer ? (
+      {originalBuffer ? (
         <>
           <div className="shadow-lg bg-white relative flex items-center justify-center rounded-lg p-4">
-            <canvas ref={canvasLRef} className="rounded-md" />
-          </div>
-          <div className="shadow-lg bg-white relative flex items-center justify-center rounded-lg p-4">
-            <canvas ref={canvasRRef} className="rounded-md" />
+            <canvas ref={canvasRef} className="rounded-md" />
           </div>
           <div className="mt-4 flex gap-4">
             <button
               className="text-white shadow-md rounded-lg bg-green-500 px-4 py-2"
               onClick={playAudio}
             >
-              ▶️ 재생
+              ▶️ 재생 ({isVocalRemoved ? "보컬 제거된" : "원본"})
             </button>
             <button
               className="text-white shadow-md rounded-lg bg-red-500 px-4 py-2"
               onClick={stopAudio}
             >
               ⏹ 정지
+            </button>
+            <button
+              className="text-white shadow-md rounded-lg bg-blue-500 px-4 py-2"
+              onClick={removeVocals}
+            >
+              🎙 보컬 제거
             </button>
           </div>
         </>
