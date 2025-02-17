@@ -43,6 +43,26 @@ const RecordSection = ({
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
   const [selectedTrackId, setSelectedTrackId] = useState<number | null>(null);
 
+  const [videoMuted, setVideoMuted] = useState<boolean>(false);
+  const [videoSolo, setVideoSolo] = useState<boolean>(false);
+
+  useEffect(() => {
+    const hasSoloTrack = tracks.some((track) => track.isSolo);
+    setVideoMuted(hasSoloTrack);
+  }, [tracks]);
+
+  useEffect(() => {
+    if (videoSolo) {
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => ({ ...track, isMuted: true })),
+      );
+    } else {
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => ({ ...track, isMuted: false })),
+      );
+    }
+  }, [videoSolo, setTracks]);
+
   // 1. 트랙 세로 스크롤 동기화
   const trackListRef = useRef<HTMLDivElement | null>(null);
   const timelineTracksRef = useRef<HTMLDivElement | null>(null);
@@ -143,8 +163,14 @@ const RecordSection = ({
               녹음 세션
             </H4>
           </div>
-          <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 px-5 py-5">
-            <VideoTrack />
+          <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 py-5">
+            <VideoTrack
+              isMuted={videoMuted}
+              isSolo={videoSolo}
+              videoUrl={videoUrl}
+              setVideoMuted={setVideoMuted}
+              setVideoSolo={setVideoSolo}
+            />
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
