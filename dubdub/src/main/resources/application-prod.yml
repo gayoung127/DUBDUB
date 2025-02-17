@@ -14,12 +14,11 @@ spring:
       hibernate:
         format_sql: false
     show-sql: false  # 배포 환경에서는 SQL 로그 비활성화
-  spring:
-    rabbitmq:
-      port: ${RABBITMQ_PORT:5672}
-      host: ${RABBITMQ_HOST:rabbitmq}
-      username: ${RABBITMQ_USERNAME}
-      password: ${RABBITMQ_PASSWORD}
+  rabbitmq:
+    port: ${RABBITMQ_PORT:5672}
+    host: ${RABBITMQ_HOST:rabbitmq}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 logging:
   level:
