@@ -36,8 +36,20 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
       subscriber.on("streamPlaying", () => {
         console.log(`🎤 음성 채팅 활성화됨: ${memberId}`);
 
-        setSubscribers((prev) => [...prev, subscriber]);
+        const mediaStream = event.stream.getMediaStream();
+        console.log("🎵 MediaStream 확인:", mediaStream);
+
+        if (mediaStream) {
+          setAudioElements((prev) => [
+            ...prev,
+            { id: connectionId, stream: mediaStream },
+          ]);
+        } else {
+          console.warn(`⚠️ MediaStream이 비어 있음: ${connectionId}`);
+        }
       });
+
+      setSubscribers((prev) => [...prev, subscriber]);
     });
 
     // 사람이 나갈 때
@@ -95,26 +107,6 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
     };
   }, [sessionToken, self, self?.memberId]);
 
-  // 🔥 subscribers 상태가 변경될 때마다 audioElements 업데이트
-  useEffect(() => {
-    const newAudioElements = subscribers
-      .map((subscriber) => {
-        if (!subscriber || !subscriber.stream) return null;
-
-        const stream = subscriber.stream.getMediaStream();
-        if (!stream) return null;
-
-        return { id: subscriber.stream.connection.connectionId, stream };
-      })
-      .filter((audio) => audio !== null) as {
-      id: string;
-      stream: MediaStream;
-    }[];
-
-    setAudioElements(newAudioElements);
-    console.log("🎧 현재 오디오 요소 리스트:", newAudioElements);
-  }, [subscribers]);
-
   return (
     <div
       style={{
@@ -148,6 +140,7 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
               }}
               autoPlay
               controls
+              muted={false} // 🔥 오디오 자동 재생 문제 해결
               style={{
                 width: "250px",
                 maxWidth: "100%",
