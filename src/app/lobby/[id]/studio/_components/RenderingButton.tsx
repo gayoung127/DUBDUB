@@ -21,7 +21,9 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
   const loadAudioFiles = async () => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
     const context = audioContextRef.current;
 
     for (const track of tracks) {
@@ -37,7 +39,10 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
   };
 
   const handleDownloadMp3 = async () => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current) {
+      console.error("audio context 존재하지 않음");
+      return;
+    }
 
     // ✅ Track[] → AudioBlockProps[] 변환
     const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
@@ -84,11 +89,13 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       toast.error("저장된 영상이 존재하지 않습니다.");
       return;
     }
+    console.log("렌더링 시작");
     setIsRendering(true);
 
     await loadAudioFiles();
     const audioBlob = await handleDownloadMp3();
     if (!audioBlob) {
+      console.log("오디오 blob 존재하지 않음");
       return;
     }
     const audioFile = new File([audioBlob], "sampleAudio.mp3", {
