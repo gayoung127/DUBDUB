@@ -28,6 +28,7 @@ const VideoPlayer = ({
         <VideoBlock videoUrl={videoUrl} videoRef={videoRef} />
       </div>
       <PlayBar
+        videoUrl={videoUrl}
         videoRef={videoRef}
         duration={duration}
         setDuration={setDuration}
