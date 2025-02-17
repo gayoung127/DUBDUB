@@ -16,9 +16,11 @@ import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 import { AudioBlockProps } from "./AudioBlock";
 import Button from "@/app/_components/Button";
 import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
+import ImagesFromVideo from "./ImagesFromVideo";
 
 interface RecordSectionProps {
   duration: number;
+  videoUrl: string;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
@@ -29,6 +31,7 @@ interface RecordSectionProps {
 
 const RecordSection = ({
   duration,
+  videoUrl,
   setDuration,
   tracks,
   setTracks,
@@ -66,8 +69,6 @@ const RecordSection = ({
   }, []);
 
   useEffect(() => {
-    console.log("호출찡호출찡", tracks);
-
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
@@ -142,6 +143,9 @@ const RecordSection = ({
               녹음 세션
             </H4>
           </div>
+          <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 px-5 py-5">
+            <VideoTrack />
+          </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
               <AudioTrackHeader
@@ -166,6 +170,9 @@ const RecordSection = ({
         <div className="scrollbar-horizontal overflow-x-scoll mb-2 h-full w-full overflow-y-hidden">
           <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
             <Timeline duration={duration} setDuration={setDuration} />
+          </div>
+          <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
+            <ImagesFromVideo videoUrl={videoUrl} />
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (

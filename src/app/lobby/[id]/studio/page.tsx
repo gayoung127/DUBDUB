@@ -301,6 +301,7 @@ export default function StudioPage() {
           </div>
           <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
           <RecordSection
+            videoUrl={videoUrl}
             duration={duration}
             setDuration={setDuration}
             tracks={tracks}
