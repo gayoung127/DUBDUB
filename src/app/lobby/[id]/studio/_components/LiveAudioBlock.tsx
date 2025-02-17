@@ -31,7 +31,6 @@ const LiveAudioBlock = ({
       return subArray.reduce((sum, val) => sum + val, 0) / subArray.length;
     });
   };
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -47,14 +46,17 @@ const LiveAudioBlock = ({
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const centerY = canvas.height / 2;
-      const step = Math.ceil(data.length / canvas.width);
+      const step = Math.max(1, Math.ceil(data.length / canvas.width)); // 🔥 step 최소 1 보장
       const amp = canvas.height / 2;
 
       ctx.fillStyle = waveColor;
 
       for (let i = 0; i < canvas.width; i += 3) {
-        const min = Math.min(...data.slice(i * step, (i + 1) * step));
-        const max = Math.max(...data.slice(i * step, (i + 1) * step));
+        const segment = data.slice(i * step, (i + 1) * step);
+        if (segment.length === 0) continue; // 🔥 빈 배열 방지
+
+        const min = Math.min(...segment);
+        const max = Math.max(...segment);
 
         ctx.fillRect(i, (1 + min) * amp, 2, Math.max(2, (max - min) * amp));
       }
@@ -78,16 +80,17 @@ const LiveAudioBlock = ({
         Math.max(-1, Math.min(1, v)),
       );
 
-      // ✅ 노이즈 필터 적용 (Low-pass filtering)
       normalizedData = movingAverage(normalizedData, 5);
 
       setWaveformData((prev) => {
-        // ✅ 기존 데이터와 50% 혼합해서 부드럽게 변화 (Smoothing)
         const smoothedData = prev.map((val, i) =>
           i < normalizedData.length ? val * 0.5 + normalizedData[i] * 0.5 : val,
         );
 
         const newData = [...smoothedData, ...normalizedData];
+
+        // 🔥 기존 데이터와 다를 때만 업데이트
+        if (JSON.stringify(prev) === JSON.stringify(newData)) return prev;
 
         return newData;
       });
