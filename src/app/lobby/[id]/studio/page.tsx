@@ -299,6 +299,7 @@ export default function StudioPage() {
               <StudioScript scripts={parsedScripts} />
             </div>
           </div>
+          <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
           <RecordSection
             duration={duration}
             setDuration={setDuration}
@@ -316,7 +317,6 @@ export default function StudioPage() {
             stompClientRef={stompClientRef}
           />
         )}
-        <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
       </div>
     </DndProvider>
   );

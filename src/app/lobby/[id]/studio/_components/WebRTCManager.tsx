@@ -112,27 +112,49 @@ const WebRTCManager = ({ sessionId, sessionToken }: WebRTCManagerProps) => {
   }, [sessionToken, self, self?.memberId]);
 
   return (
-    <div>
-      {audioElements.map((audio) => (
-        <audio
-          key={audio.id}
-          ref={(el) => {
-            if (el) el.srcObject = audio.stream;
-          }}
-          autoPlay
-          controls
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "10px",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "20px",
+        flexDirection: "column",
+      }}
+    >
+      {audioElements.length === 0 ? (
+        <p style={{ fontSize: "16px", color: "#888", textAlign: "center" }}>
+          현재 참가자가 없습니다.
+        </p>
+      ) : (
+        <div
           style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "#000",
-            borderRadius: "8px",
-            padding: "10px",
-            zIndex: 1000,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+            justifyContent: "center",
           }}
-        />
-      ))}
+        >
+          {audioElements.map((audio) => (
+            <audio
+              key={audio.id}
+              ref={(el) => {
+                if (el) el.srcObject = audio.stream;
+              }}
+              autoPlay
+              controls
+              style={{
+                width: "250px",
+                maxWidth: "100%",
+                background: "#ddd",
+                borderRadius: "8px",
+                padding: "5px",
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
