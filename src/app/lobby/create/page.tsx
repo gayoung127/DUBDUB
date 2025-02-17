@@ -143,8 +143,8 @@ export default function Page() {
           <div className="mb-10 flex h-auto w-full items-center justify-center">
             <Video
               onChange={setVideoFile}
-              onThumbnailChange={(generatedThumbnail) => {
-                setThumbnail(generatedThumbnail);
+              onThumbnailChange={(file) => {
+                setThumbnail(file);
               }}
               setSpeakers={setSpeakers}
               setSegments={setSegments}

@@ -1,4 +1,5 @@
 import ClipboardIcon from "@/public/images/icons/icon-clipboard.svg";
+import ShareIcon from "@/public/images/icons/icon-share.svg";
 import { toast } from "sonner";
 
 export default function ShareButton() {
@@ -12,7 +13,7 @@ export default function ShareButton() {
 
   return (
     <button className="flex items-center justify-center px-2 py-1.5">
-      <ClipboardIcon onClick={handleShare} className="text-brand-100" />
+      <ShareIcon onClick={handleShare} className="text-brand-100" />
     </button>
   );
 }
