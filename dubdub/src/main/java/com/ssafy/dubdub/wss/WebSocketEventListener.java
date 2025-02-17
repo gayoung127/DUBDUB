@@ -64,18 +64,20 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) accessor.getUser();
-        if (auth != null) {
-            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-            Member user = userDetails.getMember();
+        Principal principal = accessor.getUser();
 
-            UserSession userSession = userSessionRepository.findByMemberId(user.getId().toString());
+        if (principal != null) {
+            String memberId = principal.getName();
+            Member member = memberRepository.findById(Long.parseLong(memberId))
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+
+            UserSession userSession = userSessionRepository.findByMemberId(member.getId().toString());
             if (userSession != null) {
                 String sessionId = userSession.getSessionId();
                 logger.info("사용자 연결 해제: {}", sessionId);
                 studioSessionService.removeUserFromSession(sessionId, userSession.getMemberId());
             } else {
-                logger.debug("이미 연결이 해제된 사용자입니다. memberId: {}", user.getId().toString());
+                logger.debug("이미 연결이 해제된 사용자입니다. memberId: {}", member.getId().toString());
             }
         }
     }
