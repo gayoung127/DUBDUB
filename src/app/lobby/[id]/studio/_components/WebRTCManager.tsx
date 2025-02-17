@@ -7,7 +7,6 @@
 3. 오디오 스트림을 OpenVidu에 추가하고 다른 사용자와 공유
 */
 import { useMicStore } from "@/app/_store/MicStore";
-import { useTimeStore } from "@/app/_store/TimeStore";
 import {
   OpenVidu,
   Publisher,
@@ -18,10 +17,6 @@ import {
 } from "openvidu-browser";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-/*
-isPlaying → 비디오 재생 상태
-time → 현재 재생 위치
- */
 interface WebRTCManagerProps {
   studioId: number;
   sessionId: string;
@@ -98,10 +93,6 @@ const WebRTCManager = ({
               handleStreamCreated({ stream: connection.stream });
             }
           });
-        } else {
-          console.warn(
-            "🚨 세션 연결이 완료되지 않아 syncRequest 신호를 보낼 수 없습니다.",
-          );
         }
       } catch (error) {
         console.error("OpenVidu 세션 초기화 실패: ", error);
@@ -120,9 +111,7 @@ const WebRTCManager = ({
         sessionRef.current.disconnect();
       }
 
-      setTimeout(() => {
-        setSubscribers([]);
-      }, 100);
+      setSubscribers([]);
       setPublisher(null);
       openViduRef.current = null;
     };
@@ -207,7 +196,7 @@ const WebRTCManager = ({
         console.log(
           "스트림이 재생됨. ICE Candidate가 아마 connected 또는 complete 상태일 것",
         );
-        handleStreamPlaying();
+        handleStreamPlaying(subscriber);
       });
 
       const peerConnection = subscriber.stream.getRTCPeerConnection();
@@ -230,10 +219,10 @@ const WebRTCManager = ({
         }
 
         console.log("⏳ 1초 동안 `streamPlaying`이 실행되지 않아 강제 실행");
-        handleStreamPlaying();
-      }, 1000);
+        handleStreamPlaying(subscriber);
+      });
 
-      const handleStreamPlaying = () => {
+      const handleStreamPlaying = (sub: Subscriber) => {
         const mediaStream = subscriber.stream.getMediaStream();
         console.log("🎵 구독한 미디어 스트림:", mediaStream);
 
@@ -246,7 +235,7 @@ const WebRTCManager = ({
           track.enabled = true;
         });
 
-        setSubscribers((prev) => [...prev, subscriber]);
+        setSubscribers((prev) => [...prev, sub]);
 
         const connectionData = JSON.parse(event.stream.connection.data);
         const remoteUserId = connectionData.userId;
