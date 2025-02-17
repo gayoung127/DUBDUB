@@ -1,7 +1,5 @@
 package com.ssafy.dubdub.wss.config;
 
-import com.ssafy.dubdub.domain.entity.Member;
-import com.ssafy.dubdub.security.dto.CustomUserDetails;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -11,13 +9,9 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import java.util.Collections;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -34,21 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     String memberId = accessor.getFirstNativeHeader("memberId");
 
                     if (memberId != null) {
-                        // CustomUserDetails를 생성하여 Member 정보 설정
-                        Member member = Member.builder()
-                                .id(Long.parseLong(memberId))
-                                .build();
-
-                        CustomUserDetails userDetails = new CustomUserDetails(member, false);
-
-                        // UsernamePasswordAuthenticationToken 생성 (WebSocketEventListener가 기대하는 형식)
-                        Authentication auth = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                Collections.emptyList()
-                        );
-
-                        accessor.setUser(auth);
+                        accessor.setUser(() -> memberId);
                     }
                 }
                 return message;
