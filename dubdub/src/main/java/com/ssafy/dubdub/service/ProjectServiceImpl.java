@@ -55,7 +55,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
 
         String videoPath = FileUtil.generateFilePath(owner.getEmail(), FileType.ORIGINAL_VIDEO);
-        String thumbnailPath = FileUtil.generateFilePath(owner.getEmail(), FileType.ORIGINAL_VIDEO);
+        String thumbnailPath = FileUtil.generateFilePath(owner.getEmail(), FileType.THUMBNAIL);
 
         String videoUrl = s3Service.uploadFile(video, videoPath);
         String thumbnailUrl = s3Service.uploadFile(thumbnail, thumbnailPath);
