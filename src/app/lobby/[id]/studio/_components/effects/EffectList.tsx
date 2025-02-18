@@ -5,12 +5,10 @@ import H2 from "@/app/_components/H2";
 import H4 from "@/app/_components/H4";
 import BeforeIcon from "@/public/images/icons/icon-before.svg";
 import Button from "@/app/_components/Button";
-import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
+import { Asset, Track } from "@/app/_types/studio";
 import Delay from "./Delay";
 import useBlockStore from "@/app/_store/BlockStore";
 import { audioBufferToWav } from "@/app/_utils/audioBufferToMp3";
-import VocalRemoval from "./VocalRemoval";
-import Compressor from "./Compressor";
 import { findPossibleId } from "@/app/_utils/findPossibleId";
 import { useUserStore } from "@/app/_store/UserStore";
 import { postAsset } from "@/app/_apis/studio";
@@ -33,7 +31,7 @@ const EffectList = ({
   const audioContextRef = useRef<AudioContext | null>(new AudioContext());
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const { selectedBlock, selectedBlockObj } = useBlockStore();
+  const { selectedBlockObj } = useBlockStore();
   const [version, setVersion] = useState<number>(0);
   const [selectedEffect, setSelectedEffect] = useState<{
     name: string;
@@ -49,11 +47,9 @@ const EffectList = ({
         return;
       }
 
-      const file = selectedBlock
-        ? selectedBlock
-        : selectedBlockObj?.selectedAudioFile
-          ? selectedBlockObj.selectedAudioFile
-          : null;
+      const file = selectedBlockObj?.selectedAudioFile
+        ? selectedBlockObj.selectedAudioFile
+        : null;
 
       if (!file) {
         console.log("❌ 선택된 오디오 블럭이 없습니다.");
@@ -73,7 +69,7 @@ const EffectList = ({
       }
     }
     loadAudio();
-  }, [selectedBlock]);
+  }, [selectedBlockObj]);
 
   useEffect(() => {
     if (selectedEffect && activeSourceRef.current) {
@@ -100,10 +96,10 @@ const EffectList = ({
   }
 
   useEffect(() => {
-    if (!selectedBlock) {
+    if (!selectedBlockObj.selectedAudioFile) {
       return;
     }
-    setVersion(findPossibleVersion(selectedBlock.id));
+    setVersion(findPossibleVersion(selectedBlockObj.selectedAudioFile.id));
   }, [assets]);
 
   function isSameFile(str1: string, str2: string) {
@@ -135,7 +131,7 @@ const EffectList = ({
   }
 
   async function saveAsAssets() {
-    if (!audioBuffer.current || !selectedBlock) {
+    if (!audioBuffer.current || !selectedBlockObj.selectedAudioFile) {
       return;
     }
 
@@ -144,53 +140,30 @@ const EffectList = ({
 
     // 추가된 파일
     let newFile = {
-      ...selectedBlock,
-      id: `${selectedBlock.id.split("-")[0].split("_")[0]}_${version}`,
+      ...selectedBlockObj.selectedAudioFile, // ✅ selectedBlock → selectedBlockObj.selectedAudioFile
+      id: `${selectedBlockObj.selectedAudioFile!.id.split("-")[0].split("_")[0]}_${version}`,
       url,
     };
 
-    // 전체 블럭에 효과 적용,
+    // 전체 블럭에 효과 적용
     if (selectedBlockObj.applyToAll) {
-      setTracks(() =>
-        tracks.map((prevTracks) => {
-          return {
-            ...prevTracks,
-            files: prevTracks.files.map((file) => {
-              if (
-                file.id.split("-")[0] ===
-                selectedBlockObj.selectedAudioFile!.id.split("-")[0]
-              ) {
-                newFile = {
-                  ...file,
-                  id: `${selectedBlockObj.selectedAudioFile!.id.split("-")[0].split("_")[0]}_${version}-${Date.now() + Math.floor(Math.random() * 1000)}`,
-                  url,
-                };
-                return newFile;
-              }
-              return file;
-            }),
-          };
-        }),
-      );
-    } else {
-      // 특정 오디오 블럭에만 적용
-      setTracks(
-        tracks.map((track, index) => {
-          if (index === selectedBlockObj.trackId! - 1) {
-            return {
-              ...track,
-              files: track.files.map((file, fIndex) => {
-                if (fIndex === selectedBlockObj.blockIndex) {
-                  return newFile;
-                } else {
-                  return file;
-                }
-              }),
-            };
-          } else {
-            return track;
-          }
-        }),
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => ({
+          ...track,
+          files: track.files.map((file) => {
+            if (
+              file.id.split("-")[0] ===
+              selectedBlockObj.selectedAudioFile!.id.split("-")[0]
+            ) {
+              return {
+                ...file,
+                id: `${selectedBlockObj.selectedAudioFile!.id.split("-")[0].split("_")[0]}_${version}-${Date.now() + Math.floor(Math.random() * 1000)}`,
+                url,
+              };
+            }
+            return file;
+          }),
+        })),
       );
     }
     // 파일 추가
@@ -229,28 +202,6 @@ const EffectList = ({
           context={audioContextRef}
           audioBuffer={audioBuffer}
           updateBuffer={updateBuffer}
-        />
-      ),
-    },
-    {
-      name: "보컬 제거",
-      component: (
-        <VocalRemoval
-          context={audioContextRef}
-          audioBuffer={audioBuffer}
-          updateBuffer={updateBuffer}
-          selectedBlock={selectedBlock}
-        />
-      ),
-    },
-    {
-      name: "컴프레서",
-      component: (
-        <Compressor
-          context={audioContextRef}
-          audioBuffer={audioBuffer}
-          updateBuffer={updateBuffer}
-          selectedBlock={selectedBlock}
         />
       ),
     },
