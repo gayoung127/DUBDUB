@@ -81,6 +81,7 @@ export const usePlaySocket = () => {
     pause,
     reset,
     setIsRecording,
+    setTimeFromPx,
   ]);
 
   return { sendPlaybackStatus };
