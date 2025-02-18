@@ -38,8 +38,12 @@ services:
     image: rabbitmq:3.13-management
     container_name: dubdub_rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"    # AMQP 프로토콜용
+      - "15672:15672"  # 관리 UI용
+      - "15674:15674"  # STOMP 웹소켓용
+    command: >
+      bash -c "rabbitmq-plugins enable rabbitmq_management rabbitmq_web_stomp &&
+              rabbitmq-server"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     environment:

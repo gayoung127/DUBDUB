@@ -1,16 +1,19 @@
 package com.ssafy.dubdub.service;
 
-import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
-import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
-import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
+import com.ssafy.dubdub.domain.dto.ProjectCreateRequestDTO;
+import com.ssafy.dubdub.domain.dto.ProjectListResponseDTO;
+import com.ssafy.dubdub.domain.dto.ProjectSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.*;
 import com.ssafy.dubdub.enums.FileType;
+import com.ssafy.dubdub.enums.ParticipationType;
 import com.ssafy.dubdub.repository.*;
 import com.ssafy.dubdub.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,8 +23,8 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-@Service
-public class RecruitmentServiceImpl implements RecruitmentService {
+@Service()
+public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final FileRepository fileRepository;
 
@@ -36,7 +39,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member owner) throws BadRequestException {
+    public Long addProject(ProjectCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member owner) throws BadRequestException {
         if (!FileUtil.isValidVideoFile(video)) {
             log.debug("Invalid video file");
             throw new BadRequestException("비디오를 업로드해주세요.");
@@ -77,9 +80,17 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    public Page<RecruitmentListResponseDTO> getRecruitments(RecruitmentSearchRequestDTO condition, Member member) {
-//        Page<Project> recruitments = projectRepository.findBySearchCondition(condition, member);
-//        return recruitments.map(this::convertToDTO);
-        return null;
+    public Page<ProjectListResponseDTO> getProjects(ProjectSearchRequestDTO condition, Member member) {
+        PageRequest pageRequest = PageRequest.of(
+                condition.getPage(),
+                condition.getSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        if (condition.getParticipationType() == ParticipationType.CREATED) {
+            return projectRepository.findProjectsWithThumbnailByOwner(member, pageRequest);
+        } else {
+            return projectRepository.findProjectsWithThumbnailByParticipant(member, pageRequest);
+        }
     }
 }
