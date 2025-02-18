@@ -61,7 +61,7 @@ const Video = ({
     const videoData = new FormData();
     videoData.append("file", file);
     try {
-      const response = await fetch("/api/clova-speech", {
+      const response = await fetch("/next-api/clova-speech", {
         method: "POST",
         body: videoData,
       });
