@@ -2,6 +2,7 @@ import React from "react";
 import H2 from "@/app/_components/H2";
 import { Segment, Speaker } from "@/app/_types/script";
 import ParsedScript from "./ParsedScript";
+import { ParsedScriptEntry } from "../page";
 
 interface ScriptProps {
   onChange: (value: string) => void;
@@ -40,7 +41,7 @@ const Script = ({
       <H2 className="mb-4">SCRIPT</H2>
       <div className="space-y-12">
         <div className="w-full">
-          {segments.length === 0 && <div>대본이 비어있습니다.</div>}
+          {segments.length === 0 && <div>대본을 입력해주세요.</div>}
           <ParsedScript parsedScript={parsedScript} />
           {/* <textarea
             className="min-h-[320px] w-full resize-none rounded-lg bg-gray-50 p-4 focus:outline-none"

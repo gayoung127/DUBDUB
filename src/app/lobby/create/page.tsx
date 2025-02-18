@@ -9,8 +9,9 @@ import Button from "@/app/_components/Button";
 import Pencil from "@/public/images/icons/icon-pencil.svg";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
+// import { Segment } from "@/app/_types/script";
 
-interface ParsedScriptEntry {
+export interface ParsedScriptEntry {
   label: string;
   start: number;
   text: string;
@@ -126,8 +127,15 @@ export default function Page() {
               setSpeakers={setSpeakers}
               setSegments={(newSegments) => {
                 setSegments((prevSegments) => {
+                  if (!Array.isArray(newSegments)) {
+                    console.error(
+                      "newSegments는 배열이어야 합니다.",
+                      newSegments,
+                    );
+                    return prevSegments; // 잘못된 값이 들어오면 이전 상태를 유지
+                  }
                   const updatedSegments = [...prevSegments, ...newSegments];
-                  setParsedScript(parseSegments(updatedSegments));
+                  setParsedScript(parseSegments(updatedSegments)); // 병합된 세그먼트를 파싱하여 업데이트
                   return updatedSegments;
                 });
               }}
