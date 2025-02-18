@@ -10,7 +10,7 @@ import Pencil from "@/public/images/icons/icon-pencil.svg";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
 
-interface ParsedScriptEntry {
+export interface ParsedScriptEntry {
   label: string;
   start: number;
   text: string;

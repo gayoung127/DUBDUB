@@ -2,6 +2,7 @@ import React from "react";
 import H2 from "@/app/_components/H2";
 import { Segment, Speaker } from "@/app/_types/script";
 import ParsedScript from "./ParsedScript";
+import { ParsedScriptEntry } from "../page";
 
 interface ScriptProps {
   onChange: (value: string) => void;
