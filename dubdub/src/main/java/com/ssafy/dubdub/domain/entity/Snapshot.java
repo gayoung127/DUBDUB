@@ -22,15 +22,11 @@ public class Snapshot extends Timestamped{
     @Column(columnDefinition = "text")
     private String assets;
 
-    @Column(columnDefinition = "text")
-    private String audioBlocks;
-
     @Builder
-    public Snapshot(Project project, String tracks, String assets, String audioBlocks) {
+    public Snapshot(Project project, String tracks, String assets) {
         this.project = project;
         this.tracks = tracks;
         this.assets = assets;
-        this.audioBlocks = audioBlocks;
     }
 }
 

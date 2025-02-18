@@ -1,10 +1,11 @@
 package com.ssafy.dubdub.service;
 
 import com.ssafy.dubdub.domain.dto.FileUploadResponseDTO;
+import com.ssafy.dubdub.domain.dto.SnapshotDTO;
 import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.*;
 import com.ssafy.dubdub.domain.entity.Project;
-import com.ssafy.dubdub.domain.entity.Session;
+import com.ssafy.dubdub.domain.entity.Studio;
 import com.ssafy.dubdub.enums.FileType;
 import com.ssafy.dubdub.exception.BaseException;
 import com.ssafy.dubdub.exception.ErrorCode;
@@ -46,30 +47,34 @@ public class StudioService {
         Optional<File> video = fileRepository.findByProjectIdAndFileType(projectId, FileType.ORIGINAL_VIDEO);
         String videoUrl = video.map(File::getUrl).orElse(null);
 
-        Session session = studioRepository.findFirstByProjectIdAndIsClosedIsFalse(projectId)
+        Optional<File> thumbnail = fileRepository.findByProjectIdAndFileType(projectId, FileType.THUMBNAIL);
+        String thumbnailUrl = thumbnail.map(File::getUrl).orElse(null);
+
+        Studio studio = studioRepository.findFirstByProjectIdAndIsClosedIsFalse(projectId)
                 .orElseGet(() -> {
                     try {
-                        Session newSession = new Session(project, openViduService.createSession());
-                        return studioRepository.save(newSession);
+                        Studio newStudio = new Studio(project, openViduService.createSession());
+                        return studioRepository.save(newStudio);
                     } catch (OpenViduJavaClientException | OpenViduHttpException e) {
                         throw new RuntimeException("OpenVidu 세션 생성 중 오류 발생", e);
                     }
                 });
 
-        String token = openViduService.createConnection(session.getSession());
+        String token = openViduService.createConnection(studio.getSession());
 
-//        String latestWorkspaceData = snapshotRepository.findLatestWorkspaceData(projectId)
-//                .map(Snapshot::getWorkspaceData)
-//                .orElse(null);
+        SnapshotDTO snapshot = snapshotRepository.findFirstByProjectIdOrderByCreatedAtDesc(projectId)
+                .map(SnapshotDTO::from)
+                .orElse(null);
 
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
                 .script(project.getScript())
                 .videoUrl(videoUrl)
+                .thumbnailUrl(thumbnailUrl)
                 .roleList(roleList)
                 .token(token)
-                .session(session.getSession())
-//                .workspaceData(latestWorkspaceData)
+                .session(studio.getSession())
+                .snapshot(snapshot)
                 .build();
     }
 
@@ -119,12 +124,12 @@ public class StudioService {
         return new FileUploadResponseDTO(url, project.getId());
     }
 
-        public void closeStudioIfEmpty(String session){
-            studioRepository.findBySession(session)
-                    .ifPresent(studio -> {
-                        if(!studio.isClosed()){
-                            studio.close();
-                        }
-                    });
-        }
+    public void closeStudioIfEmpty(String session) {
+        studioRepository.findBySession(session)
+                .ifPresent(studio -> {
+                    if (!studio.isClosed()) {
+                        studio.close();
+                    }
+                });
     }
+}

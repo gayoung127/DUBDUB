@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Session extends Timestamped {
+public class Studio extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +27,7 @@ public class Session extends Timestamped {
     @Column
     private LocalDateTime closedAt;
 
-    public Session(Project project, String session) {
+    public Studio(Project project, String session) {
         this.project = project;
         this.session = session;
     }

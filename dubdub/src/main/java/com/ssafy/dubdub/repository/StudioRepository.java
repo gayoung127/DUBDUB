@@ -1,15 +1,15 @@
 package com.ssafy.dubdub.repository;
 
-import com.ssafy.dubdub.domain.entity.Session;
+import com.ssafy.dubdub.domain.entity.Studio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface StudioRepository extends JpaRepository<Session, Long> {
+public interface StudioRepository extends JpaRepository<Studio, Long> {
 
-    Optional<Session> findFirstByProjectIdAndIsClosedIsFalse(Long projectId);
+    Optional<Studio> findFirstByProjectIdAndIsClosedIsFalse(Long projectId);
 
-    Optional<Session> findBySession(String session);
+    Optional<Studio> findBySession(String session);
 }

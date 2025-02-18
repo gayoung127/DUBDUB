@@ -28,8 +28,8 @@ public class StudioController {
     @Operation(summary = "스튜디오 입장하기")
     @PostMapping("/{pid}")
     public ResponseEntity<StudioEnterResponseDto> createStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
-//        Member member = SecurityUtil.getCurrentUser();
-        StudioEnterResponseDto responseDto = studioService.createStudio(null, projectId);
+        Member member = SecurityUtil.getCurrentUser();
+        StudioEnterResponseDto responseDto = studioService.createStudio(member, projectId);
 
         return ResponseEntity.ok(responseDto);
     }
