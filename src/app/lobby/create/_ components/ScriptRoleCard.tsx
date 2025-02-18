@@ -15,11 +15,10 @@ const ScriptRoleCard = ({ label, speakers, setSpeakers }: RoleCardProps) => {
 
   const getBgColor = (label: string) => {
     const colors: { [key: string]: string } = {
-      "1": "bg-red-400",
-      "2": "bg-blue-400",
-      "3": "bg-green-400",
-      "4": "bg-yellow-400",
-      "5": "bg-purple-400",
+      "1": "bg-white-100",
+      "2": "bg-brand-100",
+      "3": "bg-brand-200",
+      "4": "bg-brand-300",
     };
     return colors[label] || "bg-gray-400";
   };

@@ -55,32 +55,36 @@ const Script = ({
   };
 
   return (
-    <section className="mx-auto w-full max-w-2xl p-4">
-      <div className="space-y-12">
-        <div className="w-full">
-          <H2>ROLES</H2>
-          <div className="flex gap-3">
-            {speakers &&
-              speakers.map((speaker, index) => (
-                <ScriptRoleCard
-                  key={index}
-                  speakers={speakers}
-                  setSpeakers={setSpeakers}
-                  label={speaker.label}
-                />
-              ))}
-          </div>
-          {segments.length === 0 && <div>대본을 입력해주세요.</div>}
-          <H2 className="mb-4">SCRIPT</H2>
-          <ScriptRoleCard speakers={speakers} label={"2"} />
-          <ParsedScript parsedScript={parsedScript} onUpdate={handleUpdate} />
-          {/* <textarea
+    <section className="mx-auto h-[90%] w-[90%] p-4">
+      <H2 className="mb-4 px-6 text-white-100">SCRIPT</H2>
+      <div className="flex flex-col gap-5">
+        <div className="flex gap-5 px-8">
+          {speakers &&
+            speakers.map((speaker, index) => (
+              <ScriptRoleCard
+                key={index}
+                label={speaker.label}
+                speakers={speakers}
+                setSpeakers={setSpeakers}
+              />
+            ))}
+        </div>
+        <div className="flex min-h-[320px] w-full flex-col items-center justify-center space-y-12 rounded-lg bg-gray-100 p-6 focus:outline-none">
+          <div className="white-scrollbar max-h-[500px] w-full overflow-y-auto">
+            {segments.length === 0 && <div>대본을 입력해주세요.</div>}
+            <ParsedScript
+              parsedScript={parsedScript}
+              onUpdate={handleUpdate}
+              speakers={speakers}
+            />
+            {/* <textarea
             className="min-h-[320px] w-full resize-none rounded-lg bg-gray-50 p-4 focus:outline-none"
             placeholder={` : 형태로 대사를 입력해주세요.
               예시)
               짱구 : 안녕하세요.`}
             onChange={handleInputChange}
           /> */}
+          </div>
         </div>
       </div>
     </section>

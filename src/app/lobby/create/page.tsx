@@ -1,10 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Description from "./_ components/Description";
-import Genre from "./_ components/Genre";
-import Castings from "./_ components/Castings";
-import Type from "./_ components/Type";
 import Title from "./_ components/Title";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
@@ -25,10 +21,6 @@ export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
   const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
-  const [genreTypes, setGenreTypes] = useState<string[]>([]);
-  const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
-  const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [script, setScript] = useState<string>("");
   const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -75,10 +67,6 @@ export default function Page() {
           JSON.stringify({
             title,
             script,
-            content,
-            castings,
-            genreTypes,
-            categoryTypes,
           }),
         ],
         { type: "application/json" },
@@ -128,62 +116,61 @@ export default function Page() {
     <div className="flex h-full min-h-screen w-full flex-col">
       <Header />
 
-      {/* Video and Title */}
-      <form onSubmit={handleSubmit} className="space-y-4 p-4">
-        <div className="flex">
-          {/* Left Section */}
-          <div className="w-1/3 space-y-4">
-            <Video
-              onChange={setVideoFile}
-              onThumbnailChange={(file) => setThumbnail(file)}
-              setSpeakers={setSpeakers}
-              setSegments={(newSegments) => {
-                setSegments((prevSegments) => {
-                  if (!Array.isArray(newSegments)) {
-                    console.error(
-                      "newSegments는 배열이어야 합니다.",
-                      newSegments,
-                    );
-                    return prevSegments; // 잘못된 값이 들어오면 이전 상태를 유지
-                  }
-                  const updatedSegments = [...prevSegments, ...newSegments];
-                  setParsedScript(parseSegments(updatedSegments)); // 병합된 세그먼트를 파싱하여 업데이트
-                  return updatedSegments;
-                });
-              }}
-            />
-            <Title onChange={setTitle} />
+      <div className="flex h-full flex-col justify-center bg-gray-400">
+        {/* Video and Title */}
+        <form onSubmit={handleSubmit} className="space-y-4 p-4">
+          <div className="flex">
+            {/* Left Section */}
+            <div className="flex w-1/3 flex-col justify-around space-y-4 pt-10">
+              <Title onChange={setTitle} />
+              <Video
+                onChange={setVideoFile}
+                onThumbnailChange={(file) => setThumbnail(file)}
+                setSpeakers={setSpeakers}
+                setSegments={(newSegments) => {
+                  setSegments((prevSegments) => {
+                    if (!Array.isArray(newSegments)) {
+                      console.error(
+                        "newSegments는 배열이어야 합니다.",
+                        newSegments,
+                      );
+                      return prevSegments; // 잘못된 값이 들어오면 이전 상태를 유지
+                    }
+                    const updatedSegments = [...prevSegments, ...newSegments];
+                    setParsedScript(parseSegments(updatedSegments)); // 병합된 세그먼트를 파싱하여 업데이트
+                    return updatedSegments;
+                  });
+                }}
+              />
+            </div>
+
+            {/* Right Section */}
+            <div className="w-2/3 space-y-4">
+              <Script
+                onChange={(value: any) => setScript(value)} // Script 문자열 업데이트
+                speakers={speakers}
+                setSpeakers={setSpeakers}
+                segments={segments}
+                parsedScript={parsedScript} // 파싱된 데이터 전달
+              />
+            </div>
           </div>
 
-          {/* Right Section */}
-          <div className="w-2/3 space-y-4">
-            <Script
-              onChange={(value) => setScript(value)} // Script 문자열 업데이트
-              speakers={speakers}
-              setSpeakers={setSpeakers}
-              segments={segments}
-              parsedScript={parsedScript} // 파싱된 데이터 전달
-            />
-          </div>
-        </div>
-
-        {/* Hidden Script Field for Submission */}
-        <textarea name="script" value={script} onChange={() => {}} hidden />
-
-        {/* Submit Button */}
-        <Button
-          onClick={() => {
-            const form = document.querySelector("form");
-            if (form) {
-              form.requestSubmit();
-            }
-          }}
-          outline={false}
-          large={true}
-        >
-          제출하기
-        </Button>
-      </form>
+          {/* Submit Button */}
+          <Button
+            onClick={() => {
+              const form = document.querySelector("form");
+              if (form) {
+                form.requestSubmit();
+              }
+            }}
+            outline={false}
+            large={true}
+          >
+            제출하기
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
