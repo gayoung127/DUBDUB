@@ -93,7 +93,7 @@ export default function Page() {
           JSON.stringify({
             title,
             castings: ["짱구", "철수", "맹구"],
-            script,
+            script: stringScript,
           }),
         ],
         { type: "application/json" },
