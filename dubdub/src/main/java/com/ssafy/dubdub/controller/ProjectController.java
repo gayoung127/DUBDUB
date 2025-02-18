@@ -2,8 +2,8 @@ package com.ssafy.dubdub.controller;
 
 import com.ssafy.dubdub.domain.dto.CreationResponseDto;
 import com.ssafy.dubdub.domain.dto.ProjectCreateRequestDTO;
-import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
-import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
+import com.ssafy.dubdub.domain.dto.ProjectListResponseDTO;
+import com.ssafy.dubdub.domain.dto.ProjectSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.ProjectService;
 import com.ssafy.dubdub.util.SecurityUtil;
@@ -42,13 +42,13 @@ public class ProjectController {
 
     @Operation(summary = "내 프로젝트 조회")
     @GetMapping("/list")
-    public ResponseEntity<Page<RecruitmentListResponseDTO>> getRecruitments(
-            @ModelAttribute RecruitmentSearchRequestDTO request
+    public ResponseEntity<Page<ProjectListResponseDTO>> getRecruitments(
+            @ModelAttribute ProjectSearchRequestDTO request
     ) {
         Member member = SecurityUtil.getCurrentUser();
 
-        Page<RecruitmentListResponseDTO> response =
-                projectService.getRecruitments(request, member);
+        Page<ProjectListResponseDTO> response =
+                projectService.getProjects(request, member);
         return ResponseEntity.ok(response);
     }
 }
