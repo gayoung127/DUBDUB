@@ -148,6 +148,7 @@ export default function Page() {
             <Script
               onChange={(value) => setScript(value)} // Script 문자열 업데이트
               speakers={speakers}
+              setSpeakers={setSpeakers}
               segments={segments}
               parsedScript={parsedScript} // 파싱된 데이터 전달
             />

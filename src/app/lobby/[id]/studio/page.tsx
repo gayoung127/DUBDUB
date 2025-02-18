@@ -38,7 +38,12 @@ export default function StudioPage() {
   const [duration, setDuration] = useState<number>(160);
   const [sessionToken, setSessionToken] = useState<string>("");
   const [parsedScripts, setParsedScripts] = useState<Script[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [roles, setRoles] = useState<Role[]>([
+    { id: "1", name: "" },
+    { id: "2", name: "" },
+    { id: "3", name: "" },
+    { id: "4", name: "" },
+  ]);
 
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();

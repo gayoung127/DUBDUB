@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import H2 from "@/app/_components/H2";
 import { Segment, Speaker } from "@/app/_types/script";
 import ParsedScript from "./ParsedScript";
 import { ParsedScriptEntry } from "../page";
+import ScriptRoleCard from "./ScriptRoleCard";
 
 interface ScriptProps {
   onChange: (value: string) => void;
   speakers: Speaker[];
+  setSpeakers: (updatedSpeakers: Speaker[]) => void;
   segments: Segment[];
   parsedScript: ParsedScriptEntry[];
 }
@@ -14,6 +16,7 @@ interface ScriptProps {
 const Script = ({
   onChange,
   speakers,
+  setSpeakers,
   segments,
   parsedScript,
 }: ScriptProps) => {
@@ -36,12 +39,26 @@ const Script = ({
   // script 문자열 생성 및 부모 컴포넌트로 전달
   const scriptString = generateScript();
   onChange(scriptString); // 부모 컴포넌트에 script 문자열 전달
+
   return (
     <section className="mx-auto w-full max-w-2xl p-4">
-      <H2 className="mb-4">SCRIPT</H2>
       <div className="space-y-12">
         <div className="w-full">
+          <H2>ROLES</H2>
+          <div className="flex gap-3">
+            {speakers &&
+              speakers.map((speaker, index) => (
+                <ScriptRoleCard
+                  key={index}
+                  speakers={speakers}
+                  setSpeakers={setSpeakers}
+                  label={speaker.label}
+                />
+              ))}
+          </div>
           {segments.length === 0 && <div>대본을 입력해주세요.</div>}
+          <H2 className="mb-4">SCRIPT</H2>
+          <ScriptRoleCard speakers={speakers} label={"2"} />
           <ParsedScript parsedScript={parsedScript} />
           {/* <textarea
             className="min-h-[320px] w-full resize-none rounded-lg bg-gray-50 p-4 focus:outline-none"
