@@ -24,6 +24,8 @@ logging:
   level:
     root: INFO  # 다른 로그들은 숨기기
     com.ssafy.dubdub.wss: INFO  # wss 패키지 로그 보기
+    # cursor 관련 로그 제외
+    com.ssafy.dubdub.wss.controller.WebSocketController.sendCursorData: OFF
 
   # 로그 패턴 설정
   pattern:
