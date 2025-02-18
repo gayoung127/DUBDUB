@@ -67,9 +67,10 @@ const PlayBar = ({
 
   useEffect(() => {
     console.log("🔄 `useEffect` 감지 - isRecording 변경됨:", isRecording);
+
     if (isRecording && !isManualRecording.current) {
-      console.log("🔥 소켓에서 받은 isRecording으로 녹음 시작");
-      handleRecording();
+      console.log("🔥 소켓에서 받은 recording으로 녹음 시작");
+      startRecordingFromSocket(); // 🎯 새로운 녹음 함수 호출
     }
   }, [isRecording]);
 
@@ -141,17 +142,23 @@ const PlayBar = ({
   // handleRecording(): 녹음하는 함수
   const handleRecording = async () => {
     console.log("🎤 handleRecording 실행됨! 현재 isRecording:", isRecording);
+
     if (!userId) {
       toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
       return;
     }
 
-    if (isRecording) {
+    // 🔥 사용자가 직접 녹음을 누른 경우 -> 소켓을 통해 다른 사람에게도 알림
+    if (!isManualRecording.current) {
+      console.log("📡 [소켓] 녹음 상태 전송: ", !isRecording);
       sendPlaybackStatus({
-        recording: false,
-        playState: "STOP",
+        recording: !isRecording,
+        playState: isRecording ? "STOP" : "PLAY",
       });
+    }
 
+    if (isRecording) {
+      console.log("🛑 녹음 중지 처리 중...");
       mediaRecorderRef.current?.stop();
       stopRecording();
 
@@ -160,82 +167,146 @@ const PlayBar = ({
         setAudioContext(null);
         setAnalyser(null);
       }
+
       setMediaRecorder(null);
       isManualRecording.current = false; // 🔥 녹음 종료 후 플래그 초기화
-      console.log("🛑 녹음 중지 메시지 전송");
-    } else {
-      console.log("🎬 녹음 시작 메시지 전송");
-      isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
+      return;
+    }
 
-      const currentTime = time;
-      const activeMics = Object.entries(micStatus)
-        .filter(([_, isOn]) => isOn)
-        .map(([userId]) => userId);
+    console.log("🎬 녹음 시작!");
+    isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
 
-      if (activeMics.length === 0) {
-        toast.warning("역할 탭에서 자신의 마이크를 켜주세요!");
+    const currentTime = time;
+    const activeMics = Object.entries(micStatus)
+      .filter(([_, isOn]) => isOn)
+      .map(([userId]) => userId);
+
+    if (activeMics.length === 0) {
+      toast.warning("역할 탭에서 자신의 마이크를 켜주세요!");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      const track = tracks.find((t) => t.recorderId === userId);
+      if (!track) {
+        toast.warning("오디오 트랙에 참여자를 할당해주세요!");
         return;
       }
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        const recorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = recorder;
+      recorder.onstop = async () => {
+        toast.success("녹음된 파일을 저장 중입니다...");
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const url = URL.createObjectURL(audioBlob);
+        console.log("🎵 생성된 오디오 파일 URL:", url);
 
-        const chunks: Blob[] = [];
-        recorder.ondataavailable = (event) => {
-          console.log("데이터 저장됨:", event.data);
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
-        };
-
-        const track = tracks.find((t) => t.recorderId === userId);
-        if (!track) {
-          toast.warning("오디오 트랙에 참여자를 할당해주세요!");
+        if (!track.recorderId) {
+          toast.error("트랙에 할당된 참여자가 없습니다.");
           return;
         }
 
-        recorder.onstop = async () => {
-          toast.success("녹음된 파일을 저장 중입니다...");
-          const audioBlob = new Blob(chunks, { type: "audio/webm" });
-          const url = URL.createObjectURL(audioBlob);
-          console.log("🎵 생성된 오디오 파일 URL:", url);
+        const newUrl = await postAsset(String(pid), audioBlob);
+        createAudioFile(track.trackId, newUrl, currentTime);
+      };
 
-          if (!track.recorderId) {
-            toast.error(
-              "트랙에 할당된 참여자가 없습니다. 녹음 파일 추가에 실패했습니다.",
-            );
-            return;
-          }
+      recorder.start();
+      startRecording(track.trackId);
+      setMediaRecorder(recorder);
 
-          const newUrl = await postAsset(String(pid), audioBlob);
-          createAudioFile(track.trackId, newUrl, currentTime);
-        };
+      const AudioCtx = window.AudioContext;
+      const audioCtx = new AudioCtx();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      source.connect(analyser);
 
-        sendPlaybackStatus({
-          recording: true,
-          playState: "PLAY",
-        });
+      setAudioContext(audioCtx);
+      setAnalyser(analyser);
+    } catch (error) {
+      toast.error(`오류가 발생했습니다. ${error}`);
+    }
+  };
 
-        recorder.start();
-        startRecording(track.trackId);
-        setMediaRecorder(recorder);
+  // startRecordingFromSocket(): 소켓 상태 받아서 자동 녹음 진행
+  const startRecordingFromSocket = async () => {
+    console.log("🎬 [소켓] 녹음 시작 - isRecording 상태:", isRecording);
 
-        const AudioCtx = window.AudioContext;
-        const audioCtx = new AudioCtx();
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
+    if (!userId) {
+      toast.warning("오류: 사용자 정보가 없어 녹음을 시작할 수 없습니다.");
+      return;
+    }
 
-        setAudioContext(audioCtx);
-        setAnalyser(analyser);
-      } catch (error) {
-        toast.error(`오류가 발생했습니다. ${error}`);
+    const currentTime = time;
+    const activeMics = Object.entries(micStatus)
+      .filter(([_, isOn]) => isOn)
+      .map(([userId]) => userId);
+
+    if (activeMics.length === 0) {
+      toast.warning("역할 탭에서 자신의 마이크를 켜주세요!");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      const track = tracks.find((t) => t.recorderId === userId);
+      if (!track) {
+        toast.warning("오디오 트랙에 참여자를 할당해주세요!");
+        return;
       }
+
+      recorder.onstop = async () => {
+        toast.success("녹음된 파일을 저장 중입니다...");
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const url = URL.createObjectURL(audioBlob);
+        console.log("🎵 생성된 오디오 파일 URL:", url);
+
+        if (!track.recorderId) {
+          toast.error("트랙에 할당된 참여자가 없습니다.");
+          return;
+        }
+
+        const newUrl = await postAsset(String(pid), audioBlob);
+        createAudioFile(track.trackId, newUrl, currentTime);
+      };
+
+      recorder.start();
+      startRecording(track.trackId);
+      setMediaRecorder(recorder);
+
+      sendPlaybackStatus({ recording: true, playState: "PLAY" });
+
+      // 기존 try 블록의 AudioContext 관련 로직도 포함
+      const AudioCtx = window.AudioContext;
+      const audioCtx = new AudioCtx();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      source.connect(analyser);
+
+      setAudioContext(audioCtx);
+      setAnalyser(analyser);
+    } catch (error) {
+      toast.error(`오류가 발생했습니다. ${error}`);
     }
   };
 
