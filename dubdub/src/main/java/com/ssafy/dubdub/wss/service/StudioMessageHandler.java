@@ -25,8 +25,10 @@ public class StudioMessageHandler {
     @RabbitListener(queues = "#{studioEditQueue.name}")
     public void handleStudioMessage(StudioMessage<?> message) {
         try {
-            log.info("Received message: type={}, sessionId={}",
-                    message.getType(), message.getSessionId());
+            if (message.getType() != MessageType.CURSOR) {
+                log.info("Received message: type={}, sessionId={}",
+                        message.getType(), message.getSessionId());
+            }
 
             Object payload = message.getPayload();
             StudioMessage<?> convertedMessage = convertMessage(message, payload);
