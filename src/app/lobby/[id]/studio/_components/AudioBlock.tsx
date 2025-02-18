@@ -418,12 +418,23 @@ const AudioBlock = ({
   // ✅ 블록 클릭 이벤트 핸들러
   const handleBlockClick = () => {
     setSelectedBlocks((prevBlocks: AudioFile[]) => {
+      let updatedBlocks;
+
       // ✅ 이미 선택된 블록이면 제거
       if (prevBlocks.some((b) => b.id === file.id)) {
-        return prevBlocks.filter((b) => b.id !== file.id);
+        updatedBlocks = prevBlocks.filter((b) => b.id !== file.id);
+      } else {
+        // ✅ 아니라면 추가
+        updatedBlocks = [...prevBlocks, file];
       }
-      // ✅ 아니라면 추가
-      return [...prevBlocks, file];
+
+      // 🔥 선택된 블록들 콘솔에 출력
+      console.log(
+        "🟡 현재 선택된 블록들:",
+        updatedBlocks.map((b) => b.id),
+      );
+
+      return updatedBlocks;
     });
 
     setSelectedBlockObj({
@@ -435,6 +446,14 @@ const AudioBlock = ({
 
     setZIndex(100);
   };
+
+  // ✅ 선택된 블록들 콘솔 출력 (매번 `selectedBlocks`이 변경될 때)
+  useEffect(() => {
+    console.log(
+      "✅ 선택된 블록들 업데이트:",
+      selectedBlocks.map((b) => b.id),
+    );
+  }, [selectedBlocks]);
 
   return (
     <div
