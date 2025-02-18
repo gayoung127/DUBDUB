@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import H2 from "@/app/_components/H2";
 import { Segment, Speaker } from "@/app/_types/script";
 import ParsedScript from "./ParsedScript";
@@ -20,6 +20,9 @@ const Script = ({
   segments,
   parsedScript,
 }: ScriptProps) => {
+  const [localParsedScript, setLocalParsedScript] =
+    useState<ParsedScriptEntry[]>(parsedScript); //로컬 상태
+
   // 화자 라벨을 이름으로 매핑하는 함수
   const getSpeakerName = (label: string): string => {
     const speaker = speakers.find((speaker) => speaker.label === label);
@@ -40,6 +43,17 @@ const Script = ({
   const scriptString = generateScript();
   onChange(scriptString); // 부모 컴포넌트에 script 문자열 전달
 
+  // handleUpdate 함수
+  const handleUpdate = (updatedParsedScript: ParsedScriptEntry[]) => {
+    console.log("업데이트 된 Parsed Script : ", updatedParsedScript);
+    setLocalParsedScript(updatedParsedScript); // 로컬 상태 업데이트
+    onChange(
+      updatedParsedScript
+        .map((entry) => `${entry.label}: ${entry.text}`)
+        .join("\n"),
+    ); // script 문자열 갱신
+  };
+
   return (
     <section className="mx-auto w-full max-w-2xl p-4">
       <div className="space-y-12">
@@ -59,7 +73,7 @@ const Script = ({
           {segments.length === 0 && <div>대본을 입력해주세요.</div>}
           <H2 className="mb-4">SCRIPT</H2>
           <ScriptRoleCard speakers={speakers} label={"2"} />
-          <ParsedScript parsedScript={parsedScript} />
+          <ParsedScript parsedScript={parsedScript} onUpdate={handleUpdate} />
           {/* <textarea
             className="min-h-[320px] w-full resize-none rounded-lg bg-gray-50 p-4 focus:outline-none"
             placeholder={` : 형태로 대사를 입력해주세요.

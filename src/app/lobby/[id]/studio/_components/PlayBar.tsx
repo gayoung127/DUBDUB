@@ -105,12 +105,14 @@ const PlayBar = ({
         if (isPlaying) {
           sendPlaybackStatus({
             recording: isRecording,
-            playState: "PAUSE", // PAUSE 상태로 보내기
+            playState: "STOP",
+            timelineMarker: 0,
           });
         } else {
           sendPlaybackStatus({
             recording: isRecording,
-            playState: "PLAY", // PAUSE 상태로 보내기
+            playState: "PLAY",
+            timelineMarker: 0,
           });
         }
       }
@@ -157,6 +159,7 @@ const PlayBar = ({
     sendPlaybackStatus({
       recording: !isRecording,
       playState: isRecording ? "STOP" : "PLAY",
+      timelineMarker: isRecording ? 0 : time,
     });
 
     if (isRecording) {
@@ -294,8 +297,6 @@ const PlayBar = ({
       startRecording(track.trackId);
       setMediaRecorder(recorder);
 
-      sendPlaybackStatus({ recording: true, playState: "PLAY" });
-
       // 기존 try 블록의 AudioContext 관련 로직도 포함
       const AudioCtx = window.AudioContext;
       const audioCtx = new AudioCtx();
@@ -336,11 +337,13 @@ const PlayBar = ({
       sendPlaybackStatus({
         recording: false,
         playState: "PAUSE",
+        timelineMarker: time,
       });
     } else {
       sendPlaybackStatus({
         recording: false,
         playState: "PLAY",
+        timelineMarker: time,
       });
     }
   };
@@ -350,6 +353,7 @@ const PlayBar = ({
     sendPlaybackStatus({
       recording: isRecording,
       playState: "STOP",
+      timelineMarker: 0,
     });
   };
 

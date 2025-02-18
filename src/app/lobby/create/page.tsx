@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Description from "./_ components/Description";
+import Genre from "./_ components/Genre";
+import Castings from "./_ components/Castings";
+import Type from "./_ components/Type";
 import Title from "./_ components/Title";
 import Video from "./_ components/Video";
 import Script from "./_ components/Script";
@@ -21,6 +25,10 @@ export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
   const [title, setTitle] = useState<string>("");
+  const [content, setContent] = useState<string>("");
+  const [genreTypes, setGenreTypes] = useState<string[]>([]);
+  const [categoryTypes, setCategoryTypes] = useState<string[]>([]);
+  const [castings, setCastings] = useState<string[]>([]); // 역할 이름만 포함된 배열
   const [script, setScript] = useState<string>("");
   const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -67,6 +75,10 @@ export default function Page() {
           JSON.stringify({
             title,
             script,
+            content,
+            castings,
+            genreTypes,
+            categoryTypes,
           }),
         ],
         { type: "application/json" },

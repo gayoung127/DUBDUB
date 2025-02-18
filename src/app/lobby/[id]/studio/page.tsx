@@ -37,6 +37,7 @@ export default function StudioPage() {
 
   const [duration, setDuration] = useState<number>(160);
   const [sessionToken, setSessionToken] = useState<string>("");
+
   const [parsedScripts, setParsedScripts] = useState<Script[]>([]);
   const [roles, setRoles] = useState<Role[]>([
     { id: "1", name: "" },
@@ -44,6 +45,8 @@ export default function StudioPage() {
     { id: "3", name: "" },
     { id: "4", name: "" },
   ]);
+  const [isVideoMuted, setIsVideoMuted] = useState<boolean>(false);
+  const [isProcessedAudio, setIsProcessedAudio] = useState<boolean>(false);
 
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();
@@ -301,6 +304,8 @@ export default function StudioPage() {
                   tracks={tracks}
                   setTracks={setTracks}
                   assets={assets}
+                  isVideoMuted={isVideoMuted}
+                  isProcessedAudio={isProcessedAudio}
                 />
               </div>
             </div>
@@ -312,6 +317,7 @@ export default function StudioPage() {
           <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
           {roles.length > 0 && (
             <RecordSection
+              videoUrl={videoUrl}
               duration={duration}
               roles={roles}
               setDuration={setDuration}
@@ -320,6 +326,10 @@ export default function StudioPage() {
               assets={assets}
               setAssets={setAssets}
               sendAsset={sendAsset}
+              isVideoMuted={isVideoMuted}
+              setIsVideoMuted={setIsVideoMuted}
+              isProcessedAudio={isProcessedAudio}
+              setIsProcessedAudio={setIsProcessedAudio}
             />
           )}
         </div>
