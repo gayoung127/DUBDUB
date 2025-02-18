@@ -63,6 +63,13 @@ const PlayBar = ({
   const params = useParams();
   const pid = params.id;
 
+  // useEffect: 자동 녹음 - 녹음이 시작되었을 때, handleRecording 실행
+  useEffect(() => {
+    if (isRecording) {
+      handleRecording();
+    }
+  }, [isRecording]);
+
   // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
     if (time >= duration) {
