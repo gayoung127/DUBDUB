@@ -35,6 +35,7 @@ public class StudioService {
     private final FileRepository fileRepository;
     private final CastingRepository castingRepository;
     private final SnapshotRepository snapshotRepository;
+    private final ParticipationHistoryRepository participationHistoryRepository;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Project project = projectRepository.findById(projectId).orElseThrow(
@@ -64,6 +65,9 @@ public class StudioService {
         SnapshotDTO snapshot = snapshotRepository.findFirstByProjectIdOrderByCreatedAtDesc(projectId)
                 .map(SnapshotDTO::from)
                 .orElse(null);
+
+        ParticipationHistory participationHistory = new ParticipationHistory(member, project);
+        participationHistoryRepository.save(participationHistory);
 
         return StudioEnterResponseDto.builder()
                 .title(project.getTitle())
