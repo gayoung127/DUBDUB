@@ -39,8 +39,8 @@ const Script = ({
   return (
     <section className="mx-auto w-full max-w-2xl p-4">
       <H2 className="mb-4">SCRIPT</H2>
-      <div className="space-y-12">
-        <div className="w-full">
+      <div className="flex min-h-[320px] w-full flex-col items-center justify-center space-y-12 rounded-lg bg-gray-50 p-6 focus:outline-none">
+        <div className="white-scrollbar max-h-[500px] w-full overflow-y-auto">
           {segments.length === 0 && <div>대본을 입력해주세요.</div>}
           <ParsedScript parsedScript={parsedScript} />
           {/* <textarea

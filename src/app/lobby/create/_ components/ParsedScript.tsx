@@ -13,7 +13,7 @@ interface ParsedScriptProps {
 const ParsedScript = ({ parsedScript }: ParsedScriptProps) => {
   return (
     <div className="w-full p-4">
-      <h2 className="text-lg font-semibold">Parsed Script</h2>
+      {/* <h2 className="text-lg font-semibold">Parsed Script</h2> */}
       {parsedScript.length === 0 ? (
         <p>대본이 비어있습니다.</p>
       ) : (
