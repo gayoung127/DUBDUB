@@ -20,7 +20,7 @@ const TimelineMarker = ({ timelineRef }: TimelineMarkerProps) => {
   const { sendPlaybackStatus } = usePlaySocket();
 
   // 🔥 사용자가 직접 조작 중인지 추적
-  const isAdjustingTimeline = useRef(false);
+  const isAdjustingTimeline = useRef<boolean>(false);
 
   // ✅ time 변경 → 외부에서 온 변화만 애니메이션 적용
   useEffect(() => {
