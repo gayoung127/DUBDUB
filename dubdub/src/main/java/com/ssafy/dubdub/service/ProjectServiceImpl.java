@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ import java.util.NoSuchElementException;
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final FileRepository fileRepository;
+    private final CastingRepository castingRepository;
 
     private final S3Service s3Service;
 
@@ -48,11 +51,11 @@ public class ProjectServiceImpl implements ProjectService {
             throw new BadRequestException("이미지를 업로드해주세요.");
         }
 
-        Project project = Project.builder()
+        Project project = projectRepository.save(Project.builder()
                 .owner(owner)
                 .title(requestDTO.getTitle())
                 .script(requestDTO.getScript())
-                .build();
+                .build());
 
         String videoPath = FileUtil.generateFilePath(owner.getEmail(), FileType.ORIGINAL_VIDEO);
         String thumbnailPath = FileUtil.generateFilePath(owner.getEmail(), FileType.THUMBNAIL);
@@ -72,11 +75,15 @@ public class ProjectServiceImpl implements ProjectService {
                 .fileType(FileType.THUMBNAIL)
                 .build();
 
-        requestDTO.getCastings().forEach(roleName -> project.addCasting(new Casting(project, roleName)));
+        fileRepository.saveAll(List.of(videoFile, thumbnailFile));
 
-        fileRepository.save(videoFile);
-        fileRepository.save(thumbnailFile);
-        return projectRepository.save(project).getId();
+        List<Casting> castings = requestDTO.getCastings().stream()
+                .map(roleName -> new Casting(project, roleName))
+                .collect(Collectors.toList());
+
+        castingRepository.saveAll(castings);
+
+        return project.getId();
     }
 
     @Override
