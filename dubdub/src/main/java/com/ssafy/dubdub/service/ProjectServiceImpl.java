@@ -94,7 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
-        if (condition.getParticipationType() == ParticipationType.CREATED) {
+        if (condition.getType() == ParticipationType.CREATED) {
             return projectRepository.findProjectsWithThumbnailByOwner(member, pageRequest);
         } else {
             return projectRepository.findProjectsWithThumbnailByParticipant(member, pageRequest);
