@@ -5,6 +5,7 @@ import { useTimeStore } from "../_store/TimeStore";
 import { useRecordingStore } from "../_store/RecordingStore";
 
 interface PlaybackStatus {
+  isRecording?: boolean;
   recording?: boolean;
   playState?: "PLAY" | "PAUSE" | "STOP";
   timelineMarker?: number;
