@@ -66,11 +66,12 @@ const PlayBar = ({
   const isManualRecording = useRef(false); // 🔥 사용자가 직접 녹음 버튼을 눌렀는지 추적
 
   useEffect(() => {
+    console.log("🔄 `useEffect` 감지 - isRecording 변경됨:", isRecording);
     if (isRecording && !isManualRecording.current) {
-      // 🔥 소켓에서 받은 변경이면 실행
+      console.log("🔥 소켓에서 받은 isRecording으로 녹음 시작");
       handleRecording();
     }
-  }, [isRecording]); // `isRecording`이 변경될 때 실행
+  }, [isRecording]);
 
   // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
@@ -139,6 +140,7 @@ const PlayBar = ({
 
   // handleRecording(): 녹음하는 함수
   const handleRecording = async () => {
+    console.log("🎤 handleRecording 실행됨! 현재 isRecording:", isRecording);
     if (!userId) {
       toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
       return;
@@ -160,7 +162,9 @@ const PlayBar = ({
       }
       setMediaRecorder(null);
       isManualRecording.current = false; // 🔥 녹음 종료 후 플래그 초기화
+      console.log("🛑 녹음 중지 메시지 전송");
     } else {
+      console.log("🎬 녹음 시작 메시지 전송");
       isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
 
       const currentTime = time;
