@@ -1,22 +1,22 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useStompStore } from "../_store/StompStore";
 import { useSessionIdStore } from "../_store/SessionIdStore";
 import { useTimeStore } from "../_store/TimeStore";
 import { useRecordingStore } from "../_store/RecordingStore";
+import { PX_PER_SECOND } from "../_types/studio";
 
 interface PlaybackStatus {
   recording?: boolean;
   playState?: "PLAY" | "PAUSE" | "STOP";
-  timelineMarker?: number; // ✅ 새로운 타임라인 정보
+  timelineMarker?: number;
 }
 
 export const usePlaySocket = () => {
   const { stompClientRef, isConnected } = useStompStore();
   const { sessionId } = useSessionIdStore();
-  const { play, pause, reset, setTime } = useTimeStore(); // ✅ setTime 추가
+  const { play, pause, reset, setTimeFromPx } = useTimeStore();
   const { setIsRecording } = useRecordingStore();
 
-  // 🔥 재생 및 녹음 상태 전송 (isRecording + 타임라인)
   const sendPlaybackStatus = useCallback(
     (playbackStatus: PlaybackStatus) => {
       if (!isConnected || !stompClientRef?.connected) {
@@ -32,7 +32,6 @@ export const usePlaySocket = () => {
     [isConnected, stompClientRef, sessionId],
   );
 
-  // 🔥 소켓 메시지를 받아 `isRecording`, `time` 업데이트
   useEffect(() => {
     if (!isConnected || !stompClientRef?.connected) {
       console.warn("⚠️ STOMP 연결되지 않음. 소켓 구독 스킵.");
@@ -43,22 +42,14 @@ export const usePlaySocket = () => {
       `/topic/studio/${sessionId}/playback`,
       (message) => {
         const playbackStatus: PlaybackStatus = JSON.parse(message.body);
-        console.log("📥 [DEBUG] 소켓에서 받은 재생 상태:", playbackStatus);
+        console.log(
+          "📥 재생 상태 수신 (소켓에서 받은 메시지):",
+          playbackStatus,
+        );
 
         if (playbackStatus.recording !== undefined) {
-          console.log(
-            "🎤 [DEBUG] isRecording 업데이트됨:",
-            playbackStatus.recording,
-          );
+          console.log("🎤 isRecording 업데이트됨:", playbackStatus.recording);
           setIsRecording(playbackStatus.recording);
-        }
-
-        if (playbackStatus.timelineMarker !== undefined) {
-          console.log(
-            "⏳ [DEBUG] 타임라인 업데이트됨:",
-            playbackStatus.timelineMarker,
-          );
-          setTime(playbackStatus.timelineMarker);
         }
 
         switch (playbackStatus.playState) {
@@ -71,6 +62,10 @@ export const usePlaySocket = () => {
           case "STOP":
             reset();
             break;
+        }
+
+        if (playbackStatus.timelineMarker !== undefined) {
+          setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
         }
       },
     );
@@ -85,8 +80,8 @@ export const usePlaySocket = () => {
     play,
     pause,
     reset,
-    setTime,
     setIsRecording,
+    setTimeFromPx,
   ]);
 
   return { sendPlaybackStatus };

@@ -16,29 +16,67 @@ import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 import { AudioBlockProps } from "./AudioBlock";
 import Button from "@/app/_components/Button";
 import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
+import ImagesFromVideo from "./ImagesFromVideo";
 
 interface RecordSectionProps {
   duration: number;
+  videoUrl: string;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
   sendAsset: (asset: Asset) => void;
+  isVideoMuted: boolean;
+  setIsVideoMuted: (isVideoMuted: boolean) => void;
+  isProcessedAudio: boolean;
+  setIsProcessedAudio: (isVideoMuted: boolean) => void;
 }
 
 const RecordSection = ({
   duration,
+  videoUrl,
   setDuration,
   tracks,
   setTracks,
   assets,
   setAssets,
   sendAsset,
+  isVideoMuted,
+  setIsVideoMuted,
+  isProcessedAudio,
+  setIsProcessedAudio,
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
   const [selectedTrackId, setSelectedTrackId] = useState<number | null>(null);
+
+  const [videoSolo, setVideoSolo] = useState<boolean>(false);
+
+  useEffect(() => {
+    const hasSoloTrack = tracks.some((track) => track.isSolo);
+    setIsVideoMuted(hasSoloTrack);
+    if (hasSoloTrack) {
+      setVideoSolo(!hasSoloTrack);
+    }
+  }, [tracks]);
+
+  useEffect(() => {
+    setTracks((prevTracks) =>
+      prevTracks.map((track) => {
+        if (videoSolo) {
+          // ✅ 비디오만 활성화 & 오디오 트랙 모두 음소거
+          return { ...track, isMuted: true, isSolo: false };
+        } else {
+          // ✅ 원래 Solo였던 트랙은 다시 활성화
+          return { ...track, isMuted: track.isSolo ? false : track.isMuted };
+        }
+      }),
+    );
+    if (!videoSolo) {
+      setIsVideoMuted(false);
+    }
+  }, [videoSolo, setTracks]);
 
   // 1. 트랙 세로 스크롤 동기화
   const trackListRef = useRef<HTMLDivElement | null>(null);
@@ -66,8 +104,6 @@ const RecordSection = ({
   }, []);
 
   useEffect(() => {
-    console.log("호출찡호출찡", tracks);
-
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
@@ -142,6 +178,17 @@ const RecordSection = ({
               녹음 세션
             </H4>
           </div>
+          <div className="flex h-[60px] w-[280px] flex-shrink-0 flex-row items-center justify-start border-b border-t border-gray-300 bg-gray-400 py-5">
+            <VideoTrack
+              isMuted={isVideoMuted}
+              isSolo={videoSolo}
+              videoUrl={videoUrl}
+              isProcessedAudio={isProcessedAudio}
+              setVideoMuted={setIsVideoMuted}
+              setVideoSolo={setVideoSolo}
+              setIsProcessedAudio={setIsProcessedAudio}
+            />
+          </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
               <AudioTrackHeader
@@ -166,6 +213,9 @@ const RecordSection = ({
         <div className="scrollbar-horizontal overflow-x-scoll mb-2 h-full w-full overflow-y-hidden">
           <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
             <Timeline duration={duration} setDuration={setDuration} />
+          </div>
+          <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
+            <ImagesFromVideo videoUrl={videoUrl} />
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (
