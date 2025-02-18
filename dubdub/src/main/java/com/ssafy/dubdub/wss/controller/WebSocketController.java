@@ -1,18 +1,13 @@
 package com.ssafy.dubdub.wss.controller;
 
 import com.ssafy.dubdub.enums.MessageType;
-import com.ssafy.dubdub.security.dto.CustomUserDetails;
 import com.ssafy.dubdub.wss.dto.*;
 import com.ssafy.dubdub.wss.service.StudioSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
