@@ -51,6 +51,8 @@ const LobbyPage = () => {
     });
 
     const { list, last } = await getRoomList(`${queryParams}`);
+    // const list = pageSearch;
+    // const last = true;
     if (last) {
       setIsLastPage(true);
     }
@@ -91,14 +93,14 @@ const LobbyPage = () => {
 
       <div className="flex h-full w-full flex-col gap-4">
         <div className="flex h-full">
-          <div className="flex flex-[2] items-center justify-center pl-3">
+          {/* <div className="flex flex-[2] items-center justify-center pl-3">
             <Filter
               onClick={async () => {
                 await setIsFiltered(false);
                 await setIsFiltered(true);
               }}
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-[8] flex-col justify-center">
             <div className="border-gray-300 bg-gray-400 p-1">
