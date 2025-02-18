@@ -62,93 +62,6 @@ export default function StudioPage() {
     throw new Error("studioId 없음");
   }
 
-  // useEffect(() => {
-  //   const audioFileDummyData: AudioFile[] = [
-  //     {
-  //       id: "audio1",
-  //       url: "https://example.com/audio1.mp3",
-  //       startPoint: 0,
-  //       duration: 120, // 2분
-  //       trimStart: 0,
-  //       trimEnd: 0,
-  //       volume: 1,
-  //       isMuted: false,
-  //       speed: 1,
-  //     },
-  //     {
-  //       id: "audio2",
-  //       url: "https://example.com/audio2.mp3",
-  //       startPoint: 30,
-  //       duration: 90, // 1분 30초
-  //       trimStart: 5,
-  //       trimEnd: 10,
-  //       volume: 0.8,
-  //       isMuted: false,
-  //       speed: 1.5,
-  //     },
-  //     {
-  //       id: "audio3",
-  //       url: "https://example.com/audio3.mp3",
-  //       startPoint: 60,
-  //       duration: 150, // 2분 30초
-  //       trimStart: 10,
-  //       trimEnd: 5,
-  //       volume: 0.5,
-  //       isMuted: true,
-  //       speed: 1,
-  //     },
-  //   ];
-
-  //   // Track 더미 데이터
-  //   const trackDummyData: Track[] = [
-  //     {
-  //       trackId: 1,
-  //       waveColor: "#FF5733", // 빨간색
-  //       blockColor: "#C70039", // 진한 빨간색
-  //       files: [audioFileDummyData[0], audioFileDummyData[1]],
-
-  //       recorderId: 101,
-  //       recorderName: "John Doe",
-  //       recorderRole: "Singer",
-  //       recorderProfileUrl: "https://example.com/profile/john.jpg",
-
-  //       isMuted: false,
-  //       isSolo: true,
-  //     },
-  //     {
-  //       trackId: 2,
-  //       waveColor: "#33FF57", // 초록색
-  //       blockColor: "#39C700", // 진한 초록색
-  //       files: [audioFileDummyData[2]],
-
-  //       recorderId: 102,
-  //       recorderName: "Jane Doe",
-  //       recorderRole: "Guitarist",
-  //       recorderProfileUrl: "https://example.com/profile/jane.jpg",
-
-  //       isMuted: true,
-  //       isSolo: false,
-  //     },
-  //     {
-  //       trackId: 3,
-  //       waveColor: "#3357FF", // 파란색
-  //       blockColor: "#0039C7", // 진한 파란색
-  //       files: [], // 파일 없음 (빈 트랙)
-
-  //       recorderId: 103,
-  //       recorderName: "Chris Smith",
-  //       recorderRole: "Drummer",
-  //       recorderProfileUrl: "https://example.com/profile/chris.jpg",
-
-  //       isMuted: false,
-  //       isSolo: false,
-  //     },
-  //   ];
-
-  //   setTracks(trackDummyData);
-  //   setAssets(audioFileDummyData);
-  // }, []);
-
   // handlePointerMove(): 커서 움직이는 함수
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isConnected) return;
@@ -252,25 +165,6 @@ export default function StudioPage() {
     getStudioInfo();
   }, [studioId]);
 
-  // handleUserAudioUpdate(): 사용자 오디오 스트림 업데이트
-  const handleUserAudioUpdate = (userId: number, stream: MediaStream) => {
-    console.log(
-      `🎤 [handleUserAudioUpdate] userId: ${userId}, stream:`,
-      stream,
-    );
-
-    setUserAudioStreams((prev) => {
-      if (prev[userId]) {
-        prev[userId].getTracks().forEach((track) => track.stop());
-      }
-      return { ...prev, [userId]: stream };
-    });
-  };
-
-  useEffect(() => {
-    console.log("🎵 [StudioPage] 현재 상태:", userAudioStreams);
-  }, [userAudioStreams]); // ✅ 상태 변경 시 로그 출력
-
   return (
     <DndProvider backend={HTML5Backend}>
       <div
@@ -295,6 +189,7 @@ export default function StudioPage() {
                   assets={assets}
                   setAssets={setAssets}
                   sendAsset={sendAsset}
+                  sessionToken={sessionToken}
                 />
                 <VideoPlayer
                   videoRef={videoRef}
@@ -314,24 +209,21 @@ export default function StudioPage() {
             </div>
           </div>
 
-          <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
-          {roles.length > 0 && (
-            <RecordSection
-              videoUrl={videoUrl}
-              duration={duration}
-              roles={roles}
-              setDuration={setDuration}
-              tracks={tracks}
-              setTracks={setTracks}
-              assets={assets}
-              setAssets={setAssets}
-              sendAsset={sendAsset}
-              isVideoMuted={isVideoMuted}
-              setIsVideoMuted={setIsVideoMuted}
-              isProcessedAudio={isProcessedAudio}
-              setIsProcessedAudio={setIsProcessedAudio}
-            />
-          )}
+          <RecordSection
+            videoUrl={videoUrl}
+            duration={duration}
+            setDuration={setDuration}
+            roles={roles}
+            tracks={tracks}
+            setTracks={setTracks}
+            assets={assets}
+            setAssets={setAssets}
+            sendAsset={sendAsset}
+            isVideoMuted={isVideoMuted}
+            setIsVideoMuted={setIsVideoMuted}
+            isProcessedAudio={isProcessedAudio}
+            setIsProcessedAudio={setIsProcessedAudio}
+          />
         </div>
         {isConnected && (
           <CursorPresence

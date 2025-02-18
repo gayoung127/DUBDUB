@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-import { Asset, AudioFile, initialTracks, Track } from "@/app/_types/studio";
+import { Asset, Track } from "@/app/_types/studio";
 
 import H4 from "@/app/_components/H4";
 
@@ -132,48 +132,6 @@ const RecordSection = ({
 
     loadAudioFiles();
   }, [tracks]);
-
-  // const handleDownloadMp3 = async () => {
-  //   if (!audioContextRef.current) return;
-
-  //   // ✅ Track[] → AudioBlockProps[] 변환
-  //   const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
-  //     track.files.map((file) => ({
-  //       file,
-  //       isMuted: true,
-  //       trackId: track.trackId,
-  //       fileIdx: 0,
-  //       audioBuffers: audioBuffersRef.current,
-  //       audioContext: audioContextRef.current,
-  //       setTracks,
-  //       timelineRef: { current: null },
-  //       width: "10000px",
-  //       waveColor: "#000",
-  //       blockColor: "#FFF",
-  //     })),
-  //   );
-
-  //   if (audioBlocks.length === 0) {
-  //     console.error("❌ 병합할 오디오 블록이 없습니다.");
-  //     return;
-  //   }
-
-  //   // ✅ 오디오 병합
-  //   const mergedAudioBuffer = mergeAudioBuffersWithTimeline(
-  //     audioContextRef.current,
-  //     audioBlocks,
-  //   );
-
-  //   if (!mergedAudioBuffer) {
-  //     console.error("❌ 오디오 병합 실패");
-  //     return;
-  //   }
-
-  //   console.log("✅ 병합된 오디오 버퍼 생성됨:", mergedAudioBuffer);
-
-  //   // ✅ MP3 변환 후 다운로드
-  //   await audioBufferToMp3(mergedAudioBuffer);
-  // };
 
   return (
     <section className="flex h-full w-full flex-row items-start justify-start overflow-hidden">

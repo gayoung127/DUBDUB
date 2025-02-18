@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import useBlockStore from "@/app/_store/BlockStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
-import { Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import { AudioFile, Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
 
 import AudioBlockModal from "./AudioBlockModal";
 import { useStompStore } from "@/app/_store/StompStore";
@@ -37,8 +37,12 @@ const AudioBlock = ({
   fileIdx,
 }: AudioBlockProps) => {
   const { time, isPlaying } = useTimeStore();
-  const { selectedBlock, setSelectedBlock, setSelectedBlockObj } =
-    useBlockStore();
+  const {
+    selectedBlocks,
+    setSelectedBlocks,
+    setSelectedBlockObj,
+    clearSelectedBlocks,
+  } = useBlockStore();
   const { stompClientRef, isConnected } = useStompStore();
   const { sessionId } = useSessionIdStore();
 
@@ -51,14 +55,17 @@ const AudioBlock = ({
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
 
+  // ✅ 선택된 블록인지 확인하는 함수
+  const isSelected = selectedBlocks.some((b) => b.id === file.id);
+
   // useEffect: 블록 선택 시, 가장 위로 올라오게 두기 (z-index = 200 설정)
   useEffect(() => {
-    if (selectedBlock?.id === file.id) {
+    if (isSelected) {
       setZIndex(200);
     } else {
       setZIndex(1);
     }
-  }, [selectedBlock]);
+  }, [selectedBlocks]);
 
   // useEffect: 타임라인 내 시작점 업데이트 (자르기 시작 반영한 부분 반영)
   useEffect(() => {
@@ -340,7 +347,7 @@ const AudioBlock = ({
     );
 
     // ✅ 선택된 블록 초기화 (삭제된 블록을 참조하는 문제 해결)
-    setSelectedBlock(null);
+    clearSelectedBlocks();
     setSelectedBlockObj({
       applyToAll: false,
       selectedAudioFile: null,
@@ -360,7 +367,7 @@ const AudioBlock = ({
       })),
     );
 
-    setSelectedBlock(null);
+    clearSelectedBlocks();
     setSelectedBlockObj({
       applyToAll: false,
       selectedAudioFile: null,
@@ -394,22 +401,59 @@ const AudioBlock = ({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // c : 자르기 기능
-      if (event.key.toLowerCase() === "c" && selectedBlock?.id === file.id) {
+      if (event.key.toLowerCase() === "c" && isSelected) {
         splitBlock();
       }
 
       // delete : 오디오 블록 삭제 기능
-      if (
-        event.key.toLowerCase() === "delete" &&
-        selectedBlock?.id === file.id
-      ) {
+      if (event.key.toLowerCase() === "delete" && isSelected) {
         deleteBlock();
         console.log("✅ 블록이 삭제되었습니다!", file.id);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedBlock]);
+  }, [selectedBlocks]);
+
+  // ✅ 블록 클릭 이벤트 핸들러
+  const handleBlockClick = () => {
+    setSelectedBlocks((prevBlocks: AudioFile[]) => {
+      let updatedBlocks;
+
+      // ✅ 이미 선택된 블록이면 제거
+      if (prevBlocks.some((b) => b.id === file.id)) {
+        updatedBlocks = prevBlocks.filter((b) => b.id !== file.id);
+      } else {
+        // ✅ 아니라면 추가
+        updatedBlocks = [...prevBlocks, file];
+      }
+
+      // 🔥 선택된 블록들 콘솔에 출력
+      console.log(
+        "🟡 현재 선택된 블록들:",
+        updatedBlocks.map((b) => b.id),
+      );
+
+      return updatedBlocks;
+    });
+
+    setSelectedBlockObj({
+      applyToAll: false,
+      selectedAudioFile: file,
+      trackId: trackId,
+      blockIndex: fileIdx,
+    });
+
+    setZIndex(100);
+  };
+
+  // ✅ 선택된 블록들 콘솔 출력 (매번 `selectedBlocks`이 변경될 때)
+  useEffect(() => {
+    console.log(
+      "✅ 선택된 블록들 업데이트:",
+      selectedBlocks.map((b) => b.id),
+    );
+  }, [selectedBlocks]);
 
   return (
     <div
@@ -422,24 +466,16 @@ const AudioBlock = ({
         borderRadius: `8px`,
         zIndex: zIndex,
       }}
-      onClick={() => {
-        setSelectedBlock(file);
-        setSelectedBlockObj({
-          applyToAll: false,
-          trackId: trackId,
-          blockIndex: fileIdx,
-        });
-        setZIndex(100);
-      }}
+      onClick={handleBlockClick}
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${file.id === selectedBlock?.id ? "border-2 border-yellow-600" : ""}`} // 선택 시 색상
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelected ? "border-2 border-yellow-600" : ""}`} // 선택 시 색상
         style={{
           backgroundColor: blockColor,
         }}
       ></canvas>
-      {file.id === selectedBlock?.id && (
+      {isSelected && (
         <div className="relative z-[999999] overflow-visible">
           <div className="bg-white shadow-md absolute -top-5 left-2 z-[999999] p-4">
             <AudioBlockModal

@@ -18,6 +18,7 @@ interface StudioSideTabProps {
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
   sendAsset: (asset: Asset) => void;
+  sessionToken: string;
 }
 
 const StudioSideTab = ({
@@ -28,6 +29,7 @@ const StudioSideTab = ({
   assets,
   setAssets,
   sendAsset,
+  sessionToken,
 }: StudioSideTabProps) => {
   //const audioFilesRef = useRef<AudioFile[] | null>([]);
 
@@ -93,6 +95,7 @@ const StudioSideTab = ({
         <RoleList
           studioMembers={studioMembers}
           userAudioStreams={userAudioStreams}
+          sessionToken={sessionToken}
         />
       </div>
       {activeTab === "asset" && <AssetList assets={assets} />}

@@ -11,6 +11,7 @@ interface ScriptProps {
   setSpeakers: (updatedSpeakers: Speaker[]) => void;
   segments: Segment[];
   parsedScript: ParsedScriptEntry[];
+  onUpdate: (updatedParsedScript: ParsedScriptEntry[]) => void;
 }
 
 const Script = ({
