@@ -43,9 +43,13 @@ export const usePlaySocket = () => {
       `/topic/studio/${sessionId}/playback`,
       (message) => {
         const playbackStatus: PlaybackStatus = JSON.parse(message.body);
-        console.log("📥 재생 상태 수신:", playbackStatus);
+        console.log(
+          "📥 재생 상태 수신 (소켓에서 받은 메시지):",
+          playbackStatus,
+        );
 
         if (playbackStatus.isRecording !== undefined) {
+          console.log("🎤 isRecording 업데이트됨:", playbackStatus.isRecording);
           setIsRecording(playbackStatus.isRecording);
         }
 
