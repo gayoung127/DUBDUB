@@ -97,12 +97,12 @@ const PlayBar = ({
 
         if (isPlaying) {
           sendPlaybackStatus({
-            isRecording: isRecording,
+            recording: isRecording,
             playState: "PAUSE", // PAUSE 상태로 보내기
           });
         } else {
           sendPlaybackStatus({
-            isRecording: isRecording,
+            recording: isRecording,
             playState: "PLAY", // PAUSE 상태로 보내기
           });
         }
@@ -148,7 +148,7 @@ const PlayBar = ({
 
     if (isRecording) {
       sendPlaybackStatus({
-        isRecording: false,
+        recording: false,
         playState: "STOP",
       });
 
@@ -215,15 +215,14 @@ const PlayBar = ({
           createAudioFile(track.trackId, newUrl, currentTime);
         };
 
+        sendPlaybackStatus({
+          recording: true,
+          playState: "PLAY",
+        });
+
         recorder.start();
         startRecording(track.trackId);
         setMediaRecorder(recorder);
-
-        // 🔥 소켓에 녹음 시작 상태 전송
-        sendPlaybackStatus({
-          isRecording: true,
-          playState: "PLAY",
-        });
 
         const AudioCtx = window.AudioContext;
         const audioCtx = new AudioCtx();
@@ -244,12 +243,12 @@ const PlayBar = ({
   const handlePlayButton = () => {
     if (isPlaying) {
       sendPlaybackStatus({
-        isRecording: false,
+        recording: false,
         playState: "PAUSE",
       });
     } else {
       sendPlaybackStatus({
-        isRecording: false,
+        recording: false,
         playState: "PLAY",
       });
     }
@@ -258,7 +257,7 @@ const PlayBar = ({
   // handleStopButton(): 정지 버튼 클릭 함수
   const handleStopButton = () => {
     sendPlaybackStatus({
-      isRecording: isRecording,
+      recording: isRecording,
       playState: "STOP",
     });
   };
