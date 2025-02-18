@@ -8,9 +8,8 @@ import { useTimeStore } from "@/app/_store/TimeStore";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 
 import { postAsset } from "@/app/_apis/studio";
-import { Asset, Track } from "@/app/_types/studio";
+import { Asset, PX_PER_SECOND, Track } from "@/app/_types/studio";
 import { formatTime } from "@/app/_utils/formatTime";
-import { usePlaySocket } from "@/app/_hooks/usePlaySocket";
 
 import H4 from "@/app/_components/H4";
 import ShareButton from "./ShareButton";
@@ -21,6 +20,8 @@ import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
+import { Client } from "@stomp/stompjs";
+import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -30,6 +31,14 @@ interface PlayBarProps {
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   assets: Asset[];
+  stompClientRef: Client | null;
+  isConnected: boolean;
+}
+
+interface PlaybackStatus {
+  recording?: boolean;
+  playState?: "PLAY" | "PAUSE" | "STOP";
+  timelineMarker?: number;
 }
 
 const PlayBar = ({
@@ -40,10 +49,13 @@ const PlayBar = ({
   tracks,
   setTracks,
   assets,
+  stompClientRef,
+  isConnected,
 }: PlayBarProps) => {
   const { self } = useUserStore();
   const { micStatus } = useMicStore();
-  const { time, isPlaying, play, pause, reset } = useTimeStore();
+  const { sessionId } = useSessionIdStore();
+  const { time, isPlaying, play, pause, reset, setTimeFromPx } = useTimeStore();
   const {
     isRecording,
     audioContext,
@@ -53,9 +65,85 @@ const PlayBar = ({
     setMediaRecorder,
     setAudioContext,
     setAnalyser,
+    setIsRecording,
   } = useRecordingStore();
 
-  const { sendPlaybackStatus } = usePlaySocket();
+  useEffect(() => {
+    if (!isConnected || !stompClientRef || sessionId === "") {
+      return;
+    }
+
+    const subscription = stompClientRef.subscribe(
+      `/topic/studio/${sessionId}/playback`,
+      (message) => {
+        const playbackStatus: PlaybackStatus = JSON.parse(message.body);
+        console.log(
+          "📥 재생 상태 수신 (소켓에서 받은 메시지):",
+          playbackStatus,
+        );
+
+        if (playbackStatus.recording !== undefined) {
+          console.log("🎤 isRecording 업데이트됨:", playbackStatus.recording);
+          setIsRecording(playbackStatus.recording);
+        }
+
+        switch (playbackStatus.playState) {
+          case "PLAY":
+            play();
+            break;
+          case "PAUSE":
+            pause();
+            break;
+          case "STOP":
+            reset();
+            break;
+        }
+
+        if (playbackStatus.timelineMarker !== undefined) {
+          setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
+        }
+      },
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [isConnected, sessionId]);
+
+  const handleLocalPlayback = (playbackStatus: PlaybackStatus) => {
+    console.warn("⚠️ 오프라인 모드 실행 중");
+
+    if (playbackStatus.recording !== undefined) {
+      setIsRecording(playbackStatus.recording);
+    }
+
+    switch (playbackStatus.playState) {
+      case "PLAY":
+        play();
+        break;
+      case "PAUSE":
+        pause();
+        break;
+      case "STOP":
+        reset();
+        break;
+    }
+
+    if (playbackStatus.timelineMarker !== undefined) {
+      setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
+    }
+  };
+
+  const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
+    if (!isConnected) {
+      handleLocalPlayback(playbackStatus);
+    } else {
+      stompClientRef?.publish({
+        destination: `/app/studio/${sessionId}/playback`,
+        body: JSON.stringify(playbackStatus),
+      });
+    }
+  };
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const userId = self?.memberId ?? null;

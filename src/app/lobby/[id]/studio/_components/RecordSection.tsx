@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 
 import { Asset, Track } from "@/app/_types/studio";
 
@@ -180,7 +180,9 @@ const RecordSection = ({
             <Timeline duration={duration} setDuration={setDuration} />
           </div>
           <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
-            <ImagesFromVideo videoUrl={videoUrl} />
+            <Suspense fallback={<ImagesFromVideo.Skeleton />}>
+              <ImagesFromVideo videoUrl={videoUrl} />
+            </Suspense>
           </div>
           <div className="h-full w-full">
             {tracks.map((track) => (

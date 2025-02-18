@@ -119,7 +119,7 @@ export const useTrackRecorders = (
       subscriptionRef.current.unsubscribe();
       console.log("📴 트랙 점유 구독 소켓: 구독 해제");
     };
-  }, [isConnected, sessionId, stompClientRef, studioMembers, setTracks]);
+  }, [isConnected, sessionId, setTracks]);
 
   return { sendTrackRecorder };
 };
