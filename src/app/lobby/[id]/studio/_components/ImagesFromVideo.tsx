@@ -84,4 +84,9 @@ const ImagesFromVideo = ({ videoUrl }: { videoUrl: string }) => {
   );
 };
 
+// Skeleton 컴포넌트를 추가하는 방법
+ImagesFromVideo.Skeleton = () => {
+  return <div className="h-20 w-full animate-pulse bg-gray-300" />;
+};
+
 export default ImagesFromVideo;

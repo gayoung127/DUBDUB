@@ -6,9 +6,7 @@ import { useUserStore } from "@/app/_store/UserStore";
 const STOMP_URL = "wss://i12a801.p.ssafy.io/api/ws-studio";
 
 const useStompClient = (sessionId: string) => {
-  const stompClientRef = useStompStore((state) => state.stompClientRef);
-  const setStompClient = useStompStore((state) => state.setStompClient);
-  const setIsConnected = useStompStore((state) => state.setIsConnected);
+  const { stompClientRef, setIsConnected, setStompClient } = useStompStore();
 
   const { self } = useUserStore();
 

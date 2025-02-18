@@ -199,6 +199,8 @@ export default function StudioPage() {
                   assets={assets}
                   isVideoMuted={isVideoMuted}
                   isProcessedAudio={isProcessedAudio}
+                  stompClientRef={stompClientRef}
+                  isConnected={isConnected}
                 />
               </div>
             </div>
