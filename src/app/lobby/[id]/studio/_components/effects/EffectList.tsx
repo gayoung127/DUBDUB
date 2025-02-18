@@ -139,7 +139,7 @@ const EffectList = ({
     const url = await postAsset(String(pid), blob);
 
     // 추가된 파일
-    let newFile = {
+    const newFile = {
       ...selectedBlockObj.selectedAudioFile, // ✅ selectedBlock → selectedBlockObj.selectedAudioFile
       id: `${selectedBlockObj.selectedAudioFile!.id.split("-")[0].split("_")[0]}_${version}`,
       url,
