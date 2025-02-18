@@ -51,19 +51,6 @@ export default function StudioPage() {
   useStompClient(sessionId);
   const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
 
-  useEffect(() => {
-    if (isVideoMuted) {
-      console.log("[page] 비디오 음소거 O");
-    } else {
-      console.log("[page] 비디오 음소거 X");
-    }
-
-    if (isProcessedAudio) {
-      console.log("[page] 보컬 제거 O");
-    } else {
-      console.log("[page] 보컬 제거 X");
-    }
-  }, [isVideoMuted, isProcessedAudio]);
   // studioId 확인
   if (!studioId) {
     throw new Error("studioId 없음");

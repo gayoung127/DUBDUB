@@ -32,7 +32,12 @@ const ImagesFromVideo = ({ videoUrl }: { videoUrl: string }) => {
           canvas.width = 80; // 고정 너비 80px
           canvas.height = (video.videoHeight / video.videoWidth) * 80; // 비율 유지
           ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-          newThumbnails.push(canvas.toDataURL("image/jpeg"));
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              newThumbnails.push(url);
+            }
+          }, "image/jpeg");
         }
 
         setThumbnails(newThumbnails);
@@ -42,7 +47,12 @@ const ImagesFromVideo = ({ videoUrl }: { videoUrl: string }) => {
           video.addEventListener("seeked", resolve, { once: true }),
         );
         ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-        setLastThumbnail(canvas.toDataURL("image/jpeg"));
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            setLastThumbnail(url);
+          }
+        }, "image/jpeg");
       });
 
       video.load(); // 비디오 로드
