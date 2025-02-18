@@ -2,13 +2,19 @@ import React from "react";
 import RoleCard from "./RoleCard";
 import { UserStore, useUserStore } from "@/app/_store/UserStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
+import WebRTCManager from "./WebRTCManager";
 
 interface RoleListProps {
   userAudioStreams: Record<number, MediaStream>;
   studioMembers: UserStore[];
+  sessionToken: string;
 }
 
-const RoleList = ({ userAudioStreams, studioMembers }: RoleListProps) => {
+const RoleList = ({
+  userAudioStreams,
+  studioMembers,
+  sessionToken,
+}: RoleListProps) => {
   const { self } = useUserStore();
   console.log(
     "🎵 [RoleList] 전달되는 userAudioStreams 상태:",
@@ -25,7 +31,6 @@ const RoleList = ({ userAudioStreams, studioMembers }: RoleListProps) => {
             name={self.nickName!}
             role="나"
             profileImageUrl={self.profileUrl!}
-            stream={userAudioStreams[self.memberId!]}
           />
         )}
 
@@ -38,9 +43,9 @@ const RoleList = ({ userAudioStreams, studioMembers }: RoleListProps) => {
               name={member.nickName!}
               role={member.position!}
               profileImageUrl={member.profileUrl!}
-              stream={userAudioStreams[member.memberId!]}
             />
           ))}
+        <WebRTCManager sessionToken={sessionToken} />
       </div>
     </div>
   );
