@@ -11,26 +11,15 @@ public class Casting extends Timestamped {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_id")
-    private Long memberId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruitment_id")
-    private Recruitment recruitment;
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @Column(nullable = false)
     private String name;
 
-    public Casting(Recruitment recruitment, String name) {
-        this.recruitment = recruitment;
+    public Casting(Project project, String name) {
+        this.project = project;
         this.name = name;
-    }
-
-    public Casting(String name) {
-        this.name = name;
-    }
-
-    public void castMember(Long memberId) {
-        this.memberId = memberId;
     }
 }

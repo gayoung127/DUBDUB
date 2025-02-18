@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface FileRepository extends JpaRepository<File, Long> {
 
-    Optional<File> findByRecruitmentIdAndFileType(Long recruitmentId, FileType fileType);
+    Optional<File> findByProjectIdAndFileType(Long projectId, FileType fileType);
 }

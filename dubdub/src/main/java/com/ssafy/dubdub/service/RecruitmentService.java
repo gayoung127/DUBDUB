@@ -14,6 +14,4 @@ public interface RecruitmentService {
     Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member author) throws BadRequestException;
 
     Page<RecruitmentListResponseDTO> getRecruitments(RecruitmentSearchRequestDTO request, Member member);
-
-    void assignCasting(Long recruitmentId, Long castingId, Member member);
 }

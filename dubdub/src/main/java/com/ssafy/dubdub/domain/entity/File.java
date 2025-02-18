@@ -1,6 +1,5 @@
 package com.ssafy.dubdub.domain.entity;
 
-import com.ssafy.dubdub.enums.FileStatus;
 import com.ssafy.dubdub.enums.FileType;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -11,12 +10,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class File extends Timestamped{
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruitment_id")
-    private Recruitment recruitment;
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -25,15 +25,14 @@ public class File extends Timestamped{
     @Column(nullable = false)
     private String url;
 
-    @Enumerated(EnumType.STRING)
-    private FileStatus fileStatus;
-
+    @Column(nullable = false)
+    private boolean isDeleted;
 
     @Builder
-    public File(Recruitment recruitment, String url, FileType fileType) {
-        this.recruitment = recruitment;
+    public File(Project project, String url, FileType fileType) {
+        this.project = project;
         this.url = url;
         this.fileType = fileType;
-        this.fileStatus = FileStatus.ACTIVE;
+        this.isDeleted = false;
     }
 }
