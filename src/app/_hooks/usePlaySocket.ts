@@ -19,7 +19,7 @@ export const usePlaySocket = () => {
   // 🔥 재생 및 녹음 상태 전송 (isRecording만 주고받음)
   const sendPlaybackStatus = useCallback(
     (playbackStatus: PlaybackStatus) => {
-      if (!isConnected || !stompClientRef?.connected || !sessionId) {
+      if (!isConnected || !stompClientRef?.connected) {
         console.warn("⚠️ STOMP 연결이 안 되어 있음. 로컬에서만 실행.");
         return;
       }
@@ -34,7 +34,7 @@ export const usePlaySocket = () => {
 
   // 🔥 소켓 메시지를 받아 `isRecording`을 업데이트
   useEffect(() => {
-    if (!isConnected || !stompClientRef?.connected || !sessionId) {
+    if (!isConnected || !stompClientRef?.connected) {
       console.warn("⚠️ STOMP 연결되지 않음. 소켓 구독 스킵.");
       return;
     }
