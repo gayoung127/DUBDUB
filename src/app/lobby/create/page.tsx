@@ -155,7 +155,7 @@ export default function Page() {
         </div>
 
         {/* Hidden Script Field for Submission */}
-        <textarea name="script" value={script} hidden />
+        <textarea name="script" value={script} onChange={() => {}} hidden />
 
         {/* Submit Button */}
         <Button
