@@ -47,7 +47,7 @@ const VideoTrack = ({
     <div
       className={`box-border flex h-[60px] min-h-0 w-[280px] flex-row items-center justify-between overflow-hidden border-b border-t border-gray-300 px-3`}
     >
-      <H4 className="border-white-100 font-bold text-white-100">Original </H4>
+      <H4 className="border-white-100 font-bold text-white-100">동영상</H4>
       <div className="flex flex-row items-center gap-x-4">
         <div
           className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm ${isProcessedAudio ? "bg-green-500" : "bg-white-100"}`}

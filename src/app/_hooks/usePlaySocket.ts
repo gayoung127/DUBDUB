@@ -41,19 +41,16 @@ export const usePlaySocket = () => {
     }
   };
 
-  const sendPlaybackStatus = useCallback(
-    (playbackStatus: PlaybackStatus) => {
-      if (isConnected && stompClientRef?.connected) {
-        stompClientRef.publish({
-          destination: `/app/studio/${sessionId}/playback`,
-          body: JSON.stringify(playbackStatus),
-        });
-      } else {
-        handleLocalPlayback(playbackStatus);
-      }
-    },
-    [isConnected, stompClientRef, sessionId],
-  );
+  const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
+    if (isConnected && stompClientRef?.connected) {
+      stompClientRef.publish({
+        destination: `/app/studio/${sessionId}/playback`,
+        body: JSON.stringify(playbackStatus),
+      });
+    } else {
+      handleLocalPlayback(playbackStatus);
+    }
+  };
 
   useEffect(() => {
     if (!isConnected || !stompClientRef?.connected) {
