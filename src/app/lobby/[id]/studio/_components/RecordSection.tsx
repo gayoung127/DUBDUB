@@ -16,8 +16,10 @@ import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
 import { AudioBlockProps } from "./AudioBlock";
 import Button from "@/app/_components/Button";
 import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
+import { Role } from "@/app/_types/script";
 
 interface RecordSectionProps {
+  roles: Role[];
   duration: number;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   tracks: Track[];
@@ -28,6 +30,7 @@ interface RecordSectionProps {
 }
 
 const RecordSection = ({
+  roles,
   duration,
   setDuration,
   tracks,
@@ -143,12 +146,13 @@ const RecordSection = ({
             </H4>
           </div>
           <div className="h-full w-full">
-            {tracks.map((track) => (
+            {tracks.map((track, index) => (
               <AudioTrackHeader
                 key={track.trackId}
                 isMuted={track.isMuted ?? false}
                 isSolo={track.isSolo ?? false}
                 trackId={track.trackId}
+                role={roles[index]?.name}
                 recorderId={track.recorderId}
                 recorderName={track.recorderName}
                 recorderRole={track.recorderRole}

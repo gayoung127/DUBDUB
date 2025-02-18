@@ -22,6 +22,7 @@ import { useSessionIdStore } from "@/app/_store/SessionIdStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
 import { useAssetsSocket } from "@/app/_hooks/useAssetSocket";
 import { AudioFile, Track } from "@/app/_types/studio";
+import { Role, Script, Segment, Speaker } from "@/app/_types/script";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -36,9 +37,8 @@ export default function StudioPage() {
 
   const [duration, setDuration] = useState<number>(160);
   const [sessionToken, setSessionToken] = useState<string>("");
-  const [parsedScripts, setParsedScripts] = useState<
-    { role: string; text: string }[]
-  >([]);
+  const [parsedScripts, setParsedScripts] = useState<Script[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();
@@ -171,19 +171,19 @@ export default function StudioPage() {
     getMyInfo();
   }, []);
 
-  // parseScript(): 스크립트 파싱 함수
-  const parseScript = (script: string): { role: string; text: string }[] => {
-    return script
-      .split("\n")
-      .map((line) => {
-        const [role, ...textParts] = line.split(":");
-        return {
-          role: role?.trim() || "",
-          text: textParts.join(":").trim() || "",
-        };
-      })
-      .filter((item) => item.role && item.text);
-  };
+  // // parseScript(): 스크립트 파싱 함수
+  // const parseScript = (script: string): { role: string; text: string }[] => {
+  //   return script
+  //     .split("\n")
+  //     .map((line) => {
+  //       const [role, ...textParts] = line.split(":");
+  //       return {
+  //         role: role?.trim() || "",
+  //         text: textParts.join(":").trim() || "",
+  //       };
+  //     })
+  //     .filter((item) => item.role && item.text);
+  // };
 
   // useEffect(): 스튜디오 정보 가져오기
   useEffect(() => {
@@ -214,7 +214,11 @@ export default function StudioPage() {
         }
 
         if (data.script) {
-          setParsedScripts(parseScript(data.script));
+          // setParsedScripts(data.script);
+        }
+
+        if (data.roleList) {
+          // setRoles(data.roleList);
         }
 
         if (data.session && data.token) {
@@ -296,18 +300,21 @@ export default function StudioPage() {
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
-              <StudioScript scripts={parsedScripts} />
+              <StudioScript scripts={parsedScripts} roles={roles} />
             </div>
           </div>
-          <RecordSection
-            duration={duration}
-            setDuration={setDuration}
-            tracks={tracks}
-            setTracks={setTracks}
-            assets={assets}
-            setAssets={setAssets}
-            sendAsset={sendAsset}
-          />
+          {roles.length > 0 && (
+            <RecordSection
+              duration={duration}
+              roles={roles}
+              setDuration={setDuration}
+              tracks={tracks}
+              setTracks={setTracks}
+              assets={assets}
+              setAssets={setAssets}
+              sendAsset={sendAsset}
+            />
+          )}
         </div>
         {isConnected && (
           <CursorPresence

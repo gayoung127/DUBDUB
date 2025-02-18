@@ -14,6 +14,7 @@ import { useTrackRecorders } from "@/app/_hooks/useTrackRecorderSocket";
 
 interface AudioTrackHeaderProps {
   trackId: number;
+  role: string;
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 
   isMuted?: boolean;
@@ -29,6 +30,7 @@ interface AudioTrackHeaderProps {
 
 const AudioTrackHeader = ({
   trackId,
+  role,
   isMuted,
   isSolo,
   setTracks,
@@ -166,7 +168,8 @@ const AudioTrackHeader = ({
       className={`box-border flex h-[60px] min-h-0 w-[280px] flex-row items-center justify-between overflow-hidden border-b border-t border-gray-300 px-3 ${isOver ? "bg-gray-100" : "bg-gray-400"} `}
     >
       <span className="text-sm font-normal text-white-100">
-        오디오 트랙 {trackId}
+        {/* 오디오 트랙 {trackId} */}
+        {role}
       </span>
       <div className="flex flex-row items-center gap-x-4">
         {recorderId && (

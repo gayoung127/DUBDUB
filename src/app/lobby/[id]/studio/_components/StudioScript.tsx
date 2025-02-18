@@ -1,26 +1,50 @@
-"use client";
-
-import React from "react";
-
+import { useEffect, useRef, useState } from "react";
 import { useTimeStore } from "@/app/_store/TimeStore";
-
-import ScriptCard from "./ScriptCard";
-
 import H4 from "@/app/_components/H4";
 import C1 from "@/app/_components/C1";
+import ScriptCard from "./ScriptCard";
+import { Role, Script, Segment, Speaker } from "@/app/_types/script";
 
-import { scripts } from "@/app/_temp/temp_scripts"; //임시 데이터(주석처리 해야함)
-
-//  전달받는 스크립트 데이터 타입 정의
 interface StudioScriptProps {
-  scripts: { role: string; text: string }[];
+  scripts: Script[];
+  roles: Role[];
 }
 
-const StudioScript = ({ scripts }: StudioScriptProps) => {
-  const { time } = useTimeStore();
+const StudioScript = ({ scripts, roles }: StudioScriptProps) => {
+  const { time } = useTimeStore(); //  현재 시간값
+  const scrollContainerRef = useRef<HTMLDivElement>(null); // 스크롤 컨테이너 ref
+  const [activeScriptIndex, setActiveScriptIndex] = useState<number | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const currentIndex = scripts.findIndex(
+      (script, index) =>
+        time >= script.start &&
+        (index === scripts.length - 1 || time < scripts[index + 1].start),
+    );
+
+    if (currentIndex !== -1 && currentIndex !== activeScriptIndex) {
+      setActiveScriptIndex(currentIndex);
+
+      if (scrollContainerRef.current) {
+        const activeElement = scrollContainerRef.current.children[
+          currentIndex
+        ] as HTMLElement;
+        if (activeElement && scrollContainerRef.current) {
+          const newScrollTop =
+            activeElement.offsetTop - scrollContainerRef.current.offsetTop;
+          scrollContainerRef.current.scrollTo({
+            top: newScrollTop,
+            behavior: "smooth",
+          });
+        }
+      }
+    }
+  }, [time, scripts, activeScriptIndex]);
 
   return (
-    <section className="flex h-full min-h-[440px] w-full flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-y-8 border border-gray-300 bg-gray-400 px-5 py-5">
+    <section className="flex h-full min-h-[440px] w-full flex-col items-start justify-start gap-y-8 border border-gray-300 bg-gray-400 px-5 py-5">
       <div className="flex w-full flex-row items-center justify-between">
         <H4 className="border-b-2 border-white-100 font-bold text-white-100">
           대본
@@ -29,15 +53,20 @@ const StudioScript = ({ scripts }: StudioScriptProps) => {
           더빙 분석
         </C1>
       </div>
-      <div className="scrollbar flex h-full max-h-[451px] w-full flex-1 flex-col items-start justify-start gap-6 overflow-y-scroll">
+
+      <div
+        ref={scrollContainerRef}
+        className="scrollbar flex h-full max-h-[451px] w-full flex-1 flex-col items-start gap-6 overflow-y-scroll"
+      >
         {scripts.map((script, index) => (
           <ScriptCard
             key={index}
             id={index}
             role={script.role}
             text={script.text}
-            timestamp={0} // 타임스탬프 어떻게 구현하지?
+            timestamp={script.start}
             no={index + 1}
+            isActive={index === activeScriptIndex}
           />
         ))}
       </div>

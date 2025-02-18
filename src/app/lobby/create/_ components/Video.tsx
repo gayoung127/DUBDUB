@@ -69,6 +69,8 @@ const Video = ({
       const data = await response.json();
 
       if (response.ok) {
+        console.log(data.result.speakers);
+        console.log(data.result.segments);
         setSpeakers(data.result.speakers);
         setSegments(data.result.segments);
       } else {
