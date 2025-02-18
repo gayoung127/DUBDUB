@@ -12,7 +12,8 @@ public class StudioEnterResponseDto {
     private final String script;
     private final List<String> roleList;
     private final String videoUrl;
+    private final String thumbnailUrl;
     private final String session;
     private final String token;
-    private final String workspaceData;
+    private final SnapshotDTO snapshot;
 }
