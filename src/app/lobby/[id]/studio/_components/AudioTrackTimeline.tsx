@@ -182,7 +182,7 @@ const AudioTrackTimeline = ({
 
             const createdFile = {
               // id: `${trackId}-${Date.now()}`,
-              id: findPossibleId(assets, studioMembers, self?.position ?? "나"),
+              id: findPossibleId(assets, studioMembers, self?.nickName ?? "나"),
               url,
               startPoint: starPoint,
               duration,
