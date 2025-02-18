@@ -57,23 +57,26 @@ const RecordSection = ({
     const hasSoloTrack = tracks.some((track) => track.isSolo);
     setIsVideoMuted(hasSoloTrack);
     if (hasSoloTrack) {
-      setVideoSolo(!hasSoloTrack);
+      setVideoSolo(false);
     }
   }, [tracks]);
 
   useEffect(() => {
+    const hasSoloTrack = tracks.some((track) => track.isSolo);
     setTracks((prevTracks) =>
       prevTracks.map((track) => {
         if (videoSolo) {
-          // ✅ 비디오만 활성화 & 오디오 트랙 모두 음소거
           return { ...track, isMuted: true, isSolo: false };
         } else {
-          // ✅ 원래 Solo였던 트랙은 다시 활성화
-          return { ...track, isMuted: track.isSolo ? false : track.isMuted };
+          if (hasSoloTrack) {
+            return { ...track, isMuted: track.isSolo ? false : track.isMuted };
+          }
+          return { ...track, isMuted: false };
         }
       }),
     );
-    if (!videoSolo) {
+
+    if (!videoSolo && !hasSoloTrack) {
       setIsVideoMuted(false);
     }
   }, [videoSolo, setTracks]);
