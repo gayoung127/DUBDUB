@@ -11,11 +11,10 @@ interface AssetListProps {
 
 const AssetList = ({ assets }: AssetListProps) => {
   const [selectedAsset, setSelectedAsset] = useState<number | null>(null);
-  const { setSelectedBlock, setSelectedBlockObj } = useBlockStore();
+  const { setSelectedBlockObj } = useBlockStore();
 
   const handleClick = (index: number) => {
     setSelectedAsset(index);
-    //setSelectedBlock(audioFiles![index]);
     setSelectedBlockObj({
       applyToAll: true,
       selectedAudioFile: assets![index],
