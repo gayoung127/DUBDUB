@@ -1,6 +1,6 @@
 package com.ssafy.dubdub.service;
 
-import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
+import com.ssafy.dubdub.domain.dto.ProjectCreateRequestDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.*;
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class RecruitmentServiceImpl implements RecruitmentService {
+public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final FileRepository fileRepository;
 
@@ -36,7 +36,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    public Long addRecruitment(RecruitmentCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member owner) throws BadRequestException {
+    public Long addProject(ProjectCreateRequestDTO requestDTO, MultipartFile video, MultipartFile thumbnail, Member owner) throws BadRequestException {
         if (!FileUtil.isValidVideoFile(video)) {
             log.debug("Invalid video file");
             throw new BadRequestException("비디오를 업로드해주세요.");

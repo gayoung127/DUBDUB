@@ -34,7 +34,7 @@ public class StudioService {
     private final FileRepository fileRepository;
     private final CastingRepository castingRepository;
     private final SnapshotRepository snapshotRepository;
-    private final RecruitmentService recruitmentService;
+    private final ProjectService projectService;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Project project = projectRepository.findById(projectId).orElseThrow(

@@ -1,11 +1,11 @@
 package com.ssafy.dubdub.controller;
 
 import com.ssafy.dubdub.domain.dto.CreationResponseDto;
-import com.ssafy.dubdub.domain.dto.RecruitmentCreateRequestDTO;
+import com.ssafy.dubdub.domain.dto.ProjectCreateRequestDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentListResponseDTO;
 import com.ssafy.dubdub.domain.dto.RecruitmentSearchRequestDTO;
 import com.ssafy.dubdub.domain.entity.Member;
-import com.ssafy.dubdub.service.RecruitmentService;
+import com.ssafy.dubdub.service.ProjectService;
 import com.ssafy.dubdub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -19,23 +19,23 @@ import software.amazon.awssdk.http.HttpStatusCode;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/recruitment")
+@RequestMapping("/project")
 @RestController
-public class RecruitmentController {
+public class ProjectController {
 
-    private final RecruitmentService recruitmentService;
+    private final ProjectService projectService;
 
-    @Operation(summary = "모집글 작성")
+    @Operation(summary = "프로젝트 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreationResponseDto> addRecruitment(
-            @RequestPart(value = "requestDTO") RecruitmentCreateRequestDTO requestDTO,
+            @RequestPart(value = "requestDTO") ProjectCreateRequestDTO requestDTO,
             @RequestPart(value = "video") MultipartFile video,
             @RequestPart(value = "thumbnail") MultipartFile thumbnail
     ) throws Exception {
 
         Member member = SecurityUtil.getCurrentUser();
 
-        Long pid = recruitmentService.addRecruitment(requestDTO, video, thumbnail, member);
+        Long pid = projectService.addProject(requestDTO, video, thumbnail, member);
 
         return ResponseEntity.ok().body(new CreationResponseDto(pid, HttpStatusCode.CREATED));
     }
@@ -48,7 +48,7 @@ public class RecruitmentController {
         Member member = SecurityUtil.getCurrentUser();
 
         Page<RecruitmentListResponseDTO> response =
-                recruitmentService.getRecruitments(request, member);
+                projectService.getRecruitments(request, member);
         return ResponseEntity.ok(response);
     }
 }
