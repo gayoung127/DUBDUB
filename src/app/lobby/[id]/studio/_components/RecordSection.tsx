@@ -20,7 +20,7 @@ import { Role } from "@/app/_types/script";
 import ImagesFromVideo from "./ImagesFromVideo";
 
 interface RecordSectionProps {
-  roles: Role[];
+  roles: string[];
   duration: number;
   videoUrl: string;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
@@ -160,7 +160,7 @@ const RecordSection = ({
                 isMuted={track.isMuted ?? false}
                 isSolo={track.isSolo ?? false}
                 trackId={track.trackId}
-                role={roles[index]?.name}
+                role={roles[index] ?? ""}
                 recorderId={track.recorderId}
                 recorderName={track.recorderName}
                 recorderRole={track.recorderRole}
