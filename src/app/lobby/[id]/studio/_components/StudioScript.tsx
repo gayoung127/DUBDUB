@@ -20,7 +20,7 @@ const StudioScript = ({ scripts }: StudioScriptProps) => {
   const { time } = useTimeStore();
 
   return (
-    <section className="flex h-full min-h-[440px] w-full flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-y-8 border border-gray-300 bg-gray-400 px-5 py-5">
+    <section className="flegit pux h-full min-h-[440px] w-full flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-y-8 border border-gray-300 bg-gray-400 px-5 py-5">
       <div className="flex w-full flex-row items-center justify-between">
         <H4 className="border-b-2 border-white-100 font-bold text-white-100">
           대본

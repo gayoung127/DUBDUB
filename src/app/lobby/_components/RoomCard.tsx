@@ -3,7 +3,6 @@ import React from "react";
 import Badge from "@/app/_components/Badge";
 import C1 from "@/app/_components/C1";
 import H3 from "@/app/_components/H3";
-import ClockIcon from "@/public/images/icons/icon-clock.svg";
 import PersonIcon from "@/public/images/icons/icon-person.svg";
 import { useRouter } from "next/navigation";
 
