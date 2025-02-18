@@ -5,7 +5,7 @@ import { useTimeStore } from "../_store/TimeStore";
 import { useRecordingStore } from "../_store/RecordingStore";
 
 interface PlaybackStatus {
-  isRecording?: boolean;
+  recording?: boolean;
   playState?: "PLAY" | "PAUSE" | "STOP";
   timelineMarker?: number;
 }
@@ -48,9 +48,9 @@ export const usePlaySocket = () => {
           playbackStatus,
         );
 
-        if (playbackStatus.isRecording !== undefined) {
-          console.log("🎤 isRecording 업데이트됨:", playbackStatus.isRecording);
-          setIsRecording(playbackStatus.isRecording);
+        if (playbackStatus.recording !== undefined) {
+          console.log("🎤 isRecording 업데이트됨:", playbackStatus.recording);
+          setIsRecording(playbackStatus.recording);
         }
 
         switch (playbackStatus.playState) {
