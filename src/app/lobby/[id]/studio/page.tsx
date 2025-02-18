@@ -39,12 +39,7 @@ export default function StudioPage() {
   const [sessionToken, setSessionToken] = useState<string>("");
 
   const [parsedScripts, setParsedScripts] = useState<Script[]>([]);
-  const [roles, setRoles] = useState<Role[]>([
-    { id: "1", name: "" },
-    { id: "2", name: "" },
-    { id: "3", name: "" },
-    { id: "4", name: "" },
-  ]);
+  const [roles, setRoles] = useState<string[]>(["", "", "", ""]);
   const [isVideoMuted, setIsVideoMuted] = useState<boolean>(false);
   const [isProcessedAudio, setIsProcessedAudio] = useState<boolean>(false);
 
@@ -141,6 +136,10 @@ export default function StudioPage() {
           setParsedScripts(jsonData);
         }
 
+        if (data.roleList) {
+          setRoles(data.roleList);
+        }
+
         if (data.session && data.token) {
           setSessionId(data.session.trim());
           setSessionToken(data.token.trim());
@@ -204,7 +203,7 @@ export default function StudioPage() {
               </div>
             </div>
             <div className="flex h-full w-[440px] flex-shrink-0 flex-col bg-gray-400">
-              <StudioScript scripts={parsedScripts} roles={roles} />
+              <StudioScript scripts={parsedScripts} />
             </div>
           </div>
 

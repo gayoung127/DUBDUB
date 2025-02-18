@@ -7,10 +7,9 @@ import { Role, Script, Segment, Speaker } from "@/app/_types/script";
 
 interface StudioScriptProps {
   scripts: Script[];
-  roles: Role[];
 }
 
-const StudioScript = ({ scripts, roles }: StudioScriptProps) => {
+const StudioScript = ({ scripts }: StudioScriptProps) => {
   const { time } = useTimeStore(); //  현재 시간값
   const scrollContainerRef = useRef<HTMLDivElement>(null); // 스크롤 컨테이너 ref
   const [activeScriptIndex, setActiveScriptIndex] = useState<number | null>(

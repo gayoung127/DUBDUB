@@ -75,6 +75,8 @@ export default function Page() {
       return;
     }
 
+    const names: string[] = speakers.map((speaker) => speaker.name);
+
     const sendScript = parsedScript.map((entry) => ({
       start: entry.start,
       text: entry.text,
@@ -92,7 +94,7 @@ export default function Page() {
         [
           JSON.stringify({
             title,
-            castings: ["짱구", "철수", "맹구"],
+            castings: names,
             script: stringScript,
           }),
         ],
