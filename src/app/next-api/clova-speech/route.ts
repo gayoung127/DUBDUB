@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "200mb", // ✅ 특정 API의 최대 요청 크기를 200MB로 설정
+    },
+  },
+};
+
 export async function POST(req: Request) {
   const CLOVA_API_URL = `${process.env.CLOVA_API_URL}`;
-  const CLOVA_API_KEY = process.env.CLOVA_API_KEY;
+  const CLOVA_API_KEY = `${process.env.CLOVA_API_KEY}`;
 
   if (!CLOVA_API_KEY) {
     return NextResponse.json({ error: "API Key가 없습니다." }, { status: 400 });
   }
-  const formData = await req.formData();
+  const formData = await req.formData(); //formData에서 파일 가져오기기
   const media = formData.get("file") as File;
 
   if (!media) {
@@ -15,13 +23,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const apiFormData = new FormData();
+    const apiFormData = new FormData(); //clova API로 보낼 FormData 생성
     apiFormData.append("media", media);
     apiFormData.append(
       "params",
       JSON.stringify({
         language: "ko-KR",
         completion: "sync", // 동기 방식
+        noiseFiltering: true,
+        wordAlignment:true,
+        fullText: true,
       }),
     );
 

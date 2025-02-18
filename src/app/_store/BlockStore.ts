@@ -7,19 +7,23 @@ interface SelectedBlockInfo {
   trackId?: number | null;
   blockIndex?: number | null;
 }
+
 interface BlockStore {
-  selectedBlock: AudioFile | null;
-  setSelectedBlock: (value: AudioFile | null) => void;
+  selectedBlocks: AudioFile[]; // ✅ 배열로 변경 (다중 선택 지원)
+  setSelectedBlocks: (
+    callback: (prevBlocks: AudioFile[]) => AudioFile[],
+  ) => void;
+  clearSelectedBlocks: () => void; // 선택된 블록 초기화 함수 추가
 
   selectedBlockObj: SelectedBlockInfo;
   setSelectedBlockObj: (block: SelectedBlockInfo) => void;
 }
 
 const useBlockStore = create<BlockStore>((set) => ({
-  selectedBlock: null,
-  setSelectedBlock: (value) => {
-    set({ selectedBlock: value });
-  },
+  selectedBlocks: [], // ✅ 여러 블록 선택을 위한 배열
+  setSelectedBlocks: (callback) =>
+    set((state) => ({ selectedBlocks: callback(state.selectedBlocks) })),
+  clearSelectedBlocks: () => set({ selectedBlocks: [] }),
 
   selectedBlockObj: {
     applyToAll: false,
@@ -27,7 +31,6 @@ const useBlockStore = create<BlockStore>((set) => ({
     trackId: null,
     blockIndex: null,
   },
-
   setSelectedBlockObj: (block) =>
     set((state) => ({
       selectedBlockObj: { ...state.selectedBlockObj, ...block },

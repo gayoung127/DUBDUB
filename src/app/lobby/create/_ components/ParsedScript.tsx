@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import ScriptRoleCard from "./ScriptRoleCard";
+import { Speaker } from "@/app/_types/script";
 
 interface ParsedScriptEntry {
   label: string;
@@ -8,30 +10,48 @@ interface ParsedScriptEntry {
 
 interface ParsedScriptProps {
   parsedScript: ParsedScriptEntry[];
+  onUpdate: (updatedScript: ParsedScriptEntry[]) => void; //부모 컴포넌트에 업데이트된 데이터 전달
+  speakers: Speaker[];
 }
 
-const ParsedScript = ({ parsedScript }: ParsedScriptProps) => {
+const ParsedScript = ({
+  parsedScript,
+  onUpdate,
+  speakers,
+}: ParsedScriptProps) => {
+  const [editableScript, setEditableScript] =
+    useState<ParsedScriptEntry[]>(parsedScript); //로컬 상태
+
+  // props(parsedScript)가 변경될 때 로컬 상태 업데이트
+  useEffect(() => {
+    setEditableScript(parsedScript);
+  }, [parsedScript]);
+
+  // 입력값 변경 핸들러 (text 필드만 업데이트)
+  const handleTextChange = (index: number, value: string) => {
+    const updatedScript = [...editableScript];
+    updatedScript[index] = { ...updatedScript[index], text: value }; // text 필드만 업데이트
+    setEditableScript(updatedScript); // 로컬 상태 업데이트
+    onUpdate(updatedScript); // 부모 컴포넌트로 업데이트된 데이터 전달
+  };
+
   return (
     <div className="w-full p-4">
-      <h2 className="text-lg font-semibold">Parsed Script</h2>
-      {parsedScript.length === 0 ? (
+      {editableScript.length === 0 ? (
         <p>대본이 비어있습니다.</p>
       ) : (
-        <ul className="space-y-4">
-          {parsedScript.map((entry, index) => (
-            <li key={index} className="rounded bg-gray-100 p-4">
-              <p>
-                <strong>시작 시간:</strong> {entry.start}
-              </p>
-              <p>
-                <strong>화자:</strong> {entry.label}
-              </p>
-              <p>
-                <strong>대사:</strong> {entry.text}
-              </p>
-            </li>
+        <div className="flex flex-col gap-5">
+          {editableScript.map((script, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <ScriptRoleCard label={script.label} speakers={speakers} />
+              <textarea
+                value={script.text}
+                onChange={(e) => handleTextChange(index, e.target.value)}
+                className="w-full rounded border p-2"
+              />
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

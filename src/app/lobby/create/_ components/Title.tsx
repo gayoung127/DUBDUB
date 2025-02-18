@@ -9,10 +9,10 @@ const Title = ({ onChange }: TitleProps) => {
   return (
     <section>
       <div className="p-4">
-        <H2 className="mb-2">TITLE</H2>
+        <H2 className="mb-2 text-white-100">TITLE</H2>
         <textarea
           placeholder="제목을 입력하세요."
-          className="max-h-[60px] min-h-[60px] w-full resize-none rounded-lg bg-gray-50 p-4 text-center text-lg placeholder:text-xl placeholder:font-semibold placeholder:text-gray-100 focus:outline-none"
+          className="max-h-[60px] min-h-[60px] w-full resize-none rounded-lg bg-gray-200 p-4 text-center text-lg text-white-100 placeholder:text-xl placeholder:font-semibold placeholder:text-white-100 focus:outline-none"
           onChange={(e) => onChange(e.target.value)}
         />
       </div>

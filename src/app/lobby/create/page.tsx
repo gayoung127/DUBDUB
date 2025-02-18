@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Title from "./_ components/Title";
 import Video from "./_ components/Video";
@@ -9,6 +9,7 @@ import Button from "@/app/_components/Button";
 import Pencil from "@/public/images/icons/icon-pencil.svg";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
+// import { Segment } from "@/app/_types/script";
 
 export interface ParsedScriptEntry {
   label: string;
@@ -40,6 +41,23 @@ export default function Page() {
     }));
   };
 
+  // ParsedScript에서 업데이트된 데이터를 처리하는 함수
+  const handleParsedScriptUpdate = (
+    updatedParsedScript: ParsedScriptEntry[],
+  ) => {
+    setParsedScript(updatedParsedScript); // 파싱된 Script 상태 업데이트
+    const updatedText = updatedParsedScript
+      .map((entry) => `${entry.label}: ${entry.text}`)
+      .join("\n");
+    setScript(updatedText); // Script 문자열 업데이트
+  };
+
+  // 화자 라벨을 이름으로 매핑하는 함수
+  const getSpeakerName = (label: string): string => {
+    const speaker = speakers.find((speaker) => speaker.label === label);
+    return speaker ? speaker.name : "Unknown"; // 매칭되지 않으면 "Unknown" 반환
+  };
+
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // 기본 폼 제출 동작 방지
@@ -57,6 +75,17 @@ export default function Page() {
       return;
     }
 
+    const names: string[] = speakers.map((speaker) => speaker.name);
+
+    const sendScript = parsedScript.map((entry) => ({
+      start: entry.start,
+      text: entry.text,
+      role: getSpeakerName(entry.label),
+    }));
+    const stringScript = JSON.stringify(sendScript);
+    setScript(stringScript);
+    console.log("최종 script = ", stringScript);
+
     // FormData 객체 생성
     const formData = new FormData();
     formData.append(
@@ -65,7 +94,8 @@ export default function Page() {
         [
           JSON.stringify({
             title,
-            script,
+            castings: names,
+            script: stringScript,
           }),
         ],
         { type: "application/json" },
@@ -115,76 +145,68 @@ export default function Page() {
     <div className="flex h-full min-h-screen w-full flex-col">
       <Header />
 
-      {/* Video and Title */}
-      <form onSubmit={handleSubmit} className="space-y-4 p-4">
-        <div className="flex">
-          {/* Left Section */}
-          <div className="w-1/3 space-y-4">
-            <Video
-              onChange={setVideoFile}
-              onThumbnailChange={(file) => setThumbnail(file)}
-              setSpeakers={setSpeakers}
-              setSegments={(newSegments) => {
-                setSegments((prevSegments) => {
-                  const updatedSegments = [...prevSegments, ...newSegments];
-                  setParsedScript(parseSegments(updatedSegments));
-                  return updatedSegments;
-                });
-              }}
-            />
-            <Title onChange={setTitle} />
+      <div className="flex h-full flex-col justify-center bg-gray-400">
+        {/* Video and Title */}
+        <form onSubmit={handleSubmit} className="space-y-4 p-4">
+          <div className="flex">
+            {/* Left Section */}
+            <div className="flex w-1/3 flex-col justify-around space-y-4 pt-10">
+              <Title onChange={setTitle} />
+              <Video
+                onChange={setVideoFile}
+                onThumbnailChange={(file) => setThumbnail(file)}
+                setSpeakers={setSpeakers}
+                setSegments={(newSegments) => {
+                  setSegments((prevSegments) => {
+                    if (!Array.isArray(newSegments)) {
+                      console.error(
+                        "newSegments는 배열이어야 합니다.",
+                        newSegments,
+                      );
+                      return prevSegments; // 잘못된 값이 들어오면 이전 상태를 유지
+                    }
+                    const updatedSegments = [...prevSegments, ...newSegments];
+                    setParsedScript(parseSegments(updatedSegments)); // 병합된 세그먼트를 파싱하여 업데이트
+                    return updatedSegments;
+                  });
+                }}
+              />
+            </div>
+
+            {/* Right Section */}
+            <div className="w-2/3 space-y-4">
+              <Script
+                onChange={setScript}
+                parsedScript={parsedScript}
+                onUpdate={handleParsedScriptUpdate} // Update handler 전달
+                speakers={speakers}
+                setSpeakers={setSpeakers}
+                segments={segments}
+                // onChange={(value) => setScript(value)} // Script 문자열 업데이트
+                // parsedScript={parsedScript} // 파싱된 데이터 전달
+                //  onUpdate={handleParsedScriptUpdate}
+              />
+            </div>
           </div>
 
-          {/* Right Section */}
-          <div className="w-2/3 space-y-4">
-            <Script
-              onChange={(value) => setScript(value)} // Script 문자열 업데이트
-              speakers={speakers}
-              segments={segments}
-              parsedScript={parsedScript} // 파싱된 데이터 전달
-            />
-          </div>
-        </div>
+          {/* Hidden Script Field for Submission */}
+          <textarea name="script" value={script} onChange={() => {}} hidden />
 
-        {/* Hidden Script Field for Submission */}
-        <textarea name="script" value={script} hidden />
-
-        {/* Submit Button */}
-        <Button
-          onClick={() => {
-            const form = document.querySelector("form");
-            if (form) {
-              form.requestSubmit();
-            }
-          }}
-          outline={false}
-          large={true}
-        >
-          제출하기
-        </Button>
-      </form>
+          {/* Submit Button */}
+          <Button
+            onClick={() => {
+              const form = document.querySelector("form");
+              if (form) {
+                form.requestSubmit();
+              }
+            }}
+            outline={false}
+            large={true}
+          >
+            제출하기
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
-
-// {/* STT 결과 렌더링 */}
-// {transcription && (
-//   <div className="mt-4 w-full rounded-lg bg-gray-100 p-4">
-//     <h3 className="text-lg font-semibold">STT 변환 결과:</h3>
-//     <p className="text-gray-700">{transcription}</p>
-//   </div>
-// ))}
-
-// <Button
-//   outline={false}
-//   large={true}
-//   disabled={isSubmitting}
-//   onClick={() => {
-//     const form = document.querySelector("form");
-//     if (form) {
-//       form.requestSubmit();
-//     }
-//   }}
-// >
-//   {isSubmitting ? "제출중" : "생성하기"}
-// </Button>

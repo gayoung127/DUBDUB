@@ -14,11 +14,17 @@ interface RenderingProps {
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }
+
 const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
   const [isRendering, setIsRendering] = useState(false);
   const { mergeVideoAudio, isProcessing, outputUrl } = useRendering();
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const tracksRef = useRef<Track[]>(tracks);
+
+  useEffect(() => {
+    tracksRef.current = tracks;
+  }, [tracks]);
 
   const loadAudioFiles = async () => {
     if (!audioContextRef.current) {
@@ -26,7 +32,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
     }
     const context = audioContextRef.current;
 
-    for (const track of tracks) {
+    for (const track of tracksRef.current) {
       for (const file of track.files) {
         if (!audioBuffersRef.current.has(file.url) && file.url) {
           const response = await fetch(file.url);
@@ -44,8 +50,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       return;
     }
 
-    // ✅ Track[] → AudioBlockProps[] 변환
-    const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
+    const audioBlocks: AudioBlockProps[] = tracksRef.current.flatMap((track) =>
       track.files.map((file) => ({
         file,
         isMuted: true,
@@ -66,7 +71,6 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       return;
     }
 
-    // ✅ 오디오 병합
     const mergedAudioBuffer = mergeAudioBuffersWithTimeline(
       audioContextRef.current,
       audioBlocks,
@@ -79,11 +83,9 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
 
     console.log("✅ 병합된 오디오 버퍼 생성됨:", mergedAudioBuffer);
 
-    // ✅ MP3 변환 후 다운로드
     return audioBufferToMp3(mergedAudioBuffer);
   };
 
-  // 렌더링
   async function handleStartRendering(videoUrl: string | undefined) {
     if (!videoUrl) {
       toast.error("저장된 영상이 존재하지 않습니다.");
@@ -102,7 +104,6 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       type: "audio/mp3",
     });
 
-    // 비디오 파일
     const video = await fetch(videoUrl);
     const blob2 = await video.blob();
     const videoFile = new File([blob2], "video.mp4", {
