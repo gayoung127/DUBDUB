@@ -49,6 +49,17 @@ export default function Page() {
     }));
   };
 
+  // ParsedScript에서 업데이트된 데이터를 처리하는 함수
+  const handleParsedScriptUpdate = (
+    updatedParsedScript: ParsedScriptEntry[],
+  ) => {
+    setParsedScript(updatedParsedScript); // 파싱된 Script 상태 업데이트
+    const updatedText = updatedParsedScript
+      .map((entry) => `${entry.label}: ${entry.text}`)
+      .join("\n");
+    setScript(updatedText); // Script 문자열 업데이트
+  };
+
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // 기본 폼 제출 동작 방지
@@ -158,10 +169,14 @@ export default function Page() {
           {/* Right Section */}
           <div className="w-2/3 space-y-4">
             <Script
-              onChange={(value) => setScript(value)} // Script 문자열 업데이트
+              onChange={setScript}
+              parsedScript={parsedScript}
+              onUpdate={handleParsedScriptUpdate} // Update handler 전달
               speakers={speakers}
               segments={segments}
-              parsedScript={parsedScript} // 파싱된 데이터 전달
+              // onChange={(value) => setScript(value)} // Script 문자열 업데이트
+              // parsedScript={parsedScript} // 파싱된 데이터 전달
+              //  onUpdate={handleParsedScriptUpdate}
             />
           </div>
         </div>
@@ -186,25 +201,3 @@ export default function Page() {
     </div>
   );
 }
-
-// {/* STT 결과 렌더링 */}
-// {transcription && (
-//   <div className="mt-4 w-full rounded-lg bg-gray-100 p-4">
-//     <h3 className="text-lg font-semibold">STT 변환 결과:</h3>
-//     <p className="text-gray-700">{transcription}</p>
-//   </div>
-// ))}
-
-// <Button
-//   outline={false}
-//   large={true}
-//   disabled={isSubmitting}
-//   onClick={() => {
-//     const form = document.querySelector("form");
-//     if (form) {
-//       form.requestSubmit();
-//     }
-//   }}
-// >
-//   {isSubmitting ? "제출중" : "생성하기"}
-// </Button>

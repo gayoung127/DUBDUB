@@ -9,6 +9,7 @@ interface ScriptProps {
   speakers: Speaker[];
   segments: Segment[];
   parsedScript: ParsedScriptEntry[];
+  onUpdate: (updatedParsedScript: ParsedScriptEntry[]) => void;
 }
 
 const Script = ({
