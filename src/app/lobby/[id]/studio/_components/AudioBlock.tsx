@@ -423,12 +423,14 @@ const AudioBlock = ({
         zIndex: zIndex,
       }}
       onClick={() => {
-        setSelectedBlock(file);
+        setSelectedBlock(selectedBlock?.id === file.id ? selectedBlock : file);
         setSelectedBlockObj({
           applyToAll: false,
+          selectedAudioFile: file,
           trackId: trackId,
           blockIndex: fileIdx,
         });
+
         setZIndex(100);
       }}
     >
