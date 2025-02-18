@@ -63,12 +63,14 @@ const PlayBar = ({
   const params = useParams();
   const pid = params.id;
 
-  // useEffect: 자동 녹음 - 녹음이 시작되었을 때, handleRecording 실행
+  const isManualRecording = useRef(false); // 🔥 사용자가 직접 녹음 버튼을 눌렀는지 추적
+
   useEffect(() => {
-    if (isRecording) {
+    if (isRecording && !isManualRecording.current) {
+      // 🔥 소켓에서 받은 변경이면 실행
       handleRecording();
     }
-  }, [isRecording]);
+  }, [isRecording]); // `isRecording`이 변경될 때 실행
 
   // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
@@ -157,7 +159,10 @@ const PlayBar = ({
         setAnalyser(null);
       }
       setMediaRecorder(null);
+      isManualRecording.current = false; // 🔥 녹음 종료 후 플래그 초기화
     } else {
+      isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
+
       const currentTime = time;
       const activeMics = Object.entries(micStatus)
         .filter(([_, isOn]) => isOn)
@@ -191,9 +196,7 @@ const PlayBar = ({
 
         recorder.onstop = async () => {
           toast.success("녹음된 파일을 저장 중입니다...");
-          const audioBlob = new Blob(chunks, {
-            type: "audio/webm",
-          });
+          const audioBlob = new Blob(chunks, { type: "audio/webm" });
           const url = URL.createObjectURL(audioBlob);
           console.log("🎵 생성된 오디오 파일 URL:", url);
 
