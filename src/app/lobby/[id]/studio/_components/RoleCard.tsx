@@ -13,16 +13,9 @@ interface RoleCardProps {
   name: string;
   role: string;
   profileImageUrl: string;
-  stream?: MediaStream;
 }
 
-const RoleCard = ({
-  id,
-  name,
-  role,
-  profileImageUrl,
-  stream,
-}: RoleCardProps) => {
+const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -40,75 +33,8 @@ const RoleCard = ({
 
   drag(ref);
 
-  const audioRef = useRef<HTMLAudioElement>(null);
   const { micStatus, setMicStatus } = useMicStore();
   const isMicOn = micStatus[id] ?? true;
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-
-  // 스트림 업데이트
-  useEffect(() => {
-    if (!stream) return;
-
-    setLocalStream(stream);
-  }, [stream]);
-
-  // 마이크 상태 확인 및 초기화
-  useEffect(() => {
-    const checkMicStatus = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const audioInput = devices.find(
-          (device) => device.kind === "audioinput",
-        );
-
-        if (audioInput) {
-          const userStream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-          });
-          if (userStream.getAudioTracks().some((track) => track.enabled)) {
-            setLocalStream(userStream);
-            setMicStatus(id, isMicOn);
-          } else {
-            userStream.getTracks().forEach((track) => track.stop());
-          }
-        }
-      } catch (error) {
-        console.error("마이크 상태 확인 오류: ", error);
-      }
-    };
-
-    checkMicStatus();
-  }, []);
-
-  // 언마운트 시 스트림 정리
-  useEffect(() => {
-    return () => {
-      localStream?.getTracks().forEach((track) => track.stop());
-    };
-  }, []);
-
-  // 오디오 출력 관리
-  useEffect(() => {
-    if (audioRef.current && stream) {
-      console.log(`🎵 [RoleCard] userId: ${id}, stream:`, stream);
-      if (audioRef.current.srcObject !== stream) {
-        if (
-          audioRef.current.srcObject &&
-          audioRef.current.srcObject instanceof MediaStream
-        ) {
-          audioRef.current.srcObject
-            .getTracks()
-            .forEach((track) => track.stop());
-        }
-        audioRef.current.srcObject = stream;
-      }
-      audioRef.current.volume = isMicOn ? 1 : 0;
-      audioRef.current.muted = false;
-      audioRef.current
-        .play()
-        .catch((error) => console.error("오디오 스트림 재생 실패: ", error));
-    }
-  }, [stream, isMicOn]);
 
   //마이크 토글
   const handleToggleMic = async () => {
@@ -133,7 +59,6 @@ const RoleCard = ({
         <div className="flex items-center gap-x-3">
           <H4 className="text-white-100">{name}</H4>
           <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
-          <audio ref={audioRef} autoPlay />
         </div>
         <button
           onClick={handleToggleMic}
