@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "200mb", // ✅ 특정 API의 최대 요청 크기를 200MB로 설정
+    },
+  },
+};
+
 export async function POST(req: Request) {
   const CLOVA_API_URL = `${process.env.CLOVA_API_URL}`;
   const CLOVA_API_KEY = process.env.CLOVA_API_KEY;
