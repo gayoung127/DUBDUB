@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CastingRepository extends JpaRepository<Casting, Long>, CastingRepositoryCustom {
-    Optional<Casting> findByIdAndRecruitmentId(Long castingId, Long recruitmentId);
+    Optional<Casting> findByIdAndProjectId(Long castingId, Long projectId);
 }
