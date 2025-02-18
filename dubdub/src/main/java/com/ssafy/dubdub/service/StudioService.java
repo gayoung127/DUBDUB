@@ -30,13 +30,13 @@ public class StudioService {
 
     private final OpenViduService openViduService;
     private final S3Service s3Service;
+
     private final ProjectRepository projectRepository;
     private final StudioRepository studioRepository;
     private final FileRepository fileRepository;
     private final CastingRepository castingRepository;
     private final SnapshotRepository snapshotRepository;
     private final ParticipationHistoryRepository participationHistoryRepository;
-    private final ProjectService projectService;
 
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
