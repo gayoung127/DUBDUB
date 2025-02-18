@@ -39,6 +39,8 @@ export default function StudioPage() {
   const [parsedScripts, setParsedScripts] = useState<
     { role: string; text: string }[]
   >([]);
+  const [isVideoMuted, setIsVideoMuted] = useState<boolean>(false);
+  const [isProcessedAudio, setIsProcessedAudio] = useState<boolean>(false);
 
   const { sessionId, setSessionId } = useSessionIdStore();
   const { memberId, self } = useUserStore();
@@ -49,6 +51,19 @@ export default function StudioPage() {
   useStompClient(sessionId);
   const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
 
+  useEffect(() => {
+    if (isVideoMuted) {
+      console.log("[page] 비디오 음소거 O");
+    } else {
+      console.log("[page] 비디오 음소거 X");
+    }
+
+    if (isProcessedAudio) {
+      console.log("[page] 보컬 제거 O");
+    } else {
+      console.log("[page] 보컬 제거 X");
+    }
+  }, [isVideoMuted, isProcessedAudio]);
   // studioId 확인
   if (!studioId) {
     throw new Error("studioId 없음");
@@ -292,6 +307,8 @@ export default function StudioPage() {
                   tracks={tracks}
                   setTracks={setTracks}
                   assets={assets}
+                  isVideoMuted={isVideoMuted}
+                  isProcessedAudio={isProcessedAudio}
                 />
               </div>
             </div>
@@ -309,6 +326,10 @@ export default function StudioPage() {
             assets={assets}
             setAssets={setAssets}
             sendAsset={sendAsset}
+            isVideoMuted={isVideoMuted}
+            setIsVideoMuted={setIsVideoMuted}
+            isProcessedAudio={isProcessedAudio}
+            setIsProcessedAudio={setIsProcessedAudio}
           />
         </div>
         {isConnected && (

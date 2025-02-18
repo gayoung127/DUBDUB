@@ -6,21 +6,24 @@ const VideoTrack = ({
   isMuted,
   isSolo,
   videoUrl,
+  isProcessedAudio,
   setVideoMuted,
   setVideoSolo,
+  setIsProcessedAudio,
 }: {
   isMuted: boolean;
   isSolo: boolean;
   videoUrl: string;
+  isProcessedAudio: boolean;
   setVideoMuted: (muted: boolean) => void;
   setVideoSolo: (solo: boolean) => void;
+  setIsProcessedAudio: (isProcessed: boolean) => void;
 }) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const processedBufferRef = useRef<AudioBuffer | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
-  const [isProcessedAudio, setIsProcessedAudio] = useState<boolean>(false);
 
   useEffect(() => {
     if (!videoUrl) return;
@@ -83,7 +86,8 @@ const VideoTrack = ({
 
   // ✅ 원본/보컬 제거 오디오 토글
   const handleToggleAudio = () => {
-    setIsProcessedAudio((prev) => !prev);
+    const newIsProcessedAudio = !isProcessedAudio;
+    setIsProcessedAudio(newIsProcessedAudio);
   };
 
   const handlePlayAudio = (useProcessedAudio: boolean) => {
@@ -151,6 +155,12 @@ const VideoTrack = ({
     >
       <H4 className="border-white-100 font-bold text-white-100">Original </H4>
       <div className="flex flex-row items-center gap-x-4">
+        <div
+          className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm ${isProcessedAudio ? "bg-green-500" : "bg-white-100"}`}
+          onClick={() => handlePlayAudio(isProcessedAudio)}
+        >
+          <span className="text-xs font-bold text-gray-400">P</span>
+        </div>
         <div
           className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm ${isProcessedAudio ? "bg-green-500" : "bg-white-100"}`}
           onClick={() => handleToggleAudio()}
