@@ -35,7 +35,6 @@ public class StudioService {
     private final FileRepository fileRepository;
     private final CastingRepository castingRepository;
     private final SnapshotRepository snapshotRepository;
-    private final RecruitmentService recruitmentService;
 
     public StudioEnterResponseDto createStudio(Member member, Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Project project = projectRepository.findById(projectId).orElseThrow(
@@ -78,16 +77,17 @@ public class StudioService {
                 .build();
     }
 
-    @Transactional
-    public void saveWorkspaceData(Long projectId, String workspaceData, Member member) {
+    public void saveWorkspaceData(Long projectId, SnapshotDTO requestDto, Member member) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
+
         validateAuthorization(project, member);
 
         try {
             Snapshot newVersion = Snapshot.builder()
                     .project(project)
-//                    .workspaceData(workspaceData)
+                    .assets(requestDto.getAssets())
+                    .tracks(requestDto.getTracks())
                     .build();
 
             snapshotRepository.save(newVersion);

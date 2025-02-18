@@ -2,6 +2,7 @@ package com.ssafy.dubdub.controller;
 
 
 import com.ssafy.dubdub.domain.dto.FileUploadResponseDTO;
+import com.ssafy.dubdub.domain.dto.SnapshotDTO;
 import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.service.StudioService;
@@ -26,7 +27,7 @@ public class StudioController {
     private final StudioService studioService;
 
     @Operation(summary = "스튜디오 입장하기")
-    @PostMapping("/{pid}")
+    @PostMapping("/{pid}/enter-studio")
     public ResponseEntity<StudioEnterResponseDto> createStudio(@PathVariable("pid") Long projectId) throws OpenViduJavaClientException, OpenViduHttpException {
         Member member = SecurityUtil.getCurrentUser();
         StudioEnterResponseDto responseDto = studioService.createStudio(member, projectId);
@@ -35,12 +36,12 @@ public class StudioController {
     }
 
     @Operation(summary = "작업정보 저장", description = "프로젝트의 작업정보를 저장합니다.")
-    @PostMapping("/{pId}/workspace")
-    public ResponseEntity<?> saveWorkspaceData(@PathVariable("pId") Long projectId,
-                                               @RequestBody String workspaceData) {
+    @PostMapping("/{pid}/save-snapshot")
+    public ResponseEntity<?> saveWorkspaceData(@PathVariable("pid") Long projectId,
+                                               @RequestBody SnapshotDTO requestDto) {
 
         Member member = SecurityUtil.getCurrentUser();
-        studioService.saveWorkspaceData(projectId, workspaceData, member);
+        studioService.saveWorkspaceData(projectId, requestDto, member);
         return ResponseEntity.ok().build();
     }
 
