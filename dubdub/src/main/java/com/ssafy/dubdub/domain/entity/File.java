@@ -9,6 +9,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(indexes = {
+        @Index(name = "idx_file_lookup",
+                columnList = "project_id,file_type,is_deleted")
+})
 public class File extends Timestamped{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
