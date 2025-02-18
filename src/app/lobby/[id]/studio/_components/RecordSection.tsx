@@ -11,9 +11,16 @@ import AudioTrackTimeline from "./AudioTrackTimeline";
 import AudioTrackHeader from "./AudioTrackHeader";
 
 import VideoTrack from "./VideoTrack";
+import { mergeAudioBuffersWithTimeline } from "@/app/_utils/mergeAudioBuffersWithTimeline";
+import { audioBufferToMp3 } from "@/app/_utils/audioBufferToMp3";
+import { AudioBlockProps } from "./AudioBlock";
+import Button from "@/app/_components/Button";
+import { resampleAudioBuffer } from "@/app/_utils/resampleAudioBuffer";
+import { Role } from "@/app/_types/script";
 import ImagesFromVideo from "./ImagesFromVideo";
 
 interface RecordSectionProps {
+  roles: Role[];
   duration: number;
   videoUrl: string;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
@@ -29,6 +36,7 @@ interface RecordSectionProps {
 }
 
 const RecordSection = ({
+  roles,
   duration,
   videoUrl,
   setDuration,
@@ -146,12 +154,13 @@ const RecordSection = ({
             />
           </div>
           <div className="h-full w-full">
-            {tracks.map((track) => (
+            {tracks.map((track, index) => (
               <AudioTrackHeader
                 key={track.trackId}
                 isMuted={track.isMuted ?? false}
                 isSolo={track.isSolo ?? false}
                 trackId={track.trackId}
+                role={roles[index]?.name}
                 recorderId={track.recorderId}
                 recorderName={track.recorderName}
                 recorderRole={track.recorderRole}

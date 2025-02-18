@@ -69,6 +69,8 @@ const Video = ({
       const data = await response.json();
 
       if (response.ok) {
+        console.log(data.result.speakers);
+        console.log(data.result.segments);
         setSpeakers(data.result.speakers);
         setSegments(data.result.segments);
       } else {
@@ -81,9 +83,9 @@ const Video = ({
 
   return (
     <section ref={sectionRef} className="mx-auto w-full max-w-2xl p-4">
-      <H2 className="mb-4">VIDEO</H2>
+      <H2 className="mb-4 text-white-100">VIDEO</H2>
       <label htmlFor="video-upload">
-        <div className="flex min-h-[320px] w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-50 p-6 focus:outline-none">
+        <div className="flex min-h-[320px] w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-200 p-6 focus:outline-none">
           {thumbnailPreview ? (
             <img
               src={thumbnailPreview}
@@ -93,7 +95,7 @@ const Video = ({
           ) : (
             <>
               <UploadIcon width={48} height={48} />
-              <p className="mt-4 text-center text-gray-600">
+              <p className="mt-4 text-center text-white-100">
                 더빙할 동영상을 업로드 해주세요
               </p>
             </>

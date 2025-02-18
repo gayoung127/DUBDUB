@@ -211,7 +211,7 @@ const PlayBar = ({
 
       recorder.onstop = async () => {
         toast.success("녹음된 파일을 저장 중입니다...");
-        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const audioBlob = new Blob(chunks, { type: "audio/wav" });
         const url = URL.createObjectURL(audioBlob);
         console.log("🎵 생성된 오디오 파일 URL:", url);
 
@@ -219,7 +219,6 @@ const PlayBar = ({
           toast.error("트랙에 할당된 참여자가 없습니다.");
           return;
         }
-
         const newUrl = await postAsset(String(pid), audioBlob);
         createAudioFile(track.trackId, newUrl, currentTime);
       };

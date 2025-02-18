@@ -43,6 +43,6 @@ export const playAudio = ({
 };
 
 export async function createBlob(audioBuffer: AudioBuffer) {
-  const ret = await audioBufferToWebm(audioBuffer);
+  const ret = await audioBufferToWav(audioBuffer);
   return ret;
 }

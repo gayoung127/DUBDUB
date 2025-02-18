@@ -11,4 +11,14 @@ export interface Segment {
     label: string; // 이 세그먼트에 해당하는 화자 라벨
   };
 }
-// end: number; // 세그먼트 종료시간
+
+export interface Script {
+  start: number;
+  text: string;
+  role: string;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+}

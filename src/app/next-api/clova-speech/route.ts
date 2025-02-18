@@ -10,7 +10,7 @@ export const config = {
 
 export async function POST(req: Request) {
   const CLOVA_API_URL = `${process.env.CLOVA_API_URL}`;
-  const CLOVA_API_KEY = process.env.CLOVA_API_KEY;
+  const CLOVA_API_KEY = `${process.env.CLOVA_API_KEY}`;
 
   if (!CLOVA_API_KEY) {
     return NextResponse.json({ error: "API Key가 없습니다." }, { status: 400 });
