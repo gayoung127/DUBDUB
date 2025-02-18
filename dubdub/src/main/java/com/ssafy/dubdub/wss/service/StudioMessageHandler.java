@@ -125,8 +125,7 @@ public class StudioMessageHandler {
                 message.getSessionId(),
                 getDestinationSuffix(message.getType()));
 
-        messagingTemplate.convertAndSendToUser(
-                user.getMemberId(),
+        messagingTemplate.convertAndSend(
                 destination,
                 message.getPayload()
         );
