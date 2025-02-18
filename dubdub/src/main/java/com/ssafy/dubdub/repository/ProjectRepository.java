@@ -25,6 +25,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "(SELECT f.url FROM File f WHERE f.project = p AND f.fileType = 'THUMBNAIL' AND f.isDeleted = false)) " +
             "FROM Project p " +
             "JOIN ParticipationHistory ph ON ph.project = p " +
-            "WHERE ph.member = :member")
+            "WHERE ph.member = :member " +
+            "GROUP BY p.id, p.title")
     Page<ProjectListResponseDTO> findProjectsWithThumbnailByParticipant(@Param("member") Member member, Pageable pageable);
 }
