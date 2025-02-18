@@ -105,14 +105,14 @@ const PlayBar = ({
         if (isPlaying) {
           sendPlaybackStatus({
             recording: isRecording,
-            playState: "PAUSE", // PAUSE 상태로 보내기
-            timelineMarker: time,
+            playState: "STOP",
+            timelineMarker: 0,
           });
         } else {
           sendPlaybackStatus({
             recording: isRecording,
-            playState: "PLAY", // PAUSE 상태로 보내기
-            timelineMarker: time,
+            playState: "PLAY",
+            timelineMarker: 0,
           });
         }
       }
