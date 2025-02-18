@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useStompStore } from "@/app/_store/StompStore"; // ✅ Zustand 전역 상태 사용
+import { useStompStore } from "@/app/_store/StompStore";
 import useStompClient from "@/app/_hooks/useStompClient";
 import Header from "@/app/_components/Header";
 import CursorPresence from "./_components/CursorPresence";
@@ -50,7 +50,7 @@ export default function StudioPage() {
   const { assets, setAssets, sendAsset } = useAssetsSocket({ sessionId });
 
   useStompClient(sessionId);
-  const { stompClientRef, isConnected } = useStompStore(); // ✅ Zustand에서 STOMP 상태 가져오기
+  const { stompClientRef, isConnected } = useStompStore();
 
   // studioId 확인
   if (!studioId) {
