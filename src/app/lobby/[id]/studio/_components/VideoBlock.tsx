@@ -19,19 +19,7 @@ const VideoBlock = ({
   const processedBufferRef = useRef<AudioBuffer | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
-  useEffect(() => {
-    if (isMuted) {
-      console.log("[Video Block] 비디오 음소거 O");
-    } else {
-      console.log("[Video Block] 비디오 음소거 X");
-    }
 
-    if (isProcessedAudio) {
-      console.log("[Video Block] 보컬 제거 O");
-    } else {
-      console.log("[Video Block] 보컬 제거 X");
-    }
-  }, [isMuted, isProcessedAudio]);
   useEffect(() => {
     if (!videoUrl) return;
     const initAudio = async () => {
