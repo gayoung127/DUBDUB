@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Title from "./_ components/Title";
 import Video from "./_ components/Video";
@@ -52,6 +52,12 @@ export default function Page() {
     setScript(updatedText); // Script 문자열 업데이트
   };
 
+  // 화자 라벨을 이름으로 매핑하는 함수
+  const getSpeakerName = (label: string): string => {
+    const speaker = speakers.find((speaker) => speaker.label === label);
+    return speaker ? speaker.name : "Unknown"; // 매칭되지 않으면 "Unknown" 반환
+  };
+
   // 폼 제출 핸들러
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // 기본 폼 제출 동작 방지
@@ -68,6 +74,15 @@ export default function Page() {
       alert("비디오 파일을 업로드해주세요.");
       return;
     }
+
+    const sendScript = parsedScript.map((entry) => ({
+      start: entry.start,
+      text: entry.text,
+      role: getSpeakerName(entry.label),
+    }));
+    const stringScript = JSON.stringify(sendScript);
+    setScript(stringScript);
+    console.log("최종 script = ", stringScript);
 
     // FormData 객체 생성
     const formData = new FormData();

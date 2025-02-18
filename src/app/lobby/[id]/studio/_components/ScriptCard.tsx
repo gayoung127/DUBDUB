@@ -20,7 +20,7 @@ const ScriptCard = ({
   no,
   isActive,
 }: ScriptCardProps) => {
-  const formattedTimestamp = formatTime(timestamp);
+  const formattedTimestamp = formatTime(timestamp / 1000);
 
   return (
     <div

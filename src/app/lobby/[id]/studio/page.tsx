@@ -135,11 +135,10 @@ export default function StudioPage() {
         }
 
         if (data.script) {
-          // setParsedScripts(data.script);
-        }
-
-        if (data.roleList) {
-          // setRoles(data.roleList);
+          console.log("get script = ", data.script);
+          const jsonData = JSON.parse(data.script);
+          console.log("json data = ", jsonData);
+          setParsedScripts(jsonData);
         }
 
         if (data.session && data.token) {

@@ -34,40 +34,8 @@ const ParsedScript = ({
     setEditableScript(updatedScript); // 로컬 상태 업데이트
     onUpdate(updatedScript); // 부모 컴포넌트로 업데이트된 데이터 전달
   };
+
   return (
-    // <div className="w-full p-4">
-    //   {editableScript.length === 0 ? (
-    //     <p>대본이 비어있습니다.</p>
-    //   ) : (
-    //     <ul className="space-y-4">
-    //       {editableScript.map((entry, index) => (
-    //         <li key={index} className="rounded bg-gray-100 p-4">
-    //           <div>
-    //             <label>
-    //               <strong>시작 시간:</strong>
-    //               {entry.start}
-    //             </label>
-    //           </div>
-    //           <div>
-    //             <label>
-    //               <strong>화자:</strong> {entry.label}
-    //             </label>
-    //           </div>
-    //           <div>
-    //             <label>
-    //               <strong>대사:</strong>
-    //               <textarea
-    //                 value={entry.text}
-    //                 onChange={(e) => handleTextChange(index, e.target.value)}
-    //                 className="mt-2 w-full rounded border p-2"
-    //               />
-    //             </label>
-    //           </div>
-    //         </li>
-    //       ))}
-    //     </ul>
-    //   )}
-    // </div>
     <div className="w-full p-4">
       {editableScript.length === 0 ? (
         <p>대본이 비어있습니다.</p>

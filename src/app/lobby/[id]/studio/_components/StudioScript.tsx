@@ -20,8 +20,9 @@ const StudioScript = ({ scripts, roles }: StudioScriptProps) => {
   useEffect(() => {
     const currentIndex = scripts.findIndex(
       (script, index) =>
-        time >= script.start &&
-        (index === scripts.length - 1 || time < scripts[index + 1].start),
+        time >= script.start / 1000 &&
+        (index === scripts.length - 1 ||
+          time < scripts[index + 1].start / 1000),
     );
 
     if (currentIndex !== -1 && currentIndex !== activeScriptIndex) {
