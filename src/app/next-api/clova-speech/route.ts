@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!CLOVA_API_KEY) {
     return NextResponse.json({ error: "API Key가 없습니다." }, { status: 400 });
   }
-  const formData = await req.formData();
+  const formData = await req.formData(); //formData에서 파일 가져오기기
   const media = formData.get("file") as File;
 
   if (!media) {
@@ -23,13 +23,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const apiFormData = new FormData();
+    const apiFormData = new FormData(); //clova API로 보낼 FormData 생성
     apiFormData.append("media", media);
     apiFormData.append(
       "params",
       JSON.stringify({
         language: "ko-KR",
         completion: "sync", // 동기 방식
+        noiseFiltering: true,
+        wordAlignment:true,
+        fullText: true,
       }),
     );
 
