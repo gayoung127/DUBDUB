@@ -1,28 +1,28 @@
 "use client";
 
+import { DndProvider } from "react-dnd";
+import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { HTML5Backend } from "react-dnd-html5-backend";
+
+import { useUserStore } from "@/app/_store/UserStore";
 import { useStompStore } from "@/app/_store/StompStore";
+import { useSessionIdStore } from "@/app/_store/SessionIdStore";
+
+import { Role, Script, Segment, Speaker } from "@/app/_types/script";
+
+import { getMyInfo } from "@/app/_apis/user";
 import useStompClient from "@/app/_hooks/useStompClient";
+import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
+import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
+import { useAssetsSocket } from "@/app/_hooks/useAssetSocket";
+
 import Header from "@/app/_components/Header";
 import CursorPresence from "./_components/CursorPresence";
 import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
 import VideoPlayer from "./_components/VideoPlayer";
-import WebRTCManager from "./_components/WebRTCManager";
-
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { useUserStore } from "@/app/_store/UserStore";
-import { getMyInfo } from "@/app/_apis/user";
-import { useParams } from "next/navigation";
-import { createConnectionDirect, createSession } from "@/app/_apis/openvidu";
-import { useTrackSocket } from "@/app/_hooks/useTrackSocket";
-import { useSessionIdStore } from "@/app/_store/SessionIdStore";
-import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
-import { useAssetsSocket } from "@/app/_hooks/useAssetSocket";
-import { AudioFile, Track } from "@/app/_types/studio";
-import { Role, Script, Segment, Speaker } from "@/app/_types/script";
 
 export default function StudioPage() {
   const { id } = useParams();

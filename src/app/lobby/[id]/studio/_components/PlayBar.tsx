@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useMicStore } from "@/app/_store/MicStore";
 import { useUserStore } from "@/app/_store/UserStore";
@@ -10,6 +10,7 @@ import { useRecordingStore } from "@/app/_store/RecordingStore";
 import { postAsset } from "@/app/_apis/studio";
 import { Asset, Track } from "@/app/_types/studio";
 import { formatTime } from "@/app/_utils/formatTime";
+import { usePlaySocket } from "@/app/_hooks/usePlaySocket";
 
 import H4 from "@/app/_components/H4";
 import ShareButton from "./ShareButton";
@@ -20,7 +21,6 @@ import RecordButton from "@/public/images/icons/icon-record.svg";
 import PlayButton from "@/public/images/icons/icon-play.svg";
 import StopButton from "@/public/images/icons/icon-stop.svg";
 import PauseButton from "@/public/images/icons/icon-pause.svg";
-import { usePlaySocket } from "@/app/_hooks/usePlaySocket";
 
 interface PlayBarProps {
   videoRef: React.RefObject<VideoElementWithCapturestream | null>;
@@ -63,16 +63,15 @@ const PlayBar = ({
   const params = useParams();
   const pid = params.id;
 
-  const isManualRecording = useRef(false); // 🔥 사용자가 직접 녹음 버튼을 눌렀는지 추적
+  const isManualRecording = useRef<boolean>(false);
 
-  // useEffect(): isRecording 소켓 감지 및 자동 녹음 재생 / 정지
   useEffect(() => {
     console.log("🔄 `useEffect` 감지 - isRecording 변경됨:", isRecording);
 
     if (!isManualRecording.current) {
       if (isRecording) {
         console.log("🔥 소켓에서 받은 recording으로 녹음 시작");
-        startRecordingFromSocket(); // 🎯 새로운 녹음 함수 호출
+        startRecordingFromSocket();
       } else {
         console.log("🔥 소켓에서 받은 recording으로 녹음 정지");
         stopRecordingFromSocket();

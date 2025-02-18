@@ -17,17 +17,40 @@ export const usePlaySocket = () => {
   const { play, pause, reset, setTimeFromPx } = useTimeStore();
   const { setIsRecording } = useRecordingStore();
 
+  const handleLocalPlayback = (playbackStatus: PlaybackStatus) => {
+    console.warn("⚠️ 오프라인 모드 실행 중");
+
+    if (playbackStatus.recording !== undefined) {
+      setIsRecording(playbackStatus.recording);
+    }
+
+    switch (playbackStatus.playState) {
+      case "PLAY":
+        play();
+        break;
+      case "PAUSE":
+        pause();
+        break;
+      case "STOP":
+        reset();
+        break;
+    }
+
+    if (playbackStatus.timelineMarker !== undefined) {
+      setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
+    }
+  };
+
   const sendPlaybackStatus = useCallback(
     (playbackStatus: PlaybackStatus) => {
-      if (!isConnected || !stompClientRef?.connected) {
-        console.warn("⚠️ STOMP 연결이 안 되어 있음. 로컬에서만 실행.");
-        return;
+      if (isConnected && stompClientRef?.connected) {
+        stompClientRef.publish({
+          destination: `/app/studio/${sessionId}/playback`,
+          body: JSON.stringify(playbackStatus),
+        });
+      } else {
+        handleLocalPlayback(playbackStatus);
       }
-
-      stompClientRef.publish({
-        destination: `/app/studio/${sessionId}/playback`,
-        body: JSON.stringify(playbackStatus),
-      });
     },
     [isConnected, stompClientRef, sessionId],
   );
