@@ -65,12 +65,18 @@ const PlayBar = ({
 
   const isManualRecording = useRef(false); // 🔥 사용자가 직접 녹음 버튼을 눌렀는지 추적
 
+  // useEffect(): isRecording 소켓 감지 및 자동 녹음 재생 / 정지
   useEffect(() => {
     console.log("🔄 `useEffect` 감지 - isRecording 변경됨:", isRecording);
 
-    if (isRecording && !isManualRecording.current) {
-      console.log("🔥 소켓에서 받은 recording으로 녹음 시작");
-      startRecordingFromSocket(); // 🎯 새로운 녹음 함수 호출
+    if (!isManualRecording.current) {
+      if (isRecording) {
+        console.log("🔥 소켓에서 받은 recording으로 녹음 시작");
+        startRecordingFromSocket(); // 🎯 새로운 녹음 함수 호출
+      } else {
+        console.log("🔥 소켓에서 받은 recording으로 녹음 정지");
+        stopRecordingFromSocket();
+      }
     }
   }, [isRecording]);
 
@@ -148,14 +154,10 @@ const PlayBar = ({
       return;
     }
 
-    // 🔥 사용자가 직접 녹음을 누른 경우 -> 소켓을 통해 다른 사람에게도 알림
-    if (!isManualRecording.current) {
-      console.log("📡 [소켓] 녹음 상태 전송: ", !isRecording);
-      sendPlaybackStatus({
-        recording: !isRecording,
-        playState: isRecording ? "STOP" : "PLAY",
-      });
-    }
+    sendPlaybackStatus({
+      recording: !isRecording,
+      playState: isRecording ? "STOP" : "PLAY",
+    });
 
     if (isRecording) {
       console.log("🛑 녹음 중지 처리 중...");
@@ -308,6 +310,25 @@ const PlayBar = ({
     } catch (error) {
       toast.error(`오류가 발생했습니다. ${error}`);
     }
+  };
+
+  // stopRecordingFromSocket(): 소켓 상태 받아 자동 녹음 정지
+  const stopRecordingFromSocket = () => {
+    console.log("🛑 [소켓] 녹음 중지 실행됨!");
+
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+
+    stopRecording();
+
+    if (audioContext) {
+      audioContext.close();
+      setAudioContext(null);
+      setAnalyser(null);
+    }
+
+    setMediaRecorder(null);
   };
 
   // handlePlayButton(): 재생/일시정지 버튼 클릭 함수
