@@ -303,6 +303,8 @@ export default function StudioPage() {
               <StudioScript scripts={parsedScripts} roles={roles} />
             </div>
           </div>
+
+          <WebRTCManager sessionId={sessionId} sessionToken={sessionToken} />
           {roles.length > 0 && (
             <RecordSection
               duration={duration}
@@ -323,13 +325,6 @@ export default function StudioPage() {
             stompClientRef={stompClientRef}
           />
         )}
-        <WebRTCManager
-          studioId={studioId}
-          sessionId={sessionId}
-          sessionToken={sessionToken}
-          onUserAudioUpdate={handleUserAudioUpdate}
-          userId={self?.memberId ?? -1}
-        />
       </div>
     </DndProvider>
   );

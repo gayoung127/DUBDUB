@@ -31,7 +31,7 @@ const Video = ({
       const containerWidth = sectionRef.current.offsetWidth;
       const containerHeight = sectionRef.current.offsetHeight;
 
-      transcribeVideo(file);
+      transcribeVideo(file); // clova-api 호출
 
       try {
         //썸네일 생성

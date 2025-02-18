@@ -63,6 +63,15 @@ const PlayBar = ({
   const params = useParams();
   const pid = params.id;
 
+  const isManualRecording = useRef(false); // 🔥 사용자가 직접 녹음 버튼을 눌렀는지 추적
+
+  useEffect(() => {
+    if (isRecording && !isManualRecording.current) {
+      // 🔥 소켓에서 받은 변경이면 실행
+      handleRecording();
+    }
+  }, [isRecording]); // `isRecording`이 변경될 때 실행
+
   // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
     if (time >= duration) {
@@ -150,7 +159,10 @@ const PlayBar = ({
         setAnalyser(null);
       }
       setMediaRecorder(null);
+      isManualRecording.current = false; // 🔥 녹음 종료 후 플래그 초기화
     } else {
+      isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
+
       const currentTime = time;
       const activeMics = Object.entries(micStatus)
         .filter(([_, isOn]) => isOn)
