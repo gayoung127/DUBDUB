@@ -122,8 +122,9 @@ export default function StudioPage() {
         }
 
         if (data.script) {
-          const jsonData = JSON.parse(data.script);
-          setParsedScripts(jsonData);
+          // const jsonData = JSON.parse(data.script);
+          // setParsedScripts(jsonData);
+          setParsedScripts(data.script);
         }
 
         if (data.roleList) {

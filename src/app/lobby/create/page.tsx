@@ -89,7 +89,7 @@ export default function Page() {
           JSON.stringify({
             title,
             castings: names,
-            script: stringScript,
+            script: sendScript,
           }),
         ],
         { type: "application/json" },
