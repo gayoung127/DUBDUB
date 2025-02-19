@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface StudioRepository extends JpaRepository<Studio, Long> {
 
-    Optional<Studio> findFirstByRecruitmentIdAndIsClosedIsFalse(Long recruitmentId);
+    Optional<Studio> findFirstByProjectIdAndIsClosedIsFalse(Long projectId);
 
     Optional<Studio> findBySession(String session);
 }

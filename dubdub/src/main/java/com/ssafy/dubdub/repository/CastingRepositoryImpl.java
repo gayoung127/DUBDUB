@@ -18,7 +18,7 @@ public class CastingRepositoryImpl implements CastingRepositoryCustom {
         return queryFactory
                 .select(casting.name)
                 .from(casting)
-                .where(casting.recruitment.id.eq(recruitmentId))
+                .where(casting.project.id.eq(recruitmentId))
                 .fetch();
     }
 }

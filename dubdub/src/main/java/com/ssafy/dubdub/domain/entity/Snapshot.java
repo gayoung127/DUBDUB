@@ -8,21 +8,25 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class WorkspaceData extends Timestamped{
+public class Snapshot extends Timestamped{
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    private Recruitment project;
+    private Project project;
 
-    @Column(columnDefinition = "json")
-    private String workspaceData;
+    @Column(columnDefinition = "text")
+    private String tracks;
+
+    @Column(columnDefinition = "text")
+    private String assets;
 
     @Builder
-    public WorkspaceData(Recruitment project, String workspaceData) {
+    public Snapshot(Project project, String tracks, String assets) {
         this.project = project;
-        this.workspaceData = workspaceData;
+        this.tracks = tracks;
+        this.assets = assets;
     }
 }
 

@@ -30,18 +30,20 @@ public class Member extends Timestamped {
     @Column(nullable = false)
     private String nickname;
 
+    @Column
     private String refreshToken;
 
     @Enumerated(EnumType.STRING)
     private Position position;
 
+    @Column
     private String profileUrl;
 
     @Column(nullable = false)
     private boolean isOk;
 
-    @OneToMany(mappedBy = "author")
-    private List<Recruitment> recruitments = new ArrayList<>();
+    @OneToMany(mappedBy = "owner")
+    private List<Project> projects = new ArrayList<>();
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;

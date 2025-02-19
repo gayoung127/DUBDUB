@@ -1,15 +1,15 @@
 package com.ssafy.dubdub.domain.dto;
 
-import com.ssafy.dubdub.domain.entity.Recruitment;
+import com.ssafy.dubdub.domain.entity.Project;
 import lombok.Getter;
 
 @Getter
 public class RecruitmentWithVideoDto {
-    private final Recruitment recruitment;
+    private final Project project;
     private final String videoUrl;
 
-    public RecruitmentWithVideoDto(Recruitment recruitment, String videoUrl) {
-        this.recruitment = recruitment;
+    public RecruitmentWithVideoDto(Project project, String videoUrl) {
+        this.project = project;
         this.videoUrl = videoUrl;
     }
 }

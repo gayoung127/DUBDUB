@@ -15,8 +15,11 @@ public class Studio extends Timestamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruitment_id")
-    private Recruitment recruitment;
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @Column
+    private String session;
 
     @Column(nullable = false)
     private boolean isClosed;
@@ -24,11 +27,8 @@ public class Studio extends Timestamped {
     @Column
     private LocalDateTime closedAt;
 
-    @Column
-    private String session;
-
-    public Studio(Recruitment recruitment, String session) {
-        this.recruitment = recruitment;
+    public Studio(Project project, String session) {
+        this.project = project;
         this.session = session;
     }
 
