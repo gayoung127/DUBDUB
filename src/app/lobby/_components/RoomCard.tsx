@@ -14,7 +14,7 @@ const RoomCard = ({
     totalParticipants,
     genres,
     categories,
-    thumbnail,
+    thumbnailUrl,
   },
 }: {
   roomInfo: DubbingRoom & { thumbnail?: string };
@@ -31,21 +31,12 @@ const RoomCard = ({
     >
       <div className="relative overflow-hidden rounded-md">
         <img
-          src={thumbnail || "https://picsum.photos/300/200"}
+          src={thumbnailUrl || "https://picsum.photos/300/200"}
           alt="Room Thumbnail"
           className="h-[180px] w-full rounded-md object-cover"
         />
       </div>
       <H3 className="font-semibold text-gray-900">{title}</H3>
-
-      <C1>
-        <div className="flex items-center gap-2 text-gray-700">
-          <PersonIcon className="text-primary h-5 w-5" />
-          <span className="font-medium text-gray-900">
-            {currentParticipants} / {totalParticipants}
-          </span>
-        </div>
-      </C1>
     </div>
   );
 };
