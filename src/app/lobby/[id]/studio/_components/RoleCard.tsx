@@ -70,7 +70,7 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
       <div className="flex w-full flex-row items-center justify-between gap-x-3">
         <div className="flex items-center gap-x-3">
           <H4 className="text-white-100">{name}</H4>
-          <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1>
+          {/* <C1 className="text-white-200">&#40;역할 &#58; {role}&#41;</C1> */}
         </div>
         <button
           onClick={handleToggleMic}
