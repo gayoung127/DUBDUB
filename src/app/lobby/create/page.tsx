@@ -6,7 +6,6 @@ import Video from "./_ components/Video";
 import Script from "./_ components/Script";
 import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
-import Pencil from "@/public/images/icons/icon-pencil.svg";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
 // import { Segment } from "@/app/_types/script";
@@ -115,7 +114,7 @@ export default function Page() {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     try {
-      const response = await fetch(`${backendUrl}/recruitment`, {
+      const response = await fetch(`${backendUrl}/project`, {
         method: "POST",
         credentials: "include",
         body: formData, // Content-Type 자동 설정 (multipart/form-data)
