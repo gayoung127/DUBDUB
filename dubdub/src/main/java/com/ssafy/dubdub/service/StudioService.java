@@ -54,7 +54,7 @@ public class StudioService {
         Optional<File> thumbnail = fileRepository.findByProjectIdAndFileType(projectId, FileType.THUMBNAIL);
         String thumbnailUrl = thumbnail.map(File::getUrl).orElse(null);
 
-        Studio studio = studioRepository.findFirstByProjectIdAndIsClosedIsFalse(projectId)
+        Studio studio = studioRepository.findFirstByProjectIdAndIsClosedIsFalseOrderByCreatedAtDesc(projectId)
                 .orElseGet(() -> {
                     try {
                         Studio newStudio = new Studio(project, openViduService.createSession());
