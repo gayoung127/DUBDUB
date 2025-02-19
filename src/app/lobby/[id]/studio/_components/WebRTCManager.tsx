@@ -126,8 +126,12 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
   useEffect(() => {
     if (!sessionRef) return;
     const totalUsers = sessionRef.remoteConnections.size + 1;
+    console.log(
+      `🔍 현재 세션 내 사용자 수: ${totalUsers}, 구독된 스트림 수: ${subscribers.length}`,
+    );
 
     if (subscribers.length === totalUsers) {
+      console.log(`🎤 모든 사용자가 내 스트림을 구독 완료 - 마이크 상태 전송`);
       const userId = self?.memberId ?? -1;
       sessionRef?.signal({
         type: "mic-status",
@@ -137,7 +141,7 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
         }),
       });
     }
-  });
+  }, [subscribers]);
 
   return (
     <div style={{ display: "none" }}>
