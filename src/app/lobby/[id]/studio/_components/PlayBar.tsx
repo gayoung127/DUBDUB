@@ -71,6 +71,12 @@ const PlayBar = ({
   // useEffect: 소켓 재생 및 녹음 상태 수신
   useEffect(() => {
     if (!isConnected || !stompClientRef || sessionId === "") {
+      console.log(
+        "재생 및 녹음 하려는데, 소켓이 연결 안 되었어요: ",
+        isConnected,
+        stompClientRef,
+        sessionId,
+      );
       return;
     }
 
@@ -111,22 +117,17 @@ const PlayBar = ({
     };
   }, [isConnected, sessionId]);
 
-  // useEffect: 소켓 연결시, 오프라인 상태와 동기화
-  useEffect(() => {
-    if (isConnected && stompClientRef) {
-      console.log("🔄 소켓 연결됨 → 현재 상태 서버로 동기화");
-
-      sendPlaybackStatus({
-        recording: isRecording,
-        playState: isPlaying ? "PLAY" : "PAUSE",
-        timelineMarker: time,
-      });
-    }
-  }, [isConnected]);
-
   // sendPlaybackStatus(): 소켓으로 재생 및 녹음 상태 전송
   const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      console.log(
+        "sendPlaybackStatus() 호출 하려하는데, 안 돼요: ",
+        isConnected,
+        stompClientRef,
+        sessionId,
+      );
+      return;
+    }
 
     stompClientRef?.publish({
       destination: `/app/studio/${sessionId}/playback`,
@@ -179,14 +180,12 @@ const PlayBar = ({
         event.preventDefault();
 
         if (isPlaying) {
-          if (!isConnected) stop();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "STOP",
             timelineMarker: 0,
           });
         } else {
-          if (!isConnected) play();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "PLAY",
@@ -412,14 +411,12 @@ const PlayBar = ({
   // handlePlayButton(): 재생/일시정지 버튼 클릭 함수
   const handlePlayButton = () => {
     if (isPlaying) {
-      if (!isConnected) pause();
       sendPlaybackStatus({
         recording: false,
         playState: "PAUSE",
         timelineMarker: time,
       });
     } else {
-      if (!isConnected) play();
       sendPlaybackStatus({
         recording: false,
         playState: "PLAY",
@@ -430,7 +427,6 @@ const PlayBar = ({
 
   // handleStopButton(): 정지 버튼 클릭 함수
   const handleStopButton = () => {
-    if (!isConnected) stop();
     sendPlaybackStatus({
       recording: isRecording,
       playState: "STOP",
