@@ -108,13 +108,16 @@ export default function StudioPage() {
         const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
         if (!BASE_URL) return;
 
-        const response = await fetch(`${BASE_URL}/project/${studioId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `${BASE_URL}/project/${studioId}/enter-studio`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
           },
-          credentials: "include",
-        });
+        );
 
         const data = await response.json();
         if (!data) return;

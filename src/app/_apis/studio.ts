@@ -42,7 +42,7 @@ export const postProjectData = async (
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/project/${pid}/workspace`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/project/${pid}/save-snapshot`,
       {
         cache: "no-store",
         method: "POST",
