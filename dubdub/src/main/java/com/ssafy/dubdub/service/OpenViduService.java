@@ -35,9 +35,14 @@ public class OpenViduService {
 
         return connection.getToken();
     }
+
     public int getCurrentParticipants(String sessionId) {
         Session session = openVidu.getActiveSession(sessionId);
 
         return session.getActiveConnections().size();
+    }
+
+    public void closeSession(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException {
+        openVidu.getActiveSession(sessionId).close();
     }
 }
