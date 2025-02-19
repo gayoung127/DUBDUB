@@ -5,7 +5,6 @@ import com.ssafy.dubdub.domain.dto.FileUploadResponseDTO;
 import com.ssafy.dubdub.domain.dto.SnapshotDTO;
 import com.ssafy.dubdub.domain.dto.StudioEnterResponseDto;
 import com.ssafy.dubdub.domain.entity.Member;
-import com.ssafy.dubdub.repository.MemberRepository;
 import com.ssafy.dubdub.repository.SnapshotRepository;
 import com.ssafy.dubdub.service.StudioService;
 import com.ssafy.dubdub.util.SecurityUtil;
