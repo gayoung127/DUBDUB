@@ -110,39 +110,37 @@ const PlayBar = ({
     };
   }, [isConnected, sessionId]);
 
-  const handleLocalPlayback = (playbackStatus: PlaybackStatus) => {
-    console.warn("⚠️ 오프라인 모드 실행 중");
+  // const handleLocalPlayback = (playbackStatus: PlaybackStatus) => {
+  //   console.warn("⚠️ 오프라인 모드 실행 중");
 
-    if (playbackStatus.recording !== undefined) {
-      setIsRecording(playbackStatus.recording);
-    }
+  //   if (playbackStatus.recording !== undefined) {
+  //     setIsRecording(playbackStatus.recording);
+  //   }
 
-    switch (playbackStatus.playState) {
-      case "PLAY":
-        play();
-        break;
-      case "PAUSE":
-        pause();
-        break;
-      case "STOP":
-        reset();
-        break;
-    }
+  //   switch (playbackStatus.playState) {
+  //     case "PLAY":
+  //       play();
+  //       break;
+  //     case "PAUSE":
+  //       pause();
+  //       break;
+  //     case "STOP":
+  //       reset();
+  //       break;
+  //   }
 
-    if (playbackStatus.timelineMarker !== undefined) {
-      setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
-    }
-  };
+  //   if (playbackStatus.timelineMarker !== undefined) {
+  //     setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
+  //   }
+  // };
 
   const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
-    if (!isConnected) {
-      handleLocalPlayback(playbackStatus);
-    } else {
-      stompClientRef?.publish({
-        destination: `/app/studio/${sessionId}/playback`,
-        body: JSON.stringify(playbackStatus),
-      });
-    }
+    if (!isConnected) return;
+
+    stompClientRef?.publish({
+      destination: `/app/studio/${sessionId}/playback`,
+      body: JSON.stringify(playbackStatus),
+    });
   };
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
