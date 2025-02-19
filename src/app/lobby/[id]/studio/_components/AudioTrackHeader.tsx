@@ -45,11 +45,7 @@ const AudioTrackHeader = ({
   const { contextMenuState, handleContextMenu, handleCloseContextMenu } =
     useContextMenu();
 
-  const { sendTrackRecorder } = useTrackRecorders(
-    trackId,
-    recorderId,
-    setTracks,
-  );
+  useTrackRecorders(trackId, recorderId, setTracks);
 
   // handleMute(): 트랙 음소거
   function handleMute() {
@@ -112,8 +108,6 @@ const AudioTrackHeader = ({
             : track,
         ),
       );
-
-      sendTrackRecorder(trackId.toString(), item.id.toString());
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -149,8 +143,6 @@ const AudioTrackHeader = ({
           : track,
       ),
     );
-
-    sendTrackRecorder(trackId.toString(), null);
   };
 
   // menuItems: 트랙 메뉴 모달

@@ -16,7 +16,7 @@ export const useTrackRecorders = (
   const subscriptionRef = useRef<any>(null); // 구독을 추적하는 ref
 
   // sendTrackRecorder(): 트랙 점유자 전송
-  const sendTrackRecorder = (trackId: string, recorderId: string | null) => {
+  const sendTrackRecorder = (trackId: string, recorderId: string) => {
     if (!isConnected || !stompClientRef?.connected) {
       console.log("❌ STOMP 연결이 안 되어 있음. 메시지 전송 불가.");
       return;
@@ -120,6 +120,17 @@ export const useTrackRecorders = (
       console.log("📴 트랙 점유 구독 소켓: 구독 해제");
     };
   }, [isConnected, sessionId, setTracks]);
+
+  // 트랙 상태 변경 시 자동으로 서버로 전송
+  useEffect(() => {
+    if (recorderId !== undefined) {
+      const currentTrack = studioMembers.find((m) => m.memberId === recorderId);
+
+      if (currentTrack && currentTrack.memberId) {
+        sendTrackRecorder(trackId.toString(), currentTrack.memberId.toString());
+      }
+    }
+  }, [trackId, recorderId, studioMembers]);
 
   return { sendTrackRecorder };
 };
