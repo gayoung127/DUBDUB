@@ -60,7 +60,7 @@ public class StudioMessageHandler {
                     MessageType.TRACK_RECORDER,
                     objectMapper.convertValue(payload, TrackRecorder.class)
             );
-            case PLAYBACK, CURSOR -> originalMessage;
+            case CURSOR -> originalMessage;
             default -> {
                 log.warn("처리하는 메시지의 유형이 아님: {}", originalMessage.getType());
                 yield originalMessage;
@@ -73,7 +73,7 @@ public class StudioMessageHandler {
             case TRACK_FILE -> processTrackFileMessage((StudioMessage<TrackAssetDto>) message);
             case ASSET -> processAssetMessage((StudioMessage<AudioAssetRequestDto>) message);
             case TRACK_RECORDER -> processTrackRecorderMessage((StudioMessage<TrackRecorder>) message);
-            case PLAYBACK, CURSOR -> {} // 현재는 처리하지 않음
+            case CURSOR -> {} // 현재는 처리하지 않음
             default -> log.warn("처리하는 메시지의 유형이 아님: {}", message.getType());
         }
     }
@@ -138,7 +138,6 @@ public class StudioMessageHandler {
             case TRACK_FILE -> "track/files";
             case ASSET -> "assets";
             case TRACK_RECORDER -> "track/recorder";
-            case PLAYBACK -> "playback";
             case CURSOR -> "cursor";
         };
     }
