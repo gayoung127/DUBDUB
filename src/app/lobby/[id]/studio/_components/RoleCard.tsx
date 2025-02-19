@@ -36,17 +36,12 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
 
   const { micStatus, setMicStatus } = useMicStore();
   const isMicOn = micStatus[id] ?? true;
-  const { self, studioMembers } = useUserStore();
+  const { self } = useUserStore();
 
   useEffect(() => {
     if (!self || self.memberId !== id) return;
     setMicStatus(id ?? -1, true);
   }, [self]);
-
-  useEffect(() => {
-    if (!studioMembers || !studioMembers.some((m) => m.memberId === id)) return;
-    setMicStatus(id ?? -1, true);
-  }, [studioMembers]);
 
   //마이크 토글
   const handleToggleMic = async () => {
