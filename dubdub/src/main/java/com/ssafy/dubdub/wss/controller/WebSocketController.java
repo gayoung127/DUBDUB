@@ -7,11 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -47,13 +45,6 @@ public class WebSocketController {
     @MessageMapping("/studio/{sessionId}/track/files")
     public void broadcastTracks(@DestinationVariable String sessionId, TrackAssetDto requestDto, Principal principal) {
         sendStudioMessage(sessionId, requestDto, MessageType.TRACK_FILE, principal.getName());
-    }
-
-    // 참여자 목록 조회
-    @MessageMapping("/studio/{sessionId}/users")
-    @SendTo("/topic/studio/{sessionId}/users")
-    public List<UserSession> requestCurrentUsers(@DestinationVariable String sessionId) {
-        return studioSessionService.getUsersInSession(sessionId);
     }
 
     private <T> void sendStudioMessage(String sessionId, T payload,
