@@ -11,7 +11,6 @@ import { Asset, AudioFile, Track } from "@/app/_types/studio";
 import { UserStore } from "@/app/_store/UserStore";
 
 interface StudioSideTabProps {
-  userAudioStreams: Record<number, MediaStream>;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   studioMembers: UserStore[];
@@ -22,7 +21,6 @@ interface StudioSideTabProps {
 }
 
 const StudioSideTab = ({
-  userAudioStreams,
   tracks,
   setTracks,
   studioMembers,
@@ -50,11 +48,6 @@ const StudioSideTab = ({
   const handleClickTabMenu = (tab: "role" | "asset" | "effect") => {
     setActiveTab(tab);
   };
-
-  console.log(
-    "🎵 [StudioSideTab] 전달되는 userAudioStreams 상태:",
-    userAudioStreams,
-  );
 
   return (
     <section className="flex h-full min-h-[471px] w-[280px] flex-col items-start justify-start bg-gray-400">
@@ -92,11 +85,7 @@ const StudioSideTab = ({
             : "pointer-events-none absolute overflow-hidden opacity-0"
         }`}
       >
-        <RoleList
-          studioMembers={studioMembers}
-          userAudioStreams={userAudioStreams}
-          sessionToken={sessionToken}
-        />
+        <RoleList studioMembers={studioMembers} sessionToken={sessionToken} />
       </div>
       {activeTab === "asset" && <AssetList assets={assets} />}
       {activeTab === "effect" && (

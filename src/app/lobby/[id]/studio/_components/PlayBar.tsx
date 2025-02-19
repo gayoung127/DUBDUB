@@ -347,7 +347,7 @@ const PlayBar = ({
 
       recorder.onstop = async () => {
         toast.success("녹음된 파일을 저장 중입니다...");
-        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const audioBlob = new Blob(chunks, { type: "audio/wav" });
         const url = URL.createObjectURL(audioBlob);
 
         if (!track.recorderId) {

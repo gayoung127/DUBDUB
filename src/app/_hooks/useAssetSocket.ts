@@ -44,24 +44,16 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
     console.log("에셋 publish 완료");
   };
 
-  // ✅ 구독 및 해제 로직
   useEffect(() => {
     if (!isConnected || !stompClientRef?.connected || !sessionId) {
-      if (!isConnected) {
-        console.log("connect !isConnected");
-      }
-      if (!stompClientRef?.connected) {
-        console.log("connect !stompClientRef?.connected");
-      }
-      if (!sessionId) {
-        console.log("connect !sessionId");
-      }
+      console.log("⛔ 구독하지 않음: 연결이 안 됨");
       return;
     }
 
-    // 기존 구독 해제
+    // 중복 구독 방지: 구독이 이미 존재하면 추가 구독하지 않음
     if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
+      console.log("⚠️ 이미 구독 중이므로 새로 구독하지 않음");
+      return;
     }
 
     console.log("📡 [구독 시작]:", `/topic/studio/${sessionId}/assets`);
@@ -71,19 +63,15 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
       `/topic/studio/${sessionId}/assets`,
       (message) => {
         const receivedAssets = JSON.parse(message.body);
-        console.log("Audio Asset Received:", receivedAssets);
-
-        /*
-        id, tableId, url
-        */
-        // 에셋 상태 업데이트
+        console.log("📥 Audio Asset Received:", receivedAssets);
 
         const newFile: Asset = {
           id: receivedAssets.audioAsset.id,
           url: receivedAssets.audioAsset.url,
           duration: receivedAssets.audioAsset.duration, // 원본 파일 전체 길이
         };
-        console.log("new File = ", newFile);
+        console.log("📦 new File =", newFile);
+
         setAssets((prevAssets) => {
           const updatedAssets = [...prevAssets, newFile];
           return updatedAssets;
@@ -91,16 +79,77 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
       },
     );
 
-    console.log("구독 후 에셋 상태 =", assets);
+    console.log("✅ 구독 완료:", `/topic/studio/${sessionId}/assets`);
 
-    // 컴포넌트 언마운트 또는 의존성 변경 시 구독 해제
+    // 언마운트 시 기존 구독 해제
     return () => {
       if (subscriptionRef.current) {
         console.log("🔴 [구독 해제]:", `/topic/studio/${sessionId}/assets`);
         subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
       }
     };
-  }, [isConnected, stompClientRef, sessionId]);
-
+  }, [isConnected, stompClientRef, sessionId]); // ✅ 의존성 배열 유지
   return { assets, setAssets, sendAsset };
 };
+
+//   // ✅ 구독 및 해제 로직
+//   useEffect(() => {
+//     if (!isConnected || !stompClientRef?.connected || !sessionId) {
+//       if (!isConnected) {
+//         console.log("connect !isConnected");
+//       }
+//       if (!stompClientRef?.connected) {
+//         console.log("connect !stompClientRef?.connected");
+//       }
+//       if (!sessionId) {
+//         console.log("connect !sessionId");
+//       }
+//       return;
+//     }
+
+//     // 기존 구독 해제
+//     if (subscriptionRef.current) {
+//       subscriptionRef.current.unsubscribe();
+//     }
+
+//     console.log("📡 [구독 시작]:", `/topic/studio/${sessionId}/assets`);
+
+//     // 새로운 구독 생성
+//     subscriptionRef.current = stompClientRef.subscribe(
+//       `/topic/studio/${sessionId}/assets`,
+//       (message) => {
+//         const receivedAssets = JSON.parse(message.body);
+//         console.log("Audio Asset Received:", receivedAssets);
+
+//         /*
+//         id, tableId, url
+//         */
+//         // 에셋 상태 업데이트
+
+//         const newFile: Asset = {
+//           id: receivedAssets.audioAsset.id,
+//           url: receivedAssets.audioAsset.url,
+//           duration: receivedAssets.audioAsset.duration, // 원본 파일 전체 길이
+//         };
+//         console.log("new File = ", newFile);
+//         setAssets((prevAssets) => {
+//           const updatedAssets = [...prevAssets, newFile];
+//           return updatedAssets;
+//         });
+//       },
+//     );
+
+//     console.log("구독 후 에셋 상태 =", assets);
+
+//     // 컴포넌트 언마운트 또는 의존성 변경 시 구독 해제
+//     return () => {
+//       if (subscriptionRef.current) {
+//         console.log("🔴 [구독 해제]:", `/topic/studio/${sessionId}/assets`);
+//         subscriptionRef.current.unsubscribe();
+//       }
+//     };
+//   }, [isConnected, stompClientRef, sessionId]);
+
+//   return { assets, setAssets, sendAsset };
+// };
