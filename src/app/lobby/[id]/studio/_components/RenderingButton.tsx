@@ -28,6 +28,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
     }
     const context = audioContextRef.current;
 
+    console.log("rendering ===> ", tracks);
     for (const track of tracks) {
       // tracks 상태를 직접 참조
       console.log("rendering track = ", track);
