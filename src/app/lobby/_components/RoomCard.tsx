@@ -21,7 +21,7 @@ const RoomCard = ({
 }) => {
   const router = useRouter();
   function handleRoomClick(id: number) {
-    router.push(`lobby/${id}`);
+    router.push(`lobby/${id}/studio`);
   }
 
   return (
