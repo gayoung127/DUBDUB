@@ -27,8 +27,9 @@ public class WebSocketController {
 
     // 재생/녹음 상태 공유
     @MessageMapping("/studio/{sessionId}/playback")
-    public void sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status, Principal principal) {
-        sendStudioMessage(sessionId, status, MessageType.PLAYBACK, principal.getName());
+    @SendTo("/topic/studio/{sessionId}/playback")
+    public PlaybackStatus sendPlaybackStatus(@DestinationVariable String sessionId, PlaybackStatus status) {
+        return status;
     }
 
     //트랙 점유자(레코더) 공유
