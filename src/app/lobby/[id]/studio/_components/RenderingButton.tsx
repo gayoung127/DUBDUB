@@ -131,7 +131,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
             handleStartRendering(videoUrl);
           }}
         >
-          영상 저장하기
+          영상 다운
         </Button>
       ) : (
         <Button

@@ -32,7 +32,7 @@ const StoreButton = ({ tracks, assets }: StoreButtonProps) => {
 
   return (
     <>
-      <Button onClick={saveInfo}>SAVE</Button>
+      <Button onClick={saveInfo}>작업 저장</Button>
     </>
   );
 };
