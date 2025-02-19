@@ -123,6 +123,22 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
     }
   }, [micStatus[self?.memberId ?? -1]]);
 
+  useEffect(() => {
+    if (!sessionRef) return;
+    const totalUsers = sessionRef.remoteConnections.size + 1;
+
+    if (subscribers.length === totalUsers) {
+      const userId = self?.memberId ?? -1;
+      sessionRef?.signal({
+        type: "mic-status",
+        data: JSON.stringify({
+          userId,
+          isMicOn: micStatus[userId],
+        }),
+      });
+    }
+  });
+
   return (
     <div style={{ display: "none" }}>
       {subscribers.map((sub) => (
