@@ -44,6 +44,22 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
 
           const subscriber = newSession.subscribe(event.stream, undefined);
           setSubscribers((prev: Subscriber[]) => [...prev, subscriber]); // ✅ 해결된 부분
+
+          if (
+            event.stream.connection.connectionId ===
+            newSession.connection.connectionId
+          ) {
+            console.log(`🎤 내 스트림이 구독됨 - 마이크 상태 전송 시작`);
+
+            // ✅ 모든 사용자가 내 스트림을 구독한 후에 마이크 상태 시그널 전송
+            newSession.signal({
+              type: "mic-status",
+              data: JSON.stringify({
+                userId: self.memberId,
+                isMicOn: micStatus[self.memberId!],
+              }),
+            });
+          }
         });
 
         newSession.on("streamDestroyed", (event) => {
