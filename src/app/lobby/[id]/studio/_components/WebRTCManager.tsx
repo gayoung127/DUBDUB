@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { OpenVidu, SignalEvent, Subscriber } from "openvidu-browser";
 import { useUserStore } from "@/app/_store/UserStore";
 import { useMicStore } from "@/app/_store/MicStore";
@@ -9,7 +9,7 @@ interface WebRTCManagerProps {
 }
 
 const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
-  const openViduRef = new OpenVidu();
+  const openViduRef = useRef(new OpenVidu());
   const { self } = useUserStore();
   const { micStatus, setMicStatus } = useMicStore();
 
@@ -35,7 +35,7 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
 
     const initSession = async () => {
       try {
-        const newSession = openViduRef.initSession();
+        const newSession = openViduRef.current.initSession();
 
         newSession.on("streamCreated", (event) => {
           console.log(
@@ -84,11 +84,14 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
         await newSession.connect(sessionToken, { clientData: self.memberId });
 
         // 🎤 퍼블리셔 생성 (로컬 오디오 전송)
-        const newPublisher = await openViduRef.initPublisherAsync(undefined, {
-          audioSource: undefined,
-          videoSource: false,
-          publishAudio: true,
-        });
+        const newPublisher = await openViduRef.current.initPublisherAsync(
+          undefined,
+          {
+            audioSource: undefined,
+            videoSource: false,
+            publishAudio: true,
+          },
+        );
 
         await newSession.publish(newPublisher);
         console.log(`🎤 음성 채팅 시작됨 (내 ID: ${self.memberId})`);
