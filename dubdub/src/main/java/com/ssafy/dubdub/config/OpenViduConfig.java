@@ -32,12 +32,10 @@ public class OpenViduConfig {
                 .build();
     }
 
-
     @Bean
     public ConnectionProperties connectionProperties() {
         return new ConnectionProperties.Builder()
                 .role(OpenViduRole.PUBLISHER)
                 .build();
     }
-    OpenViduRole.
 }
