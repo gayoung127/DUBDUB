@@ -7,15 +7,7 @@ import PersonIcon from "@/public/images/icons/icon-person.svg";
 import { useRouter } from "next/navigation";
 
 const RoomCard = ({
-  roomInfo: {
-    id,
-    title,
-    currentParticipants,
-    totalParticipants,
-    genres,
-    categories,
-    thumbnailUrl,
-  },
+  roomInfo: { id, title, thumbnailUrl },
 }: {
   roomInfo: DubbingRoom & { thumbnail?: string };
 }) => {
@@ -36,7 +28,9 @@ const RoomCard = ({
           className="h-[180px] w-full rounded-md object-cover"
         />
       </div>
-      <H3 className="font-semibold text-gray-900">{title}</H3>
+      <div className="flex justify-center">
+        <H3 className="font-semibold text-gray-900">{title}</H3>
+      </div>
     </div>
   );
 };
