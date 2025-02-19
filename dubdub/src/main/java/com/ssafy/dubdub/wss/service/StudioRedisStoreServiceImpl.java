@@ -97,6 +97,15 @@ public class StudioRedisStoreServiceImpl implements StudioStoreService {
         redisTemplate.opsForHash().put(redisKey, field, value);
     }
 
+    @Override
+    public void deleteAllBySessionId(String sessionId) {
+        String pattern = "studio:" + sessionId + ":*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
+
     private String generateRedisKey(String sessionId, String type, String id) {
         return "studio:" + sessionId + ":" + type + ":" + id;
     }

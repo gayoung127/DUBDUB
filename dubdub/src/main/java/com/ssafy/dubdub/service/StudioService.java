@@ -139,10 +139,5 @@ public class StudioService {
                         studio.close();
                     }
                 });
-        try {
-            openViduService.closeSession(session);
-        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
-            log.info("이미 종료된 세션입니다. : {} \n {}", session, e.getMessage());
-        }
     }
 }
