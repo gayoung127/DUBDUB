@@ -47,7 +47,13 @@ export const postProjectData = async (
         cache: "no-store",
         method: "POST",
         credentials: "include",
-        body: JSON.stringify(workSpaceData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assets: JSON.stringify(workSpaceData.assets),
+          tracks: JSON.stringify(workSpaceData.tracks),
+        }),
       },
     );
 

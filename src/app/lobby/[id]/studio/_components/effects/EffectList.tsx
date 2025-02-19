@@ -14,6 +14,7 @@ import { useUserStore } from "@/app/_store/UserStore";
 import { postAsset } from "@/app/_apis/studio";
 import { useParams } from "next/navigation";
 import { createBlob } from "@/app/_utils/audioUtils";
+import { toast } from "sonner";
 
 interface EffectListProps {
   tracks: Track[];
@@ -51,6 +52,7 @@ const EffectList = ({
         : null;
 
       if (!file) {
+        toast.error("에셋이나 오디오 블럭을 먼저 선택해주세요.");
         return;
       }
 

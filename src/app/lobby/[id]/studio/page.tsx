@@ -135,15 +135,15 @@ export default function StudioPage() {
           setSessionToken(data.token.trim());
         }
 
-        if (data.workSpaceData) {
+        if (data.snapshot) {
           console.log(
             "워크스페이스 트랙 및 에셋 정보 : ",
-            data.workSpaceData.tracks,
+            JSON.parse(data.snapshot.tracks),
             ", ",
-            data.workSpaceData.assets,
+            JSON.parse(data.snapshot.assets),
           );
-          setTracks(data.workSpaceData.tracks);
-          setAssets(data.workSpaceData.assets);
+          setTracks(JSON.parse(data.snapshot.tracks));
+          setAssets(JSON.parse(data.snapshot.assets));
         }
       } catch (error) {
         console.error("❌ 스튜디오 정보 가져오기 실패:", error);
