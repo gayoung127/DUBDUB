@@ -18,8 +18,8 @@ const useStompClient = (sessionId: string) => {
     const client = new Client({
       brokerURL: STOMP_URL,
       connectHeaders: { sessionId, memberId: self.memberId.toString() }, // ✅ 안전하게 memberId 접근
-      heartbeatIncoming: 0,
-      heartbeatOutgoing: 0,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
       reconnectDelay: 5000,
       onConnect: () => {
         console.log("✅ useStompClient: 소켓 연결 성공!");
