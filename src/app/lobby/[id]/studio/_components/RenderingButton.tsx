@@ -20,19 +20,16 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
   const { mergeVideoAudio, isProcessing, outputUrl } = useRendering();
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
-  const tracksRef = useRef<Track[]>(tracks);
 
-  useEffect(() => {
-    tracksRef.current = tracks;
-  }, [tracks]);
-
+  // 오디오 파일 로딩 함수
   const loadAudioFiles = async () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
     const context = audioContextRef.current;
 
-    for (const track of tracksRef.current) {
+    for (const track of tracks) {
+      // tracks 상태를 직접 참조
       for (const file of track.files) {
         if (!audioBuffersRef.current.has(file.url) && file.url) {
           const response = await fetch(file.url);
@@ -50,7 +47,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       return;
     }
 
-    const audioBlocks: AudioBlockProps[] = tracksRef.current.flatMap((track) =>
+    const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
       track.files.map((file) => ({
         file,
         isMuted: true,
@@ -106,8 +103,6 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       type: "video/mp4",
     });
 
-    if (!videoFile || !audioFile) {
-    }
     mergeVideoAudio(videoFile, audioFile);
   }
 
