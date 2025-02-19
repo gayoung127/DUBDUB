@@ -3,6 +3,7 @@ import RoleCard from "./RoleCard";
 import { UserStore, useUserStore } from "@/app/_store/UserStore";
 import { useStudioMembers } from "@/app/_hooks/useStudioMembers";
 import WebRTCManager from "./WebRTCManager";
+import ShareButton from "./ShareButton";
 
 interface RoleListProps {
   studioMembers: UserStore[];
@@ -13,8 +14,8 @@ const RoleList = ({ studioMembers, sessionToken }: RoleListProps) => {
   const { self } = useUserStore();
 
   return (
-    <div className="h-full min-h-[433px] w-full border border-gray-300 py-7 pl-4 pr-3">
-      <div className="scrollbar flex h-full max-h-[393px] w-full flex-col items-start justify-start gap-y-6 overflow-y-scroll">
+    <div className="flex h-full min-h-[433px] w-full flex-col border border-gray-300 py-7 pl-4 pr-3">
+      <div className="scrollbar flex max-h-[393px] w-full flex-grow flex-col items-start justify-start gap-y-6 overflow-y-scroll">
         {self && (
           <RoleCard
             key={self.memberId}
@@ -37,6 +38,9 @@ const RoleList = ({ studioMembers, sessionToken }: RoleListProps) => {
             />
           ))}
         <WebRTCManager sessionToken={sessionToken} />
+      </div>
+      <div className="mt-auto flex items-center justify-center">
+        <ShareButton />
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ import { Asset, PX_PER_SECOND, Track } from "@/app/_types/studio";
 import { formatTime } from "@/app/_utils/formatTime";
 
 import H4 from "@/app/_components/H4";
-import ShareButton from "./ShareButton";
 import StoreButton from "./StoreButton";
 import RenderingButton from "./RenderingButton";
 
@@ -444,7 +443,6 @@ const PlayBar = ({
         <H4 className="text-white-100">{formatTime(duration)}</H4>
       </div>
       <div className="flex h-full items-center justify-center gap-x-4">
-        <ShareButton />
         <RenderingButton
           videoUrl={videoUrl}
           tracks={tracks}
