@@ -117,22 +117,17 @@ const PlayBar = ({
     };
   }, [isConnected, sessionId]);
 
-  // useEffect: 소켓 연결시, 오프라인 상태와 동기화
-  useEffect(() => {
-    if (isConnected && stompClientRef) {
-      console.log("🔄 소켓 연결됨 → 현재 상태 서버로 동기화");
-
-      sendPlaybackStatus({
-        recording: isRecording,
-        playState: isPlaying ? "PLAY" : "PAUSE",
-        timelineMarker: time,
-      });
-    }
-  }, [isConnected]);
-
   // sendPlaybackStatus(): 소켓으로 재생 및 녹음 상태 전송
   const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      console.log(
+        "sendPlaybackStatus() 호출 하려하는데, 안 돼요: ",
+        isConnected,
+        stompClientRef,
+        sessionId,
+      );
+      return;
+    }
 
     stompClientRef?.publish({
       destination: `/app/studio/${sessionId}/playback`,
