@@ -44,10 +44,7 @@ const LobbyPage = () => {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       size: PAGE_SIZE.toString(),
-      searchKeyword: keyword,
-      participationType: tab,
-      genreIds: getIndexes(genreFilter, genres).join(","),
-      categoryIds: getIndexes(categoryFilter, categories).join(","),
+      type: tab,
     });
 
     const { list, last } = await getRoomList(`${queryParams}`);

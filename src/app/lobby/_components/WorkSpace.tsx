@@ -53,8 +53,8 @@ const WorkSpace = ({
 
   return (
     <div className="h-[700px] w-full overflow-auto rounded-[8px] bg-gray-200 px-3 py-3">
-      {dubbingRooms.length != 0 ? (
-        <div className="grid grid-cols-4 gap-5">
+      {dubbingRooms.length !== 0 ? (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] justify-center gap-10">
           {dubbingRooms.map((room, index) => (
             <div
               key={index}

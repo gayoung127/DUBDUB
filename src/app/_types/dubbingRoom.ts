@@ -5,5 +5,5 @@ interface DubbingRoom {
   totalParticipants: number;
   genres: number[];
   categories: number[];
-  thumbnail?: string;
+  thumbnailUrl?: string;
 }
