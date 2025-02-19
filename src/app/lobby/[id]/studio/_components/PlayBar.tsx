@@ -68,6 +68,7 @@ const PlayBar = ({
     setIsRecording,
   } = useRecordingStore();
 
+  // useEffect: 소켓 재생 및 녹음 상태 수신
   useEffect(() => {
     if (!isConnected || !stompClientRef || sessionId === "") {
       return;
@@ -110,30 +111,20 @@ const PlayBar = ({
     };
   }, [isConnected, sessionId]);
 
-  // const handleLocalPlayback = (playbackStatus: PlaybackStatus) => {
-  //   console.warn("⚠️ 오프라인 모드 실행 중");
+  // useEffect: 소켓 연결시, 오프라인 상태와 동기화
+  useEffect(() => {
+    if (isConnected && stompClientRef) {
+      console.log("🔄 소켓 연결됨 → 현재 상태 서버로 동기화");
 
-  //   if (playbackStatus.recording !== undefined) {
-  //     setIsRecording(playbackStatus.recording);
-  //   }
+      sendPlaybackStatus({
+        recording: isRecording,
+        playState: isPlaying ? "PLAY" : "PAUSE",
+        timelineMarker: time,
+      });
+    }
+  }, [isConnected]);
 
-  //   switch (playbackStatus.playState) {
-  //     case "PLAY":
-  //       play();
-  //       break;
-  //     case "PAUSE":
-  //       pause();
-  //       break;
-  //     case "STOP":
-  //       reset();
-  //       break;
-  //   }
-
-  //   if (playbackStatus.timelineMarker !== undefined) {
-  //     setTimeFromPx(playbackStatus.timelineMarker * PX_PER_SECOND);
-  //   }
-  // };
-
+  // sendPlaybackStatus(): 소켓으로 재생 및 녹음 상태 전송
   const sendPlaybackStatus = (playbackStatus: PlaybackStatus) => {
     if (!isConnected) return;
 
@@ -188,12 +179,14 @@ const PlayBar = ({
         event.preventDefault();
 
         if (isPlaying) {
+          if (!isConnected) stop();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "STOP",
             timelineMarker: 0,
           });
         } else {
+          if (!isConnected) play();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "PLAY",
@@ -419,12 +412,14 @@ const PlayBar = ({
   // handlePlayButton(): 재생/일시정지 버튼 클릭 함수
   const handlePlayButton = () => {
     if (isPlaying) {
+      if (!isConnected) pause();
       sendPlaybackStatus({
         recording: false,
         playState: "PAUSE",
         timelineMarker: time,
       });
     } else {
+      if (!isConnected) play();
       sendPlaybackStatus({
         recording: false,
         playState: "PLAY",
@@ -435,6 +430,7 @@ const PlayBar = ({
 
   // handleStopButton(): 정지 버튼 클릭 함수
   const handleStopButton = () => {
+    if (!isConnected) stop();
     sendPlaybackStatus({
       recording: isRecording,
       playState: "STOP",
