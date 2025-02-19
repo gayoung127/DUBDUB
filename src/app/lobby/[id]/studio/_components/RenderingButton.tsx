@@ -54,7 +54,7 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
     const audioBlocks: AudioBlockProps[] = tracks.flatMap((track) =>
       track.files.map((file) => ({
         file,
-        isMuted: true,
+        isMuted: false,
         trackId: track.trackId,
         fileIdx: 0,
         audioBuffers: audioBuffersRef.current,

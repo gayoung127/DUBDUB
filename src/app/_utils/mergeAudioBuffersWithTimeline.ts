@@ -50,7 +50,7 @@ export function mergeAudioBuffersWithTimeline(
       const blockData = audioBuffer
         .getChannelData(channel)
         .slice(trimStartSample, trimEndSample);
-      const speedFactor = file.speed;
+      const speedFactor = file.speed ?? 1.0; // ✅ speed 기본값 적용
       const volumeFactor = file.isMuted ? 0 : file.volume;
 
       for (let i = 0; i < blockData.length; i++) {
