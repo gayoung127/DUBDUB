@@ -118,20 +118,17 @@ const VideoBlock = ({
       newRightChannel[i] = center;
     }
 
-    console.log("✅ 보컬 제거된 오디오 버퍼 생성 완료");
     processedBufferRef.current = newBuffer;
   };
 
   const handlePlayAudio = () => {
     if (!audioContextRef.current) {
-      console.error("❌ AudioContext가 없습니다.");
       return;
     }
 
     const bufferToPlay = processedBufferRef.current;
 
     if (!bufferToPlay) {
-      console.error("❌ 재생할 오디오 버퍼가 없습니다.");
       return;
     }
 
@@ -159,9 +156,6 @@ const VideoBlock = ({
     source.playbackRate.value = videoRef.current?.playbackRate || 1;
 
     audioSourceRef.current = source;
-    console.log(
-      `🎵 ${isProcessedAudio ? "보컬 제거된" : "원본"} 오디오 ${startTime}초부터 재생`,
-    );
   };
 
   const handleStopAudio = () => {
@@ -175,8 +169,6 @@ const VideoBlock = ({
       gainNodeRef.current.disconnect();
       gainNodeRef.current = null;
     }
-
-    console.log("🔇 보컬 제거된 오디오 정지");
   };
 
   return (

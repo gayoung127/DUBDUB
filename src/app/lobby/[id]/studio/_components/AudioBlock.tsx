@@ -260,8 +260,6 @@ const AudioBlock = ({
       source.onended = () => {
         audioSourceRef.current = null;
       };
-
-      console.log("🎵 오디오 재생 시작:", file.url);
     } catch (error) {
       console.error("❌ 오디오 로드 실패:", error);
       toast.error("오디오 파일을 불러오는 데 실패했습니다.");
@@ -329,11 +327,6 @@ const AudioBlock = ({
         destination: `/app/studio/${sessionId}/track/files`,
         body: JSON.stringify(deleteAction),
       });
-
-      console.log(
-        "🗑️ useTrackSocket: [트랙 삭제] 서버에 DELETE 액션 전송:",
-        deleteAction,
-      );
     }
 
     // ✅ 기존 블록을 삭제하고 새로운 블록 추가
@@ -389,10 +382,6 @@ const AudioBlock = ({
         body: JSON.stringify(deleteAction),
       });
 
-      console.log(
-        "🗑️ useTrackSocket: [트랙 삭제] 서버에 DELETE 액션 전송:",
-        deleteAction,
-      );
       toast.success("성공적으로 오디오 블록을 삭제했습니다!");
     }
   };
@@ -408,7 +397,6 @@ const AudioBlock = ({
       // delete : 오디오 블록 삭제 기능
       if (event.key.toLowerCase() === "delete" && isSelected) {
         deleteBlock();
-        console.log("✅ 블록이 삭제되었습니다!", file.id);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -428,12 +416,6 @@ const AudioBlock = ({
         updatedBlocks = [...prevBlocks, file];
       }
 
-      // 🔥 선택된 블록들 콘솔에 출력
-      console.log(
-        "🟡 현재 선택된 블록들:",
-        updatedBlocks.map((b) => b.id),
-      );
-
       return updatedBlocks;
     });
 
@@ -446,14 +428,6 @@ const AudioBlock = ({
 
     setZIndex(100);
   };
-
-  // ✅ 선택된 블록들 콘솔 출력 (매번 `selectedBlocks`이 변경될 때)
-  useEffect(() => {
-    console.log(
-      "✅ 선택된 블록들 업데이트:",
-      selectedBlocks.map((b) => b.id),
-    );
-  }, [selectedBlocks]);
 
   return (
     <div

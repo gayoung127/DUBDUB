@@ -137,19 +137,13 @@ const AudioTrackTimeline = ({
 
   //녹음된 파일을 추가하는 역할 -------------------------------------------
   useEffect(() => {
-    console.log(`🎙️ 트랙(${trackId})의 녹음된 파일 추가 확인:`, audioFiles);
-
     // 추가되는 오디오 길이 계산
     const loadAudioDuration = async (url: string) => {
       if (!audioContext) return 0;
       try {
-        console.log("s3 생성 url ============", url);
         const response = await fetch(url);
-        console.log("response 가져오기 완료");
         const arrayBuffer = await response.arrayBuffer();
-        console.log("array buffer 변환 완료");
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        console.log("audio buffer 변환 완료 ", audioBuffer);
 
         if (audioBuffers) {
           audioBuffers.set(url, audioBuffer);
@@ -174,7 +168,6 @@ const AudioTrackTimeline = ({
             const duration = await loadAudioDuration(url);
 
             if (duration <= 0) {
-              console.warn(`⚠️ ${url}의 duration이 0초 이하로 잘못 계산됨`);
               return null;
             }
 
@@ -198,7 +191,6 @@ const AudioTrackTimeline = ({
               url: createdFile.url,
               duration: createdFile.duration,
             });
-            console.log("새롭게 생성한 파일 = ", createdFile);
             return createdFile;
           }),
       );
@@ -206,7 +198,6 @@ const AudioTrackTimeline = ({
       const validFiles = newFiles.filter((file) => file !== null);
 
       if (validFiles.length === 0) {
-        console.log(`⚠️ 트랙(${trackId})에 추가할 유효한 파일이 없음`);
         return;
       }
 
@@ -218,14 +209,9 @@ const AudioTrackTimeline = ({
           const updatedFiles = [...existingFiles, ...validFiles];
 
           if (JSON.stringify(existingFiles) === JSON.stringify(updatedFiles)) {
-            console.log(`⚠️ 트랙(${trackId}) 파일 변경 없음, 업데이트 생략`);
             return track;
           }
 
-          console.log(
-            `🎶 트랙(${trackId})에 녹음된 파일 추가됨:`,
-            updatedFiles,
-          );
           return {
             ...track,
             files: updatedFiles,

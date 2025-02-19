@@ -42,11 +42,6 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
           },
         };
 
-        console.log(
-          "useTrackSocket: [트랙 전송] 서버로 보낼 파일 데이터:",
-          trackFile,
-        );
-
         stompClientRef.publish({
           destination: `/app/studio/${sessionId}/track/files`,
           body: JSON.stringify(trackFile),
@@ -73,10 +68,6 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
             action: string;
             file: Partial<AudioFile>;
           } = JSON.parse(message.body);
-          console.log(
-            "useTrackSocket: [서버에서 받은 트랙 파일]",
-            receivedFile,
-          );
 
           setTracks((prevTracks) => {
             const newTracks = prevTracks.map((track) => {
@@ -97,13 +88,6 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
                 );
 
                 if (hasChanged) {
-                  console.log(
-                    "useTrackSocket: 🛠 [트랙 수정됨] 기존 파일과 다름! 업데이트 진행:",
-                    existingFile,
-                    "→",
-                    receivedFile.file,
-                  );
-
                   updatedFiles[existingFileIndex] = {
                     ...existingFile,
                     ...receivedFile.file,
@@ -115,11 +99,6 @@ export const useTrackSocket = ({ sessionId }: UseTrackSocketProps) => {
 
               return { ...track, files: updatedFiles };
             });
-
-            console.log(
-              "useTrackSocket: [트랙 업데이트 완료] 새로운 tracks 상태:",
-              newTracks,
-            );
 
             return JSON.stringify(prevTracks) === JSON.stringify(newTracks)
               ? prevTracks

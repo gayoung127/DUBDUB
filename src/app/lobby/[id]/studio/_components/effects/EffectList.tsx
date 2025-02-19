@@ -43,7 +43,6 @@ const EffectList = ({
   useEffect(() => {
     async function loadAudio() {
       if (!audioContextRef.current) {
-        console.log("❌ AudioContext가 없습니다.");
         return;
       }
 
@@ -52,18 +51,14 @@ const EffectList = ({
         : null;
 
       if (!file) {
-        console.log("❌ 선택된 오디오 블럭이 없습니다.");
         return;
       }
-
-      console.log("📂 오디오 파일 로드 시작:", file.url);
 
       try {
         const response = await fetch(file.url);
         const arrayBuffer = await response.arrayBuffer();
         audioBuffer.current =
           await audioContextRef.current.decodeAudioData(arrayBuffer);
-        console.log("✅ 오디오 디코딩 완료:", audioBuffer.current);
       } catch (error) {
         console.error("🚨 오디오 파일 로드 실패:", error);
       }
