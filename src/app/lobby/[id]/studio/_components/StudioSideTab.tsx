@@ -58,7 +58,7 @@ const StudioSideTab = ({
           }`}
           onClick={() => handleClickTabMenu("role")}
         >
-          <H4 className="font-bold">역할</H4>
+          <H4 className="font-bold">참여자</H4>
         </div>
         <div
           className={`flex h-full flex-1 cursor-pointer flex-row items-center justify-center border border-gray-300 ${

@@ -27,10 +27,21 @@ const BreadCrumb = ({
         const displayText =
           index === 1 && !isNaN(Number(segment)) ? studioTitle : segment;
         const isLast = index === pathSegments.length - 1;
+        const disabledLink = index === 1 ? true : false;
 
         return (
           <React.Fragment key={`${segment}-${index}`}>
-            <Link href={accumulatedPath}>
+            {!disabledLink ? (
+              <Link href={accumulatedPath}>
+                <H4
+                  className={`min-h-5 font-bold text-white-100 ${
+                    isLast ? "border-b-2 border-white-100" : ""
+                  }`}
+                >
+                  {displayText.toUpperCase()}
+                </H4>
+              </Link>
+            ) : (
               <H4
                 className={`min-h-5 font-bold text-white-100 ${
                   isLast ? "border-b-2 border-white-100" : ""
@@ -38,7 +49,7 @@ const BreadCrumb = ({
               >
                 {displayText.toUpperCase()}
               </H4>
-            </Link>
+            )}
             {!isLast && <BreadcrumbNextIcon width={20} height={20} />}
           </React.Fragment>
         );

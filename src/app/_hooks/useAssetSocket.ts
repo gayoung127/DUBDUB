@@ -42,6 +42,12 @@ export const useAssetsSocket = ({ sessionId }: UseAssetsSocketProps) => {
       body: JSON.stringify(audioAsset),
     });
     console.log("에셋 publish 완료");
+
+    setAssets((prevAssets) => {
+      const updatedAssets = [...prevAssets, asset];
+      return updatedAssets;
+    });
+    console.log("내 에셋에도 추가");
   };
 
   useEffect(() => {

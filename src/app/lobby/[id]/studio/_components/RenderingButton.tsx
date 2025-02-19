@@ -28,14 +28,18 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
     }
     const context = audioContextRef.current;
 
+    console.log("rendering ===> ", tracks);
     for (const track of tracks) {
       // tracks 상태를 직접 참조
+      console.log("rendering track = ", track);
       for (const file of track.files) {
+        console.log("rendering files = ", file);
         if (!audioBuffersRef.current.has(file.url) && file.url) {
           const response = await fetch(file.url);
           const arrayBuffer = await response.arrayBuffer();
           const audioBuffer = await context.decodeAudioData(arrayBuffer);
           audioBuffersRef.current.set(file.url, audioBuffer);
+          console.log("rendering = ", audioBuffersRef.current);
         }
       }
     }
