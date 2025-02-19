@@ -72,4 +72,11 @@ public class StudioMemoryStoreServiceImpl implements StudioStoreService {
         Optional.ofNullable(trackFileMap.get(sessionId))
                 .ifPresent(files -> files.remove(trackFileId));
     }
+
+    @Override
+    public void deleteAllBySessionId(String sessionId) {
+        assetMap.remove(sessionId);
+        trackRecorderMap.remove(sessionId);
+        trackFileMap.remove(sessionId);
+    }
 }

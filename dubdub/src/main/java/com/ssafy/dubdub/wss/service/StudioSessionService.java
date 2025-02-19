@@ -1,8 +1,11 @@
 package com.ssafy.dubdub.wss.service;
 
+import com.ssafy.dubdub.service.OpenViduService;
 import com.ssafy.dubdub.service.StudioService;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.repository.UserSessionRepository;
+import io.openvidu.java.client.OpenViduHttpException;
+import io.openvidu.java.client.OpenViduJavaClientException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,9 +16,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StudioSessionService {
-    private final UserSessionRepository userSessionRepository;
+
     private final SimpMessagingTemplate messagingTemplate;
+
+    private final UserSessionRepository userSessionRepository;
+    private final StudioStoreService studioStoreService;
     private final StudioService studioService;
+    private final OpenViduService openViduService;
 
     // 사용자를 세션에 추가
     public void addUserToSession(String sessionId, UserSession userSession) {
@@ -31,6 +38,13 @@ public class StudioSessionService {
         // 참여자가 없으면 스튜디오 종료
         if (remainingUsers.isEmpty()) {
             studioService.closeStudioIfEmpty(sessionId);
+            try {
+                openViduService.closeSession(sessionId);
+            } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+                log.info("이미 종료된 세션입니다. : {} \n {}", sessionId, e.getMessage());
+            }
+
+            studioStoreService.deleteAllBySessionId(sessionId);
         }
 
         notifySessionUpdate(sessionId);

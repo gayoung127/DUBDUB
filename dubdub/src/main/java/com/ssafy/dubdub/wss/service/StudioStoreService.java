@@ -23,4 +23,6 @@ public interface StudioStoreService {
     Optional<List<TrackFile>> getTrackFileList(String sessionId);
     TrackFile saveTrackFile(String sessionId, TrackFile trackFile);
     void deleteTrackFile(String sessionId, String trackFileId);
+
+    void deleteAllBySessionId(String sessionId);
 }
