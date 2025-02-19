@@ -6,7 +6,7 @@ server:
       force-response: true
   tomcat:
     connection-timeout: 120s
-    max-http-form-post-size: 100MB
+    max-swallow-size: 600MB
 
 spring:
   application:
@@ -49,8 +49,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 500MB
+      max-request-size: 700MB
 
 jwt:
   secret: ${JWT_SECRET}
