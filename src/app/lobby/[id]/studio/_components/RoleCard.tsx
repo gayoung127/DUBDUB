@@ -44,7 +44,7 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
   }, [self]);
 
   useEffect(() => {
-    if (!studioMembers || studioMembers.some((m) => m.memberId !== id)) return;
+    if (!studioMembers || !studioMembers.some((m) => m.memberId === id)) return;
     setMicStatus(id ?? -1, true);
   }, [studioMembers]);
 
