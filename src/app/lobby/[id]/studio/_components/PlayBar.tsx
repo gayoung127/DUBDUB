@@ -71,6 +71,12 @@ const PlayBar = ({
   // useEffect: 소켓 재생 및 녹음 상태 수신
   useEffect(() => {
     if (!isConnected || !stompClientRef || sessionId === "") {
+      console.log(
+        "재생 및 녹음 하려는데, 소켓이 연결 안 되었어요: ",
+        isConnected,
+        stompClientRef,
+        sessionId,
+      );
       return;
     }
 
@@ -179,14 +185,12 @@ const PlayBar = ({
         event.preventDefault();
 
         if (isPlaying) {
-          if (!isConnected) stop();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "STOP",
             timelineMarker: 0,
           });
         } else {
-          if (!isConnected) play();
           sendPlaybackStatus({
             recording: isRecording,
             playState: "PLAY",
@@ -412,14 +416,12 @@ const PlayBar = ({
   // handlePlayButton(): 재생/일시정지 버튼 클릭 함수
   const handlePlayButton = () => {
     if (isPlaying) {
-      if (!isConnected) pause();
       sendPlaybackStatus({
         recording: false,
         playState: "PAUSE",
         timelineMarker: time,
       });
     } else {
-      if (!isConnected) play();
       sendPlaybackStatus({
         recording: false,
         playState: "PLAY",
@@ -430,7 +432,6 @@ const PlayBar = ({
 
   // handleStopButton(): 정지 버튼 클릭 함수
   const handleStopButton = () => {
-    if (!isConnected) stop();
     sendPlaybackStatus({
       recording: isRecording,
       playState: "STOP",
