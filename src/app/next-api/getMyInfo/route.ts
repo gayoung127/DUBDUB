@@ -9,9 +9,6 @@ export async function GET(request: NextRequest) {
     const accessToken = cookieStore.get("accessToken")?.value;
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
-    console.log("Access Token:", accessToken);
-    console.log("Refresh Token:", refreshToken);
-
     if (!accessToken) {
       return NextResponse.json(
         { error: "access 토큰이 존재하지 않습니다." },

@@ -81,8 +81,6 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       return;
     }
 
-    console.log("✅ 병합된 오디오 버퍼 생성됨:", mergedAudioBuffer);
-
     return audioBufferToMp3(mergedAudioBuffer);
   };
 
@@ -91,13 +89,11 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
       toast.error("저장된 영상이 존재하지 않습니다.");
       return;
     }
-    console.log("렌더링 시작");
     setIsRendering(true);
 
     await loadAudioFiles();
     const audioBlob = await handleDownloadMp3();
     if (!audioBlob) {
-      console.log("오디오 blob 존재하지 않음");
       return;
     }
     const audioFile = new File([audioBlob], "sampleAudio.mp3", {
@@ -111,7 +107,6 @@ const RenderingButton = ({ videoUrl, tracks, setTracks }: RenderingProps) => {
     });
 
     if (!videoFile || !audioFile) {
-      console.error("비디오나 오디오가 존재하지 않음");
     }
     mergeVideoAudio(videoFile, audioFile);
   }

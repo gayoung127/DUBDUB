@@ -65,11 +65,6 @@ export default function Page() {
     if (isSubmitting) return; // 이미 제출 중이라면 함수 종료
     setIsSubmitting(true); // 제출 상태로 변경
 
-    // 모든 상태 출력
-    console.log("title:", title);
-    console.log("script:", script);
-    console.log("thumbnail:", thumbnail);
-
     if (!videoFile) {
       alert("비디오 파일을 업로드해주세요.");
       return;

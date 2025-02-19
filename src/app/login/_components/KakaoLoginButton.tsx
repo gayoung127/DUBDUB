@@ -12,13 +12,11 @@ const KakaoLoginButton = () => {
           const appKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
 
           if (!appKey) {
-            console.log("키 못 불러옴");
             return;
           }
 
           if (!window.Kakao.isInitialized()) {
             window.Kakao.init(appKey);
-            console.log("카카오 SDK 초기화: ", window.Kakao.isInitialized());
           } else {
             console.error("카카오 SDK 로드가 안 됨");
           }

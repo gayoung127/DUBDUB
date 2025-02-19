@@ -84,13 +84,8 @@ const PlayBar = ({
       `/topic/studio/${sessionId}/playback`,
       (message) => {
         const playbackStatus: PlaybackStatus = JSON.parse(message.body);
-        console.log(
-          "📥 재생 상태 수신 (소켓에서 받은 메시지):",
-          playbackStatus,
-        );
 
         if (playbackStatus.recording !== undefined) {
-          console.log("🎤 isRecording 업데이트됨:", playbackStatus.recording);
           setIsRecording(playbackStatus.recording);
         }
 
@@ -144,14 +139,10 @@ const PlayBar = ({
   const isManualRecording = useRef<boolean>(false);
 
   useEffect(() => {
-    console.log("🔄 `useEffect` 감지 - isRecording 변경됨:", isRecording);
-
     if (!isManualRecording.current) {
       if (isRecording) {
-        console.log("🔥 소켓에서 받은 recording으로 녹음 시작");
         startRecordingFromSocket();
       } else {
-        console.log("🔥 소켓에서 받은 recording으로 녹음 정지");
         stopRecordingFromSocket();
       }
     }
@@ -219,10 +210,6 @@ const PlayBar = ({
 
     const handleMetadataLoaded = () => {
       setDuration(videoElement.duration || 0);
-      console.log(
-        "📌 비디오 메타데이터 로드됨, duration:",
-        videoElement.duration,
-      );
     };
 
     // 🎯 비디오의 `loadedmetadata` 이벤트를 감지하여 `duration`을 설정
@@ -236,8 +223,6 @@ const PlayBar = ({
 
   // handleRecording(): 녹음하는 함수
   const handleRecording = async () => {
-    console.log("🎤 handleRecording 실행됨! 현재 isRecording:", isRecording);
-
     if (!userId) {
       toast.warning("오류: 사용자 정보가 없어, 녹음을 시작할 수 없습니다.");
       return;
@@ -250,7 +235,6 @@ const PlayBar = ({
     });
 
     if (isRecording) {
-      console.log("🛑 녹음 중지 처리 중...");
       mediaRecorderRef.current?.stop();
       stopRecording();
 
@@ -265,7 +249,6 @@ const PlayBar = ({
       return;
     }
 
-    console.log("🎬 녹음 시작!");
     isManualRecording.current = true; // 🔥 사용자가 직접 실행한 녹음
 
     const currentTime = time;
@@ -300,7 +283,6 @@ const PlayBar = ({
         toast.success("녹음된 파일을 저장 중입니다...");
         const audioBlob = new Blob(chunks, { type: "audio/wav" });
         const url = URL.createObjectURL(audioBlob);
-        console.log("🎵 생성된 오디오 파일 URL:", url);
 
         if (!track.recorderId) {
           toast.error("트랙에 할당된 참여자가 없습니다.");
@@ -330,8 +312,6 @@ const PlayBar = ({
 
   // startRecordingFromSocket(): 소켓 상태 받아서 자동 녹음 진행
   const startRecordingFromSocket = async () => {
-    console.log("🎬 [소켓] 녹음 시작 - isRecording 상태:", isRecording);
-
     if (!userId) {
       toast.warning("오류: 사용자 정보가 없어 녹음을 시작할 수 없습니다.");
       return;
@@ -369,7 +349,6 @@ const PlayBar = ({
         toast.success("녹음된 파일을 저장 중입니다...");
         const audioBlob = new Blob(chunks, { type: "audio/webm" });
         const url = URL.createObjectURL(audioBlob);
-        console.log("🎵 생성된 오디오 파일 URL:", url);
 
         if (!track.recorderId) {
           toast.error("트랙에 할당된 참여자가 없습니다.");
@@ -401,8 +380,6 @@ const PlayBar = ({
 
   // stopRecordingFromSocket(): 소켓 상태 받아 자동 녹음 정지
   const stopRecordingFromSocket = () => {
-    console.log("🛑 [소켓] 녹음 중지 실행됨!");
-
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
     }

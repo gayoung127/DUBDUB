@@ -130,9 +130,7 @@ export default function StudioPage() {
         }
 
         if (data.script) {
-          console.log("get script = ", data.script);
           const jsonData = JSON.parse(data.script);
-          console.log("json data = ", jsonData);
           setParsedScripts(jsonData);
         }
 
