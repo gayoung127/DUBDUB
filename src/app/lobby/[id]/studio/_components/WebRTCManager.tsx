@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { OpenVidu, Subscriber } from "openvidu-browser";
+import { OpenVidu, SignalEvent, Subscriber } from "openvidu-browser";
 import { useUserStore } from "@/app/_store/UserStore";
 import { useMicStore } from "@/app/_store/MicStore";
 import { useWebRTCStore } from "@/app/_store/WebRTCStore"; // ✅ WebRTC 상태 관리 추가
@@ -64,6 +64,22 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
           console.warn("⚠️ OpenVidu Exception:", exception);
         });
 
+        newSession.on("signal:mic-status", (event: SignalEvent) => {
+          if (!event.data) return;
+
+          try {
+            const { userId, isMicOn } = JSON.parse(event.data);
+
+            if (micStatus[userId] !== isMicOn) {
+              console.log(
+                `${userId}의 마이크 상태가 ${micStatus[userId]}에서 ${isMicOn}으로 변경됨`,
+              );
+              setMicStatus(userId, isMicOn);
+            }
+          } catch (error) {
+            console.error("🚨 mic-status 데이터 파싱 오류:", error);
+          }
+        });
         // 🔥 OpenVidu 세션 연결 (토큰을 props로 받음)
         await newSession.connect(sessionToken, { clientData: self.memberId });
 
@@ -92,6 +108,20 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
       disconnectSession(); // ✅ 필요할 때만 세션 종료
     };
   }, [sessionToken, self]);
+
+  useEffect(() => {
+    const userId = self?.memberId ?? -1;
+
+    sessionRef?.signal({
+      type: "mic-status",
+      data: JSON.stringify({ userId, isMicOn: micStatus[userId] }),
+    });
+
+    if (publisher && publisher.stream) {
+      const audioTrack = publisher.stream.getMediaStream().getAudioTracks()[0];
+      if (audioTrack) audioTrack.enabled = micStatus[userId];
+    }
+  }, [micStatus[self?.memberId ?? -1]]);
 
   return (
     <div style={{ display: "none" }}>

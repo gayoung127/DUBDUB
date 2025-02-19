@@ -31,9 +31,6 @@ export default function StudioPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [studioTitle, setStudioTitle] = useState<string>("제목 없음");
   const [videoUrl, setVideoUrl] = useState<string>("/examples/zzangu.mp4");
-  const [userAudioStreams, setUserAudioStreams] = useState<
-    Record<number, MediaStream>
-  >({});
 
   const [duration, setDuration] = useState<number>(160);
   const [sessionToken, setSessionToken] = useState<string>("");
@@ -73,14 +70,6 @@ export default function StudioPage() {
       });
     }
   };
-
-  useEffect(() => {
-    return () => {
-      Object.values(userAudioStreams).forEach((stream) => {
-        stream.getTracks().forEach((track) => track.stop());
-      });
-    };
-  }, [userAudioStreams]);
 
   // useEffect(): 유저 정보 가져오기 (HTTP API Request)
   useEffect(() => {
@@ -180,7 +169,6 @@ export default function StudioPage() {
               <Header studioTitle={studioTitle} />
               <div className="flex h-full w-full flex-1 flex-row items-center justify-start">
                 <StudioSideTab
-                  userAudioStreams={userAudioStreams}
                   tracks={tracks}
                   setTracks={setTracks}
                   studioMembers={studioMembers}
