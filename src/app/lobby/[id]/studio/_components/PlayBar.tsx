@@ -160,46 +160,56 @@ const PlayBar = ({
   // useEffect: 동영상 길이 초과시, 자동 정지 (녹음시, 녹음도 정지)
   useEffect(() => {
     if (time >= duration) {
-      if (isRecording) stopRecording();
+      mediaRecorderRef.current?.stop();
+      stopRecording();
+
+      if (audioContext) {
+        audioContext.close();
+        setAudioContext(null);
+        setAnalyser(null);
+      }
+
+      setMediaRecorder(null);
       pause();
       reset();
     }
   }, [time, duration]);
 
+  // 스페이스 바 기능 주석 처리
   // useEffect: SpaceBar -> 재생 / 일시 정지
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const activeElement = document.activeElement;
-      if (
-        activeElement &&
-        ["INPUT", "TEXTAREA"].includes(activeElement.tagName)
-      ) {
-        return;
-      }
-      if (event.code === "Space") {
-        event.preventDefault();
+  // useEffect(() => {
+  //   const handleKeyDown = (event: KeyboardEvent) => {
+  //     const activeElement = document.activeElement;
+  //     if (
+  //       activeElement &&
+  //       ["INPUT", "TEXTAREA"].includes(activeElement.tagName)
+  //     ) {
+  //       return;
+  //     }
+  //     if (event.code === "Space") {
+  //       event.preventDefault();
 
-        if (isPlaying) {
-          sendPlaybackStatus({
-            recording: isRecording,
-            playState: "STOP",
-            timelineMarker: 0,
-          });
-        } else {
-          sendPlaybackStatus({
-            recording: isRecording,
-            playState: "PLAY",
-            timelineMarker: 0,
-          });
-        }
-      }
-    };
+  //       if (isPlaying) {
+  //         sendPlaybackStatus({
+  //           recording: isRecording,
+  //           playState: "STOP",
+  //           timelineMarker: 0,
+  //         });
+  //       } else {
+  //         sendPlaybackStatus({
+  //           recording: isRecording,
+  //           playState: "PLAY",
+  //           timelineMarker: 0,
+  //         });
+  //       }
+  //     }
+  //   };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isPlaying, play, pause]);
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, [isPlaying, play, pause]);
 
   // useEffect: 동영상 길이에 맞게 전체 duration 설정
   useEffect(() => {
