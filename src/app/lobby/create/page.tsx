@@ -178,7 +178,7 @@ export default function Page() {
                 segments={segments}
                 // onChange={(value) => setScript(value)} // Script 문자열 업데이트
                 // parsedScript={parsedScript} // 파싱된 데이터 전달
-                //  onUpdate={handleParsedScriptUpdate}
+                // onUpdate={handleParsedScriptUpdate}
               />
             </div>
           </div>
