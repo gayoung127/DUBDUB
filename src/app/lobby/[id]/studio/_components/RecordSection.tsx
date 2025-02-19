@@ -181,7 +181,7 @@ const RecordSection = ({
           </div>
           <div className="flex h-[60px] w-full flex-grow-0 flex-col items-start justify-end border-l border-r border-t border-gray-300 bg-gray-400">
             <Suspense fallback={<ImagesFromVideo.Skeleton />}>
-              <ImagesFromVideo videoUrl={videoUrl} />
+              <ImagesFromVideo videoUrl={videoUrl} duration={duration} />
             </Suspense>
           </div>
           <div className="h-full w-full">
