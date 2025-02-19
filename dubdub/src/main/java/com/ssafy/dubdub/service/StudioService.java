@@ -15,6 +15,7 @@ import io.openvidu.java.client.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -137,5 +139,10 @@ public class StudioService {
                         studio.close();
                     }
                 });
+        try {
+            openViduService.closeSession(session);
+        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+            log.info("이미 종료된 세션입니다. : {} \n {}", session, e.getMessage());
+        }
     }
 }
