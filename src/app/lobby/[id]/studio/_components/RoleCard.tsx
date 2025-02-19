@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useMicStore } from "@/app/_store/MicStore";
 import MicOn from "@/public/images/icons/icon-micon.svg";
 import MicOff from "@/public/images/icons/icon-micoff.svg";
+import { useUserStore } from "@/app/_store/UserStore";
 
 interface RoleCardProps {
   id: number;
@@ -35,6 +36,12 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
 
   const { micStatus, setMicStatus } = useMicStore();
   const isMicOn = micStatus[id] ?? true;
+  const { self } = useUserStore();
+
+  useEffect(() => {
+    if (!self || self.memberId !== id) return;
+    setMicStatus(id ?? -1, true);
+  }, [self]);
 
   //마이크 토글
   const handleToggleMic = async () => {
@@ -63,6 +70,7 @@ const RoleCard = ({ id, name, role, profileImageUrl }: RoleCardProps) => {
         <button
           onClick={handleToggleMic}
           className={`flex h-[24px] w-[24px] items-center justify-center rounded-[4px] ${isMicOn ? "bg-brand-100" : "bg-gray-100"}`}
+          disabled={id !== self?.memberId}
         >
           {isMicOn ? <MicOn /> : <MicOff />}
         </button>
