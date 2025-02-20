@@ -518,6 +518,14 @@ const AudioBlock = ({
     }
   };
 
+  useEffect(() => {
+    if (isSelecting && selectingUser) {
+      console.log(getCursorStyle(String(selectingUser)).borderColor);
+    } else {
+      console.log("없음");
+    }
+  }, []);
+
   return (
     <div
       ref={blockRef}
