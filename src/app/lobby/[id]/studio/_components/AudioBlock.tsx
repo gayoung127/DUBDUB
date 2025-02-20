@@ -260,7 +260,7 @@ const AudioBlock = ({
       source.playbackRate.value = playbackRate;
 
       // ✅ trimStart, trimEnd 검증 후 값 설정
-      const offset = Math.max(0, file.trimStart || 0);
+      const offset = Math.max(0, time - file.startPoint - file.trimStart);
       const duration = Math.max(
         0,
         (file.duration || 0) - offset - (file.trimEnd || 0),
@@ -282,8 +282,13 @@ const AudioBlock = ({
   // stopAudio(): 개별 오디오 파일 즉시 정지 함수
   const stopAudio = () => {
     if (audioSourceRef.current) {
-      audioSourceRef.current.stop();
-      audioSourceRef.current.disconnect();
+      try {
+        audioSourceRef.current.stop();
+        audioSourceRef.current.disconnect();
+      } catch (error) {
+        console.warn("⚠️ 오디오 정지 중 오류 발생:", error);
+      }
+
       audioSourceRef.current = null;
     }
   };
