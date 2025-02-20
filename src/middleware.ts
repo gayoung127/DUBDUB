@@ -4,15 +4,22 @@ const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
 
+  const prevPage = request.cookies.get("prevPage")?.value;
+  const decodedPrevPage = prevPage ? decodeURIComponent(prevPage) : "/";
+
   // ✅ accessToken이 없으면 바로 "/"로 리디렉션
   if (!accessToken) {
     const response = NextResponse.redirect(new URL("/", request.url));
 
     if (!request.cookies.get("prevPage")) {
-      response.cookies.set("prevPage", request.nextUrl.pathname, {
-        path: "/",
-        maxAge: 60,
-      });
+      response.cookies.set(
+        "prevPage",
+        encodeURIComponent(request.nextUrl.pathname),
+        {
+          path: "/",
+          maxAge: 60,
+        },
+      );
     }
 
     return response;
@@ -31,10 +38,14 @@ export async function middleware(request: NextRequest) {
   const isValidToken = await validateToken(accessToken);
   if (!isValidToken) {
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set("prevPage", request.nextUrl.pathname, {
-      path: "/",
-      maxAge: 60,
-    });
+    response.cookies.set(
+      "prevPage",
+      encodeURIComponent(request.nextUrl.pathname),
+      {
+        path: "/",
+        maxAge: 60,
+      },
+    );
     return response;
   }
 
@@ -51,6 +62,7 @@ const validateToken = async (accessToken?: string): Promise<boolean> => {
         "Content-Type": "application/json",
         Cookie: `accessToken=${accessToken}`,
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
