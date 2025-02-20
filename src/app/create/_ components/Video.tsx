@@ -19,18 +19,44 @@ const Video = ({
 }: VideoProps) => {
   const { generateThumbnail } = useGenerateThumbnail();
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [transcription, setTranscription] = useState<string | null>(null); //stt 결과 추가
+
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0] || null;
-    if (file) {
+    if (file && sectionRef.current) {
+      const containerWidth = sectionRef.current.offsetWidth;
+      const containerHeight = sectionRef.current.offsetHeight;
+
       const videoURL = URL.createObjectURL(file);
-      setVideoPreview(videoURL); // 동영상 미리보기 URL 설정
-      onChange(file); // 부모 컴포넌트로 파일 전달
-      transcribeVideo(file);
+      setVideoPreview(videoURL);
+      transcribeVideo(file); // clova-api 호출
+
+      try {
+        //썸네일 생성
+        const generatedThumbnail = await generateThumbnail(
+          file,
+          containerWidth,
+          containerHeight,
+        );
+        if (generatedThumbnail) {
+          setThumbnailPreview(URL.createObjectURL(generatedThumbnail));
+          onThumbnailChange(generatedThumbnail); // 부모 컴포넌트에 전달
+        } else {
+          console.error("썸네일 생성 실패");
+          setThumbnailPreview(null);
+          onThumbnailChange(null);
+        }
+      } catch (error) {
+        console.error("썸네일 생성 중 오류:", error);
+        onThumbnailChange(null);
+      }
     }
+    onChange(file); // 부모 컴포넌트로 파일 전달
   };
 
   const transcribeVideo = async (file: File) => {
