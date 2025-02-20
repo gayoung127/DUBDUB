@@ -76,7 +76,7 @@ const LobbyPage = () => {
   }, [isFiltered]);
 
   const handleCreateRoom = () => {
-    router.push("/lobby/create");
+    router.push("/create");
   };
 
   const tabs = [
