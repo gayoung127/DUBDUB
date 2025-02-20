@@ -35,6 +35,7 @@ interface AudioTrackTimelineProps {
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
   sendAsset: (asset: Asset) => void;
   selectingBlocks: SelectingBlock[];
+  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
 }
 
 const AudioTrackTimeline = ({
@@ -52,6 +53,7 @@ const AudioTrackTimeline = ({
   setAssets,
   sendAsset,
   selectingBlocks,
+  setSelectingBlocks,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -334,6 +336,7 @@ const AudioTrackTimeline = ({
                     (block) => block.selectedAudioBlockId === file.id,
                   )?.memberId || null
                 }
+                setSelectingBlocks={setSelectingBlocks}
               />
             </div>
           );
