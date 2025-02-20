@@ -26,13 +26,13 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "") {
     const isValidToken = await validateToken();
 
-    if (isValidToken) {
-      console.log("✅ User is logged in, redirecting to /lobby");
-      return NextResponse.redirect(new URL("/lobby", request.url));
-    } else {
-      console.warn("⚠️ User is not logged in, staying on /");
-      return NextResponse.next();
+    if (!isValidToken) {
+      console.warn("Invalid token, staying on current page.");
+      return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
     }
+    const redirectUrl = new URL("/lobby", request.nextUrl.origin);
+    console.log("🚀 Redirecting to:", redirectUrl.toString());
+    return NextResponse.redirect(redirectUrl);
   }
 
   //상세 페이지 접근 금지
