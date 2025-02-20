@@ -44,7 +44,7 @@ const AudioBlock = ({
   timelineRef,
   trackId,
   fileIdx,
-  isSelecting,
+  selecting,
   selectingUser,
   setSelectingBlocks,
 }: AudioBlockProps) => {
@@ -449,11 +449,11 @@ const AudioBlock = ({
 
     let selectedAudioBlockId = null;
 
-    if (isSelecting) {
-      isSelecting = false;
+    if (selecting) {
+      selecting = false;
       selectedAudioBlockId = null;
     } else {
-      isSelecting = true;
+      selecting = true;
       selectedAudioBlockId = file.id;
     }
 
@@ -463,18 +463,15 @@ const AudioBlock = ({
     setSelectingBlocks((prevBlocks) => {
       const updatedBlocks = prevBlocks.map((block) => {
         // 선택했음 & 이전에 누군가 선택한 값
-        if (
-          isSelecting &&
-          block.selectedAudioBlockId === selectedAudioBlockId
-        ) {
-          return { ...block, isSelecting: false, selectedAudioBlockId: null };
+        if (selecting && block.selectedAudioBlockId === selectedAudioBlockId) {
+          return { ...block, selecting: false, selectedAudioBlockId: null };
         }
 
         if (block.memberId === self?.memberId) {
           return {
             ...block,
             memberId: Number(self?.memberId),
-            isSelecting: isSelecting,
+            selecting: selecting,
             selectedAudioBlockId: selectedAudioBlockId,
           };
         }
@@ -497,13 +494,13 @@ const AudioBlock = ({
           x,
           y,
           name,
-          isSelecting,
+          selecting,
           selectedAudioBlockId,
         }),
       });
       console.log(
-        "---전송 정보 : isSelecting = ",
-        isSelecting,
+        "---전송 정보 : selecting = ",
+        selecting,
         " , selectedAudioBlockId = ",
         selectedAudioBlockId,
         ", x = ",
@@ -519,8 +516,11 @@ const AudioBlock = ({
   };
 
   useEffect(() => {
-    if (isSelecting && selectingUser) {
-      console.log(getCursorStyle(String(selectingUser)).borderColor);
+    if (selecting && selectingUser) {
+      console.log(
+        "스타일 = ",
+        getCursorStyle(String(selectingUser)).borderColor,
+      );
     } else {
       console.log("없음");
     }
@@ -541,7 +541,7 @@ const AudioBlock = ({
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 ${getCursorStyle(String(selectingUser)).borderColor}` : ""}`} // 선택 시 색상
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${selecting && selectingUser ? `border-2 ${getCursorStyle(String(selectingUser)).borderColor}` : ""}`} // 선택 시 색상
         style={{
           backgroundColor: blockColor,
         }}
