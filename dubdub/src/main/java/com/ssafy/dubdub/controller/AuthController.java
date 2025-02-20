@@ -89,6 +89,8 @@ public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<Void> validateToken(
             @CookieValue("accessToken") String accessToken) {
+                log.info("Token validation request received for access token: {}", 
+             accessToken.substring(0, Math.min(accessToken.length(), 10)) + "...");
         return ResponseEntity.ok().build();
     }
 
