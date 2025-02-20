@@ -385,7 +385,9 @@ const AudioBlock = ({
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
-        files: track.files.filter((f) => f.id !== file.id),
+        files: track.files.some((f) => f.id === file.id)
+          ? track.files.filter((f) => f.id !== file.id)
+          : track.files, // 이미 삭제된 경우 변경 X
       })),
     );
 
