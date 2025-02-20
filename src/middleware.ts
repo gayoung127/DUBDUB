@@ -28,15 +28,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // ✅ 홈 ("/") 접근 시 토큰 검증 후 "/lobby"로 리디렉션
-  if (request.nextUrl.pathname === "/") {
+  if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "") {
     const isValidToken = await validateToken();
 
     if (!isValidToken) {
       console.warn("Invalid token, staying on current page.");
       return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
     }
-
-    return NextResponse.redirect("/lobby");
+    const redirectUrl = new URL("/lobby", request.url);
+    console.log("🚀 Redirecting to:", redirectUrl.toString());
+    return NextResponse.redirect(redirectUrl);
   }
 
   // ✅ 보호된 페이지 접근 시 토큰 검증
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-const validateToken = async (accessToken?: string): Promise<boolean> => {
+const validateToken = async (): Promise<boolean> => {
   const BASE_URL = `${BACK_URL}/auth/validate`;
 
   try {
@@ -75,5 +76,5 @@ const validateToken = async (accessToken?: string): Promise<boolean> => {
 };
 
 export const config = {
-  matcher: ["/lobby/:path*/studio", "/", "/lobby", "/lobby/create"],
+  matcher: ["/", "/lobby/:path*/studio", "/lobby", "/lobby/create"],
 };
