@@ -1,36 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
+const BACK_URL = "https://i12a801.p.ssafy.io/api";
+
 export async function middleware(request: NextRequest) {
+  console.log("BACK_URL:", BACK_URL); // ✅ 환경 변수 확인
+
   const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (accessToken && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/lobby", request.url));
-  }
+  const prevPage = request.cookies.get("prevPage")?.value;
+  console.log("Stored prevPage:", prevPage); // ✅ 쿠키 값 확인
 
-  if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+  const decodedPrevPage = prevPage ? decodeURIComponent(prevPage) : "/";
+
+  if (!accessToken && request.nextUrl.pathname !== "/") {
+    console.warn("Access token is missing, redirecting to /");
+    const response = NextResponse.redirect(new URL("/", request.url));
+
+    if (!prevPage) {
+      response.cookies.set(
+        "prevPage",
+        decodeURIComponent(request.nextUrl.pathname),
+        { maxAge: 60 },
+      );
+    }
+
     return response;
   }
 
-  const isValidToken = await validateToken();
+  // ✅ 홈 ("/") 접근 시 토큰 검증 후 "/lobby"로 리디렉션
+  if (request.nextUrl.pathname === "/") {
+    const isValidToken = await validateToken();
 
-  if (!isValidToken) {
-    const isRefreshed = await refreshedToken();
-
-    if (!isRefreshed) {
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
-      return response;
+    if (!isValidToken) {
+      console.warn("Invalid token, staying on current page.");
+      return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
     }
+
+    return NextResponse.redirect("/lobby");
+  }
+
+  // ✅ 보호된 페이지 접근 시 토큰 검증
+  const isValidToken = await validateToken();
+  if (!isValidToken) {
+    console.warn("Token is invalid, staying on current page.");
+    return NextResponse.next(); // ✅ 무한 리디렉션 방지
   }
 
   return NextResponse.next();
 }
 
-const validateToken = async (): Promise<boolean> => {
+const validateToken = async (accessToken?: string): Promise<boolean> => {
   const BASE_URL = `${BACK_URL}/auth/validate`;
 
   try {
@@ -55,27 +74,6 @@ const validateToken = async (): Promise<boolean> => {
   }
 };
 
-const refreshedToken = async (): Promise<boolean> => {
-  const BASE_URL = `${BACK_URL}/auth/token`;
-  try {
-    const response = await fetch(BASE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return false;
-    }
-    return true;
-  } catch (error) {
-    console.error("Error during token refresh: ", error);
-    return false;
-  }
-};
-
 export const config = {
-  matcher: ["/lobby/:path*/studio", "/login"],
+  matcher: ["/lobby/:path*/studio", "/", "/lobby", "/lobby/create"],
 };
