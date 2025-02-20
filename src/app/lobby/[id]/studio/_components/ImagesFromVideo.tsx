@@ -69,15 +69,27 @@ const ImagesFromVideo = ({
       }
 
       setIsLoading(false);
+
+      // ✅ 비디오 정리 (필요 없어진 후 제거)
+      video.src = "";
+      video.remove();
+      videoRef.current = null; // videoRef도 null로 초기화
     };
 
     video.load(); // 비디오 로드
 
     captureThumbnails();
     return () => {
+      // ✅ 클린업: 메모리 누수 방지
       setThumbnails([]);
       setLastThumbnail("");
       setIsLoading(true);
+
+      if (videoRef.current) {
+        videoRef.current.src = "";
+        videoRef.current.remove();
+        videoRef.current = null;
+      }
     };
   }, [videoUrl]);
 
