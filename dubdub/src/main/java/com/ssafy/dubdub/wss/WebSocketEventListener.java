@@ -2,8 +2,6 @@ package com.ssafy.dubdub.wss;
 
 import com.ssafy.dubdub.domain.entity.Member;
 import com.ssafy.dubdub.repository.MemberRepository;
-import com.ssafy.dubdub.security.dto.CustomUserDetails;
-import com.ssafy.dubdub.util.SecurityUtil;
 import com.ssafy.dubdub.wss.dto.UserSession;
 import com.ssafy.dubdub.wss.repository.UserSessionRepository;
 import com.ssafy.dubdub.wss.service.StudioSessionService;
@@ -12,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
