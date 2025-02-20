@@ -471,7 +471,6 @@ const AudioBlock = ({
         }
 
         if (block.memberId === self?.memberId) {
-          // 내꺼 블럭
           return {
             ...block,
             memberId: Number(self?.memberId),
@@ -489,13 +488,6 @@ const AudioBlock = ({
       }
       return updatedBlocks;
     });
-
-    console.log(
-      "---전송 정보 : isSelecting = ",
-      isSelecting,
-      " , selectedAudioBlockId = ",
-      selectedAudioBlockId,
-    );
 
     if (stompClientRef?.connected && sessionId) {
       stompClientRef?.publish({
@@ -525,6 +517,14 @@ const AudioBlock = ({
       console.log("세션이 없어서 안 감");
     }
   };
+
+  useEffect(() => {
+    if (isSelecting && selectingUser) {
+      console.log(getCursorStyle(String(selectingUser)).borderColor);
+    } else {
+      console.log("없음");
+    }
+  }, []);
 
   return (
     <div

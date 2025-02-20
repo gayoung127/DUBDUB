@@ -25,7 +25,11 @@ const cursorStyles = [
     bgColor: "#2594E4",
     borderColor: "border-[rgb(27,106,179)]",
   }, // 대비되는 진한 파랑
-  { icon: CursorPurple, bgColor: "border-[rgb(108,55,184)]" }, // 대비되는 어두운 보라
+  {
+    icon: CursorPurple,
+    bgColor: "border-[rgb(108,55,184)]",
+    borderColor: "border-[rgb(30,122,41)]",
+  }, // 대비되는 어두운 보라
 ];
 
 export function getCursorStyle(id: string) {

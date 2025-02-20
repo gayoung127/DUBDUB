@@ -43,6 +43,8 @@ const CursorPresence = ({
       setCursors((prev) => ({ ...prev, [data.memberId]: data }));
 
       if (data.isSelecting === undefined || data.isSelecting === null) {
+        console.log("isSelecting이 없는데요");
+        console.log("data =", data);
         return;
       }
       console.log("선택한 블럭 전송받은 데이터 : ", message.body);
