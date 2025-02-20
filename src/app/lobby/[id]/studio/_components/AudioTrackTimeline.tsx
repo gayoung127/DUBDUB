@@ -2,7 +2,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useDrop } from "react-dnd"; // ✅ useDrop 추가
-import { Asset, AudioFile, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import {
+  Asset,
+  AudioFile,
+  PX_PER_SECOND,
+  SelectingBlock,
+  Track,
+} from "@/app/_types/studio";
 import AudioBlock from "./AudioBlock";
 import { useRecordingStore } from "@/app/_store/RecordingStore";
 import LiveAudioBlock from "./LiveAudioBlock";
@@ -28,6 +34,7 @@ interface AudioTrackTimelineProps {
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
   sendAsset: (asset: Asset) => void;
+  selectingBlocks: SelectingBlock[];
 }
 
 const AudioTrackTimeline = ({
@@ -44,6 +51,7 @@ const AudioTrackTimeline = ({
   assets,
   setAssets,
   sendAsset,
+  selectingBlocks,
 }: AudioTrackTimelineProps) => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -318,6 +326,14 @@ const AudioTrackTimeline = ({
                 audioBuffers={audioBuffers}
                 setTracks={setTracks}
                 timelineRef={timelineRef}
+                isSelecting={selectingBlocks.some(
+                  (block) => block.selectedAudioBlockId === file.id,
+                )}
+                selectingUser={
+                  selectingBlocks.find(
+                    (block) => block.selectedAudioBlockId === file.id,
+                  )?.memberId || null
+                }
               />
             </div>
           );

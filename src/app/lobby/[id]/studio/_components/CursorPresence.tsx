@@ -4,24 +4,29 @@ import { Client } from "@stomp/stompjs";
 import React, { useEffect, useState } from "react";
 import { useUserStore } from "@/app/_store/UserStore";
 import Cursor from "./Cursor";
+import { SelectingBlock } from "@/app/_types/studio";
 
 interface CursorData {
   memberId: string;
   x: number;
   y: number;
   name: string;
+  isSelecting?: false;
+  selectedAudioBlockId?: null;
 }
 
 interface CursorPresenceProps {
   stompClientRef: Client | null; // ✅ 수정: MutableRefObject 제거
   sessionId: string;
   isConnected: boolean;
+  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
 }
 
 const CursorPresence = ({
   stompClientRef,
   sessionId,
   isConnected,
+  setSelectingBlocks,
 }: CursorPresenceProps) => {
   const [cursors, setCursors] = useState<Record<string, CursorData>>({});
   const { self } = useUserStore();
@@ -36,6 +41,30 @@ const CursorPresence = ({
     const handleCursorUpdate = (message: any) => {
       const data: CursorData = JSON.parse(message.body);
       setCursors((prev) => ({ ...prev, [data.memberId]: data }));
+
+      setSelectingBlocks((prevBlocks) => {
+        const updatedBlocks = prevBlocks.map((block) => {
+          if (block.selectedAudioBlockId === data.selectedAudioBlockId) {
+            return { ...block, isSelecting: false, selectedAudioBlockId: null };
+          }
+
+          if (block.memberId === Number(data.memberId)) {
+            return {
+              ...block,
+              memberId: Number(data.memberId),
+              isSelecting: data.isSelecting,
+              selectedAudioBlockId: data.selectedAudioBlockId,
+            };
+          }
+          return block;
+        });
+
+        if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
+          return prevBlocks;
+        }
+
+        return updatedBlocks;
+      });
     };
 
     const handleCursorRemove = (message: any) => {
