@@ -10,6 +10,7 @@ import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
 import gsap from "gsap";
 import HeroSection from "@/app/login/_components/HeroSection";
+import { toast } from "sonner";
 // import { Segment } from "@/app/_types/script";
 
 export interface ParsedScriptEntry {
@@ -80,7 +81,7 @@ export default function Page() {
     setIsSubmitting(true); // 제출 상태로 변경
 
     if (!videoFile) {
-      alert("비디오 파일을 업로드해주세요.");
+      toast.warning("비디오 파일을 업로드해주세요.");
       return;
     }
 
@@ -245,7 +246,7 @@ export default function Page() {
               outline={false}
               large={true}
               onClick={() => document.querySelector("form")?.requestSubmit()}
-              className="mt-2 w-full font-bold"
+              className="mt-2 w-full font-bold focus:outline-none focus:ring-0"
             >
               프로젝트 시작하기
             </Button>
