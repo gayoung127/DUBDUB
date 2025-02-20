@@ -194,6 +194,8 @@ const AudioBlock = ({
         audioSourceRef.current,
       );
       playAudio();
+    } else {
+      console.log("⚠️ 이미 재생 중인 오디오가 있음, 중복 실행 방지");
     }
   }, [time, isPlaying, file.startPoint]);
 
