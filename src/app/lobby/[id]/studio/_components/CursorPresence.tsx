@@ -42,6 +42,10 @@ const CursorPresence = ({
       const data: CursorData = JSON.parse(message.body);
       setCursors((prev) => ({ ...prev, [data.memberId]: data }));
 
+      if (data.isSelecting === null || data.isSelecting === undefined) {
+        return;
+      }
+
       setSelectingBlocks((prevBlocks) => {
         const updatedBlocks = prevBlocks.map((block) => {
           if (block.selectedAudioBlockId === data.selectedAudioBlockId) {
@@ -61,6 +65,8 @@ const CursorPresence = ({
 
         if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
           return prevBlocks;
+        } else {
+          console.log("update block = ", updatedBlocks);
         }
 
         return updatedBlocks;

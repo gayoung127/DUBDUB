@@ -34,6 +34,7 @@ interface RecordSectionProps {
   isProcessedAudio: boolean;
   setIsProcessedAudio: (isVideoMuted: boolean) => void;
   selectingBlocks: SelectingBlock[];
+  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
 }
 
 const RecordSection = ({
@@ -51,6 +52,7 @@ const RecordSection = ({
   isProcessedAudio,
   setIsProcessedAudio,
   selectingBlocks,
+  setSelectingBlocks,
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
@@ -204,6 +206,7 @@ const RecordSection = ({
                 setAssets={setAssets}
                 sendAsset={sendAsset}
                 selectingBlocks={selectingBlocks}
+                setSelectingBlocks={setSelectingBlocks}
               />
             ))}
           </div>

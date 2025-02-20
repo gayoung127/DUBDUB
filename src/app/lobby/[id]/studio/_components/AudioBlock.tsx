@@ -7,7 +7,13 @@ import React, { useEffect, useRef, useState } from "react";
 
 import useBlockStore from "@/app/_store/BlockStore";
 import { useTimeStore } from "@/app/_store/TimeStore";
-import { AudioFile, Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
+import {
+  AudioFile,
+  Block,
+  PX_PER_SECOND,
+  SelectingBlock,
+  Track,
+} from "@/app/_types/studio";
 
 import AudioBlockModal from "./AudioBlockModal";
 import { useStompStore } from "@/app/_store/StompStore";
@@ -22,6 +28,7 @@ export interface AudioBlockProps extends Block {
   timelineRef: React.RefObject<HTMLDivElement | null>;
   trackId: number | null;
   fileIdx: number | null;
+  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
 }
 
 gsap.registerPlugin(Draggable);
@@ -39,6 +46,7 @@ const AudioBlock = ({
   fileIdx,
   isSelecting,
   selectingUser,
+  setSelectingBlocks,
 }: AudioBlockProps) => {
   const { time, isPlaying } = useTimeStore();
   const {
@@ -449,6 +457,36 @@ const AudioBlock = ({
       selectedAudioBlockId = file.id;
     }
 
+    setSelectingBlocks((prevBlocks) => {
+      const updatedBlocks = prevBlocks.map((block) => {
+        // 선택했음 & 이전에 누군가 선택한 값
+        if (
+          isSelecting &&
+          block.selectedAudioBlockId === selectedAudioBlockId
+        ) {
+          return { ...block, isSelecting: false, selectedAudioBlockId: null };
+        }
+
+        if (block.memberId === self?.memberId) {
+          // 내꺼 블럭
+          return {
+            ...block,
+            memberId: Number(self?.memberId),
+            isSelecting: isSelecting,
+            selectedAudioBlockId: selectedAudioBlockId,
+          };
+        }
+        return block;
+      });
+
+      if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
+        return prevBlocks;
+      } else {
+        console.log("자신 update block = ", updatedBlocks);
+      }
+      return updatedBlocks;
+    });
+
     console.log(
       "---전송 정보 : isSelecting = ",
       isSelecting,
@@ -468,6 +506,18 @@ const AudioBlock = ({
           selectedAudioBlockId,
         }),
       });
+      console.log(
+        "---전송 정보 : isSelecting = ",
+        isSelecting,
+        " , selectedAudioBlockId = ",
+        selectedAudioBlockId,
+        ", x = ",
+        x,
+        " y = ",
+        y,
+        " ,memberId= ",
+        memberId,
+      );
     }
   };
 

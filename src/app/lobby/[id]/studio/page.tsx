@@ -226,6 +226,7 @@ export default function StudioPage() {
             isProcessedAudio={isProcessedAudio}
             setIsProcessedAudio={setIsProcessedAudio}
             selectingBlocks={selectingBlocks}
+            setSelectingBlocks={setSelectingBlocks}
           />
         </div>
         {isConnected && (
