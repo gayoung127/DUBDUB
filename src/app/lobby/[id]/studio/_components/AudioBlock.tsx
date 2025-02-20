@@ -157,7 +157,24 @@ const AudioBlock = ({
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
 
+    console.log(
+      "🎯 useEffect 실행 | time:",
+      time,
+      "| startOffset:",
+      startOffset,
+      "| endOffset:",
+      endOffset,
+    );
+
     if (!isPlaying || time >= endOffset) {
+      console.log(
+        "🛑 정지 조건 충족 | isPlaying:",
+        isPlaying,
+        "| time:",
+        time,
+        ">= endOffset:",
+        endOffset,
+      );
       stopAudio();
       return;
     }
@@ -168,6 +185,14 @@ const AudioBlock = ({
       time < endOffset &&
       !audioSourceRef.current
     ) {
+      console.log(
+        "▶️ 재생 조건 충족 | isPlaying:",
+        isPlaying,
+        "| time:",
+        time,
+        "| audioSourceRef.current:",
+        audioSourceRef.current,
+      );
       playAudio();
     }
   }, [time, isPlaying, file.startPoint]);
@@ -234,9 +259,21 @@ const AudioBlock = ({
   };
 
   const playAudio = async () => {
-    if (!audioContext || audioSourceRef.current || !file.url) return;
+    if (!audioContext || audioSourceRef.current || !file.url) {
+      console.warn(
+        "⚠️ 재생 불가 | audioContext:",
+        audioContext,
+        "| audioSourceRef.current:",
+        audioSourceRef.current,
+        "| file.url:",
+        file.url,
+      );
+      return;
+    }
 
     try {
+      console.log("🎵 오디오 로드 시작:", file.url);
+
       // 🔥 fetch로 오디오 파일 불러오기
       const response = await fetch(file.url);
       const arrayBuffer = await response.arrayBuffer();
@@ -265,11 +302,19 @@ const AudioBlock = ({
         (file.duration || 0) - offset - (file.trimEnd || 0),
       );
 
+      console.log("🔄 재생 설정 | offset:", offset, "| duration:", duration);
+
       source.start(audioContext.currentTime, offset, duration);
 
       audioSourceRef.current = source;
 
+      console.log(
+        "✅ 오디오 재생 시작 | audioSourceRef.current:",
+        audioSourceRef.current,
+      );
+
       source.onended = () => {
+        console.log("🔚 오디오 재생 완료, 리소스 정리");
         audioSourceRef.current = null;
       };
     } catch (error) {
@@ -282,13 +327,21 @@ const AudioBlock = ({
   const stopAudio = () => {
     if (audioSourceRef.current) {
       try {
+        console.log(
+          "🛑 오디오 정지 호출 | 현재 오디오 소스:",
+          audioSourceRef.current,
+        );
+        console.log("⏳ 오디오 disconnect 실행");
         audioSourceRef.current.stop();
         audioSourceRef.current.disconnect();
+        console.log("✅ 오디오 정지 완료");
       } catch (error) {
         console.warn("⚠️ 오디오 정지 중 오류 발생:", error);
       }
 
       audioSourceRef.current = null;
+    } else {
+      console.warn("⚠️ stopAudio 호출 시 audioSourceRef가 이미 비어 있음.");
     }
   };
 
