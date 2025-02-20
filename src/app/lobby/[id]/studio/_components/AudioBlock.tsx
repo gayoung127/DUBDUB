@@ -442,7 +442,8 @@ const AudioBlock = ({
     let selectedAudioBlockId = null;
 
     if (isSelecting) {
-      (isSelecting = false), (selectedAudioBlockId = null);
+      isSelecting = false;
+      selectedAudioBlockId = null;
     } else {
       isSelecting = true;
       selectedAudioBlockId = file.id;
