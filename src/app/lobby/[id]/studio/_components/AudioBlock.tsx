@@ -28,7 +28,7 @@ export interface AudioBlockProps extends Block {
   timelineRef: React.RefObject<HTMLDivElement | null>;
   trackId: number | null;
   fileIdx: number | null;
-  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
+  setSelectingBlocks?: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
 }
 
 gsap.registerPlugin(Draggable);
@@ -457,6 +457,9 @@ const AudioBlock = ({
       selectedAudioBlockId = file.id;
     }
 
+    if (!setSelectingBlocks) {
+      return;
+    }
     setSelectingBlocks((prevBlocks) => {
       const updatedBlocks = prevBlocks.map((block) => {
         // 선택했음 & 이전에 누군가 선택한 값
