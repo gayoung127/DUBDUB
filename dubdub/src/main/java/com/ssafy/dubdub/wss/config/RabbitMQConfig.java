@@ -10,9 +10,20 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
+
     @Bean
-    public Queue studioEditQueue() {
-        return new Queue("studio.edit.queue", true);
+    public Queue studioTrackQueue() {
+        return new Queue("studio.track.queue", true);
+    }
+
+    @Bean
+    public Queue studioAssetQueue() {
+        return new Queue("studio.asset.queue", true);
+    }
+
+    @Bean
+    public Queue studioCursorQueue() {
+        return new Queue("studio.cursor.queue", true);
     }
 
     @Bean
@@ -21,10 +32,24 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding(Queue studioEditQueue, DirectExchange studioExchange) {
-        return BindingBuilder.bind(studioEditQueue)
-                .to(studioExchange)
-                .with("studio.edit");
+    public Binding trackBinding() {
+        return BindingBuilder.bind(studioTrackQueue())
+                .to(studioExchange())
+                .with("studio.track");
+    }
+
+    @Bean
+    public Binding assetBinding() {
+        return BindingBuilder.bind(studioAssetQueue())
+                .to(studioExchange())
+                .with("studio.asset");
+    }
+
+    @Bean
+    public Binding cursorBinding() {
+        return BindingBuilder.bind(studioCursorQueue())
+                .to(studioExchange())
+                .with("studio.cursor");
     }
 
     @Bean

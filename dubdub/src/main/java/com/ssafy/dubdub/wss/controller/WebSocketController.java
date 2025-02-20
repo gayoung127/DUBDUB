@@ -58,7 +58,10 @@ public class WebSocketController {
                 messageType,
                 payload
         );
-
-        rabbitTemplate.convertAndSend("studio.exchange", "studio.edit", message);
+        switch (messageType){
+            case TRACK_FILE, TRACK_RECORDER -> rabbitTemplate.convertAndSend("studio.exchange", "studio.track", message);
+            case ASSET -> rabbitTemplate.convertAndSend("studio.exchange", "studio.asset", message);
+            case CURSOR -> rabbitTemplate.convertAndSend("studio.exchange", "studio.cursor", message);
+        }
     }
 }

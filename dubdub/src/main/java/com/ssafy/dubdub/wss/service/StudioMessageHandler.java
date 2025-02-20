@@ -22,21 +22,43 @@ public class StudioMessageHandler {
     private final ObjectMapper objectMapper;
 
     // RabbitMQ로부터 메시지를 수신하고 처리
-    @RabbitListener(queues = "#{studioEditQueue.name}")
-    public void handleStudioMessage(StudioMessage<?> message) {
+    @RabbitListener(queues = "#{studioTrackQueue.name}")
+    public void handleTrackMessage(StudioMessage<?> message) {
         try {
-            if (message.getType() != MessageType.CURSOR) {
-                log.info("Received message: type={}, sessionId={}",
-                        message.getType(), message.getSessionId());
+            if (message.getType() == MessageType.TRACK_FILE || message.getType() == MessageType.TRACK_RECORDER) {
+                Object payload = message.getPayload();
+                StudioMessage<?> convertedMessage = convertMessage(message, payload);
+                processMessage(convertedMessage);
             }
+            broadcastToOtherClients(message);
+        } catch (Exception e) {
+            log.error("Failed to handle track message", e);
+        }
+    }
 
+    @RabbitListener(queues = "#{studioAssetQueue.name}")
+    public void handleAssetMessage(StudioMessage<AudioAssetRequestDto> message) {
+        try {
             Object payload = message.getPayload();
             StudioMessage<?> convertedMessage = convertMessage(message, payload);
 
             processMessage(convertedMessage);
             broadcastToOtherClients(convertedMessage);
         } catch (Exception e) {
-            log.error("RabbitMQ 메시지 수신과정에서 에러발생: {}", message.getMessageId(), e);
+            log.error("Failed to handle asset message", e);
+        }
+    }
+
+    @RabbitListener(queues = "#{studioCursorQueue.name}")
+    public void handleCursorMessage(StudioMessage<CursorData> message) {
+        try {
+            Object payload = message.getPayload();
+            StudioMessage<?> convertedMessage = convertMessage(message, payload);
+
+            processMessage(convertedMessage);
+            broadcastToOtherClients(convertedMessage);
+        } catch (Exception e) {
+            log.error("Failed to handle cursor message", e);
         }
     }
 
