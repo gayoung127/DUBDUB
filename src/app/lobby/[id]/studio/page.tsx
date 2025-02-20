@@ -47,12 +47,27 @@ export default function StudioPage() {
   const { tracks, setTracks } = useTrackSocket({ sessionId });
   const { assets, setAssets, sendAsset } = useAssetsSocket({ sessionId });
 
-  const [selectingBlocks, setSelectingBlocks] = useState<SelectingBlock[]>([
-    { memberId: 1, selecting: false, selectedAudioBlockId: null },
-    { memberId: 2, selecting: false, selectedAudioBlockId: null },
-    { memberId: 3, selecting: false, selectedAudioBlockId: null },
-    { memberId: 4, selecting: false, selectedAudioBlockId: null },
-  ]);
+  const [selectingBlocks, setSelectingBlocks] = useState<SelectingBlock[]>([]);
+
+  useEffect(() => {
+    setSelectingBlocks((prevBlocks) => {
+      const updatedBlocks = studioMembers.map((member) => {
+        const existingBlock = prevBlocks.find(
+          (block) => block.memberId === member.memberId,
+        );
+        return existingBlock
+          ? existingBlock // 기존 데이터 유지
+          : {
+              memberId: member.memberId,
+              selecting: false,
+              selectedAudioBlockId: null,
+            }; // 새 멤버 추가
+      });
+
+      return updatedBlocks;
+    });
+    console.log("스튜디오 멤버 = ", studioMembers);
+  }, [studioMembers]); // `studioMembers` 변경 시 실행
 
   useEffect(() => {
     console.log("각 사용자 선택한 블럭 : ", selectingBlocks);

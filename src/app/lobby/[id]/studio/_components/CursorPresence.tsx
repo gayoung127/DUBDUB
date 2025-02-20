@@ -43,13 +43,17 @@ const CursorPresence = ({
       setCursors((prev) => ({ ...prev, [data.memberId]: data }));
 
       if (data.selecting === undefined || data.selecting === null) {
+        console.log("selecting이 없어요");
         return;
       }
       // console.log("선택한 블럭 전송받은 데이터 : ", message.body);
 
       setSelectingBlocks((prevBlocks) => {
         const updatedBlocks = prevBlocks.map((block) => {
-          if (block.selectedAudioBlockId === data.selectedAudioBlockId) {
+          if (
+            data.selecting &&
+            block.selectedAudioBlockId === data.selectedAudioBlockId
+          ) {
             return { ...block, selecting: false, selectedAudioBlockId: null };
           }
 
@@ -66,6 +70,8 @@ const CursorPresence = ({
 
         if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
           return prevBlocks;
+        } else {
+          console.log("업데이트 됨 : ", updatedBlocks);
         }
 
         return updatedBlocks;
