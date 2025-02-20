@@ -67,11 +67,5 @@ const validateToken = async (): Promise<boolean> => {
 };
 
 export const config = {
-  matcher: [
-    "/",
-    "/lobby",
-    "/lobby/create",
-    "/lobby/:path*",
-    "/lobby/:path*/studio",
-  ],
+  matcher: ["/", "/lobby", "/create", "/lobby/:path*", "/lobby/:path*/studio"],
 };
