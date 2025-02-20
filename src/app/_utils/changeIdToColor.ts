@@ -8,27 +8,27 @@ const cursorStyles = [
   {
     icon: CursorOrange,
     bgColor: "#F06748",
-    borderColor: "border-[rgb(185,71,46)]",
+    borderColor: "border-purple-500",
   }, // 대비되는 어두운 오렌지
   {
     icon: CursorYellow,
     bgColor: "#E1B115",
-    borderColor: "border-[rgb(169,133,13)]",
+    borderColor: "border-green-500",
   }, // 대비되는 짙은 황색
   {
     icon: CursorGreen,
     bgColor: "#32C83F",
-    borderColor: "border-[rgb(30,122,41)]",
+    borderColor: "border-pink-500",
   }, // 대비되는 어두운 녹색
   {
     icon: CursorBlue,
     bgColor: "#2594E4",
-    borderColor: "border-[rgb(27,106,179)]",
+    borderColor: "border-sky-500",
   }, // 대비되는 진한 파랑
   {
     icon: CursorPurple,
     bgColor: "border-[rgb(108,55,184)]",
-    borderColor: "border-[rgb(30,122,41)]",
+    borderColor: "border-yellow-500",
   }, // 대비되는 어두운 보라
 ];
 

@@ -91,7 +91,7 @@ export interface Block {
 
 // 5. 선택된 블록
 export interface SelectingBlock {
-  memberId: number;
+  memberId: number | null;
   selecting?: boolean | null;
   selectedAudioBlockId?: string | null;
 }
