@@ -34,13 +34,13 @@ const useStompClient = (sessionId: string) => {
     client.activate();
     setStompClient(client);
 
-    // return () => {
-    //   if (client.connected) {
-    //     client.deactivate();
-    //     setIsConnected(false);
-    //     setStompClient(null);
-    //   }
-    // };
+    return () => {
+      if (client.connected) {
+        client.deactivate();
+        setIsConnected(false);
+        setStompClient(null);
+      }
+    };
   }, [sessionId, self]);
 };
 
