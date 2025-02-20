@@ -1,52 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
+const BACK_URL = "https://i12a801.p.ssafy.io/api";
+
 export async function middleware(request: NextRequest) {
+  console.log("BACK_URL:", BACK_URL); // ✅ 환경 변수 확인
+
   const accessToken = request.cookies.get("accessToken")?.value;
 
   const prevPage = request.cookies.get("prevPage")?.value;
+  console.log("Stored prevPage:", prevPage); // ✅ 쿠키 값 확인
+
   const decodedPrevPage = prevPage ? decodeURIComponent(prevPage) : "/";
 
-  // ✅ accessToken이 없으면 바로 "/"로 리디렉션
-  if (!accessToken) {
+  // ✅ accessToken이 없고, 현재 경로가 "/"가 아닐 때만 리디렉션 (무한 루프 방지)
+  if (!accessToken && request.nextUrl.pathname !== "/") {
+    console.warn("Access token is missing, redirecting to /");
     const response = NextResponse.redirect(new URL("/", request.url));
 
-    if (!request.cookies.get("prevPage")) {
+    if (!prevPage) {
       response.cookies.set(
         "prevPage",
-        encodeURIComponent(request.nextUrl.pathname),
-        {
-          path: "/",
-          maxAge: 60,
-        },
+        decodeURIComponent(request.nextUrl.pathname),
+        { maxAge: 60 },
       );
     }
 
     return response;
   }
 
-  // ✅ 홈 화면 ("/")에서 accessToken이 있으면 /lobby로 이동 (단, 유효한 경우)
+  // ✅ 홈 ("/") 접근 시 토큰 검증 후 "/lobby"로 리디렉션
   if (request.nextUrl.pathname === "/") {
-    const isValidToken = await validateToken(accessToken);
+    const isValidToken = await validateToken();
+
     if (!isValidToken) {
-      return NextResponse.next(); // 토큰이 유효하지 않으면 홈 화면 유지
+      console.warn("Invalid token, staying on current page.");
+      return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
     }
+
     return NextResponse.redirect(new URL("/lobby", request.url));
   }
 
   // ✅ 보호된 페이지 접근 시 토큰 검증
-  const isValidToken = await validateToken(accessToken);
+  const isValidToken = await validateToken();
   if (!isValidToken) {
-    const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set(
-      "prevPage",
-      encodeURIComponent(request.nextUrl.pathname),
-      {
-        path: "/",
-        maxAge: 60,
-      },
-    );
-    return response;
+    console.warn("Token is invalid, staying on current page.");
+    return NextResponse.next(); // ✅ 무한 리디렉션 방지
   }
 
   return NextResponse.next();
@@ -60,7 +58,6 @@ const validateToken = async (accessToken?: string): Promise<boolean> => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Cookie: `accessToken=${accessToken}`,
       },
       credentials: "include",
     });
