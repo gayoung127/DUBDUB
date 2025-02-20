@@ -157,8 +157,9 @@ const AudioBlock = ({
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
 
-    if (!isPlaying && audioSourceRef.current) {
+    if (!isPlaying || time >= endOffset) {
       stopAudio();
+      return;
     }
 
     if (
@@ -168,8 +169,6 @@ const AudioBlock = ({
       !audioSourceRef.current
     ) {
       playAudio();
-    } else if (time >= endOffset && audioSourceRef.current) {
-      stopAudio();
     }
   }, [time, isPlaying, file.startPoint]);
 
