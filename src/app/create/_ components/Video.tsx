@@ -1,10 +1,8 @@
 import React, { useState, useRef } from "react";
 import UploadIcon from "@/public/images/icons/icon-uploda.svg";
-import H2 from "@/app/_components/H2";
 import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumbnail";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
-import Image from "next/image";
 
 interface VideoProps {
   onChange: (file: File | null) => void;
@@ -20,44 +18,21 @@ const Video = ({
   setSpeakers,
 }: VideoProps) => {
   const { generateThumbnail } = useGenerateThumbnail();
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [transcription, setTranscription] = useState<string | null>(null); //stt 결과 추가
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0] || null;
-    if (file && sectionRef.current) {
-      const containerWidth = sectionRef.current.offsetWidth;
-      const containerHeight = sectionRef.current.offsetHeight;
-
-      transcribeVideo(file); // clova-api 호출
-
-      try {
-        //썸네일 생성
-        const generatedThumbnail = await generateThumbnail(
-          file,
-          containerWidth,
-          containerHeight,
-        );
-        if (generatedThumbnail) {
-          setThumbnailPreview(URL.createObjectURL(generatedThumbnail));
-          onThumbnailChange(generatedThumbnail); // 부모 컴포넌트에 전달
-        } else {
-          console.error("썸네일 생성 실패");
-          setThumbnailPreview(null);
-          onThumbnailChange(null);
-        }
-      } catch (error) {
-        console.error("썸네일 생성 중 오류:", error);
-        onThumbnailChange(null);
-      }
+    if (file) {
+      const videoURL = URL.createObjectURL(file);
+      setVideoPreview(videoURL); // 동영상 미리보기 URL 설정
+      onChange(file); // 부모 컴포넌트로 파일 전달
+      transcribeVideo(file);
     }
-    onChange(file); // 부모 컴포넌트로 파일 전달
   };
 
-  // Clova Speech-to-Text API 호출 로직
   const transcribeVideo = async (file: File) => {
     const videoData = new FormData();
     videoData.append("file", file);
@@ -84,17 +59,16 @@ const Video = ({
     <section ref={sectionRef} className="mx-auto w-full">
       <label htmlFor="video-upload">
         <div className="relative flex min-h-[320px] w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md bg-gray-200 px-6 focus:outline-none">
-          {thumbnailPreview ? (
-            <Image
-              src={thumbnailPreview}
-              alt="Video Thumbnail"
-              fill
-              objectFit="contain"
+          {videoPreview ? (
+            <video
+              src={videoPreview}
+              className="h-auto w-full rounded-md"
+              controls
             />
           ) : (
             <>
               <UploadIcon width={48} height={48} />
-              <p className="mt-4 text-center text-lg text-white-100">
+              <p className="mt-4 text-center text-lg text-gray-700">
                 더빙할 동영상을 업로드 해주세요
               </p>
             </>
@@ -102,9 +76,9 @@ const Video = ({
           <input
             id="video-upload"
             type="file"
-            accept="video/*" // 비디오 파일만 허용
+            accept="video/*"
             className="hidden"
-            onChange={handleFileChange} // 파일 변경 이벤트 핸들러 연결
+            onChange={handleFileChange}
           />
         </div>
       </label>

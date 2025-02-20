@@ -255,7 +255,6 @@ export default function Page() {
         {showScript && (
           <div id="scriptContainer" className="h-[500px] max-h-[500px]">
             <Script
-              onChange={setScript}
               parsedScript={parsedScript}
               onUpdate={handleParsedScriptUpdate}
               speakers={speakers}
