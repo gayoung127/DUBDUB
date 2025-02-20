@@ -68,6 +68,8 @@ const AudioBlock = ({
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
 
+  const lastIsPlayingRef = useRef<boolean | null>(null);
+
   // ✅ 선택된 블록인지 확인하는 함수
   const isSelected = selectedBlocks.some((b) => b.id === file.id);
 
@@ -153,6 +155,13 @@ const AudioBlock = ({
   useEffect(() => {
     if (!audioContext) return;
 
+    if (lastIsPlayingRef.current === isPlaying) {
+      console.log("⚠️ isPlaying 상태 동일, 실행 방지");
+      return;
+    }
+
+    lastIsPlayingRef.current = isPlaying; // 변경된 상태 저장
+
     const startOffset = file.startPoint + file.trimStart;
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
@@ -166,15 +175,14 @@ const AudioBlock = ({
       endOffset,
     );
 
-    if (!isPlaying || time >= endOffset) {
-      console.log(
-        "🛑 정지 조건 충족 | isPlaying:",
-        isPlaying,
-        "| time:",
-        time,
-        ">= endOffset:",
-        endOffset,
-      );
+    if (!isPlaying) {
+      console.log("🛑 사용자 정지 신호 감지, 즉시 정지");
+      stopAudio();
+      return;
+    }
+
+    if (time >= endOffset) {
+      console.log("🛑 타임라인 초과, 즉시 정지");
       stopAudio();
       return;
     }
@@ -316,8 +324,10 @@ const AudioBlock = ({
       );
 
       source.onended = () => {
-        console.log("🔚 오디오 재생 완료, 리소스 정리");
-        audioSourceRef.current = null;
+        if (audioSourceRef.current) {
+          console.log("🔚 오디오 재생 완료, 리소스 정리");
+          audioSourceRef.current = null;
+        }
       };
     } catch (error) {
       console.error("❌ 오디오 로드 실패:", error);
@@ -337,11 +347,10 @@ const AudioBlock = ({
         audioSourceRef.current.stop();
         audioSourceRef.current.disconnect();
         console.log("✅ 오디오 정지 완료");
+        audioSourceRef.current = null;
       } catch (error) {
         console.warn("⚠️ 오디오 정지 중 오류 발생:", error);
       }
-
-      audioSourceRef.current = null;
     } else {
       console.warn("⚠️ stopAudio 호출 시 audioSourceRef가 이미 비어 있음.");
     }
