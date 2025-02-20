@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import H2 from "@/app/_components/H2";
 import { Segment, Speaker } from "@/app/_types/script";
 import ParsedScript from "./ParsedScript";
 import { ParsedScriptEntry } from "../page";
 import ScriptRoleCard from "./ScriptRoleCard";
-import C1 from "@/app/_components/C1";
 
 interface ScriptProps {
-  onChange: (value: string) => void;
   speakers: Speaker[];
   setSpeakers: (updatedSpeakers: Speaker[]) => void;
   segments: Segment[];
@@ -16,7 +13,6 @@ interface ScriptProps {
 }
 
 const Script = ({
-  onChange,
   speakers,
   setSpeakers,
   segments,
@@ -29,6 +25,8 @@ const Script = ({
   // 🔹 타자 애니메이션 상태
   const [typingText, setTypingText] = useState<string>("");
   const fullText = "대 본을 추출 중입니다... 조금만 기다려주세요.";
+  const [isAddingRole, setIsAddingRole] = useState<boolean>(false);
+  const [newRole, setNewRole] = useState<string>("");
 
   useEffect(() => {
     if (segments.length === 0) {
@@ -47,11 +45,24 @@ const Script = ({
     }
   }, [segments]);
 
+  const handleAddRole = () => {
+    const newLabel = (speakers.length + 1).toString();
+
+    setSpeakers([
+      ...speakers,
+      { name: newRole, label: newLabel, edited: true },
+    ]);
+    setNewRole("");
+    setIsAddingRole(false);
+  };
+
   return (
     <section className="flex h-full w-[720px] flex-col justify-center gap-y-4">
       <div className="flex w-full flex-row items-center justify-start gap-x-4 px-3">
         {segments.length !== 0 && (
-          <h4 className="mr-3 text-[22px] font-bold text-white-200">역할:</h4>
+          <>
+            <h4 className="mr-3 text-[22px] font-bold text-white-200">역할:</h4>
+          </>
         )}
         {speakers &&
           speakers.map((speaker, index) => (
@@ -62,6 +73,37 @@ const Script = ({
               setSpeakers={setSpeakers}
             />
           ))}
+        {segments.length !== 0 && !isAddingRole && speakers.length < 4 && (
+          <div
+            className="flex cursor-pointer items-center justify-center rounded-[4px] bg-zinc-400 px-4 py-0.5"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsAddingRole(true);
+            }}
+          >
+            추가 +
+          </div>
+        )}
+        {isAddingRole && (
+          <input
+            type="text"
+            className="w-24 rounded-[4px] bg-transparent bg-white-100 px-2 text-black outline-none"
+            value={newRole}
+            onChange={(e) => setNewRole(e.target.value)}
+            onKeyDown={(e) => {
+              e.preventDefault();
+              if (e.key === "Enter") handleAddRole();
+            }}
+            onBlur={() => {
+              if (newRole.trim() !== "") {
+                handleAddRole();
+              } else {
+                setIsAddingRole(false);
+              }
+            }}
+            autoFocus
+          />
+        )}
       </div>
       {segments.length === 0 ? (
         <div className="flex h-full w-full flex-row items-center justify-center text-2xl font-semibold text-white-200">
