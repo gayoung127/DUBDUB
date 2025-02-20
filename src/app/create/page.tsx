@@ -22,7 +22,7 @@ export interface ParsedScriptEntry {
 export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
-  const [title, setTitle] = useState<string>("프로젝트 제목을 입력해주세요.");
+  const [title, setTitle] = useState<string>("");
   const [script, setScript] = useState<string>("");
   const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -211,6 +211,7 @@ export default function Page() {
                   <input
                     className="m-0 h-11 w-full flex-1 p-0 text-2xl font-bold leading-snug text-white-200 focus:bg-transparent focus:outline-none focus:ring-0"
                     value={title}
+                    placeholder="제목을 입력하세요."
                     onChange={handleTitleChange}
                     onBlur={handleBlur}
                     onKeyPress={handleKeyPress}
