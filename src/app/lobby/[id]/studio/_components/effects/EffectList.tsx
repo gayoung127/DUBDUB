@@ -15,6 +15,7 @@ import { postAsset } from "@/app/_apis/studio";
 import { useParams } from "next/navigation";
 import { createBlob } from "@/app/_utils/audioUtils";
 import { toast } from "sonner";
+import NoiseRemoval from "./NoiseRemove";
 
 interface EffectListProps {
   tracks: Track[];
@@ -196,6 +197,16 @@ const EffectList = ({
       name: "피치 조정",
       component: (
         <Pitcher
+          context={audioContextRef}
+          audioBuffer={audioBuffer}
+          updateBuffer={updateBuffer}
+        />
+      ),
+    },
+    {
+      name: "노이즈 제거",
+      component: (
+        <NoiseRemoval
           context={audioContextRef}
           audioBuffer={audioBuffer}
           updateBuffer={updateBuffer}
