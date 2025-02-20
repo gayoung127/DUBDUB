@@ -68,6 +68,8 @@ const AudioBlock = ({
     (file.startPoint + file.trimStart) * PX_PER_SECOND,
   );
 
+  const lastIsPlayingRef = useRef<boolean | null>(null);
+
   // ✅ 선택된 블록인지 확인하는 함수
   const isSelected = selectedBlocks.some((b) => b.id === file.id);
 
@@ -153,12 +155,22 @@ const AudioBlock = ({
   useEffect(() => {
     if (!audioContext) return;
 
+    if (lastIsPlayingRef.current === isPlaying) return;
+
+    lastIsPlayingRef.current = isPlaying; // 변경된 상태 저장
+
     const startOffset = file.startPoint + file.trimStart;
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
 
-    if (!isPlaying && audioSourceRef.current) {
+    if (!isPlaying) {
       stopAudio();
+      return;
+    }
+
+    if (time >= endOffset) {
+      stopAudio();
+      return;
     }
 
     if (
@@ -168,8 +180,6 @@ const AudioBlock = ({
       !audioSourceRef.current
     ) {
       playAudio();
-    } else if (time >= endOffset && audioSourceRef.current) {
-      stopAudio();
     }
   }, [time, isPlaying, file.startPoint]);
 
@@ -271,7 +281,9 @@ const AudioBlock = ({
       audioSourceRef.current = source;
 
       source.onended = () => {
-        audioSourceRef.current = null;
+        if (audioSourceRef.current) {
+          audioSourceRef.current = null;
+        }
       };
     } catch (error) {
       console.error("❌ 오디오 로드 실패:", error);
@@ -285,11 +297,10 @@ const AudioBlock = ({
       try {
         audioSourceRef.current.stop();
         audioSourceRef.current.disconnect();
+        audioSourceRef.current = null;
       } catch (error) {
         console.warn("⚠️ 오디오 정지 중 오류 발생:", error);
       }
-
-      audioSourceRef.current = null;
     }
   };
 
@@ -374,7 +385,9 @@ const AudioBlock = ({
     setTracks((prevTracks) =>
       prevTracks.map((track) => ({
         ...track,
-        files: track.files.filter((f) => f.id !== file.id),
+        files: track.files.some((f) => f.id === file.id)
+          ? track.files.filter((f) => f.id !== file.id)
+          : track.files, // 이미 삭제된 경우 변경 X
       })),
     );
 

@@ -72,7 +72,7 @@ const WorkSpace = ({
             outline
             className="bg-white-100"
             onClick={() => {
-              router.push("/lobby/create");
+              router.push("/create");
             }}
           >
             👉 프로젝트 만들기 👈

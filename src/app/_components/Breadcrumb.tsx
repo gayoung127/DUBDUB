@@ -25,7 +25,11 @@ const BreadCrumb = ({
         // 실제 경로에서는 원래 숫자를 유지해야 함
         accumulatedPath += `/${segment}`;
         const displayText =
-          index === 1 && !isNaN(Number(segment)) ? studioTitle : segment;
+          index === 0 && segment === "lobby"
+            ? "WorkSpace"
+            : index === 1 && !isNaN(Number(segment))
+              ? studioTitle
+              : segment;
         const isLast = index === pathSegments.length - 1;
         const disabledLink = index === 1 ? true : false;
 
