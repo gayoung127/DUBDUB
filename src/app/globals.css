@@ -64,6 +64,28 @@
     background: #505050 !important;
   }
 
+  /* ✅ 가로 스크롤바 스타일 추가 */
+  .scrollbar-horizontal-thin {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar {
+    height: 6px !important;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 8px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-thumb {
+    background: #505050 !important;
+    border-radius: 8px;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-thumb:hover {
+    background: #616161 !important;
+  }
+
   /* ✅ 투명 스크롤바 */
   .white-scrollbar {
     overflow-x: auto;
