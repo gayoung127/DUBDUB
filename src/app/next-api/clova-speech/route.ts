@@ -33,6 +33,11 @@ export async function POST(req: Request) {
         noiseFiltering: true,
         wordAlignment: true,
         fullText: true,
+        // diarization: {
+        //   enable: true, // 화자 분리 활성화
+        //   speakerCountMin: 2, // 최소 화자 수
+        //   speakerCountMax: 4, // 최대 화자 수
+        // },
       }),
     );
 
