@@ -9,13 +9,24 @@ import { useEffect, useState } from "react";
 import Button from "@/app/_components/Button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/app/_store/AuthStore";
 
 export default function RoomDetailPage() {
+  const router = useRouter();
   const pathname = usePathname();
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isAppling, setIsAppling] = useState<boolean>(false);
+  useEffect(() => {
+    // ✅ 현재 경로에서 `/lobby/{id}`의 `{id}` 부분 추출
+    const pathSegments = pathname.split("/");
+    const lobbyId = pathSegments[2]; // `/lobby/{id}` 구조이므로 index 2가 id
 
+    // ✅ 유효한 `id`가 존재하면 `/lobby/{id}/studio`로 이동
+    if (lobbyId) {
+      router.replace(`/lobby/${lobbyId}/studio`);
+    } else {
+      router.push("/lobby");
+    }
+  }, [pathname, router]);
   function getDubbingInfo() {
     const dubbingInfoData = {
       thumbnail: dubbingInfoDummy.thumbnail,
