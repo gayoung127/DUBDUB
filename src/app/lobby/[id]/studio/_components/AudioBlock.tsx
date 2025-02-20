@@ -157,19 +157,23 @@ const AudioBlock = ({
 
     if (lastIsPlayingRef.current === isPlaying) return;
 
-    lastIsPlayingRef.current = isPlaying; // 변경된 상태 저장
-
     const startOffset = file.startPoint + file.trimStart;
     const endOffset =
       startOffset + (file.duration - file.trimEnd - file.trimStart);
 
     if (!isPlaying) {
-      stopAudio();
+      if (lastIsPlayingRef.current) {
+        stopAudio();
+        lastIsPlayingRef.current = false;
+      }
       return;
     }
 
     if (time >= endOffset) {
-      stopAudio();
+      if (lastIsPlayingRef.current) {
+        stopAudio();
+        lastIsPlayingRef.current = false;
+      }
       return;
     }
 
@@ -180,6 +184,7 @@ const AudioBlock = ({
       !audioSourceRef.current
     ) {
       playAudio();
+      lastIsPlayingRef.current = true;
     }
   }, [time, isPlaying, file.startPoint]);
 
