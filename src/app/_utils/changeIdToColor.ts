@@ -5,11 +5,27 @@ import CursorBlue from "@/public/images/icons/cursor-blue.svg";
 import CursorPurple from "@/public/images/icons/cursor-purple.svg";
 
 const cursorStyles = [
-  { icon: CursorOrange, bgColor: "#F06748", borderColor: "#B9472E" }, // 대비되는 어두운 오렌지
-  { icon: CursorYellow, bgColor: "#E1B115", borderColor: "#A9850D" }, // 대비되는 짙은 황색
-  { icon: CursorGreen, bgColor: "#32C83F", borderColor: "#1E7A29" }, // 대비되는 어두운 녹색
-  { icon: CursorBlue, bgColor: "#2594E4", borderColor: "#1B6AB3" }, // 대비되는 진한 파랑
-  { icon: CursorPurple, bgColor: "#9C50FF", borderColor: "#6C37B8" }, // 대비되는 어두운 보라
+  {
+    icon: CursorOrange,
+    bgColor: "#F06748",
+    borderColor: "border-[rgb(185,71,46)]",
+  }, // 대비되는 어두운 오렌지
+  {
+    icon: CursorYellow,
+    bgColor: "#E1B115",
+    borderColor: "border-[rgb(169,133,13)]",
+  }, // 대비되는 짙은 황색
+  {
+    icon: CursorGreen,
+    bgColor: "#32C83F",
+    borderColor: "border-[rgb(30,122,41)]",
+  }, // 대비되는 어두운 녹색
+  {
+    icon: CursorBlue,
+    bgColor: "#2594E4",
+    borderColor: "border-[rgb(27,106,179)]",
+  }, // 대비되는 진한 파랑
+  { icon: CursorPurple, bgColor: "border-[rgb(108,55,184)]" }, // 대비되는 어두운 보라
 ];
 
 export function getCursorStyle(id: string) {

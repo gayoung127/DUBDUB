@@ -497,11 +497,11 @@ const AudioBlock = ({
       selectedAudioBlockId,
     );
 
-    if (sessionId !== "") {
+    if (stompClientRef?.connected && sessionId) {
       stompClientRef?.publish({
         destination: `/app/studio/${sessionId}/cursor`,
         body: JSON.stringify({
-          memberId,
+          memberId: self?.memberId,
           x,
           y,
           name,
@@ -521,6 +521,8 @@ const AudioBlock = ({
         " ,memberId= ",
         memberId,
       );
+    } else {
+      console.log("세션이 없어서 안 감");
     }
   };
 
@@ -539,7 +541,7 @@ const AudioBlock = ({
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 border-${getCursorStyle(String(selectingUser)).borderColor}` : ""}`} // 선택 시 색상
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 ${getCursorStyle(String(selectingUser)).borderColor}` : ""}`} // 선택 시 색상
         style={{
           backgroundColor: blockColor,
         }}
