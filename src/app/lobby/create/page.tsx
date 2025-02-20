@@ -8,6 +8,8 @@ import Header from "@/app/_components/Header";
 import Button from "@/app/_components/Button";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
+import gsap from "gsap";
+import HeroSection from "@/app/login/_components/HeroSection";
 // import { Segment } from "@/app/_types/script";
 
 export interface ParsedScriptEntry {
@@ -19,7 +21,7 @@ export interface ParsedScriptEntry {
 export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>("프로젝트 제목을 입력해주세요.");
   const [script, setScript] = useState<string>("");
   const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -30,6 +32,19 @@ export default function Page() {
   const [editText, setEditText] = useState("");
   const [speakers, setSpeakers] = useState<Speaker[]>([]); // Speaker 배열 상태
   const [segments, setSegments] = useState<Segment[]>([]); // Segment 배열 상태
+  const [showScript, setShowScript] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [heroLoaded, setHeroLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (heroLoaded) {
+      gsap.fromTo(
+        "#modalSection",
+        { opacity: 0, y: 500 },
+        { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
+      );
+    }
+  }, [heroLoaded]); // ✅ heroLoaded가 true가 될 때 실행
 
   // Script 데이터를 파싱하는 함수 (label, start, text만 추출)
   const parseSegments = (segments: Segment[]): ParsedScriptEntry[] => {
@@ -78,7 +93,6 @@ export default function Page() {
     }));
     const stringScript = JSON.stringify(sendScript);
     setScript(stringScript);
-    console.log("최종 script = ", stringScript);
 
     // FormData 객체 생성
     const formData = new FormData();
@@ -135,72 +149,121 @@ export default function Page() {
     }
   };
 
+  const handleTitleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      setIsEditing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (videoFile) {
+      setShowScript(true);
+
+      setTimeout(() => {
+        if (document.querySelector("#scriptContainer")) {
+          gsap.fromTo(
+            "#scriptContainer",
+            { opacity: 0, x: 50 },
+            { opacity: 1, x: 0, duration: 1.5, ease: "power3.out" },
+          );
+        } else {
+        }
+      }, 100); // ✅ 100ms 지연 후 실행 (DOM 렌더링 보장)
+    }
+  }, [videoFile]); // ✅ videoFile이 변경될 때 실행
+
+  useEffect(() => {
+    gsap.fromTo(
+      "#modalSection",
+      { opacity: 0, y: 500 }, // 초기 상태 (아래에서 시작)
+      { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, // 자연스럽게 위로 등장
+    );
+  }, []);
+
   return (
-    <div className="flex h-full min-h-screen w-full flex-col">
-      <Header />
-
-      <div className="flex h-full flex-col justify-center bg-gray-400">
-        {/* Video and Title */}
-        <form onSubmit={handleSubmit} className="space-y-4 p-4">
-          <div className="flex">
-            {/* Left Section */}
-            <div className="flex w-1/3 flex-col justify-around space-y-4 pt-10">
-              <Title onChange={setTitle} />
-              <Video
-                onChange={setVideoFile}
-                onThumbnailChange={(file) => setThumbnail(file)}
-                setSpeakers={setSpeakers}
-                setSegments={(newSegments) => {
-                  setSegments((prevSegments) => {
-                    if (!Array.isArray(newSegments)) {
-                      console.error(
-                        "newSegments는 배열이어야 합니다.",
-                        newSegments,
-                      );
-                      return prevSegments; // 잘못된 값이 들어오면 이전 상태를 유지
-                    }
-                    const updatedSegments = [...prevSegments, ...newSegments];
-                    setParsedScript(parseSegments(updatedSegments)); // 병합된 세그먼트를 파싱하여 업데이트
-                    return updatedSegments;
-                  });
-                }}
-              />
-            </div>
-
-            {/* Right Section */}
-            <div className="w-2/3 space-y-4">
-              <Script
-                onChange={setScript}
-                parsedScript={parsedScript}
-                onUpdate={handleParsedScriptUpdate} // Update handler 전달
-                speakers={speakers}
-                setSpeakers={setSpeakers}
-                segments={segments}
-                // onChange={(value) => setScript(value)} // Script 문자열 업데이트
-                // parsedScript={parsedScript} // 파싱된 데이터 전달
-                // onUpdate={handleParsedScriptUpdate}
-              />
-            </div>
-          </div>
-
-          {/* Hidden Script Field for Submission */}
-          <textarea name="script" value={script} onChange={() => {}} hidden />
-
-          {/* Submit Button */}
-          <Button
-            onClick={() => {
-              const form = document.querySelector("form");
-              if (form) {
-                form.requestSubmit();
-              }
-            }}
-            outline={false}
-            large={true}
+    <div className="relative flex h-full min-h-screen w-full flex-col">
+      <HeroSection setHeroLoaded={setHeroLoaded} />
+      <form
+        onSubmit={handleSubmit}
+        className="flex h-full w-full flex-row items-center justify-center gap-x-4 bg-gray-400"
+      >
+        {heroLoaded && (
+          <section
+            id="modalSection"
+            className="border-white/20 bg-white/15 shadow-[0_8px_32px_rgba(255,255,255,0.15), 0_-4px_10px_rgba(255,255,255,0.08)] text-white flex h-[500px] max-h-[500px] min-w-[600px] flex-col items-center justify-center gap-y-4 rounded-xl border-[0.6px] px-8 py-8 backdrop-blur-lg backdrop-saturate-150"
           >
-            제출하기
-          </Button>
-        </form>
-      </div>
+            <div className="flex w-full flex-col items-center justify-center">
+              {isEditing ? (
+                <div className="m-0 flex w-full flex-row items-center justify-between gap-x-2 overflow-y-hidden p-0">
+                  <input
+                    className="m-0 h-11 w-full flex-1 p-0 text-2xl font-bold leading-snug text-white-200 focus:bg-transparent focus:outline-none focus:ring-0"
+                    value={title}
+                    onChange={handleTitleChange}
+                    onBlur={handleBlur}
+                    onKeyPress={handleKeyPress}
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                <div
+                  className="m-0 flex h-11 w-full cursor-pointer flex-row items-center overflow-y-hidden p-0"
+                  role="button"
+                  onClick={handleTitleClick}
+                >
+                  <h5 className="text-2xl font-bold leading-snug text-white-200">
+                    {title}
+                  </h5>
+                </div>
+              )}
+            </div>
+            <Video
+              onChange={setVideoFile}
+              onThumbnailChange={setThumbnail}
+              setSpeakers={setSpeakers}
+              setSegments={(newSegments) => {
+                setSegments((prevSegments) => {
+                  if (!Array.isArray(newSegments)) return prevSegments;
+                  const updatedSegments = [...prevSegments, ...newSegments];
+                  setParsedScript(parseSegments(updatedSegments));
+                  return updatedSegments;
+                });
+              }}
+            />
+            <Button
+              outline={false}
+              large={true}
+              onClick={() => document.querySelector("form")?.requestSubmit()}
+              className="mt-2 w-full font-bold"
+            >
+              프로젝트 시작하기
+            </Button>
+          </section>
+        )}
+        {showScript && (
+          <div id="scriptContainer" className="h-[500px] max-h-[500px]">
+            <Script
+              onChange={setScript}
+              parsedScript={parsedScript}
+              onUpdate={handleParsedScriptUpdate}
+              speakers={speakers}
+              setSpeakers={setSpeakers}
+              segments={segments}
+            />
+          </div>
+        )}
+      </form>
     </div>
   );
 }

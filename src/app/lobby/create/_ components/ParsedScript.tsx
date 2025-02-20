@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import ScriptRoleCard from "./ScriptRoleCard";
+import React, { useState, useEffect, useRef } from "react";
+import ScriptRoleLabel from "./ScriptRoleLabel";
 import { Speaker } from "@/app/_types/script";
 
 interface ParsedScriptEntry {
@@ -20,36 +20,34 @@ const ParsedScript = ({
   speakers,
 }: ParsedScriptProps) => {
   const [editableScript, setEditableScript] =
-    useState<ParsedScriptEntry[]>(parsedScript); //로컬 상태
+    useState<ParsedScriptEntry[]>(parsedScript); // 로컬 상태
 
   // props(parsedScript)가 변경될 때 로컬 상태 업데이트
   useEffect(() => {
     setEditableScript(parsedScript);
   }, [parsedScript]);
 
-  // 입력값 변경 핸들러 (text 필드만 업데이트)
   const handleTextChange = (index: number, value: string) => {
     const updatedScript = [...editableScript];
-    updatedScript[index] = { ...updatedScript[index], text: value }; // text 필드만 업데이트
-    setEditableScript(updatedScript); // 로컬 상태 업데이트
-    onUpdate(updatedScript); // 부모 컴포넌트로 업데이트된 데이터 전달
+    updatedScript[index] = { ...updatedScript[index], text: value };
+    setEditableScript(updatedScript);
+    onUpdate(updatedScript);
   };
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full pr-3">
       {editableScript.length === 0 ? (
         <p>대본이 비어있습니다.</p>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-y-2">
           {editableScript.map((script, index) => (
-            <div key={index} className="flex items-center gap-3">
-              <ScriptRoleCard label={script.label} speakers={speakers} />
-              <textarea
-                value={script.text}
-                onChange={(e) => handleTextChange(index, e.target.value)}
-                className="w-full rounded border p-2"
-              />
-            </div>
+            <ScriptTextArea
+              key={index}
+              script={script}
+              index={index}
+              speakers={speakers}
+              handleTextChange={handleTextChange}
+            />
           ))}
         </div>
       )}
@@ -58,3 +56,52 @@ const ParsedScript = ({
 };
 
 export default ParsedScript;
+
+// 🔹 `textarea` 내부 스크롤 여부 감지하는 컴포넌트
+const ScriptTextArea = ({
+  script,
+  index,
+  speakers,
+  handleTextChange,
+}: {
+  script: ParsedScriptEntry;
+  index: number;
+  speakers: Speaker[];
+  handleTextChange: (index: number, value: string) => void;
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [hasScroll, setHasScroll] = useState(false);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (textareaRef.current) {
+        setHasScroll(
+          textareaRef.current.scrollHeight > textareaRef.current.clientHeight,
+        );
+      }
+    };
+
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [script.text]);
+
+  return (
+    <div
+      className={`flex flex-col items-start justify-start gap-y-1 rounded-md bg-gray-300 px-2 py-2`}
+    >
+      <ScriptRoleLabel
+        label={script.label}
+        speakers={speakers}
+        start={script.start}
+      />
+      <textarea
+        ref={textareaRef}
+        value={script.text}
+        onChange={(e) => handleTextChange(index, e.target.value)}
+        rows={1}
+        className={`scrollbar-horizontal-thin w-full resize-none overflow-auto whitespace-nowrap rounded border-none bg-transparent p-2 text-lg leading-snug text-white-100 focus:outline-none focus:ring-0 ${hasScroll ? "pb-4" : ""}`} // 🔹 스크롤 있을 때만 pb-4 추가
+      ></textarea>
+    </div>
+  );
+};
