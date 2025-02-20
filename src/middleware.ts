@@ -4,28 +4,44 @@ const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
 
-  if (accessToken && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/lobby", request.url));
-  }
-
-  if (!accessToken && request.nextUrl.pathname !== "/") {
+  // ✅ accessToken이 없으면 바로 "/"로 리디렉션
+  if (!accessToken) {
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+
+    if (!request.cookies.get("prevPage")) {
+      response.cookies.set("prevPage", request.nextUrl.pathname, {
+        path: "/",
+        maxAge: 60,
+      });
+    }
+
     return response;
   }
 
-  const isValidToken = await validateToken();
+  // ✅ 홈 화면 ("/")에서 accessToken이 있으면 /lobby로 이동 (단, 유효한 경우)
+  if (request.nextUrl.pathname === "/") {
+    const isValidToken = await validateToken(accessToken);
+    if (!isValidToken) {
+      return NextResponse.next(); // 토큰이 유효하지 않으면 홈 화면 유지
+    }
+    return NextResponse.redirect(new URL("/lobby", request.url));
+  }
 
+  // ✅ 보호된 페이지 접근 시 토큰 검증
+  const isValidToken = await validateToken(accessToken);
   if (!isValidToken) {
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+    response.cookies.set("prevPage", request.nextUrl.pathname, {
+      path: "/",
+      maxAge: 60,
+    });
     return response;
   }
 
   return NextResponse.next();
 }
 
-const validateToken = async (): Promise<boolean> => {
+const validateToken = async (accessToken?: string): Promise<boolean> => {
   const BASE_URL = `${BACK_URL}/auth/validate`;
 
   try {
@@ -33,8 +49,8 @@ const validateToken = async (): Promise<boolean> => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Cookie: `accessToken=${accessToken}`,
       },
-      credentials: "include",
     });
 
     if (!response.ok) {
