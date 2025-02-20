@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
 
-import { Asset, Track } from "@/app/_types/studio";
+import { Asset, SelectingBlock, Track } from "@/app/_types/studio";
 
 import H4 from "@/app/_components/H4";
 
@@ -33,6 +33,7 @@ interface RecordSectionProps {
   setIsVideoMuted: (isVideoMuted: boolean) => void;
   isProcessedAudio: boolean;
   setIsProcessedAudio: (isVideoMuted: boolean) => void;
+  selectingBlocks: SelectingBlock[];
 }
 
 const RecordSection = ({
@@ -49,6 +50,7 @@ const RecordSection = ({
   setIsVideoMuted,
   isProcessedAudio,
   setIsProcessedAudio,
+  selectingBlocks,
 }: RecordSectionProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
@@ -201,6 +203,7 @@ const RecordSection = ({
                 assets={assets}
                 setAssets={setAssets}
                 sendAsset={sendAsset}
+                selectingBlocks={selectingBlocks}
               />
             ))}
           </div>

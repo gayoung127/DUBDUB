@@ -11,7 +11,9 @@ import { AudioFile, Block, PX_PER_SECOND, Track } from "@/app/_types/studio";
 
 import AudioBlockModal from "./AudioBlockModal";
 import { useStompStore } from "@/app/_store/StompStore";
+import { useUserStore } from "@/app/_store/UserStore";
 import { useSessionIdStore } from "@/app/_store/SessionIdStore";
+import { getCursorStyle } from "@/app/_utils/changeIdToColor";
 
 export interface AudioBlockProps extends Block {
   audioContext: AudioContext | null;
@@ -35,6 +37,8 @@ const AudioBlock = ({
   timelineRef,
   trackId,
   fileIdx,
+  isSelecting,
+  selectingUser,
 }: AudioBlockProps) => {
   const { time, isPlaying } = useTimeStore();
   const {
@@ -45,6 +49,7 @@ const AudioBlock = ({
   } = useBlockStore();
   const { stompClientRef, isConnected } = useStompStore();
   const { sessionId } = useSessionIdStore();
+  const { memberId, self } = useUserStore();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -404,7 +409,7 @@ const AudioBlock = ({
   }, [selectedBlocks]);
 
   // ✅ 블록 클릭 이벤트 핸들러
-  const handleBlockClick = () => {
+  const handleBlockClick = (e: React.MouseEvent) => {
     setSelectedBlocks((prevBlocks: AudioFile[]) => {
       let updatedBlocks;
 
@@ -427,6 +432,42 @@ const AudioBlock = ({
     });
 
     setZIndex(100);
+
+    console.log("---오디오 블럭 선택---");
+    const memberId = self?.memberId || "anonymous";
+    const x = e.clientX;
+    const y = e.clientY;
+    const name = self?.nickName || "익명의 더비";
+
+    let selectedAudioBlockId = null;
+
+    if (isSelecting) {
+      (isSelecting = false), (selectedAudioBlockId = null);
+    } else {
+      isSelecting = true;
+      selectedAudioBlockId = file.id;
+    }
+
+    console.log(
+      "---전송 정보 : isSelecting = ",
+      isSelecting,
+      " , selectedAudioBlockId = ",
+      selectedAudioBlockId,
+    );
+
+    if (sessionId !== "") {
+      stompClientRef?.publish({
+        destination: `/app/studio/${sessionId}/cursor`,
+        body: JSON.stringify({
+          memberId,
+          x,
+          y,
+          name,
+          isSelecting,
+          selectedAudioBlockId,
+        }),
+      });
+    }
   };
 
   return (
@@ -444,7 +485,7 @@ const AudioBlock = ({
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelected ? "border-2 border-yellow-600" : ""}`} // 선택 시 색상
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 border-${getCursorStyle(String(selectingUser))}` : ""}`} // 선택 시 색상
         style={{
           backgroundColor: blockColor,
         }}

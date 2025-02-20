@@ -23,6 +23,7 @@ import RecordSection from "./_components/RecordSection";
 import StudioScript from "./_components/StudioScript";
 import StudioSideTab from "./_components/StudioSideTab";
 import VideoPlayer from "./_components/VideoPlayer";
+import { SelectingBlock } from "@/app/_types/studio";
 
 export default function StudioPage() {
   const { id } = useParams();
@@ -45,6 +46,17 @@ export default function StudioPage() {
   const { studioMembers } = useStudioMembers();
   const { tracks, setTracks } = useTrackSocket({ sessionId });
   const { assets, setAssets, sendAsset } = useAssetsSocket({ sessionId });
+
+  const [selectingBlocks, setSelectingBlocks] = useState<SelectingBlock[]>([
+    { memberId: 1, isSelecting: false, selectedAudioBlockId: null },
+    { memberId: 2, isSelecting: false, selectedAudioBlockId: null },
+    { memberId: 3, isSelecting: false, selectedAudioBlockId: null },
+    { memberId: 4, isSelecting: false, selectedAudioBlockId: null },
+  ]);
+
+  useEffect(() => {
+    console.log("각 사용자 선택한 블럭 : ", selectingBlocks);
+  }, [selectingBlocks]);
 
   useStompClient(sessionId);
   const { stompClientRef, isConnected } = useStompStore();
@@ -213,6 +225,7 @@ export default function StudioPage() {
             setIsVideoMuted={setIsVideoMuted}
             isProcessedAudio={isProcessedAudio}
             setIsProcessedAudio={setIsProcessedAudio}
+            selectingBlocks={selectingBlocks}
           />
         </div>
         {isConnected && (
@@ -220,6 +233,7 @@ export default function StudioPage() {
             sessionId={sessionId}
             isConnected={isConnected}
             stompClientRef={stompClientRef}
+            setSelectingBlocks={setSelectingBlocks}
           />
         )}
       </div>
