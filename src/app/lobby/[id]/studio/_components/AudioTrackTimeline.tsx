@@ -159,7 +159,6 @@ const AudioTrackTimeline = ({
           audioBuffers.set(url, audioBuffer);
         }
 
-        // console.log(`✅ ${url}의 오디오 길이:`, audioBuffer.duration);
         return audioBuffer.duration;
       } catch (error) {
         console.error(`❌ ${url} 오디오 로드 실패:`, error);

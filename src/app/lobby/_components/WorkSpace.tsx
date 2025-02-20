@@ -31,7 +31,6 @@ const WorkSpace = ({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isFetching) {
-          console.log("✅ 스크롤 컨테이너 안에서 감지됨: 다음 페이지 로드");
           setPage((prev) => prev + 1);
         }
       },
@@ -44,7 +43,6 @@ const WorkSpace = ({
 
     observer.observe(lastElementRef.current);
     if (isLastPage) {
-      console.log("비활성화");
       observer.disconnect();
     }
 

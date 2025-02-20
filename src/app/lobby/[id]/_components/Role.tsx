@@ -24,8 +24,6 @@ const Role = ({ roles, onRoleSelect }: RolesProps) => {
       (role) => role.selectedBy === currentUserId,
     );
 
-    console.log("List of selected roles: ", selectedRoles);
-
     setMySelectedCount(selectedRoles.length);
 
     onRoleSelect(selectedRoles, selectedRoles.length > 0);
