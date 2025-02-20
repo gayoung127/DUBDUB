@@ -1,34 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
-  // throw new Error("미들웨어 실행되지만, 일부러 에러를 발생시켜 본다.");
-
-  console.log("미들웨어 실행됨");
-
+const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
+export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  console.log("accessToken: ", accessToken || "없음");
-  console.log("refreshToken: ", refreshToken || "없음");
+  if (accessToken && request.nextUrl.pathname === "/login") {
+    return NextResponse.redirect(new URL("/lobby", request.url));
+  }
 
   if (!accessToken && !refreshToken && request.nextUrl.pathname !== "/login") {
     const response = NextResponse.redirect(new URL("/login", request.url));
-
     response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
-
     return response;
   }
 
-  // const validateResponse = await validateToken(accessToken, refreshToken);
+  const isValidToken = await validateToken();
+
+  if (!isValidToken) {
+    const isRefreshed = await refreshedToken();
+
+    if (!isRefreshed) {
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.set("prevPage", request.nextUrl.pathname, { path: "/" });
+      return response;
+    }
+  }
 
   return NextResponse.next();
 }
 
-const validateToken = async (
-  accessToken: string | undefined,
-  refreshToken: string | undefined,
-) => {
-  const BASE_URL = `${process.env.NEXT_PUBLIC_BACK_URL}/auth/validateToken`;
+const validateToken = async (): Promise<boolean> => {
+  const BASE_URL = `${BACK_URL}/auth/validate`;
 
   try {
     const response = await fetch(BASE_URL, {
@@ -43,16 +46,36 @@ const validateToken = async (
       console.error(
         `Token validation failed. HTTP error! status: ${response.status}`,
       );
-      return { isValid: false };
+      return false;
     }
-    return { isValid: true };
+    return true;
   } catch (error) {
-    console.error("Error during token validation or refresh:", error);
-    return { isValid: false };
+    console.error("Error during token validation: ", error);
+    return false;
   }
 };
-/* 미들웨어 경로 설정해야 함*/
-// "/lobby/:path*/studio"
+
+const refreshedToken = async (): Promise<boolean> => {
+  const BASE_URL = `${BACK_URL}/auth/token`;
+  try {
+    const response = await fetch(BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("Error during token refresh: ", error);
+    return false;
+  }
+};
+
 export const config = {
-  matcher: [],
+  matcher: ["/lobby/:path*/studio", "/login"],
 };
