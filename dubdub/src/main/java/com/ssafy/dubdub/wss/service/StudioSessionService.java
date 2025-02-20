@@ -38,11 +38,6 @@ public class StudioSessionService {
         // 참여자가 없으면 스튜디오 종료
         if (remainingUsers.isEmpty()) {
             studioService.closeStudioIfEmpty(sessionId);
-            try {
-                openViduService.closeSession(sessionId);
-            } catch (OpenViduJavaClientException | OpenViduHttpException e) {
-                log.info("이미 종료된 세션입니다. : {} \n {}", sessionId, e.getMessage());
-            }
 
             studioStoreService.deleteAllBySessionId(sessionId);
         }
