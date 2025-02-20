@@ -79,12 +79,6 @@ const ImagesFromVideo = ({
       setThumbnails([]);
       setLastThumbnail("");
       setIsLoading(true);
-
-      if (videoRef.current) {
-        videoRef.current.src = "";
-        videoRef.current.remove();
-        videoRef.current = null;
-      }
     };
   }, [videoUrl]);
 

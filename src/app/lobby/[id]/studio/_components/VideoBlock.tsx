@@ -23,11 +23,9 @@ const VideoBlock = ({
   useEffect(() => {
     if (!videoUrl) return;
     if (videoUrl === "/examples/zzangu.mp4") {
-      console.log("아직 짱구 url이 있어요.");
       return;
     }
 
-    console.log("이제 내가 더빙할 영상 오디오를 뽑을 거에요.", videoUrl);
     const initAudio = async () => {
       if (!audioContextRef.current) {
         audioContextRef.current = new AudioContext();

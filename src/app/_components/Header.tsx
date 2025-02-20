@@ -21,10 +21,13 @@ const Header = ({ studioTitle }: HeaderProps) => {
       className={`flex h-full max-h-[68px] w-full flex-row items-center border border-gray-300 bg-gray-400`}
     >
       <section className="border-white flex w-[280px] flex-shrink-0 flex-row items-center justify-start gap-x-3 py-6 pl-[34px]">
-        <Link href="/">
+        <Link
+          href="/"
+          className="flex flex-row items-center justify-start gap-x-3"
+        >
           <Logo width={32} height={20} />
+          <H3 className="text-brand-200">DUB DUB</H3>
         </Link>
-        <H3 className="text-brand-200">DUB DUB</H3>
       </section>
       <BreadCrumb pathSegments={pathSegments} studioTitle={studioTitle} />
     </section>

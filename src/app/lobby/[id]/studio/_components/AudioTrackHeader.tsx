@@ -92,8 +92,6 @@ const AudioTrackHeader = ({
     }) => {
       if (!trackRef.current) return;
 
-      console.log(`Dropped: ${item.name} (${item.role}) onto track ${trackId}`);
-
       // 드롭된 멤버의 정보로 트랙 업데이트
       setTracks((prevTracks) =>
         prevTracks.map((track) =>
