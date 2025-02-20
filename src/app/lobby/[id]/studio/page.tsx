@@ -31,7 +31,7 @@ export default function StudioPage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [studioTitle, setStudioTitle] = useState<string>("제목 없음");
-  const [videoUrl, setVideoUrl] = useState<string>("/examples/zzangu.mp4");
+  const [videoUrl, setVideoUrl] = useState<string>("");
 
   const [duration, setDuration] = useState<number>(160);
   const [sessionToken, setSessionToken] = useState<string>("");
