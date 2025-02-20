@@ -539,7 +539,7 @@ const AudioBlock = ({
     >
       <canvas
         ref={canvasRef}
-        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 border-${getCursorStyle(String(selectingUser))}` : ""}`} // 선택 시 색상
+        className={`h-10 w-full rounded-md border border-transparent hover:border-brand-300 ${isSelecting && selectingUser ? `border-2 border-${getCursorStyle(String(selectingUser)).borderColor}` : ""}`} // 선택 시 색상
         style={{
           backgroundColor: blockColor,
         }}
