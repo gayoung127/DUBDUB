@@ -6,37 +6,26 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
 
   const prevPage = request.cookies.get("prevPage")?.value;
-
-  if (!accessToken && request.nextUrl.pathname !== "/") {
-    console.warn("Access token is missing, redirecting to /");
-    const response = NextResponse.redirect(new URL("/", request.url));
-
-    if (!prevPage) {
-      response.cookies.set(
-        "prevPage",
-        decodeURIComponent(request.nextUrl.pathname),
-        { maxAge: 60 },
-      );
-    }
-
-    return response;
-  }
-
-  // ✅ 홈 ("/") 접근 시 토큰 검증 후 "/lobby"로 리디렉션
-  if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "") {
-    const isValidToken = await validateToken();
-
-    if (!isValidToken) {
-      console.warn("Invalid token, staying on current page.");
-      return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
-    }
-    const redirectUrl = new URL("/lobby", request.nextUrl.origin);
-    console.log("🚀 Redirecting to:", redirectUrl.toString());
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  //상세 페이지 접근 금지
   const pathname = request.nextUrl.pathname;
+
+  if (!accessToken) {
+    if (pathname !== "/") {
+      console.warn("Access token is missing, redirecting to /");
+      const response = NextResponse.redirect(new URL("/", request.url));
+
+      if (!prevPage) {
+        response.cookies.set(
+          "prevPage",
+          decodeURIComponent(request.nextUrl.pathname),
+          { maxAge: 60 },
+        );
+      }
+
+      return response;
+    }
+    return NextResponse.next();
+  }
+
   const match = pathname.match(/^\/lobby\/([^/]+)(?:\/(.*))?$/);
 
   if (match && !pathname.endsWith("/studio")) {
@@ -44,29 +33,11 @@ export async function middleware(request: NextRequest) {
     console.log(`🔄 Redirecting from ${pathname} to ${newPath}`);
     return NextResponse.redirect(new URL(newPath, request.url));
   }
-
-  // ✅ 보호된 페이지 접근 시 토큰 검증
-  const isValidToken = await validateToken();
-  if (!isValidToken) {
-    console.warn("Token is invalid, redirecting to /");
-
-    if (request.nextUrl.pathname === "/") {
-      return NextResponse.next();
-    }
-    const response = NextResponse.redirect(new URL("/", request.url));
-
-    // 이전 페이지 정보를 저장 (선택 사항)
-    if (!prevPage) {
-      response.cookies.set(
-        "prevPage",
-        decodeURIComponent(request.nextUrl.pathname),
-        { maxAge: 60 },
-      );
-    }
-
-    return response;
+  if (pathname === "/") {
+    const redirectUrl = new URL("/lobby", request.nextUrl.origin);
+    console.log("🚀 Redirecting to:", redirectUrl.toString());
+    return NextResponse.redirect(redirectUrl);
   }
-
   return NextResponse.next();
 }
 
