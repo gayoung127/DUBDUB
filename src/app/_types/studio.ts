@@ -85,13 +85,13 @@ export interface Block {
   width: string;
   waveColor: string;
   blockColor: string;
-  isSelecting?: boolean;
+  selecting?: boolean;
   selectingUser?: number | null;
 }
 
 // 5. 선택된 블록
 export interface SelectingBlock {
   memberId: number;
-  isSelecting?: boolean | null;
+  selecting?: boolean | null;
   selectedAudioBlockId?: string | null;
 }

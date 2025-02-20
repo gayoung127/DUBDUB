@@ -327,7 +327,7 @@ const AudioTrackTimeline = ({
                 audioBuffers={audioBuffers}
                 setTracks={setTracks}
                 timelineRef={timelineRef}
-                isSelecting={selectingBlocks.some(
+                selecting={selectingBlocks.some(
                   (block) => block.selectedAudioBlockId === file.id,
                 )}
                 selectingUser={

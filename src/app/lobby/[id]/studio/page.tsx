@@ -48,10 +48,10 @@ export default function StudioPage() {
   const { assets, setAssets, sendAsset } = useAssetsSocket({ sessionId });
 
   const [selectingBlocks, setSelectingBlocks] = useState<SelectingBlock[]>([
-    { memberId: 1, isSelecting: false, selectedAudioBlockId: null },
-    { memberId: 2, isSelecting: false, selectedAudioBlockId: null },
-    { memberId: 3, isSelecting: false, selectedAudioBlockId: null },
-    { memberId: 4, isSelecting: false, selectedAudioBlockId: null },
+    { memberId: 1, selecting: false, selectedAudioBlockId: null },
+    { memberId: 2, selecting: false, selectedAudioBlockId: null },
+    { memberId: 3, selecting: false, selectedAudioBlockId: null },
+    { memberId: 4, selecting: false, selectedAudioBlockId: null },
   ]);
 
   useEffect(() => {

@@ -11,7 +11,7 @@ interface CursorData {
   x: number;
   y: number;
   name: string;
-  isSelecting?: false;
+  selecting?: false;
   selectedAudioBlockId?: null;
 }
 
@@ -42,24 +42,22 @@ const CursorPresence = ({
       const data: CursorData = JSON.parse(message.body);
       setCursors((prev) => ({ ...prev, [data.memberId]: data }));
 
-      if (data.isSelecting === undefined || data.isSelecting === null) {
-        console.log("isSelecting이 없는데요");
-        console.log("data =", data);
+      if (data.selecting === undefined || data.selecting === null) {
         return;
       }
-      console.log("선택한 블럭 전송받은 데이터 : ", message.body);
+      // console.log("선택한 블럭 전송받은 데이터 : ", message.body);
 
       setSelectingBlocks((prevBlocks) => {
         const updatedBlocks = prevBlocks.map((block) => {
           if (block.selectedAudioBlockId === data.selectedAudioBlockId) {
-            return { ...block, isSelecting: false, selectedAudioBlockId: null };
+            return { ...block, selecting: false, selectedAudioBlockId: null };
           }
 
           if (block.memberId === Number(data.memberId)) {
             return {
               ...block,
               memberId: Number(data.memberId),
-              isSelecting: data.isSelecting,
+              selecting: data.selecting,
               selectedAudioBlockId: data.selectedAudioBlockId,
             };
           }
@@ -67,10 +65,7 @@ const CursorPresence = ({
         });
 
         if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
-          console.log("same blocks");
           return prevBlocks;
-        } else {
-          console.log("update block = ", updatedBlocks);
         }
 
         return updatedBlocks;
