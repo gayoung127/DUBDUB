@@ -45,7 +45,7 @@ const CursorPresence = ({
       if (data.selecting === undefined || data.selecting === null) {
         return;
       }
-      console.log("선택한 블럭 전송받은 데이터 : ", message.body);
+      // console.log("선택한 블럭 전송받은 데이터 : ", message.body);
 
       setSelectingBlocks((prevBlocks) => {
         const updatedBlocks = prevBlocks.map((block) => {
@@ -65,10 +65,7 @@ const CursorPresence = ({
         });
 
         if (JSON.stringify(updatedBlocks) === JSON.stringify(prevBlocks)) {
-          console.log("same blocks");
           return prevBlocks;
-        } else {
-          console.log("update block = ", updatedBlocks);
         }
 
         return updatedBlocks;
