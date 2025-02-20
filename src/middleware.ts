@@ -3,14 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 const BACK_URL = "https://i12a801.p.ssafy.io/api";
 
 export async function middleware(request: NextRequest) {
-  console.log("BACK_URL:", BACK_URL); // ✅ 환경 변수 확인
-
   const accessToken = request.cookies.get("accessToken")?.value;
 
   const prevPage = request.cookies.get("prevPage")?.value;
-  console.log("Stored prevPage:", prevPage); // ✅ 쿠키 값 확인
-
-  const decodedPrevPage = prevPage ? decodeURIComponent(prevPage) : "/";
 
   if (!accessToken && request.nextUrl.pathname !== "/") {
     console.warn("Access token is missing, redirecting to /");
@@ -31,20 +26,45 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "") {
     const isValidToken = await validateToken();
 
-    if (!isValidToken) {
-      console.warn("Invalid token, staying on current page.");
-      return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
+    if (isValidToken) {
+      console.log("✅ User is logged in, redirecting to /lobby");
+      return NextResponse.redirect(new URL("/lobby", request.url));
+    } else {
+      console.warn("⚠️ User is not logged in, staying on /");
+      return NextResponse.next();
     }
-    const redirectUrl = new URL("/lobby", request.url);
-    console.log("🚀 Redirecting to:", redirectUrl.toString());
-    return NextResponse.redirect(redirectUrl);
+  }
+
+  //상세 페이지 접근 금지
+  const pathname = request.nextUrl.pathname;
+  const match = pathname.match(/^\/lobby\/([^/]+)(?:\/(.*))?$/);
+
+  if (match && !pathname.endsWith("/studio")) {
+    const newPath = `/lobby/${match[1]}/studio`;
+    console.log(`🔄 Redirecting from ${pathname} to ${newPath}`);
+    return NextResponse.redirect(new URL(newPath, request.url));
   }
 
   // ✅ 보호된 페이지 접근 시 토큰 검증
   const isValidToken = await validateToken();
   if (!isValidToken) {
-    console.warn("Token is invalid, staying on current page.");
-    return NextResponse.next(); // ✅ 무한 리디렉션 방지
+    console.warn("Token is invalid, redirecting to /");
+
+    if (request.nextUrl.pathname === "/") {
+      return NextResponse.next();
+    }
+    const response = NextResponse.redirect(new URL("/", request.url));
+
+    // 이전 페이지 정보를 저장 (선택 사항)
+    if (!prevPage) {
+      response.cookies.set(
+        "prevPage",
+        decodeURIComponent(request.nextUrl.pathname),
+        { maxAge: 60 },
+      );
+    }
+
+    return response;
   }
 
   return NextResponse.next();
@@ -76,5 +96,11 @@ const validateToken = async (): Promise<boolean> => {
 };
 
 export const config = {
-  matcher: ["/", "/lobby/:path*/studio", "/lobby", "/lobby/create"],
+  matcher: [
+    "/",
+    "/lobby",
+    "/lobby/create",
+    "/lobby/:path*",
+    "/lobby/:path*/studio",
+  ],
 };
