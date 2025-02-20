@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
 
   const decodedPrevPage = prevPage ? decodeURIComponent(prevPage) : "/";
 
-  // ✅ accessToken이 없고, 현재 경로가 "/"가 아닐 때만 리디렉션 (무한 루프 방지)
   if (!accessToken && request.nextUrl.pathname !== "/") {
     console.warn("Access token is missing, redirecting to /");
     const response = NextResponse.redirect(new URL("/", request.url));
@@ -37,7 +36,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next(); // ✅ 더 이상 리디렉션하지 않음
     }
 
-    return NextResponse.redirect(new URL("/lobby", request.url));
+    return NextResponse.redirect("/lobby");
   }
 
   // ✅ 보호된 페이지 접근 시 토큰 검증
@@ -76,5 +75,5 @@ const validateToken = async (accessToken?: string): Promise<boolean> => {
 };
 
 export const config = {
-  matcher: ["/lobby/:path*/studio", "/"],
+  matcher: ["/lobby/:path*/studio", "/", "/lobby", "/lobby/create"],
 };
