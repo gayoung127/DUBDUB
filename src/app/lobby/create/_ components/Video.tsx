@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
-import UploadIcon from "@/public/images/icons/icon-upload.svg";
+import UploadIcon from "@/public/images/icons/icon-uploda.svg";
 import H2 from "@/app/_components/H2";
 import { useGenerateThumbnail } from "@/app/_hooks/useGenerateThumbnail";
 import { Speaker } from "@/app/_types/script";
 import { Segment } from "next/dist/server/app-render/types";
+import Image from "next/image";
 
 interface VideoProps {
   onChange: (file: File | null) => void;
@@ -80,20 +81,20 @@ const Video = ({
   };
 
   return (
-    <section ref={sectionRef} className="mx-auto w-full max-w-2xl p-4">
-      <H2 className="mb-4 text-white-100">VIDEO</H2>
+    <section ref={sectionRef} className="mx-auto w-full">
       <label htmlFor="video-upload">
-        <div className="flex min-h-[320px] w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-200 p-6 focus:outline-none">
+        <div className="relative flex min-h-[320px] w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md bg-gray-200 px-6 focus:outline-none">
           {thumbnailPreview ? (
-            <img
+            <Image
               src={thumbnailPreview}
               alt="Video Thumbnail"
-              className="h-auto w-full rounded-lg object-cover"
+              fill
+              objectFit="contain"
             />
           ) : (
             <>
               <UploadIcon width={48} height={48} />
-              <p className="mt-4 text-center text-white-100">
+              <p className="mt-4 text-center text-lg text-white-100">
                 더빙할 동영상을 업로드 해주세요
               </p>
             </>
