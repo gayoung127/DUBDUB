@@ -9,7 +9,7 @@ interface WebRTCManagerProps {
 }
 
 const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
-  const openViduRef = useRef(new OpenVidu());
+  const openViduRef = useRef<OpenVidu | null>(null);
   const { self } = useUserStore();
   const { micStatus, setMicStatus } = useMicStore();
 
@@ -25,7 +25,11 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
   } = useWebRTCStore();
 
   useEffect(() => {
-    if (!sessionToken || !self) return;
+    if (!openViduRef.current) {
+      openViduRef.current = new OpenVidu();
+    }
+
+    if (!openViduRef.current || !sessionToken || !self) return;
 
     // ✅ 기존 세션이 있다면 새로 만들지 않고 바로 반환
     if (sessionRef) {
@@ -35,7 +39,7 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
 
     const initSession = async () => {
       try {
-        const newSession = openViduRef.current.initSession();
+        const newSession = openViduRef.current!.initSession();
 
         newSession.on("streamCreated", (event) => {
           console.log(
@@ -84,7 +88,7 @@ const WebRTCManager = ({ sessionToken }: WebRTCManagerProps) => {
         await newSession.connect(sessionToken, { clientData: self.memberId });
 
         // 🎤 퍼블리셔 생성 (로컬 오디오 전송)
-        const newPublisher = await openViduRef.current.initPublisherAsync(
+        const newPublisher = await openViduRef.current!.initPublisherAsync(
           undefined,
           {
             audioSource: undefined,
