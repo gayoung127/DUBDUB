@@ -1,0 +1,25 @@
+#server:
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: classpath:keystore/ssafy-web.p12  # 로컬에서는 classpath 사용
+#    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+#    key-alias: ssafy-web
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+    show-sql: true  # SQL 실행 로그 활성화
+  rabbitmq:
+    port: ${RABBITMQ_PORT:5672}
+    host: ${RABBITMQ_HOST:localhost}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+
+openvidu:
+  url: ${OPENVIDU_LOCAL_URL}

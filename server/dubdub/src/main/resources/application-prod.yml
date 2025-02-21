@@ -1,0 +1,43 @@
+#server:
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: file:/app/ssafy-web.p12
+#    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+#    key-alias: ssafy-web
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: false  # 배포 환경에서는 SQL 로그 비활성화
+  rabbitmq:
+    port: ${RABBITMQ_PORT:5672}
+    host: ${RABBITMQ_HOST:rabbitmq}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+
+logging:
+  level:
+    root: INFO  # 다른 로그들은 숨기기
+    com.ssafy.dubdub.wss: INFO  # wss 패키지 로그 보기
+    # cursor 관련 로그 제외
+    com.ssafy.dubdub.wss.controller.WebSocketController.sendCursorData: OFF
+
+  # 로그 패턴 설정
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+  # 파일 로그 설정
+  file:
+    name: /var/log/dubdub/application.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+openvidu:
+  url: ${OPENVIDU_PROD_URL}
