@@ -1,15 +1,19 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useTimeStore } from "@/app/_store/TimeStore";
 import H4 from "@/app/_components/H4";
-import C1 from "@/app/_components/C1";
+import RotateIcon from "@/public/images/icons/icon-rotate.svg";
 import ScriptCard from "./ScriptCard";
 import { Role, Script, Segment, Speaker } from "@/app/_types/script";
+import { useRouter } from "next/navigation";
 
 interface StudioScriptProps {
   scripts: Script[];
 }
 
 const StudioScript = ({ scripts }: StudioScriptProps) => {
+  const router = useRouter();
   const { time } = useTimeStore(); //  현재 시간값
   const scrollContainerRef = useRef<HTMLDivElement>(null); // 스크롤 컨테이너 ref
   const [activeScriptIndex, setActiveScriptIndex] = useState<number | null>(
@@ -49,9 +53,9 @@ const StudioScript = ({ scripts }: StudioScriptProps) => {
         <H4 className="border-b-2 border-white-100 font-bold text-white-100">
           대본
         </H4>
-        <C1 className="border-b border-white-200 font-normal text-white-200">
-          더빙 분석
-        </C1>
+        <div onClick={() => router.refresh()} className="cursor-pointer">
+          <RotateIcon width={16} height={16} />
+        </div>
       </div>
 
       <div
