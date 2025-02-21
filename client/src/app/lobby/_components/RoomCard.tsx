@@ -1,0 +1,38 @@
+"use client";
+import React from "react";
+import Badge from "@/app/_components/Badge";
+import C1 from "@/app/_components/C1";
+import H3 from "@/app/_components/H3";
+import PersonIcon from "@/public/images/icons/icon-person.svg";
+import { useRouter } from "next/navigation";
+
+const RoomCard = ({
+  roomInfo: { id, title, thumbnailUrl },
+}: {
+  roomInfo: DubbingRoom & { thumbnail?: string };
+}) => {
+  const router = useRouter();
+  function handleRoomClick(id: number) {
+    router.push(`lobby/${id}/studio`);
+  }
+
+  return (
+    <div
+      className="hover:shadow-lg flex w-[300px] cursor-pointer flex-col gap-3 rounded-lg border border-gray-400 bg-slate-50 p-4 transition-all hover:bg-slate-200"
+      onClick={() => handleRoomClick(id)}
+    >
+      <div className="relative overflow-hidden rounded-md">
+        <img
+          src={thumbnailUrl || "https://picsum.photos/300/200"}
+          alt="Room Thumbnail"
+          className="h-[180px] w-full rounded-md object-cover"
+        />
+      </div>
+      <div className="flex justify-center">
+        <H3 className="font-semibold text-gray-900">{title}</H3>
+      </div>
+    </div>
+  );
+};
+
+export default RoomCard;

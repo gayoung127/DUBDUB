@@ -1,0 +1,37 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+import H3 from "./H3";
+import BreadCrumb from "./Breadcrumb";
+
+import Logo from "@/public/images/icons/logo-header.svg";
+import Link from "next/link";
+
+interface HeaderProps {
+  studioTitle?: string;
+}
+
+const Header = ({ studioTitle }: HeaderProps) => {
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/").filter((segment) => segment);
+
+  return (
+    <section
+      className={`flex h-full max-h-[68px] w-full flex-row items-center border border-gray-300 bg-gray-400`}
+    >
+      <section className="border-white flex w-[280px] flex-shrink-0 flex-row items-center justify-start gap-x-3 py-6 pl-[34px]">
+        <Link
+          href="/"
+          className="flex flex-row items-center justify-start gap-x-3"
+        >
+          <Logo width={32} height={20} />
+          <H3 className="text-brand-200">DUB DUB</H3>
+        </Link>
+      </section>
+      <BreadCrumb pathSegments={pathSegments} studioTitle={studioTitle} />
+    </section>
+  );
+};
+
+export default Header;

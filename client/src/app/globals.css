@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  .scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 8px;
+  }
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #303030 !important;
+    border-radius: 8px;
+  }
+
+  .white-scrollbar {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .scrollbar-track {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .scrollbar-track::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .scrollbar-track::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 4px;
+  }
+  .scrollbar-track::-webkit-scrollbar-thumb {
+    background: #303030 !important;
+    border-radius: 4px;
+  }
+
+  /* ✅ 가로 스크롤바 스타일 추가 */
+  .scrollbar-horizontal {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar {
+    height: 8px !important;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 8px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-thumb {
+    background: #303030 !important;
+    border-radius: 8px;
+  }
+  .scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #505050 !important;
+  }
+
+  /* ✅ 가로 스크롤바 스타일 추가 */
+  .scrollbar-horizontal-thin {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar {
+    height: 6px !important;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-track {
+    background: #6d6d6d !important;
+    border-radius: 8px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-thumb {
+    background: #505050 !important;
+    border-radius: 8px;
+  }
+  .scrollbar-horizontal-thin::-webkit-scrollbar-thumb:hover {
+    background: #616161 !important;
+  }
+
+  /* ✅ 투명 스크롤바 */
+  .white-scrollbar {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  .white-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .white-scrollbar::-webkit-scrollbar-track {
+    background: transparent !important;
+    border-radius: 8px;
+  }
+  .white-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent !important;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+  }
+  .white-scrollbar::-webkit-scrollbar-thumb:hover,
+  .white-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #6d6d6d80 !important;
+  }
+
+  /* ✅ 스크롤바 숨김 */
+  .hidden-scrollbar {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  .hidden-scrollbar::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari */
+  }
+  .hidden-scrollbar {
+    -ms-overflow-style: none !important; /* IE, Edge */
+    scrollbar-width: none !important; /* Firefox */
+  }
+}
+
+#__next {
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  cursor:
+    url("/images/icons/cursor-self.svg") 10 10,
+    auto;
+}
+
+body:active {
+  cursor: url("/images/icons/cursor-drag.svg") 10 10;
+}
+
+/* 클릭 가능한 요소 (cursor-pointer) */
+a,
+button,
+.cursor-pointer {
+  cursor:
+    url("/images/icons/cursor-pointer.svg") 10 10,
+    pointer;
+}
+
+/* 일반적인 드래그 가능한 요소 */
+.draggable {
+  cursor:
+    url("/images/icons/cursor-grab.svg") 10 10,
+    grab;
+}
+
+/* 드래그 중인 요소 */
+.is-dragging {
+  cursor:
+    url("/images/icons/cursor-grabbing.svg") 10 10,
+    grabbing;
+}

@@ -1,0 +1,359 @@
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
+import { useDrop } from "react-dnd"; // ✅ useDrop 추가
+import {
+  Asset,
+  AudioFile,
+  PX_PER_SECOND,
+  SelectingBlock,
+  Track,
+} from "@/app/_types/studio";
+import AudioBlock from "./AudioBlock";
+import { useRecordingStore } from "@/app/_store/RecordingStore";
+import LiveAudioBlock from "./LiveAudioBlock";
+import { useTimeStore } from "@/app/_store/TimeStore";
+import { useUserStore } from "@/app/_store/UserStore";
+// import { useAssetsStore } from "@/app/_store/AssetsStore";
+import { findPossibleId } from "@/app/_utils/findPossibleId";
+import { createBlob } from "@/app/_utils/audioUtils";
+import { postAsset } from "@/app/_apis/studio";
+import { useParams } from "next/navigation";
+
+interface AudioTrackTimelineProps {
+  trackId: number;
+  isMuted: boolean;
+  files: AudioFile[];
+  duration: number;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
+  waveColor: string;
+  blockColor: string;
+  audioContext: AudioContext | null;
+  audioBuffers: Map<string, AudioBuffer> | null;
+  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+  assets: Asset[];
+  setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
+  sendAsset: (asset: Asset) => void;
+  selectingBlocks: SelectingBlock[];
+  setSelectingBlocks: React.Dispatch<React.SetStateAction<SelectingBlock[]>>;
+}
+
+const AudioTrackTimeline = ({
+  trackId,
+  isMuted, // 트랙별 음소거 여부부
+  files,
+  duration,
+  setDuration,
+  waveColor,
+  blockColor,
+  audioContext,
+  audioBuffers,
+  setTracks,
+  assets,
+  setAssets,
+  sendAsset,
+  selectingBlocks,
+  setSelectingBlocks,
+}: AudioTrackTimelineProps) => {
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const {
+    audioFiles,
+    offsetMap,
+    isRecording,
+    analyser,
+    currentRecordingTrackId,
+    setAudioFiles,
+  } = useRecordingStore();
+  const { time } = useTimeStore();
+  const { studioMembers, self } = useUserStore();
+  // const { audioFiles: assetAudioFiles, addAudioFile } = useAssetsStore();
+  const isSyncingRef = useRef(false);
+  const lastFilesRef = useRef("");
+  const [liveWidth, setLiveWidth] = useState(0);
+  const initialXRef = useRef<number | null>(null);
+  const recordStartRef = useRef<number | null>(null);
+  const animationIdRef = useRef<number | null>(null);
+  const params = useParams();
+  const pid = params.id;
+
+  useEffect(() => {
+    if (isRecording && currentRecordingTrackId == trackId) {
+      // 녹음 시작
+      if (initialXRef.current === null) {
+        initialXRef.current = time * PX_PER_SECOND;
+      }
+      setLiveWidth(1);
+      recordStartRef.current = performance.now();
+      startWidthLoop();
+    } else {
+      if (recordStartRef.current) {
+        setLiveWidth(0);
+      }
+      recordStartRef.current = null;
+      initialXRef.current = null;
+
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+        animationIdRef.current = null;
+      }
+    }
+
+    return () => {
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+    };
+  }, [isRecording, time]);
+
+  const startWidthLoop = () => {
+    const updateWidth = () => {
+      if (!recordStartRef.current) return;
+      const currentX = time * PX_PER_SECOND;
+      setLiveWidth(Math.max(1, currentX - (initialXRef.current ?? 0)));
+      animationIdRef.current = requestAnimationFrame(updateWidth);
+    };
+    updateWidth();
+  };
+
+  //서버로 변경사항 전송
+  useEffect(() => {
+    const newFilesString = JSON.stringify(files);
+
+    if (!isSyncingRef.current && lastFilesRef.current !== newFilesString) {
+      console.log(`📤 트랙(${trackId})의 변경 사항 서버로 전송`, {
+        trackId,
+        files,
+      });
+
+      // socket.emit("update-track-files", {
+      //   trackId,
+      //   updatedFiles: files,
+      // });
+
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => {
+          if (track.trackId !== trackId) return track;
+
+          return { ...track, files: files.map((f) => ({ ...f })) };
+        }),
+      );
+      isSyncingRef.current = true;
+      lastFilesRef.current = newFilesString;
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 300);
+    } else {
+      console.log(`⚠️ 트랙(${trackId}) 변경 없음 -> 서버 전송 생략`);
+    }
+  }, [files.map((f) => JSON.stringify(f)).join(","), trackId]);
+
+  //녹음된 파일을 추가하는 역할 -------------------------------------------
+  useEffect(() => {
+    // 추가되는 오디오 길이 계산
+    const loadAudioDuration = async (url: string) => {
+      if (!audioContext) return 0;
+      try {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        if (audioBuffers) {
+          audioBuffers.set(url, audioBuffer);
+        }
+
+        return audioBuffer.duration;
+      } catch (error) {
+        console.error(`❌ ${url} 오디오 로드 실패:`, error);
+        return 0;
+      }
+    };
+
+    // 녹음된 파일 audioContext로 추가
+    const updateTrack = async () => {
+      const existingFilesUrls = new Set(files.map((file) => file.url));
+
+      const newFiles = await Promise.all(
+        (audioFiles[trackId] ?? [])
+          .filter((url) => !existingFilesUrls.has(url))
+          .map(async (url) => {
+            const duration = await loadAudioDuration(url);
+
+            if (duration <= 0) {
+              return null;
+            }
+
+            const starPoint = offsetMap[url] || 0;
+
+            const createdFile = {
+              // id: `${trackId}-${Date.now()}`,
+              id: findPossibleId(assets, studioMembers, self?.nickName ?? "나"),
+              url,
+              startPoint: starPoint,
+              duration,
+              trimStart: 0,
+              trimEnd: 0,
+              volume: 1,
+              isMuted: isMuted,
+              speed: 1,
+            };
+
+            sendAsset({
+              id: createdFile.id,
+              url: createdFile.url,
+              duration: createdFile.duration,
+            });
+            return createdFile;
+          }),
+      );
+
+      const validFiles = newFiles.filter((file) => file !== null);
+
+      if (validFiles.length === 0) {
+        return;
+      }
+
+      setTracks((prevTracks) =>
+        prevTracks.map((track) => {
+          if (track.trackId !== trackId) return track;
+
+          const existingFiles = [...track.files];
+          const updatedFiles = [...existingFiles, ...validFiles];
+
+          if (JSON.stringify(existingFiles) === JSON.stringify(updatedFiles)) {
+            return track;
+          }
+
+          return {
+            ...track,
+            files: updatedFiles,
+          };
+        }),
+      );
+
+      setAudioFiles((prev) => ({
+        ...prev,
+        [trackId]: (prev[trackId] ?? []).filter(
+          (url) => !validFiles.some((file) => file.url === url),
+        ),
+      }));
+
+      validFiles.forEach((file) => {
+        delete offsetMap[file.url];
+      });
+    };
+
+    updateTrack();
+  }, [
+    audioFiles,
+    // setAudioFiles,
+    trackId,
+    setTracks,
+    audioContext,
+    audioBuffers,
+  ]);
+  // ------------------------------------------------------------------
+
+  // ✅ 드롭 가능하도록 `useDrop` 추가
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "ASSET", // 드래그 가능한 아이템 타입
+    drop: (item: { id: string; url: string; duration: number }, monitor) => {
+      if (!timelineRef.current) return;
+
+      // 현재 드롭한 위치를 초 단위로 변환
+      const offset = monitor.getClientOffset();
+      if (!offset) return;
+
+      const rect = timelineRef.current.getBoundingClientRect();
+      const dropX = offset.x - rect.left;
+      const startPoint = Math.max(0, Math.round((dropX / 80) * 100) / 100); // 80px = 1초 기준
+
+      setTracks((prevTracks) =>
+        prevTracks.map((track) =>
+          track.trackId === trackId
+            ? {
+                ...track,
+                files: [
+                  ...track.files,
+                  {
+                    id: `${item.id}-${Date.now()}`,
+                    url: item.url,
+                    startPoint,
+                    duration: item.duration ?? 5, // 기본 5초 길이
+                    trimStart: 0,
+                    trimEnd: 0,
+                    volume: 1,
+                    isMuted: false, // 기본 false
+                    speed: 1,
+                  },
+                ],
+              }
+            : track,
+        ),
+      );
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  return (
+    <div
+      ref={(node) => {
+        drop(node);
+        timelineRef.current = node;
+      }}
+      className={`relative flex h-[60px] min-h-0 flex-shrink-0 flex-row items-center justify-start overflow-x-hidden overflow-y-hidden border border-gray-300 ${
+        isOver ? "bg-gray-200" : ""
+      }`} // 드롭 시 색상 변경
+      style={{ width: `${duration * 80}px` }}
+    >
+      <div className="relative flex h-full items-center justify-center">
+        {files.map((file, index) => {
+          const width = `${
+            (file.duration - file.trimStart - file.trimEnd) * 80
+          }px`;
+
+          return (
+            <div
+              key={file.id}
+              className="relative flex items-center justify-start"
+            >
+              <AudioBlock
+                file={{ ...file, isMuted: isMuted }} // 추가
+                trackId={trackId}
+                fileIdx={index}
+                width={width}
+                waveColor={waveColor}
+                blockColor={blockColor}
+                audioContext={audioContext}
+                audioBuffers={audioBuffers}
+                setTracks={setTracks}
+                timelineRef={timelineRef}
+                selecting={selectingBlocks.some(
+                  (block) => block.selectedAudioBlockId === file.id,
+                )}
+                selectingUser={
+                  selectingBlocks.find(
+                    (block) => block.selectedAudioBlockId === file.id,
+                  )?.memberId || null
+                }
+                setSelectingBlocks={setSelectingBlocks}
+              />
+            </div>
+          );
+        })}
+
+        {isRecording && currentRecordingTrackId === trackId && analyser && (
+          <LiveAudioBlock
+            waveColor={waveColor}
+            isRecording={isRecording}
+            analyser={analyser}
+            blockColor={blockColor}
+            width={liveWidth}
+            initialX={initialXRef.current ?? 0}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AudioTrackTimeline;

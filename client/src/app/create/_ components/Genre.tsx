@@ -1,0 +1,42 @@
+import React, { useState } from "react";
+import Badge from "@/app/_components/Badge";
+import H2 from "@/app/_components/H2";
+
+interface GenreProps {
+  onChange: (selected: string[]) => void;
+}
+
+const Genre = ({ onChange }: GenreProps) => {
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+
+  const handleBadgeClick = (title: string) => {
+    const newSelection = selectedBadge === title ? null : title; // 같은 배지를 클릭하면 선택 해제
+    setSelectedBadge(newSelection);
+    onChange(newSelection ? [newSelection] : []);
+  };
+
+  return (
+    <div className="p-4">
+      <H2 className="mb-2">GENRE</H2>
+      <div className="flex flex-wrap gap-2">
+        {[
+          "액션",
+          "코믹",
+          "스릴러",
+          "공포",
+          "로맨스",
+          "SF",
+          "판타지",
+          "일상",
+          "기타",
+        ].map((title) => (
+          <div key={title} onClick={() => handleBadgeClick(title)}>
+            <Badge title={title} selected={selectedBadge === title} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Genre;
