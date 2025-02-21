@@ -22,7 +22,7 @@ export interface ParsedScriptEntry {
 export default function Page() {
   const router = useRouter();
   // 폼 데이터를 관리하기 위한 상태 변수
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>("프로젝트 제목을 입력해주세요.");
   const [script, setScript] = useState<string>("");
   const [parsedScript, setParsedScript] = useState<ParsedScriptEntry[]>([]); // 파싱된 Script 데이터
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -141,12 +141,12 @@ export default function Page() {
 
       const result = await response.json();
       const id = result.id; // 서버 응답에서 id 추출
-      alert("모집글이 성공적으로 작성되었습니다!");
+      toast.error("프로젝트가 성공적으로 생성되었습니다!");
 
       router.replace(`/lobby/${id}/studio`);
     } catch (error) {
       console.error("Error creating recruitment post:", error);
-      alert("모집글 작성 중 오류가 발생했습니다.");
+      toast.error("프로젝트 생성 중 오류가 발생했습니다.");
     }
   };
 
